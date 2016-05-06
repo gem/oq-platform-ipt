@@ -37,7 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'openquakeplatform.common',
+    'openquakeplatform.standalone',
     'openquakeplatform.ipt',
 )
 
