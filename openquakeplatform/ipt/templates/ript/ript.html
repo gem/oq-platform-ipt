@@ -82,7 +82,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     {% include 'search_scripts.html' %}
     <script>
         help=document.getElementById("help_url");
-        if(typeof help !== "undefined") { help.href+='/explore/'; }
+        if(help != null) { help.href+='/explore/'; }
         var tab_id_s = "{{ request.GET.tab_id }}", tab_id;
         tab_id = parseInt(tab_id_s) - 1;
         if (tab_id < 0 || tab_id > 3) {
