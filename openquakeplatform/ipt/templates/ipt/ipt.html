@@ -19,13 +19,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 {% load i18n %}
 {% load url from future %}
 
-{% block title %} Risk Input Preparation Toolkit - {{ block.super }} {% endblock title %}
+{% block title %} Input Preparation Toolkit - {{ block.super }} {% endblock title %}
 
 {% block extra_head %}
     {{block.super}}
     <link href="{{ STATIC_URL }}css/oqplatform_index.css" rel="stylesheet"/>
     <link href="{{ STATIC_URL }}css/handsontable.full.min.css" rel="stylesheet"/>
-    <link href="{{ STATIC_URL }}ript/css/risk_input_model.css" rel="stylesheet"/>
+    <link href="{{ STATIC_URL }}ipt/css/risk_input_model.css" rel="stylesheet"/>
     <link href="{{ STATIC_URL }}css/jQuery-UI-Bootstrap-0.2.5.css" rel="stylesheet"/>
     <link rel="stylesheet" href="{{ STATIC_URL }}css/absolute_center_spinner.css" />
 {% endblock extra_head %}
@@ -40,7 +40,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
       </div>
       <div id="oq-body-heading">
         {% block oq_body_heading %}
-          <h1>{% trans "Risk Input Preparation Toolkit" %}</h1>
+          <h1>{% trans "Input Preparation Toolkit" %}</h1>
           <br />
         {% endblock oq_body_heading %}
       </div>
@@ -57,19 +57,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
           </ul>
           <!-- EXPOSURE -->
           <div id="tabs-1" class="ex_gid">
-          {% include "ript/tabs/exposure.html" %}
+          {% include "ipt/tabs/exposure.html" %}
           </div>
           <!-- FRAGILITY -->
           <div id="tabs-2" class="ff_gid">
-          {% include "ript/tabs/fragility.html" %}
+          {% include "ipt/tabs/fragility.html" %}
           </div>
           <!-- VULNERABILITY -->
           <div id="tabs-3" class="vf_gid">
-          {% include "ript/tabs/vulnerability.html" %}
+          {% include "ipt/tabs/vulnerability.html" %}
           </div>
           <!-- SITE CONDITIONS -->
           <div id="tabs-4" class="sc_gid">
-          {% include "ript/tabs/site_conds.html" %}
+          {% include "ipt/tabs/site_conds.html" %}
           </div>
         </div>
       </div>
@@ -93,15 +93,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
         var SENDBACK_URL = 'sendback';
     </script>
     <script src="{{ STATIC_URL }}js/handsontable.full.min.js"></script>
-    <script src="{{ STATIC_URL }}ript/js/exposure.js"></script>
-    <script src="{{ STATIC_URL }}ript/js/fragility.js"></script>
-    <script src="{{ STATIC_URL }}ript/js/vulnerability.js"></script>
-    <script src="{{ STATIC_URL }}ript/js/site_conds.js"></script>
-    <script src="{{ STATIC_URL }}ript/js/selectTextareaLine.js"></script>
-    <script src="{{ STATIC_URL }}ript/js/selectAllTextareaText.js"></script>
-    <script src="{{ STATIC_URL }}ript/js/validateAndDisplayNRML.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/exposure.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/fragility.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/vulnerability.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/site_conds.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/selectTextareaLine.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/selectAllTextareaText.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/validateAndDisplayNRML.js"></script>
 {% if request.GET.example_id|add:"0" > 0 and request.GET.example_id|add:"0" < 100 and request.GET.tab_id|add:"0" > 0 and request.GET.tab_id|add:"0" < 5 %}
-<script src="{{ STATIC_URL }}ript/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}.js"></script>
+<script src="{{ STATIC_URL }}ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}.js"></script>
 {% else %}
     <!-- not example found -->
 {% endif %}
