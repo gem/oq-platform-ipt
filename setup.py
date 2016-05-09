@@ -8,10 +8,10 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name='oq-platform-imt',
+    name='oq-platform-ipt',
     version='1.0',
 #    packages=find_packages(),
-    packages=["openquakeplatform.ipt"],
+    packages=["openquakeplatform", "openquakeplatform.ipt"],
     include_package_data=True,
     license='BSD License',  # example license
     description='Input Preparation Toolkit for OpenQuake Platform.',

@@ -1,4 +1,5 @@
 include LICENSE
 include README.rst
+recursive-include openquakeplatform *.py
 recursive-include openquakeplatform/ipt/static *
 recursive-include openquakeplatform/ipt/templates *
