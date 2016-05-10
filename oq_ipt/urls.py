@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.views.generic import TemplateView
 
 
-import openquakeplatform.ipt
+import openquakeplatform_plugins.ipt
 
 js_info_dict = {
     'domain': 'djangojs',
@@ -26,5 +26,5 @@ urlpatterns = patterns('',
     (r'^i18n/', include('django.conf.urls.i18n')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^ipt/', include("openquakeplatform.ipt.urls"), name='home'),
+    url(r'^ipt/', include("openquakeplatform_plugins.ipt.urls"), name='home'),
 )

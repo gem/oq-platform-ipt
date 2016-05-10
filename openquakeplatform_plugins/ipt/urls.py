@@ -18,7 +18,7 @@
 #    <https://www.gnu.org/licenses/agpl.html>.
 
 from django.conf.urls import patterns, url
-from openquakeplatform.ipt import views
+from openquakeplatform_plugins.ipt import views
 from django.views.generic import TemplateView
 
 # Uncomment the next two lines to enable the admin:
