@@ -11,7 +11,7 @@ setup(
     name='oq-platform-ipt',
     version='1.0',
 #    packages=find_packages(),
-    packages=["openquakeplatform_plugins", "openquakeplatform_plugins.ipt"],
+    packages=["openquakeplatform_ipt"],
     include_package_data=True,
     license='BSD License',  # example license
     description='Input Preparation Toolkit for OpenQuake Platform.',

@@ -38,7 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'openquakeplatform.standalone',
-    'openquakeplatform_plugins.ipt',
+    'openquakeplatform_ipt',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
