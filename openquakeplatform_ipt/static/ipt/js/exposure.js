@@ -223,7 +223,18 @@ function ex_updateTable() {
         className: "htRight"
     });
     ex_obj.tbl = $('.ex_gid #table').handsontable('getInstance');
+    {
+        var tbl = ex_obj.tbl;
+        var $box = $('.ex_gid #table');
 
+        ex_obj.tbl.addHook('afterCreateRow', function() {
+            return gem_tableHeightUpdate(tbl, $box);
+        });
+
+        ex_obj.tbl.addHook('afterRemoveRow', function() {
+            return gem_tableHeightUpdate(tbl, $box);
+        });
+    }
     $('.ex_gid #outputText').empty();
     $('.ex_gid #convertBtn').show();
 }

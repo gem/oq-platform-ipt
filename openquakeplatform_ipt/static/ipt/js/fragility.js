@@ -87,11 +87,11 @@ function ff_updateTable (funcType) {
 
     // Create the fragility function set (ffs)
     $('.ff_gid #tables').append(
-        '<div id="table'+ff_obj.tbl_idx+'" class="tables_gid table'+ff_obj.tbl_idx+'_id ffsTableDiv panel panel-default" '+
-            'data-gem-func-type="'+ funcType + '">' +
+        '<div id="table'+ff_obj.tbl_idx+'" class="tables_gid table'+ff_obj.tbl_idx+'_id' +
+            ' ffsTableDiv panel panel-default" data-gem-func-type="'+ funcType + '">' +
           '<strong class="ffsTitle">' + format_name.toUpperCase() + '</strong><button name="destroy_table" class="destroyTable btn-danger btn">Remove Function</button><br>' +
             '<div class="ffsForm" >' +
-                '<label> Function Id: </label>' +
+                '<label> Id: </label>' +
                 '<input name="id" class="ffsTable" type="text"><br>' +
                 '<label> IMT: </label>' +
                 '<input name="imt" class="ffsTable" type="text" placeholder="PGA"><br>' +
@@ -101,7 +101,9 @@ function ff_updateTable (funcType) {
                 '<br>' +
             '</div>'+
             '<div style="width: 45%; float: right;">' +
-              '<div name="tableDiv'+ff_obj.tbl_idx+'" class="theTable"></div><br>' +
+              '<div name="tableDiv'+ff_obj.tbl_idx+ '"' +
+              (funcType == 'discr' ? ' style="width: 100%; height: 100px; overflow: hidden;"' : '') +
+              ' class="theTable"></div><br>' +
             (funcType == 'discr' ?
               '<button id="new_row_add" style="clear: right; float: right; margin-top: 4px;" class="btn">Add Row</button><br>' :
              '') +
@@ -162,6 +164,19 @@ function ff_updateTable (funcType) {
         for (var i = 0; i < ff_obj.limitStates.length; i++) {
             table.setDataAtCell(i, 0, ff_obj.limitStates[i]);
         }
+    }
+
+    if (funcType == 'discr') {
+        var tbl = ff_obj.tbl[ff_obj.tbl_idx];
+        var $box = $('.ff_gid [name="tableDiv'+ff_obj.tbl_idx+'"]');
+
+        tbl.addHook('afterCreateRow', function() {
+            return gem_tableHeightUpdate(tbl, $box);
+        });
+
+        tbl.addHook('afterRemoveRow', function() {
+            return gem_tableHeightUpdate(tbl, $box);
+        });
     }
 
     $('.ff_gid #outputText').empty();

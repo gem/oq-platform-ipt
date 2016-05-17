@@ -223,6 +223,18 @@ function sc_updateTable() {
         className: "htRight"
     });
     sc_obj.tbl = $('.sc_gid #table').handsontable('getInstance');
+    {
+        var tbl = sc_obj.tbl;
+        var $box = $('.sc_gid #table');
+
+        sc_obj.tbl.addHook('afterCreateRow', function() {
+            return gem_tableHeightUpdate(tbl, $box);
+        });
+
+        sc_obj.tbl.addHook('afterRemoveRow', function() {
+            return gem_tableHeightUpdate(tbl, $box);
+        });
+    }
 
     $('.sc_gid #outputText').empty();
     $('.sc_gid #convertBtn').show();
