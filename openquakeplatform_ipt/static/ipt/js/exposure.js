@@ -141,7 +141,9 @@ function checkForValueInHeader(header, argument) {
 
 function ex_updateTable() {
     // Remove any existing table, if already exists
-    $('.ex_gid #table').handsontable('destroy');
+    if ($('.ex_gid #table').handsontable('getInstance') === undefined) {
+        $('.ex_gid #table').handsontable('destroy');
+    }
 
     // Default columns
     ex_obj.header = ['id', 'longitude', 'latitude', 'taxonomy', 'number'];
@@ -226,6 +228,10 @@ function ex_updateTable() {
     {
         var tbl = ex_obj.tbl;
         var $box = $('.ex_gid #table');
+
+        setTimeout(function() {
+            return gem_tableHeightUpdate(tbl, $box);
+        }, 0);
 
         ex_obj.tbl.addHook('afterCreateRow', function() {
             return gem_tableHeightUpdate(tbl, $box);
