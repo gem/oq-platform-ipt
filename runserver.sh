@@ -1,3 +1,6 @@
 #!/bin/bash
-export PYTHONPATH="$PWD/../oq-platform-standalone"
-python ./manage.py runserver ipt-alone.gem.lan:8000
+if ! (echo "$PYTHONPATH" | grep -q ":\?${PWD}:\?" ); then
+    export PYTHONPATH="${PYTHONPATH}:${PWD}"
+fi
+cd ../oq-platform-standalone
+./runserver.sh
