@@ -1,0 +1,32 @@
+<div id="tabs" name="subtabs">
+  <ul class="nav nav-tabs oqplatform">
+    <li class="active"><a href="#subtabs-1">Earthquake Scenarios</a></li>
+    <li><a href="#subtabs-2">Classical Probabilistic</a></li>
+    <li><a href="#subtabs-3">Stochastic Event-Based</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active in" id="subtabs-1">
+      The OpenQuake scenario calculators can be used for the calculation of damage distribution statistics or individual asset and portfolio loss statistics for a portfolio of buildings from a single earthquake rupture scenario, taking into account aleatory and epistemic ground-motion variability.<br>
+      <div class='chbox'>
+        <input style="margin:0;" type="checkbox" name="hazard" checked>
+        <span style="padding: 0 10px 0 10px; vertical-align: middle;">Hazard</span>
+        </div>
+      <div class='chbox'>
+        <input style="margin:0;" type="checkbox" name="risk">
+        <span style="padding: 0 10px 0 10px; vertical-align: middle;">Risk</span>
+        <span style="display: none;" name="risk-content">
+          <input style="margin:0;" type="radio" name="radio-risk" value="damage" checked>
+          <span style="padding: 0 10px 0 10px; vertical-align: middle;">Damage</span>
+          <input style="margin:0;" type="radio" name="radio-risk" value="losses">
+          <span style="padding: 0 10px 0 10px; vertical-align: middle;">Losses</span>
+        </span>
+      </div>
+    </div>
+    <div class="tab-pane" id="subtabs-2">
+The OpenQuake classical probabilistic calculators can be used for the calculation of hazard curves and damage state probabilities or loss curves and loss maps over a specified time period, following the classical integration procedure described by Cornell (1968).
+    </div>
+    <div class="tab-pane" id="subtabs-3">
+      The OpenQuake stochastic event-based calculators can be used for the calculation of event loss tables starting from stochastic event sets. Other results such as loss- exceedance curves, probabilistic loss maps, average annual losses, and insured loss statistics can be obtained by post-processing the event loss tables.
+    </div>
+  </div>
+</div>
