@@ -141,7 +141,7 @@ function checkForValueInHeader(header, argument) {
 
 function ex_updateTable() {
     // Remove any existing table, if already exists
-    if ($('.ex_gid #table').handsontable('getInstance') === undefined) {
+    if ($('.ex_gid #table').handsontable('getInstance') !== undefined) {
         $('.ex_gid #table').handsontable('destroy');
     }
 
