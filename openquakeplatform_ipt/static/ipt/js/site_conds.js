@@ -141,7 +141,7 @@ function checkForValueInHeader(header, argument) {
 
 function sc_updateTable() {
     // Remove any existing table, if already exists
-    if ($('.sc_gid #table').handsontable('getInstance') === undefined) {
+    if ($('.sc_gid #table').handsontable('getInstance') !== undefined) {
         $('.sc_gid #table').handsontable('destroy');
     }
 
