@@ -29,8 +29,7 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
 
-    url(r'^(?P<tab_id>\d+)?$', TemplateView.as_view(
-        template_name="ipt/ipt.html"), name='home'),
+    url(r'^(?P<tab_id>\d+)?$', views.ipt_view, name='home'),
     url(r'^valid$', views.validate_nrml, name='validate_nrml'),
     url(r'^sendback$', views.sendback_nrml, name='sendback_nrml'),
 )

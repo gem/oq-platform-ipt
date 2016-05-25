@@ -5,27 +5,120 @@
     <li><a href="#subtabs-3">Stochastic Event-Based</a></li>
   </ul>
   <div class="tab-content">
-    <div class="tab-pane active in" id="subtabs-1">
+    <div class="tab-pane active in" id="subtabs-1" name="eq-scenario">
       The OpenQuake scenario calculators can be used for the calculation of damage distribution statistics or individual asset and portfolio loss statistics for a portfolio of buildings from a single earthquake rupture scenario, taking into account aleatory and epistemic ground-motion variability.<br>
-      <div class='chbox'>
-        <input style="margin:0;" type="checkbox" name="hazard" checked>
-        <span style="padding: 0 10px 0 10px; vertical-align: middle;">Hazard</span>
+      <div class="alert alert-info" role="alert">1. Choose components of your configuration file and fill related fields.
+
+        <div class="menuItems" style="text-align: center;">
+          <div class="chbox">
+            <input style="margin:0;" type="checkbox" name="hazard" checked="checked">
+            <span class="inlible">Hazard</span>
+          </div>
+          <div class="chbox">
+            <input style="margin:0;" type="checkbox" name="risk">
+            <span class="inlible">Risk</span>
+
+            <span style="display: none;" name="risk-menu">
+              <input style="margin:0;" type="radio" name="eq-scenario_radio-risk" value="damage" checked="checked">
+              <span class="inlible">Damage</span>
+              <input style="margin:0;" type="radio" name="eq-scenario_radio-risk" value="losses">
+              <span class="inlible">Losses</span>
+            </span>
+          </div>
         </div>
-      <div class='chbox'>
-        <input style="margin:0;" type="checkbox" name="risk">
-        <span style="padding: 0 10px 0 10px; vertical-align: middle;">Risk</span>
-        <span style="display: none;" name="risk-content">
-          <input style="margin:0;" type="radio" name="radio-risk" value="damage" checked>
-          <span style="padding: 0 10px 0 10px; vertical-align: middle;">Damage</span>
-          <input style="margin:0;" type="radio" name="radio-risk" value="losses">
-          <span style="padding: 0 10px 0 10px; vertical-align: middle;">Losses</span>
-        </span>
       </div>
+      <div name="hazard-content">
+        <h2>Scenario Hazard</h2>
+
+        <div class="menuItems">
+          <label>Description:</label>
+          <textarea id="description" rows="4" cols="10" value="exposure_model"></textarea>
+        </div>
+        <div class="alert alert-info" role="alert">
+          2. Choose a method to input hazard sites:<br>
+          <div class="menuItems" style="width: 800px; text-align: center;">
+            <div class="chbox">
+              <input type="radio" name="eq-scenario_hazard_sites" value="region-grid" checked="checked">
+              <span class="inlible">Region grid</span>
+            </div>
+            <div class="chbox">
+              <input type="radio" name="eq-scenario_hazard_sites" value="list-of-sites">
+              <span class="inlible">List of sites</span>
+            </div>
+            <div class="chbox">
+              <input type="radio" name="eq-scenario_hazard_sites" value="exposure-model">
+              <span class="inlible">Exposure model</span>
+            </div>
+            <div class="chbox">
+              <input type="radio" name="eq-scenario_hazard_sites" value="site-cond-model">
+              <span class="inlible">Read locations from site conditions</span>
+            </div>
+          </div>
+        </div>
+        <div name="hazard-sites_region-grid">
+          <h3>Region grid</h3>
+          <div class="menuItems">
+            <label>Grid spacing (km):</label>
+            <input name="grid_spacing" type="text"><br>
+          </div>
+          <div class="menuItems" style="/* background-color: green; */ ">
+            <div style="display: inline-block; /* background-color: pink; */ float: left;">
+              <label>Coordinates:</label>
+            </div>
+            <div style="position: relative; display: inline-block; /* background-color: red; */ text-align: center;">
+              <div name="table" style=" width: 300px; height: 120px; overflow: hidden; padding: auto;"></div>
+              <button name="new_row_add" class="btn">New Row</button>
+              <br>
+            </div>
+          </div>
+        </div>
+        <div name="hazard-sites_list-of-sites">
+          <h3>List of sites</h3>
+          <div class="menuItems">
+            <label>Sites:</label>
+            {{ list_of_sites_html }}
+          </div>
+        </div>
+        <div name="hazard-sites_exposure-model">
+          <h3>Exposure model</h3>
+          <div class="menuItems">
+            <label>Exposure:</label>
+            {{ exposure_model_html }}
+          </div>
+        </div>
+        <div name="hazard-sites_site-cond-model">
+        </div>
+
+        <div style="min-height: 50px;">
+          <h3>Site conditions</h3>
+
+          <div class="alert alert-info" role="alert">
+            3. Select a method to specify site conditions:<br>
+            <div class="menuItems" style="width: 800px; text-align: center;">
+              <div class="chbox">
+                <input type="radio" name="eq-scenario_hazard_sitecond" value="uniform-param" checked="checked">
+                <span class="inlible">Use uniform site parameters</span>
+              </div>
+              <div class="chbox">
+                <input type="radio" name="eq-scenario_hazard_sitecond" value="from-file">
+                <span class="inlible">Site conditions file</span>
+              </div>
+            </div>
+          </div>
+          <div name="hazard-sitecond_uniform-param">
+            AAA
+          </div>
+          <div name="hazard-sitecond_from-file">
+            BBB
+          </div>
+        </div>
+      </div>
+    </div> <!-- subtabs-1 end -->
+    <div class="tab-pane" id="subtabs-2" name="class-prob">
     </div>
-    <div class="tab-pane" id="subtabs-2">
-The OpenQuake classical probabilistic calculators can be used for the calculation of hazard curves and damage state probabilities or loss curves and loss maps over a specified time period, following the classical integration procedure described by Cornell (1968).
-    </div>
+
     <div class="tab-pane" id="subtabs-3">
+      ABCD3
       The OpenQuake stochastic event-based calculators can be used for the calculation of event loss tables starting from stochastic event sets. Other results such as loss- exceedance curves, probabilistic loss maps, average annual losses, and insured loss statistics can be obtained by post-processing the event loss tables.
     </div>
   </div>

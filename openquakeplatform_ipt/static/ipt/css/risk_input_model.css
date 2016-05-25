@@ -3,11 +3,12 @@ width: 100%;
  }
 
 .menuItems{
-	left: 0px;
+    left: 0px;
     top: 0px;
     width: 500px;
     text-align: right;
     padding-left: 16px;
+    padding-right: 16px;
     margin: auto;
 }
 
@@ -156,4 +157,9 @@ div.chbox > input {
     position: relative;
     top: -1px;
     *overflow: hidden;
+}
+
+span.inlible {
+    padding: 0 12px 0 0px;
+    vertical-align: middle;
 }

@@ -17,11 +17,15 @@
 import re
 import json
 from lxml import etree
-
+from django.shortcuts import render_to_response
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
                          )
+from django.template import RequestContext
+from openquakeplatform_server import settings
 
+from django import forms
+from models import ServerSide
 
 def _get_error_line(exc_msg):
     # check if the exc_msg contains a line number indication
@@ -134,3 +138,16 @@ def sendback_nrml(request):
         resp['Content-Disposition'] = (
             'attachment; filename="' + filename + '"')
         return resp
+
+def ipt_view(request, **kwargs):
+    list_of_sites_html = forms.FilePathField(path=settings.FILE_PATH_FIELD_DIRECTORY, match=".*\.xml", recursive=True)
+    exposure_model_html = forms.FilePathField(path=settings.FILE_PATH_FIELD_DIRECTORY, match=".*\.xml", recursive=True)
+
+    # import pdb ; pdb.set_trace()
+
+    return render_to_response("ipt/ipt.html",
+                              dict(
+                                  list_of_sites_html=list_of_sites_html.widget.render('list_of_sites', 'list_of_sites'),
+                                  exposure_model_html=exposure_model_html.widget.render('exposure_model', 'exposure_model'),
+                              ),
+                              context_instance=RequestContext(request))
