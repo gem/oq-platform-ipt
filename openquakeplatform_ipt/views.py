@@ -20,7 +20,8 @@ from lxml import etree
 from django.shortcuts import render_to_response
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
-                         )
+                         HttpResponseRedirect
+)
 from django.template import RequestContext
 from openquakeplatform_server import settings
 
@@ -139,15 +140,64 @@ def sendback_nrml(request):
             'attachment; filename="' + filename + '"')
         return resp
 
+
+
+class FileUploadForm(forms.Form):
+    rupture_file_upload = forms.FileField()
+
+
 def ipt_view(request, **kwargs):
+    class FileUploadHtml(forms.Form):
+        rupture_file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + 'rupture_files/'), match=".*\.xml", recursive=True)
+    rupture_file_html = FileUploadHtml()
+    rupture_file_upload = FileUploadForm()
     list_of_sites_html = forms.FilePathField(path=settings.FILE_PATH_FIELD_DIRECTORY, match=".*\.xml", recursive=True)
     exposure_model_html = forms.FilePathField(path=settings.FILE_PATH_FIELD_DIRECTORY, match=".*\.xml", recursive=True)
-
+    site_model_file_html = forms.FilePathField(path=settings.FILE_PATH_FIELD_DIRECTORY, match=".*\.xml", recursive=True)
     # import pdb ; pdb.set_trace()
 
     return render_to_response("ipt/ipt.html",
                               dict(
+                                  rupture_file_html=rupture_file_html,
+                                  rupture_file_upload=rupture_file_upload,
                                   list_of_sites_html=list_of_sites_html.widget.render('list_of_sites', 'list_of_sites'),
                                   exposure_model_html=exposure_model_html.widget.render('exposure_model', 'exposure_model'),
+                                  site_model_file_html=site_model_file_html.widget.render(
+                                      'site_model_file', 'site_model_file'),
                               ),
                               context_instance=RequestContext(request))
+
+def ipt_upload(request):
+    ret = {};
+
+    if request.is_ajax():
+        if request.method == 'POST':
+            form = FileUploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                if request.FILES['rupture_file_upload'].name.endswith('.xml'):
+                    bname = settings.FILE_PATH_FIELD_DIRECTORY + 'rupture_files/'
+                    f = file(bname + request.FILES['rupture_file_upload'].name, "w")
+                    f.write(request.FILES['rupture_file_upload'].read())
+                    f.close()
+
+                    class FileUploadHtml(forms.Form):
+                        rupture_file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + 'rupture_files/'), match=".*\.xml", recursive=True)
+
+                    fileslist = FileUploadHtml()
+
+                    import pdb ; pdb.set_trace()
+                    ret['ret'] = 0;
+                    ret['selected'] = bname + request.FILES['rupture_file_upload'].name
+                    ret['items'] = fileslist.fields['rupture_file_html'].choices
+                    ret['ret_msg'] = 'File ' + str(request.FILES['rupture_file_upload']) + ' uploaded successfully.';
+                else:
+                    ret['ret'] = 1;
+                    ret['ret_msg'] = 'File uploaded isn\'t an XML file.';
+
+                # Redirect to the document list after POST
+                return HttpResponse(json.dumps(ret), content_type="application/json");
+
+    ret['ret'] = 2;
+    ret['ret_msg'] = 'Please provide the xml file.'
+
+    return HttpResponse(json.dumps(ret), content_type="application/json");

@@ -6,7 +6,7 @@
   </ul>
   <div class="tab-content">
     <div class="tab-pane active in" id="subtabs-1" name="eq-scenario">
-      The OpenQuake scenario calculators can be used for the calculation of damage distribution statistics or individual asset and portfolio loss statistics for a portfolio of buildings from a single earthquake rupture scenario, taking into account aleatory and epistemic ground-motion variability.<br>
+      The OpenQuake scenario calculators can be used for the calculation of damage distribution statistics or individual asset and portfolio loss statistics for a portfolio of buildings from a single earthquake rupture scenario, taking into account aleatory and epistemic ground-motion variability.<br><br>
       <div class="alert alert-info" role="alert">1. Choose components of your configuration file and fill related fields.
 
         <div class="menuItems" style="text-align: center;">
@@ -32,8 +32,26 @@
 
         <div class="menuItems">
           <label>Description:</label>
-          <textarea id="description" rows="4" cols="10" value="exposure_model"></textarea>
+          <textarea id="description" rows="4" cols="10" value="exposure_model">Scenario calculation</textarea>
         </div>
+        <h3>Rupture information</h3>
+        <div class="menuItems">
+          <label>Rupture file:</label>
+          {{ rupture_file_html.rupture_file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="rupture-file-new">New</button>
+        </div>
+        <div class="menuItems" name="rupture-file-new" style="display: none;">
+          <div name="msg"></div>
+          <form action="upload" method="post" id="file-upload-form" name="rupture_file" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ rupture_file_upload.rupture_file_upload }}
+            <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+          </form>
+        </div>
+        <div class="menuItems">
+          <label>Rupture mash spacing (km):</label>
+          <input type="text" name="rupture_mash_spacing" value="5.0">
+        </div>
+
         <div class="alert alert-info" role="alert">
           2. Choose a method to input hazard sites:<br>
           <div class="menuItems" style="width: 800px; text-align: center;">
@@ -59,7 +77,7 @@
           <h3>Region grid</h3>
           <div class="menuItems">
             <label>Grid spacing (km):</label>
-            <input name="grid_spacing" type="text"><br>
+            <input type="text" name="grid_spacing" value="5.0">
           </div>
           <div class="menuItems" style="/* background-color: green; */ ">
             <div style="display: inline-block; /* background-color: pink; */ float: left;">
@@ -68,7 +86,7 @@
             <div style="position: relative; display: inline-block; /* background-color: red; */ text-align: center;">
               <div name="table" style=" width: 300px; height: 120px; overflow: hidden; padding: auto;"></div>
               <button name="new_row_add" class="btn">New Row</button>
-              <br>
+              <br><br>
             </div>
           </div>
         </div>
@@ -90,8 +108,6 @@
         </div>
 
         <div style="min-height: 50px;">
-          <h3>Site conditions</h3>
-
           <div class="alert alert-info" role="alert">
             3. Select a method to specify site conditions:<br>
             <div class="menuItems" style="width: 800px; text-align: center;">
@@ -105,16 +121,45 @@
               </div>
             </div>
           </div>
-          <div name="hazard-sitecond_uniform-param">
-            AAA
+          <h3>Site conditions</h3>
+
+          <div name="hazard-sitecond_uniform-param" style="text-align: center;">
+            <table style="width: 500px; margin: auto;">
+              <tr><td style="text-align: left;">
+                  <label>Reference vs30 value (m/s):</label>
+                </td><td style="text-align: right;">
+                  <input type="text" name="reference_vs30_value" value="760">
+              </td></tr>
+              <tr><td style="text-align: left;">
+                  <label>Reference vs30 type:</label>
+                </td><td style="text-align: right;">
+                  <input type="radio" name="eq-scenario_hazard_sitecond_type" value="inferred" checked="checked"><span class="inlible">Inferred</span>
+                  <input type="radio" name="eq-scenario_hazard_sitecond_type" value="measured"><span class="inlible">Measured</span>
+
+              </td></tr>
+              <tr><td style="text-align: left;">
+                  <label>Minimum depth (km)<br>at which vs30 ≥ 2.5 km/s:</label>
+                </td><td style="text-align: right;">
+                  <input type="text" name="reference_depth_to_2pt5km_per_sec" value="5.0">
+              </td></tr>
+              <tr><td style="text-align: left;">
+                  <label style="display: inline-block; float: left;">Minimum depth (m)<br>at which vs30 ≥ 1.0 km/s:</label>
+                </td><td style="text-align: right;">
+                  <input type="text" name="reference_depth_to_1pt0km_per_sec" value="100.0">
+              </td></tr>
+            </table>
           </div>
           <div name="hazard-sitecond_from-file">
-            BBB
+            <div class="menuItems">
+              <label>Site conditions file:</label>
+              {{ site_model_file_html }}
+            </div>
           </div>
         </div>
       </div>
     </div> <!-- subtabs-1 end -->
-    <div class="tab-pane" id="subtabs-2" name="class-prob">
+  <div class="tab-pane" id="subtabs-2" name="class-prob">
+    rebero
     </div>
 
     <div class="tab-pane" id="subtabs-3">

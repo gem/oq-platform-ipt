@@ -30,6 +30,7 @@ urlpatterns = patterns(
     '',
 
     url(r'^(?P<tab_id>\d+)?$', views.ipt_view, name='home'),
+    url(r'^upload$', views.ipt_upload, name='upload'),
     url(r'^valid$', views.validate_nrml, name='validate_nrml'),
     url(r'^sendback$', views.sendback_nrml, name='sendback_nrml'),
 )

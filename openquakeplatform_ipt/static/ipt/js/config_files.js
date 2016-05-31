@@ -8,8 +8,8 @@ var cf_obj = {
 
 $(document).ready(function () {
     $('.cf_gid #tabs[name="subtabs"] a').click(function (e) {
-        e.preventDefault()
-        $(this).tab('show')
+        e.preventDefault();
+        $(this).tab('show');
     });
 
     /* hazard components callbacks */
@@ -25,6 +25,47 @@ $(document).ready(function () {
     }
     $('.cf_gid div[name="eq-scenario"] input[name="risk"]').click(eqScenario_risk_onclick_cb);
     eqScenario_risk_onclick_cb({ target: $('.cf_gid div[name="eq-scenario"] input[name="risk"]')[0] });
+
+    /* hazard rupture info */
+    function eqScenario_ruptureFileNew_cb(e) {
+        $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"] div[name="rupture-file-new"]').toggle();
+    }
+    $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"] button[name="rupture-file-new"]').click(
+        eqScenario_ruptureFileNew_cb);
+
+    function eqScenario_ruptureFileNew_upload(event)
+    {
+        event.preventDefault();
+        var data = new FormData($('form[name="rupture_file"]').get(0));
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: $(this).attr('method'),
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.ret == 0) {
+                    $sel = $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"]'
+                             + ' select[name="rupture_file_html"]')
+                    $sel.empty()
+
+                    var options = null;
+                    for (var i = 0 ; i < data.items.length ; i++) {
+                        $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
+                    }
+                }
+                $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"]'
+                  + ' div[name="rupture-file-new"] div[name="msg"]').html(data.ret_msg);
+                $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"]'
+                  + ' div[name="rupture-file-new"]').delay(3000).slideUp();
+            }
+        });
+        return false;
+    }
+    $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"] div[name="rupture-file-new"]' +
+      ' form[name="rupture_file"]').submit(eqScenario_ruptureFileNew_upload);
 
     /* hazard sites callbacks */
     function eqScenario_hazard_hazardSites_onclick_cb(e) {
@@ -93,3 +134,4 @@ $(document).ready(function () {
             cf_obj.scen_haz_regGrid_coords.alter('insert_row');
         });
 });
+
