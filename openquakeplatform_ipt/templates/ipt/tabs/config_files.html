@@ -170,10 +170,20 @@
             </table>
           </div>
           <div name="hazard-sitecond_from-file">
-            <div class="menuItems">
+
+            <div class="menuItems" name="site-conditions-html">
               <label>Site conditions file:</label>
-              {{ site_model_file_html }}
+              {{ site_conditions_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="site-conditions-new">New</button>
             </div>
+            <div class="menuItems" name="site-conditions-new" style="display: none;">
+              <div name="msg"></div>
+              <form action="upload/site_conditions" method="post" id="file-upload-form" name="site-conditions" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ site_conditions_upload.file_upload }}
+                <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+              </form>
+            </div>
+
           </div>
         </div>
       </div>

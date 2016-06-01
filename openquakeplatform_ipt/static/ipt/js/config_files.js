@@ -84,6 +84,12 @@ $(document).ready(function () {
     $(cf_obj.shpfx + ' div[name="exposure-model-new"]' +
       ' form[name="exposure-model"]').submit(eqScenario_fileNew_upload);
 
+    /* exposure model */
+    $(cf_obj.shpfx + ' button[name="site-conditions-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="site-conditions-new"]' +
+      ' form[name="site-conditions"]').submit(eqScenario_fileNew_upload);
+
 
     /* hazard sites callbacks */
     function eqScenario_hazard_hazardSites_onclick_cb(e) {

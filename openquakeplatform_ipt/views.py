@@ -164,6 +164,9 @@ def ipt_view(request, **kwargs):
     site_model_html = filehtml_create('site_model')
     site_model_upload = FileUpload()
 
+    site_conditions_html = filehtml_create('site_conditions')
+    site_conditions_upload = FileUpload()
+
     return render_to_response("ipt/ipt.html",
                               dict(
                                   rupture_file_html=rupture_file_html,
@@ -174,6 +177,8 @@ def ipt_view(request, **kwargs):
                                   exposure_model_upload=exposure_model_upload,
                                   site_model_html=site_model_html,
                                   site_model_upload=site_model_upload,
+                                  site_conditions_html=site_conditions_html,
+                                  site_conditions_upload=site_conditions_upload,
                               ),
                               context_instance=RequestContext(request))
 
@@ -188,8 +193,8 @@ def ipt_upload(request, **kwargs):
         return HttpResponse(json.dumps(ret), content_type="application/json");
 
     target = kwargs['target']
-    if target not in ['rupture_file', 'list_of_sites',
-                      'exposure_model', 'site_model']:
+    if target not in ['rupture_file', 'list_of_sites', 'exposure_model',
+                      'site_model', 'site_conditions']:
         ret['ret'] = 4;
         ret['ret_msg'] = 'Unknown target "' + target + '".'
         return HttpResponse(json.dumps(ret), content_type="application/json");
