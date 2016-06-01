@@ -57,8 +57,8 @@ $(document).ready(function () {
                     for (var i = 0 ; i < data.items.length ; i++) {
                         $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
                     }
+                    $sel.val(data.selected);
                 }
-                $sel.val(data.selected);
                 $(cf_obj.shpfx + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
                 $(cf_obj.shpfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
             }
