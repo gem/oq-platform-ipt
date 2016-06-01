@@ -142,54 +142,81 @@ def sendback_nrml(request):
 
 
 
-class FileUploadForm(forms.Form):
-    rupture_file_upload = forms.FileField()
+class FileUpload(forms.Form):
+    file_upload = forms.FileField()
 
+
+def filehtml_create(suffix):
+    class FileHtml(forms.Form):
+        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix + '/'), match=".*\.xml", recursive=True)
+    return FileHtml()
 
 def ipt_view(request, **kwargs):
-    class FileUploadHtml(forms.Form):
-        rupture_file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + 'rupture_files/'), match=".*\.xml", recursive=True)
-    rupture_file_html = FileUploadHtml()
-    rupture_file_upload = FileUploadForm()
-    list_of_sites_html = forms.FilePathField(path=settings.FILE_PATH_FIELD_DIRECTORY, match=".*\.xml", recursive=True)
-    exposure_model_html = forms.FilePathField(path=settings.FILE_PATH_FIELD_DIRECTORY, match=".*\.xml", recursive=True)
-    site_model_file_html = forms.FilePathField(path=settings.FILE_PATH_FIELD_DIRECTORY, match=".*\.xml", recursive=True)
-    # import pdb ; pdb.set_trace()
+    rupture_file_html = filehtml_create('rupture_file')
+    rupture_file_upload = FileUpload()
+
+    list_of_sites_html = filehtml_create('list_of_sites')
+    list_of_sites_upload = FileUpload()
+
+    exposure_model_html = filehtml_create('exposure_model')
+    exposure_model_upload = FileUpload()
+
+    site_model_html = filehtml_create('site_model')
+    site_model_upload = FileUpload()
 
     return render_to_response("ipt/ipt.html",
                               dict(
                                   rupture_file_html=rupture_file_html,
                                   rupture_file_upload=rupture_file_upload,
-                                  list_of_sites_html=list_of_sites_html.widget.render('list_of_sites', 'list_of_sites'),
-                                  exposure_model_html=exposure_model_html.widget.render('exposure_model', 'exposure_model'),
-                                  site_model_file_html=site_model_file_html.widget.render(
-                                      'site_model_file', 'site_model_file'),
+                                  list_of_sites_html=list_of_sites_html,
+                                  list_of_sites_upload=list_of_sites_upload,
+                                  exposure_model_html=exposure_model_html,
+                                  exposure_model_upload=exposure_model_upload,
+                                  site_model_html=site_model_html,
+                                  site_model_upload=site_model_upload,
                               ),
                               context_instance=RequestContext(request))
 
-def ipt_upload(request):
+
+def ipt_upload(request, **kwargs):
     ret = {};
 
+    print "UPLOAD"
+    if 'target' not in kwargs:
+        ret['ret'] = 3;
+        ret['ret_msg'] = 'Malformed request.'
+        return HttpResponse(json.dumps(ret), content_type="application/json");
+
+    target = kwargs['target']
+    if target not in ['rupture_file', 'list_of_sites',
+                      'exposure_model', 'site_model']:
+        ret['ret'] = 4;
+        ret['ret_msg'] = 'Unknown target "' + target + '".'
+        return HttpResponse(json.dumps(ret), content_type="application/json");
+    
     if request.is_ajax():
         if request.method == 'POST':
-            form = FileUploadForm(request.POST, request.FILES)
+            class FileUpload(forms.Form):
+                file_upload = forms.FileField()
+            form =  FileUpload(request.POST, request.FILES)
             if form.is_valid():
-                if request.FILES['rupture_file_upload'].name.endswith('.xml'):
-                    bname = settings.FILE_PATH_FIELD_DIRECTORY + 'rupture_files/'
-                    f = file(bname + request.FILES['rupture_file_upload'].name, "w")
-                    f.write(request.FILES['rupture_file_upload'].read())
+                if request.FILES['file_upload'].name.endswith('.xml'):
+                    bname = settings.FILE_PATH_FIELD_DIRECTORY + target + '/'
+                    f = file(bname + request.FILES['file_upload'].name, "w")
+                    f.write(request.FILES['file_upload'].read())
                     f.close()
 
-                    class FileUploadHtml(forms.Form):
-                        rupture_file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + 'rupture_files/'), match=".*\.xml", recursive=True)
+                    suffix = target + "/"
+                    class FileHtml(forms.Form):
+                        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix), match=".*\.xml", recursive=True)
 
-                    fileslist = FileUploadHtml()
+                    fileslist = FileHtml()
 
-                    import pdb ; pdb.set_trace()
+                    # import pdb ; pdb.set_trace()
                     ret['ret'] = 0;
-                    ret['selected'] = bname + request.FILES['rupture_file_upload'].name
-                    ret['items'] = fileslist.fields['rupture_file_html'].choices
-                    ret['ret_msg'] = 'File ' + str(request.FILES['rupture_file_upload']) + ' uploaded successfully.';
+                    ret['selected'] = bname + request.FILES['file_upload'].name
+                    ret['items'] = fileslist.fields['file_html'].choices
+                    ret['ret_msg'] = 'File ' + str(request.FILES['file_upload']) + ' uploaded successfully.';
                 else:
                     ret['ret'] = 1;
                     ret['ret_msg'] = 'File uploaded isn\'t an XML file.';

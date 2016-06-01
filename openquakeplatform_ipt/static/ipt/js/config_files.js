@@ -3,6 +3,7 @@
   */
 
 var cf_obj = {
+    shpfx: '.cf_gid div[name="eq-scenario"] div[name="hazard-content"]',
     scen_haz_regGrid_coords: null
 }
 
@@ -14,7 +15,7 @@ $(document).ready(function () {
 
     /* hazard components callbacks */
     function eqScenario_hazard_onclick_cb(e) {
-        $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"]').css('display', $(e.target).is(':checked') ? '' : 'none');
+        $(cf_obj.shpfx).css('display', $(e.target).is(':checked') ? '' : 'none');
     }
     $('.cf_gid div[name="eq-scenario"] input[name="hazard"]').click(eqScenario_hazard_onclick_cb);
     eqScenario_hazard_onclick_cb({ target: $('.cf_gid div[name="eq-scenario"] input[name="hazard"]')[0]});
@@ -26,12 +27,15 @@ $(document).ready(function () {
     $('.cf_gid div[name="eq-scenario"] input[name="risk"]').click(eqScenario_risk_onclick_cb);
     eqScenario_risk_onclick_cb({ target: $('.cf_gid div[name="eq-scenario"] input[name="risk"]')[0] });
 
-    /* hazard rupture info */
-    function eqScenario_ruptureFileNew_cb(e) {
-        $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"] div[name="rupture-file-new"]').toggle();
+
+    /* generic callback to show upload div */
+    function eqScenario_fileNew_cb(e) {
+        $(cf_obj.shpfx + ' div[name="' + e.target.name + '"]').toggle();
     }
-    $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"] button[name="rupture-file-new"]').click(
-        eqScenario_ruptureFileNew_cb);
+
+    /* rupture file */
+    $(cf_obj.shpfx + ' button[name="rupture-file-new"]').click(
+        eqScenario_fileNew_cb);
 
     function eqScenario_ruptureFileNew_upload(event)
     {
@@ -47,8 +51,7 @@ $(document).ready(function () {
             contentType: false,
             success: function(data) {
                 if (data.ret == 0) {
-                    $sel = $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"]'
-                             + ' select[name="rupture_file_html"]')
+                    $sel = $(cf_obj.shpfx + ' div[name="rupture-file-html"] select[name="file_html"]')
                     $sel.empty()
 
                     var options = null;
@@ -56,16 +59,90 @@ $(document).ready(function () {
                         $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
                     }
                 }
-                $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"]'
-                  + ' div[name="rupture-file-new"] div[name="msg"]').html(data.ret_msg);
-                $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"]'
-                  + ' div[name="rupture-file-new"]').delay(3000).slideUp();
+                $sel.val(data.selected);
+                $(cf_obj.shpfx + ' div[name="rupture-file-new"] div[name="msg"]').html(data.ret_msg);
+                $(cf_obj.shpfx + ' div[name="rupture-file-new"]').delay(3000).slideUp();
             }
         });
         return false;
     }
-    $('.cf_gid div[name="eq-scenario"] div[name="hazard-content"] div[name="rupture-file-new"]' +
+    $(cf_obj.shpfx + ' div[name="rupture-file-new"]' +
       ' form[name="rupture_file"]').submit(eqScenario_ruptureFileNew_upload);
+
+    /* hazard list of sites */
+    $(cf_obj.shpfx + ' button[name="list-of-sites-new"]').click(
+        eqScenario_fileNew_cb);
+
+    function eqScenario_listOfSitesNew_upload(event)
+    {
+        event.preventDefault();
+        var data = new FormData($('form[name="list_of_sites"]').get(0));
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: $(this).attr('method'),
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.ret == 0) {
+                    $sel = $(cf_obj.shpfx + ' div[name="list-of-sites-html"] select[name="file_html"]')
+                    $sel.empty()
+
+                    var options = null;
+                    for (var i = 0 ; i < data.items.length ; i++) {
+                        $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
+                    }
+                }
+                $sel.val(data.selected);
+                $(cf_obj.shpfx + ' div[name="list-of-sites-new"] div[name="msg"]').html(data.ret_msg);
+                $(cf_obj.shpfx + ' div[name="list-of-sites-new"]').delay(3000).slideUp();
+            }
+        });
+        return false;
+    }
+
+    $(cf_obj.shpfx + ' div[name="list-of-sites-new"]' +
+      ' form[name="list_of_sites"]').submit(eqScenario_listOfSitesNew_upload);
+
+
+    /* exposure model */
+    $(cf_obj.shpfx + ' button[name="exposure-model-new"]').click(
+        eqScenario_fileNew_cb);
+
+    function eqScenario_exposureModelNew_upload(event)
+    {
+        event.preventDefault();
+        var data = new FormData($('form[name="exposure_model"]').get(0));
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: $(this).attr('method'),
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.ret == 0) {
+                    $sel = $(cf_obj.shpfx + ' div[name="exposure-model-html"] select[name="file_html"]')
+                    $sel.empty()
+
+                    var options = null;
+                    for (var i = 0 ; i < data.items.length ; i++) {
+                        $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
+                    }
+                }
+                $sel.val(data.selected);
+                $(cf_obj.shpfx + ' div[name="exposure-model-new"] div[name="msg"]').html(data.ret_msg);
+                $(cf_obj.shpfx + ' div[name="exposure-model-new"]').delay(3000).slideUp();
+            }
+        });
+        return false;
+    }
+
+    $(cf_obj.shpfx + ' div[name="exposure-model-new"]' +
+      ' form[name="exposure_model"]').submit(eqScenario_exposureModelNew_upload);
 
     /* hazard sites callbacks */
     function eqScenario_hazard_hazardSites_onclick_cb(e) {
