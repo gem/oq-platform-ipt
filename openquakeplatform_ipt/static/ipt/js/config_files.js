@@ -33,14 +33,13 @@ $(document).ready(function () {
         $(cf_obj.shpfx + ' div[name="' + e.target.name + '"]').toggle();
     }
 
-    /* rupture file */
-    $(cf_obj.shpfx + ' button[name="rupture-file-new"]').click(
-        eqScenario_fileNew_cb);
-
-    function eqScenario_ruptureFileNew_upload(event)
+    /* form widgets and previous remote list select element must follow precise
+       naming schema with '<name>-html' and '<name>-new', see config_files.html */
+    function eqScenario_fileNew_upload(event)
     {
         event.preventDefault();
-        var data = new FormData($('form[name="rupture_file"]').get(0));
+        var name = $(this).attr('name');
+        var data = new FormData($(this).get(0));
 
         $.ajax({
             url: $(this).attr('action'),
@@ -51,7 +50,7 @@ $(document).ready(function () {
             contentType: false,
             success: function(data) {
                 if (data.ret == 0) {
-                    $sel = $(cf_obj.shpfx + ' div[name="rupture-file-html"] select[name="file_html"]')
+                    $sel = $(cf_obj.shpfx + ' div[name="' + name + '-html"] select[name="file_html"]')
                     $sel.empty()
 
                     var options = null;
@@ -60,89 +59,31 @@ $(document).ready(function () {
                     }
                 }
                 $sel.val(data.selected);
-                $(cf_obj.shpfx + ' div[name="rupture-file-new"] div[name="msg"]').html(data.ret_msg);
-                $(cf_obj.shpfx + ' div[name="rupture-file-new"]').delay(3000).slideUp();
+                $(cf_obj.shpfx + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
+                $(cf_obj.shpfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
             }
         });
         return false;
     }
+
+    /* rupture file */
+    $(cf_obj.shpfx + ' button[name="rupture-file-new"]').click(eqScenario_fileNew_cb);
+
     $(cf_obj.shpfx + ' div[name="rupture-file-new"]' +
-      ' form[name="rupture_file"]').submit(eqScenario_ruptureFileNew_upload);
+      ' form[name="rupture-file"]').submit(eqScenario_fileNew_upload);
 
     /* hazard list of sites */
-    $(cf_obj.shpfx + ' button[name="list-of-sites-new"]').click(
-        eqScenario_fileNew_cb);
-
-    function eqScenario_listOfSitesNew_upload(event)
-    {
-        event.preventDefault();
-        var data = new FormData($('form[name="list_of_sites"]').get(0));
-
-        $.ajax({
-            url: $(this).attr('action'),
-            type: $(this).attr('method'),
-            data: data,
-            cache: false,
-            processData: false,
-            contentType: false,
-            success: function(data) {
-                if (data.ret == 0) {
-                    $sel = $(cf_obj.shpfx + ' div[name="list-of-sites-html"] select[name="file_html"]')
-                    $sel.empty()
-
-                    var options = null;
-                    for (var i = 0 ; i < data.items.length ; i++) {
-                        $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
-                    }
-                }
-                $sel.val(data.selected);
-                $(cf_obj.shpfx + ' div[name="list-of-sites-new"] div[name="msg"]').html(data.ret_msg);
-                $(cf_obj.shpfx + ' div[name="list-of-sites-new"]').delay(3000).slideUp();
-            }
-        });
-        return false;
-    }
+    $(cf_obj.shpfx + ' button[name="list-of-sites-new"]').click(eqScenario_fileNew_cb);
 
     $(cf_obj.shpfx + ' div[name="list-of-sites-new"]' +
-      ' form[name="list_of_sites"]').submit(eqScenario_listOfSitesNew_upload);
-
+      ' form[name="list-of-sites"]').submit(eqScenario_fileNew_upload);
 
     /* exposure model */
     $(cf_obj.shpfx + ' button[name="exposure-model-new"]').click(
         eqScenario_fileNew_cb);
-
-    function eqScenario_exposureModelNew_upload(event)
-    {
-        event.preventDefault();
-        var data = new FormData($('form[name="exposure_model"]').get(0));
-
-        $.ajax({
-            url: $(this).attr('action'),
-            type: $(this).attr('method'),
-            data: data,
-            cache: false,
-            processData: false,
-            contentType: false,
-            success: function(data) {
-                if (data.ret == 0) {
-                    $sel = $(cf_obj.shpfx + ' div[name="exposure-model-html"] select[name="file_html"]')
-                    $sel.empty()
-
-                    var options = null;
-                    for (var i = 0 ; i < data.items.length ; i++) {
-                        $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
-                    }
-                }
-                $sel.val(data.selected);
-                $(cf_obj.shpfx + ' div[name="exposure-model-new"] div[name="msg"]').html(data.ret_msg);
-                $(cf_obj.shpfx + ' div[name="exposure-model-new"]').delay(3000).slideUp();
-            }
-        });
-        return false;
-    }
-
     $(cf_obj.shpfx + ' div[name="exposure-model-new"]' +
-      ' form[name="exposure_model"]').submit(eqScenario_exposureModelNew_upload);
+      ' form[name="exposure-model"]').submit(eqScenario_fileNew_upload);
+
 
     /* hazard sites callbacks */
     function eqScenario_hazard_hazardSites_onclick_cb(e) {

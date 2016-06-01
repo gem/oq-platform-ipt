@@ -29,7 +29,6 @@
       </div>
       <div name="hazard-content">
         <h2>Scenario Hazard</h2>
-
         <div class="menuItems">
           <label>Description:</label>
           <textarea id="description" rows="4" cols="10" value="exposure_model">Scenario calculation</textarea>
@@ -42,18 +41,17 @@
         </div>
         <div class="menuItems" name="rupture-file-new" style="display: none;">
           <div name="msg"></div>
-          <form action="upload/rupture_file" method="post" id="file-upload-form" name="rupture_file" enctype="multipart/form-data">
+          <form action="upload/rupture_file" method="post" id="file-upload-form" name="rupture-file" enctype="multipart/form-data">
             {% csrf_token %}
             {{ rupture_file_upload.file_upload }}
             <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
           </form>
         </div>
-        
+
         <div class="menuItems">
           <label>Rupture mash spacing (km):</label>
           <input type="text" name="rupture_mash_spacing" value="5.0">
         </div>
-
         <div class="alert alert-info" role="alert">
           2. Choose a method to input hazard sites:<br>
           <div class="menuItems" style="width: 800px; text-align: center;">
@@ -94,45 +92,41 @@
         </div>
         <div name="hazard-sites_list-of-sites">
           <h3>List of sites</h3>
-          <!-- <div class="menuItems">
-            <label>Sites:</label>
-            {# list_of_sites_html #}
-          </div> -->
 
-        <div class="menuItems" name="list-of-sites-html">
-          <label>Sites:</label>
-          {{ list_of_sites_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="list-of-sites-new">New</button>
+          <div class="menuItems" name="list-of-sites-html">
+            <label>Sites:</label>
+            {{ list_of_sites_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="list-of-sites-new">New</button>
+          </div>
+          <div class="menuItems" name="list-of-sites-new" style="display: none;">
+            <div name="msg"></div>
+            <form action="upload/list_of_sites" method="post" id="file-upload-form" name="list-of-sites" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ list_of_sites_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
         </div>
-        <div class="menuItems" name="list-of-sites-new" style="display: none;">
-          <div name="msg"></div>
-          <form action="upload/list_of_sites" method="post" id="file-upload-form" name="list_of_sites" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ list_of_sites_upload.file_upload }}
-            <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
-          </form>
-        </div>
-          
-        </div>
+
+
         <div name="hazard-sites_exposure-model">
           <h3>Exposure model</h3>
 
-        <div class="menuItems" name="exposure-model-html">
-          <label>Exposure:</label>
-          {{ exposure_model_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="exposure-model-new">New</button>
-        </div>
-        <div class="menuItems" name="exposure-model-new" style="display: none;">
-          <div name="msg"></div>
-          <form action="upload/exposure_model" method="post" id="file-upload-form" name="exposure_model" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ exposure_model_upload.file_upload }}
-            <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
-          </form>
-        </div>
+          <div class="menuItems" name="exposure-model-html">
+            <label>Exposure:</label>
+            {{ exposure_model_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="exposure-model-new">New</button>
+          </div>
+          <div class="menuItems" name="exposure-model-new" style="display: none;">
+            <div name="msg"></div>
+            <form action="upload/exposure_model" method="post" id="file-upload-form" name="exposure-model" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ exposure_model_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
 
-          
-        <div name="hazard-sites_site-cond-model">
+          <div name="hazard-sites_site-cond-model">
+          </div>
         </div>
-
         <div style="min-height: 50px;">
           <div class="alert alert-info" role="alert">
             3. Select a method to specify site conditions:<br>
@@ -184,8 +178,8 @@
         </div>
       </div>
     </div> <!-- subtabs-1 end -->
-  <div class="tab-pane" id="subtabs-2" name="class-prob">
-    rebero
+    <div class="tab-pane" id="subtabs-2" name="class-prob">
+      rebero
     </div>
 
     <div class="tab-pane" id="subtabs-3">
