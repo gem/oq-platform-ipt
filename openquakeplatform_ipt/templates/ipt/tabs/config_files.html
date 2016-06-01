@@ -40,7 +40,7 @@
           {{ rupture_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="rupture-file-new">New</button>
         </div>
         <div class="menuItems" name="rupture-file-new" style="display: none;">
-          <div name="msg"></div>
+          <div name="msg"><br></div>
           <form action="upload/rupture_file" method="post" id="file-upload-form" name="rupture-file" enctype="multipart/form-data">
             {% csrf_token %}
             {{ rupture_file_upload.file_upload }}
@@ -98,7 +98,7 @@
             {{ list_of_sites_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="list-of-sites-new">New</button>
           </div>
           <div class="menuItems" name="list-of-sites-new" style="display: none;">
-            <div name="msg"></div>
+            <div name="msg"><br></div>
             <form action="upload/list_of_sites" method="post" id="file-upload-form" name="list-of-sites" enctype="multipart/form-data">
               {% csrf_token %}
               {{ list_of_sites_upload.file_upload }}
@@ -116,7 +116,7 @@
             {{ exposure_model_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="exposure-model-new">New</button>
           </div>
           <div class="menuItems" name="exposure-model-new" style="display: none;">
-            <div name="msg"></div>
+            <div name="msg"><br></div>
             <form action="upload/exposure_model" method="post" id="file-upload-form" name="exposure-model" enctype="multipart/form-data">
               {% csrf_token %}
               {{ exposure_model_upload.file_upload }}
@@ -176,7 +176,7 @@
               {{ site_conditions_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="site-conditions-new">New</button>
             </div>
             <div class="menuItems" name="site-conditions-new" style="display: none;">
-              <div name="msg"></div>
+              <div name="msg"><br></div>
               <form action="upload/site_conditions" method="post" id="file-upload-form" name="site-conditions" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ site_conditions_upload.file_upload }}

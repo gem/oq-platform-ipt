@@ -30,7 +30,7 @@ $(document).ready(function () {
 
     /* generic callback to show upload div */
     function eqScenario_fileNew_cb(e) {
-        $(cf_obj.shpfx + ' div[name="' + e.target.name + '"]').toggle();
+        $(cf_obj.shpfx + ' div[name="' + e.target.name + '"]').slideToggle();
     }
 
     /* form widgets and previous remote list select element must follow precise
