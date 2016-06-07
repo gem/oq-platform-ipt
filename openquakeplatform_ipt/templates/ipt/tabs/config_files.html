@@ -31,7 +31,7 @@
         <h2>Scenario Hazard</h2>
         <div class="menuItems">
           <label>Description:</label>
-          <textarea id="description" rows="4" cols="10" value="exposure_model">Scenario calculation</textarea>
+          <textarea id="description" rows="4" cols="10" name="description">Scenario calculation</textarea>
         </div>
         <h3>Rupture information</h3>
 
@@ -49,8 +49,8 @@
         </div>
 
         <div class="menuItems">
-          <label>Rupture mash spacing (km):</label>
-          <input type="text" name="rupture_mash_spacing" value="5.0">
+          <label>Rupture mesh spacing (km):</label>
+          <input type="text" name="rupture_mesh_spacing" value="5.0">
         </div>
         <div class="alert alert-info" role="alert">
           2. Choose a method to input hazard sites:<br>
@@ -170,7 +170,6 @@
             </table>
           </div>
           <div name="hazard-sitecond_from-file">
-
             <div class="menuItems" name="site-conditions-html">
               <label>Site conditions file:</label>
               {{ site_conditions_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="site-conditions-new">New</button>
@@ -221,7 +220,7 @@
                 <label style="float: left;">Specify IMT:</label>
                 <div style="width: 300px; margin: auto; float: right;">
                   <select name="imt" multiple="multiple" style="width: 300px;">
-                    <option value="PGA">PGA</option>
+                    <option value="PGA" selected="selected">PGA</option>
                     <option value="SA(0.3)">SA(0.3)</option>
                     <option value="SA(0.7)">SA(0.7)</option>
                     <option value="SA(1.0)">SA(1.0)</option>
@@ -236,14 +235,27 @@
               </div>
             </div>
           </div>
-
+          <div name="hazard-imt_from-file">
+            <div class="menuItems" name="fravul-model-html">
+              <label>Use Fragility/Vulnerability model:</label>
+              {{ fravul_model_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fravul-model-new">New</button>
+            </div>
+            <div class="menuItems" name="fravul-model-new" style="display: none;">
+              <div name="msg"><br></div>
+              <form action="upload/fravul_model" method="post" id="file-upload-form" name="fravul-model" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ fravul_model_upload.file_upload }}
+                <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+              </form>
+            </div>
+          </div>
           <div style="text-align: center;">
             <table style="width: 500px; margin: auto;">
               <tr><td style="text-align: left;">
                   <label>Ground Motion Correlation:</label>
                 </td><td style="text-align: right;">
                   <select name="ground-motion-correlation">
-                    <option value="none">None</option>
+                    <option value="none" selected="selected">None</option>
                     <option value="JB2009">JB2009</option>
                   </select>
               </td></tr>
@@ -264,30 +276,16 @@
               </td></tr>
             </table>
           </div>
-
-          <div name="hazard-imt_from-file">
-
-            <div class="menuItems" name="imt-html">
-              <label>Intensity measure type file:</label>
-              {{ imt_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="imt-new">New</button>
-            </div>
-            <div class="menuItems" name="imt-new" style="display: none;">
-              <div name="msg"><br></div>
-              <form action="upload/imt" method="post" id="file-upload-form" name="imt" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ imt_upload.file_upload }}
-                <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
-              </form>
-            </div>
-
-          </div>
-
         </div>
-      </div>
-      <div style="text-align: center;">
-        <hr>
-        <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button>
+        <div style="text-align: center;">
+          <hr>
+          <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button>
         </div>
+
+        <div id="dialog-message" title="Error" style="display: none; width: 600px;">
+        </div>
+
+      </div> <!-- hazard-content -->
     </div> <!-- subtabs-1 end -->
     <div class="tab-pane" id="subtabs-2" name="class-prob">
       Coming soon ...

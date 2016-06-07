@@ -172,6 +172,9 @@ def ipt_view(request, **kwargs):
     imt_html = filehtml_create('imt')
     imt_upload = FileUpload()
 
+    fravul_model_html = filehtml_create('fravul_model')
+    fravul_model_upload = FileUpload()
+
     return render_to_response("ipt/ipt.html",
                               dict(
                                   g_gmpe=gmpe,
@@ -187,6 +190,8 @@ def ipt_view(request, **kwargs):
                                   site_conditions_upload=site_conditions_upload,
                                   imt_html=imt_html,
                                   imt_upload=imt_upload,
+                                  fravul_model_html=fravul_model_html,
+                                  fravul_model_upload=fravul_model_upload,
                               ),
                               context_instance=RequestContext(request))
 
@@ -202,7 +207,7 @@ def ipt_upload(request, **kwargs):
 
     target = kwargs['target']
     if target not in ['rupture_file', 'list_of_sites', 'exposure_model',
-                      'site_model', 'site_conditions', 'imt']:
+                      'site_model', 'site_conditions', 'imt', 'fravul_model']:
         ret['ret'] = 4;
         ret['ret_msg'] = 'Unknown target "' + target + '".'
         return HttpResponse(json.dumps(ret), content_type="application/json");
