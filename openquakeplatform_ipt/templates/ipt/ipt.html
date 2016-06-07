@@ -28,6 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     <link href="{{ STATIC_URL }}ipt/css/risk_input_model.css" rel="stylesheet"/>
     <link href="{{ STATIC_URL }}css/jQuery-UI-Bootstrap-0.2.5.css" rel="stylesheet"/>
     <link rel="stylesheet" href="{{ STATIC_URL }}css/absolute_center_spinner.css" />
+    <link href="{{ STATIC_URL }}css/sol.css" rel="stylesheet"/>
 {% endblock extra_head %}
 
 
@@ -86,7 +87,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     {{block.super}}
     {% include 'search_scripts.html' %}
     <script>
-        help=document.getElementById("help_url");
+        help = document.getElementById("help_url");
         if(help != null) { help.href+='/explore/'; }
         var tab_id_s = "{{ request.GET.tab_id }}", tab_id;
         tab_id = parseInt(tab_id_s) - 1;
@@ -96,6 +97,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
         $( "#tabs" ).tabs({active: tab_id });
         var VALIDATION_URL = 'valid';
         var SENDBACK_URL = 'sendback';
+        var g_gmpe = {{ g_gmpe|safe }};
+        var g_gmpe_options = [];
+
+        for (var i = 0 ; i < g_gmpe.length ; i++) {
+            g_gmpe_options[i] = { type: "option", value: g_gmpe[i], label: g_gmpe[i] };
+        }
     </script>
     <script src="{{ STATIC_URL }}js/handsontable.full.min.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/common.js"></script>
@@ -112,4 +119,5 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 {% else %}
     <!-- not example found -->
 {% endif %}
+    <script src="{{ STATIC_URL }}js/sol.js"</script>
 {% endblock extra_script %}

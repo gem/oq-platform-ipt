@@ -24,7 +24,7 @@ from django.http import (HttpResponse,
 )
 from django.template import RequestContext
 from openquakeplatform_server import settings
-
+from openquake.hazardlib import gsim
 from django import forms
 from models import ServerSide
 
@@ -152,6 +152,8 @@ def filehtml_create(suffix):
     return FileHtml()
 
 def ipt_view(request, **kwargs):
+    gmpe = list(gsim.get_available_gsims())
+
     rupture_file_html = filehtml_create('rupture_file')
     rupture_file_upload = FileUpload()
 
@@ -167,8 +169,12 @@ def ipt_view(request, **kwargs):
     site_conditions_html = filehtml_create('site_conditions')
     site_conditions_upload = FileUpload()
 
+    imt_html = filehtml_create('imt')
+    imt_upload = FileUpload()
+
     return render_to_response("ipt/ipt.html",
                               dict(
+                                  g_gmpe=gmpe,
                                   rupture_file_html=rupture_file_html,
                                   rupture_file_upload=rupture_file_upload,
                                   list_of_sites_html=list_of_sites_html,
@@ -179,6 +185,8 @@ def ipt_view(request, **kwargs):
                                   site_model_upload=site_model_upload,
                                   site_conditions_html=site_conditions_html,
                                   site_conditions_upload=site_conditions_upload,
+                                  imt_html=imt_html,
+                                  imt_upload=imt_upload,
                               ),
                               context_instance=RequestContext(request))
 
@@ -194,7 +202,7 @@ def ipt_upload(request, **kwargs):
 
     target = kwargs['target']
     if target not in ['rupture_file', 'list_of_sites', 'exposure_model',
-                      'site_model', 'site_conditions']:
+                      'site_model', 'site_conditions', 'imt']:
         ret['ret'] = 4;
         ret['ret_msg'] = 'Unknown target "' + target + '".'
         return HttpResponse(json.dumps(ret), content_type="application/json");

@@ -7,7 +7,7 @@
   <div class="tab-content">
     <div class="tab-pane active in" id="subtabs-1" name="eq-scenario">
       The OpenQuake scenario calculators can be used for the calculation of damage distribution statistics or individual asset and portfolio loss statistics for a portfolio of buildings from a single earthquake rupture scenario, taking into account aleatory and epistemic ground-motion variability.<br><br>
-      <div class="alert alert-info" role="alert">1. Choose components of your configuration file and fill related fields.
+      <div class="alert alert-info" role="alert" style="display: none;">1. Choose components of your configuration file and fill related fields.
 
         <div class="menuItems" style="text-align: center;">
           <div class="chbox">
@@ -127,7 +127,7 @@
           <div name="hazard-sites_site-cond-model">
           </div>
         </div>
-        <div style="min-height: 50px;">
+        <div style="min-height: 50px;"><!-- site condition block -->
           <div class="alert alert-info" role="alert">
             3. Select a method to specify site conditions:<br>
             <div class="menuItems" style="width: 800px; text-align: center;">
@@ -183,18 +183,119 @@
                 <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
               </form>
             </div>
+          </div>
 
+        </div> <!-- end site conditions -->
+
+        <div style="min-height: 200px;"> <!-- calculation parameters -->
+          <div class="alert alert-info" role="alert">
+            4. Specify calculation parameters:<br>
+          </div>
+          <h3>Calculation parameters</h3>
+          <br>
+          <div style="overflow: auto; min-height: 50px;"> <!-- calculation parameters -->
+            <label style="float: left; margin-left: 16px;">Ground Motion<br>Prediction Equations<br>(GMPE):</label>
+            <div style="width: 700px; margin: auto; float: right;">
+              <select name="gmpe" multiple="multiple" style="width: 700px;">
+              </select>
+            </div>
           </div>
         </div>
+        <div>
+          <div class="alert alert-info" role="alert">
+            5. Select a method to specify Intensity Measure Types (IMT):<br>
+            <div class="menuItems" style="width: 800px; text-align: center;">
+              <div class="chbox">
+                <input type="radio" name="eq-scenario_hazard_imt" value="specify-imt" checked="checked">
+                <span class="inlible">Specify IMT</span>
+              </div>
+              <div class="chbox">
+                <input type="radio" name="eq-scenario_hazard_imt" value="from-file">
+                <span class="inlible">Use Fragility/Vulnerability model</span>
+              </div>
+            </div>
+          </div>
+          <div name="hazard-imt_specify-imt">
+            <div> <!-- calculation parameters -->
+              <div style="width: 500px; margin: auto; min-height: 50px; overflow: auto;">
+                <label style="float: left;">Specify IMT:</label>
+                <div style="width: 300px; margin: auto; float: right;">
+                  <select name="imt" multiple="multiple" style="width: 300px;">
+                    <option value="PGA">PGA</option>
+                    <option value="SA(0.3)">SA(0.3)</option>
+                    <option value="SA(0.7)">SA(0.7)</option>
+                    <option value="SA(1.0)">SA(1.0)</option>
+                    <option value="PGV">PGV</option>
+                    <option value="PGD">PGD</option>
+                    <option value="IA">IA</option>
+                    <option value="CAV">CAV</option>
+                    <option value="RSD">RSD</option>
+                    <option value="MMI">MMI</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align: center;">
+            <table style="width: 500px; margin: auto;">
+              <tr><td style="text-align: left;">
+                  <label>Ground Motion Correlation:</label>
+                </td><td style="text-align: right;">
+                  <select name="ground-motion-correlation">
+                    <option value="none">None</option>
+                    <option value="JB2009">JB2009</option>
+                  </select>
+              </td></tr>
+              <tr><td style="text-align: left;">
+                  <label>Level of truncation:</label>
+                </td><td style="text-align: right;">
+                  <input type="text" name="truncation_level" value="0.0">
+              </td></tr>
+              <tr><td style="text-align: left;">
+                  <label>Maximum source-to-site distance (km):</label>
+                </td><td style="text-align: right;">
+                  <input type="text" name="maximum_distance" value="100.0">
+              </td></tr>
+              <tr><td style="text-align: left;">
+                  <label>Number of ground motion fields:</label>
+                </td><td style="text-align: right;">
+                  <input type="text" name="number_of_ground_motion_fields" value="1">
+              </td></tr>
+            </table>
+          </div>
+
+          <div name="hazard-imt_from-file">
+
+            <div class="menuItems" name="imt-html">
+              <label>Intensity measure type file:</label>
+              {{ imt_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="imt-new">New</button>
+            </div>
+            <div class="menuItems" name="imt-new" style="display: none;">
+              <div name="msg"><br></div>
+              <form action="upload/imt" method="post" id="file-upload-form" name="imt" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ imt_upload.file_upload }}
+                <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+              </form>
+            </div>
+
+          </div>
+
+        </div>
       </div>
+      <div style="text-align: center;">
+        <hr>
+        <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button>
+        </div>
     </div> <!-- subtabs-1 end -->
     <div class="tab-pane" id="subtabs-2" name="class-prob">
-      rebero
+      Coming soon ...
     </div>
 
     <div class="tab-pane" id="subtabs-3">
-      ABCD3
-      The OpenQuake stochastic event-based calculators can be used for the calculation of event loss tables starting from stochastic event sets. Other results such as loss- exceedance curves, probabilistic loss maps, average annual losses, and insured loss statistics can be obtained by post-processing the event loss tables.
+      Coming soon ...
     </div>
   </div>
 </div>
+
