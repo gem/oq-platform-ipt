@@ -52,9 +52,9 @@
           <label>Rupture mesh spacing (km):</label>
           <input type="text" name="rupture_mesh_spacing" value="5.0">
         </div>
-        <div class="alert alert-info" role="alert">
+        <div class="alert alert-info ipt-info" role="alert">
           2. Choose a method to input hazard sites:<br>
-          <div class="menuItems" style="width: 800px; text-align: center;">
+          <div style="text-align: center;">
             <div class="chbox">
               <input type="radio" name="eq-scenario_hazard_sites" value="region-grid" checked="checked">
               <span class="inlible">Region grid</span>
@@ -63,6 +63,7 @@
               <input type="radio" name="eq-scenario_hazard_sites" value="list-of-sites">
               <span class="inlible">List of sites</span>
             </div>
+            <div style="clear: both;"></div>
             <div class="chbox">
               <input type="radio" name="eq-scenario_hazard_sites" value="exposure-model">
               <span class="inlible">Exposure model</span>
@@ -128,9 +129,9 @@
           </div>
         </div>
         <div style="min-height: 50px;"><!-- site condition block -->
-          <div class="alert alert-info" role="alert">
+          <div class="alert alert-info ipt-info" role="alert">
             3. Select a method to specify site conditions:<br>
-            <div class="menuItems" style="width: 800px; text-align: center;">
+            <div style="text-align: center;">
               <div class="chbox">
                 <input type="radio" name="eq-scenario_hazard_sitecond" value="uniform-param" checked="checked">
                 <span class="inlible" name="eq-scenario_hazard_sitecond">Use uniform site parameters</span>
@@ -143,8 +144,8 @@
           </div>
           <h3>Site conditions</h3>
 
-          <div name="hazard-sitecond_uniform-param" style="text-align: center;">
-            <table style="width: 500px; margin: auto;">
+          <div name="hazard-sitecond_uniform-param" class="menuItems">
+            <table style="width: 100%; margin: auto;">
               <tr><td style="text-align: left;">
                   <label>Reference vs30 value (m/s):</label>
                 </td><td style="text-align: right;">
@@ -154,16 +155,16 @@
                   <label>Reference vs30 type:</label>
                 </td><td style="text-align: right;">
                   <input type="radio" name="eq-scenario_hazard_sitecond_type" value="inferred" checked="checked"><span class="inlible">Inferred</span>
-                  <input type="radio" name="eq-scenario_hazard_sitecond_type" value="measured"><span class="inlible">Measured</span>
+                  <input type="radio" name="eq-scenario_hazard_sitecond_type" value="measured"><span class="inlible" style="margin-right: 20px">Measured</span>
 
               </td></tr>
               <tr><td style="text-align: left;">
-                  <label>Minimum depth (km)<br>at which vs30 ≥ 2.5 km/s:</label>
+                  <label>Minimum depth (km) at which vs30 ≥ 2.5 km/s:</label>
                 </td><td style="text-align: right;">
                   <input type="text" name="reference_depth_to_2pt5km_per_sec" value="5.0">
               </td></tr>
               <tr><td style="text-align: left;">
-                  <label style="display: inline-block; float: left;">Minimum depth (m)<br>at which vs30 ≥ 1.0 km/s:</label>
+                  <label style="display: inline-block; float: left;">Minimum depth (m) at which vs30 ≥ 1.0 km/s:</label>
                 </td><td style="text-align: right;">
                   <input type="text" name="reference_depth_to_1pt0km_per_sec" value="100.0">
               </td></tr>
@@ -187,23 +188,20 @@
         </div> <!-- end site conditions -->
 
         <div style="min-height: 200px;"> <!-- calculation parameters -->
-          <div class="alert alert-info" role="alert">
+          <div class="alert alert-info ipt-info" role="alert">
             4. Specify calculation parameters:<br>
           </div>
           <h3>Calculation parameters</h3>
           <br>
-          <div style="overflow: auto; min-height: 50px;"> <!-- calculation parameters -->
-            <label style="float: left; margin-left: 16px;">Ground Motion<br>Prediction Equations<br>(GMPE):</label>
-            <div style="width: 700px; margin: auto; float: right;">
-              <select name="gmpe" style="width: 700px;">
+          <div class="menuItems" style="overflow: auto; min-height: 80px;"> <!-- calculation parameters -->
+            <label>Ground Motion Prediction Equations (GMPE):</label><br>
+              <select name="gmpe" style="text-align: left; width: 500px; margin-left: auto;">
               </select>
-            </div>
           </div>
-        </div>
-        <div>
-          <div class="alert alert-info" role="alert">
+
+          <div class="alert alert-info ipt-info" role="alert">
             5. Select a method to specify Intensity Measure Types (IMT):<br>
-            <div class="menuItems" style="width: 800px; text-align: center;">
+            <div style="text-align: center;">
               <div class="chbox">
                 <input type="radio" name="eq-scenario_hazard_imt" value="specify-imt" checked="checked">
                 <span class="inlible">Specify IMT</span>
@@ -214,29 +212,27 @@
               </div>
             </div>
           </div>
-          <div name="hazard-imt_specify-imt">
+          <div class="menuItems" name="hazard-imt_specify-imt">
             <div> <!-- calculation parameters -->
-              <div style="width: 500px; margin: auto; min-height: 50px; overflow: auto;">
-                <label style="float: left;">Specify IMT:</label>
-                <div style="width: 300px; margin: auto; float: right;">
-                  <select name="imt" multiple="multiple" style="width: 300px;">
-                    <option value="PGA" selected="selected">PGA</option>
-                    <option value="SA(0.3)">SA(0.3)</option>
-                    <option value="SA(0.7)">SA(0.7)</option>
-                    <option value="SA(1.0)">SA(1.0)</option>
-                    <option value="PGV">PGV</option>
-                    <option value="PGD">PGD</option>
-                    <option value="IA">IA</option>
-                    <option value="CAV">CAV</option>
-                    <option value="RSD">RSD</option>
-                    <option value="MMI">MMI</option>
-                  </select>
-                </div>
+              <div style="min-height: 50px; overflow: auto;">
+                <label>Specify IMT:</label>
+                <select name="imt" multiple="multiple" style="width: 300px; margin-left: auto; text-align: initial;">
+                  <option value="PGA" selected="selected">PGA</option>
+                  <option value="SA(0.3)">SA(0.3)</option>
+                  <option value="SA(0.7)">SA(0.7)</option>
+                  <option value="SA(1.0)">SA(1.0)</option>
+                  <option value="PGV">PGV</option>
+                  <option value="PGD">PGD</option>
+                  <option value="IA">IA</option>
+                  <option value="CAV">CAV</option>
+                  <option value="RSD">RSD</option>
+                  <option value="MMI">MMI</option>
+                </select>
               </div>
             </div>
           </div>
-          <div name="hazard-imt_from-file">
-            <div class="menuItems" name="fravul-model-html">
+          <div class="menuItems" name="hazard-imt_from-file">
+            <div name="fravul-model-html">
               <label>Use Fragility/Vulnerability model:</label>
               {{ fravul_model_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fravul-model-new">New</button>
             </div>
@@ -249,8 +245,8 @@
               </form>
             </div>
           </div>
-          <div style="text-align: center;">
-            <table style="width: 500px; margin: auto;">
+          <div class="menuItems">
+            <table style="width: 100%; margin: auto;">
               <tr><td style="text-align: left;">
                   <label>Ground Motion Correlation:</label>
                 </td><td style="text-align: right;">

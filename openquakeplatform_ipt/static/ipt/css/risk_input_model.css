@@ -5,11 +5,9 @@ width: 100%;
 .menuItems{
     left: 0px;
     top: 0px;
-    width: 500px;
     text-align: right;
-    padding-left: 16px;
-    padding-right: 16px;
-    margin: auto;
+    margin-left: 150px;
+    margin-right: 150px;
 }
 
 .menuItems label {
@@ -166,4 +164,8 @@ span.inlible {
 
 span.inlible_disabled {
     color: #808080;
+}
+
+div.ipt-info {
+    margin: 8px 150px 16px 150px;
 }
