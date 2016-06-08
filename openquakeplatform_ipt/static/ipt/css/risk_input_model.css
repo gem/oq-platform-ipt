@@ -163,3 +163,7 @@ span.inlible {
     padding: 0 12px 0 0px;
     vertical-align: middle;
 }
+
+span.inlible_disabled {
+    color: #808080;
+}

@@ -120,6 +120,16 @@ $(document).ready(function () {
     function eqScenario_hazard_hazardSites_onclick_cb(e) {
         $(cf_obj.shpfx + ' div[name^="hazard-sites_"]').css('display', 'none');
         $(cf_obj.shpfx + ' div[name="hazard-sites_' + e.target.value + '"]').css('display', '');
+        if (e.target.value == "site-cond-model") {
+            $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"]').prop('disabled', true);
+            $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"][value="from-file"]').prop('checked', true);
+            $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"][value="from-file"]').trigger('click');
+            $(cf_obj.shpfx + ' span[name="eq-scenario_hazard_sitecond"]').addClass('inlible_disabled');
+        }
+        else {
+            $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"]').prop('disabled', false);
+            $(cf_obj.shpfx + ' span[name="eq-scenario_hazard_sitecond"]').removeClass('inlible_disabled');
+        }
     }
     $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sites"]').click(
         eqScenario_hazard_hazardSites_onclick_cb);
