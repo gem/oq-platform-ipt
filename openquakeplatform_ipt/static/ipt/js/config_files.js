@@ -348,7 +348,7 @@ $(document).ready(function () {
         }
 
         /* calculation parameters */
-        gsim = $(cf_obj.shpfx + ' input[type="checkbox"][name="gmpe"]:checked').map(function(_, el) {
+        gsim = $(cf_obj.shpfx + ' input[type="radio"][name="gmpe"]:checked').map(function(_, el) {
             return $(el).val();
         }).get();
 
