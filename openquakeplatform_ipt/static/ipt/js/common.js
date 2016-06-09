@@ -1,3 +1,27 @@
+function basename(filename)
+{
+    return filename.split(/[\\/]/).pop();
+}
+
+function uniqueness_add(files_list, label, fname)
+{
+    files_list.push({label: label, filename: basename(fname) });
+}
+
+function uniqueness_check(files_list)
+{
+    for (var i = 0 ; i < files_list.length - 1; i++) {
+        for (var e = i+1 ; e < files_list.length ; e++) {
+            if (files_list[i].filename == files_list[e].filename) {
+                return "Selected '" + files_list[i].label + "' and '" +
+                    files_list[e].label + "' have the same name.\n";
+            }
+        }
+    }
+    return "";
+}
+
+
 function gem_tableHeightUpdate(tbl, $box) {
     tbl.render();
 

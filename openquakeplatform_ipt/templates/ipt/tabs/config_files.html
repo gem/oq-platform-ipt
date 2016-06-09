@@ -11,7 +11,7 @@
 
         <div class="menuItems" style="text-align: center;">
           <div class="chbox">
-            <input style="margin:0;" type="checkbox" name="hazard" checked="checked">
+            <input style="margin:0;" type="checkbox" name="hazard">
             <span class="inlible">Hazard</span>
           </div>
           <div class="chbox">
@@ -28,7 +28,6 @@
         </div>
       </div>
       <div name="hazard-content">
-        <h2>Scenario Hazard</h2>
         <div class="menuItems">
           <label>Description:</label>
           <textarea id="description" rows="4" cols="10" name="description">Scenario calculation</textarea>
@@ -188,30 +187,43 @@
         </div> <!-- end site conditions -->
 
         <div style="min-height: 200px;"> <!-- calculation parameters -->
-          <div class="alert alert-info ipt-info" role="alert">
-            4. Specify calculation parameters:<br>
-          </div>
           <h3>Calculation parameters</h3>
           <br>
-          <div class="menuItems" style="overflow: auto; min-height: 80px;"> <!-- calculation parameters -->
-            <label>Ground Motion Prediction Equations (GMPE):</label><br>
+          <div class="alert alert-info ipt-info" role="alert">
+            4. Select a method to specify Ground Motion Prediction Equations (GMPE):<br>
+            <div style="text-align: center;">
+              <div class="chbox">
+                <input type="radio" name="eq-scenario_hazard_gmpe" value="specify-gmpe" checked="checked">
+                <span class="inlible">Unique GMPE</span>
+              </div>
+              <div class="chbox">
+                <input type="radio" name="eq-scenario_hazard_gmpe" value="from-file">
+                <span class="inlible">GMPE logic tree file</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="menuItems" name="hazard-gmpe_specify-gmpe" style="overflow: auto; min-height: 80px;">
+            <label>Unique GMPE:</label><br>
               <select name="gmpe" style="text-align: left; width: 500px; margin-left: auto;">
               </select>
           </div>
 
-          <div class="alert alert-info ipt-info" role="alert">
-            5. Select a method to specify Intensity Measure Types (IMT):<br>
-            <div style="text-align: center;">
-              <div class="chbox">
-                <input type="radio" name="eq-scenario_hazard_imt" value="specify-imt" checked="checked">
-                <span class="inlible">Specify IMT</span>
-              </div>
-              <div class="chbox">
-                <input type="radio" name="eq-scenario_hazard_imt" value="from-file">
-                <span class="inlible">Use Fragility/Vulnerability model</span>
-              </div>
+          <div class="menuItems" name="hazard-gmpe_from-file">
+            <div name="fravul-model-html">
+              <label>Use GMPE logic tree file:</label>
+              {{ fravul_model_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fravul-model-new">New</button>
+            </div>
+            <div class="menuItems" name="fravul-model-new" style="margin-right: 0px; display: none;">
+              <div name="msg"><br></div>
+              <form action="upload/fravul_model" method="post" id="file-upload-form" name="fravul-model" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ fravul_model_upload.file_upload }}
+                <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+              </form>
             </div>
           </div>
+
           <div class="menuItems" name="hazard-imt_specify-imt">
             <div> <!-- calculation parameters -->
               <div style="min-height: 50px; overflow: auto;">
@@ -229,20 +241,6 @@
                   <option value="MMI">MMI</option>
                 </select>
               </div>
-            </div>
-          </div>
-          <div class="menuItems" name="hazard-imt_from-file">
-            <div name="fravul-model-html">
-              <label>Use Fragility/Vulnerability model:</label>
-              {{ fravul_model_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fravul-model-new">New</button>
-            </div>
-            <div class="menuItems" name="fravul-model-new" style="display: none;">
-              <div name="msg"><br></div>
-              <form action="upload/fravul_model" method="post" id="file-upload-form" name="fravul-model" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ fravul_model_upload.file_upload }}
-                <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
-              </form>
             </div>
           </div>
           <div class="menuItems">

@@ -149,9 +149,13 @@ class FileUpload(forms.Form):
 def filehtml_create(suffix):
     class FileHtml(forms.Form):
         file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix + '/'), match=".*\.xml", recursive=True)
-    return FileHtml()
+    fh = FileHtml()
+    fh.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
+    fh.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
+    # import pdb ; pdb.set_trace()
+    return fh
 
-def ipt_view(request, **kwargs):
+def view(request, **kwargs):
     gmpe = list(gsim.get_available_gsims())
 
     rupture_file_html = filehtml_create('rupture_file')
@@ -196,7 +200,7 @@ def ipt_view(request, **kwargs):
                               context_instance=RequestContext(request))
 
 
-def ipt_upload(request, **kwargs):
+def upload(request, **kwargs):
     ret = {};
 
     print "UPLOAD"
@@ -229,6 +233,73 @@ def ipt_upload(request, **kwargs):
                         file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix), match=".*\.xml", recursive=True)
 
                     fileslist = FileHtml()
+                    fileslist.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
+                    fileslist.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
+
+                    # import pdb ; pdb.set_trace()
+                    ret['ret'] = 0;
+                    ret['selected'] = bname + request.FILES['file_upload'].name
+                    ret['items'] = fileslist.fields['file_html'].choices
+                    ret['ret_msg'] = 'File ' + str(request.FILES['file_upload']) + ' uploaded successfully.';
+                else:
+                    ret['ret'] = 1;
+                    ret['ret_msg'] = 'File uploaded isn\'t an XML file.';
+
+                # Redirect to the document list after POST
+                return HttpResponse(json.dumps(ret), content_type="application/json");
+
+    ret['ret'] = 2;
+    ret['ret_msg'] = 'Please provide the xml file.'
+
+    return HttpResponse(json.dumps(ret), content_type="application/json");
+
+
+
+def prepare(request, **kwargs):
+    ret = {};
+
+    # import pdb ; pdb.set_trace()
+    print "UPLOAD"
+    if 'data' not in request.POST:
+        ret['ret'] = 3;
+        ret['ret_msg'] = 'Malformed request.'
+        return HttpResponse(json.dumps(ret), content_type="application/json");
+
+    data = json.loads(request.POST['data'])
+    print data
+
+    ret['ret'] = 2;
+    ret['ret_msg'] = 'Please provide the xml file.'
+
+    return HttpResponse(json.dumps(ret), content_type="application/json");
+
+
+    
+    if target not in ['rupture_file', 'list_of_sites', 'exposure_model',
+                      'site_model', 'site_conditions', 'imt', 'fravul_model']:
+        ret['ret'] = 4;
+        ret['ret_msg'] = 'Unknown target "' + target + '".'
+        return HttpResponse(json.dumps(ret), content_type="application/json");
+    
+    if request.is_ajax():
+        if request.method == 'POST':
+            class FileUpload(forms.Form):
+                file_upload = forms.FileField()
+            form =  FileUpload(request.POST, request.FILES)
+            if form.is_valid():
+                if request.FILES['file_upload'].name.endswith('.xml'):
+                    bname = settings.FILE_PATH_FIELD_DIRECTORY + target + '/'
+                    f = file(bname + request.FILES['file_upload'].name, "w")
+                    f.write(request.FILES['file_upload'].read())
+                    f.close()
+
+                    suffix = target + "/"
+                    class FileHtml(forms.Form):
+                        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix), match=".*\.xml", recursive=True)
+
+                    fileslist = FileHtml()
+                    fileslist.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
+                    fileslist.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
 
                     # import pdb ; pdb.set_trace()
                     ret['ret'] = 0;
