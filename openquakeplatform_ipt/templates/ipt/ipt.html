@@ -88,6 +88,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     {% include 'search_scripts.html' %}
     <script>
         help = document.getElementById("help_url");
+        csrf_token = "{% csrf_token %}";
         if(help != null) { help.href+='/explore/'; }
         var tab_id_s = "{{ request.GET.tab_id }}", tab_id;
         tab_id = parseInt(tab_id_s) - 1;

@@ -19,23 +19,23 @@
             <span class="inlible">Risk</span>
 
             <span style="display: none;" name="risk-menu">
-              <input style="margin:0;" type="radio" name="eq-scenario_radio-risk" value="damage" checked="checked">
+              <input style="margin:0;" type="radio" name="risk-type" value="damage" checked="checked">
               <span class="inlible">Damage</span>
-              <input style="margin:0;" type="radio" name="eq-scenario_radio-risk" value="losses">
+              <input style="margin:0;" type="radio" name="risk-type" value="losses">
               <span class="inlible">Losses</span>
             </span>
           </div>
         </div>
       </div>
+      <div class="menuItems">
+        <label>Description:</label>
+        <textarea id="description" rows="4" cols="10" name="description">Scenario calculation</textarea>
+      </div>
       <div name="hazard-content">
-        <div class="menuItems">
-          <label>Description:</label>
-          <textarea id="description" rows="4" cols="10" name="description">Scenario calculation</textarea>
-        </div>
         <h3>Rupture information</h3>
 
         <div class="menuItems" name="rupture-file-html">
-          <label>Rupture file:</label>
+          <label>Rupture model file:</label>
           {{ rupture_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="rupture-file-new">New</button>
         </div>
         <div class="menuItems" name="rupture-file-new" style="display: none;">
@@ -241,6 +241,10 @@
                   <option value="MMI">MMI</option>
                 </select>
               </div>
+              <div>
+                <label>Custom IMTs:</label>
+                <input type="text" name="custom_imt" value="" placeholder="Comma separated custom IMTs">
+              </div>
             </div>
           </div>
           <div class="menuItems">
@@ -249,7 +253,7 @@
                   <label>Ground Motion Correlation:</label>
                 </td><td style="text-align: right;">
                   <select name="ground-motion-correlation">
-                    <option value="none" selected="selected">None</option>
+                    <option value="" selected="selected">None</option>
                     <option value="JB2009">JB2009</option>
                   </select>
               </td></tr>
@@ -273,7 +277,7 @@
         </div>
         <div style="text-align: center;">
           <hr>
-          <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button>
+          <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button><form id="downloadForm" method="post">{% csrf_token %}</form>
         </div>
 
         <div id="dialog-message" title="Error" style="display: none; width: 600px;">

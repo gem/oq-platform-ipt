@@ -13,9 +13,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
+import os
 import re
+import time
 import json
+import zipfile
+import tempfile
+from email.Utils import formatdate
+
 from lxml import etree
 from django.shortcuts import render_to_response
 from django.http import (HttpResponse,
@@ -215,7 +220,7 @@ def upload(request, **kwargs):
         ret['ret'] = 4;
         ret['ret_msg'] = 'Unknown target "' + target + '".'
         return HttpResponse(json.dumps(ret), content_type="application/json");
-    
+
     if request.is_ajax():
         if request.method == 'POST':
             class FileUpload(forms.Form):
@@ -258,62 +263,130 @@ def upload(request, **kwargs):
 def prepare(request, **kwargs):
     ret = {};
 
-    # import pdb ; pdb.set_trace()
-    print "UPLOAD"
-    if 'data' not in request.POST:
-        ret['ret'] = 3;
-        ret['ret_msg'] = 'Malformed request.'
-        return HttpResponse(json.dumps(ret), content_type="application/json");
+    if request.POST.get('data', '') == '':
+        ret['ret'] = 3
+        ret['msg'] = 'Malformed request.'
+        return HttpResponse(json.dumps(ret), content_type="application/json")
 
-    data = json.loads(request.POST['data'])
-    print data
+    data = json.loads(request.POST.get('data'))
 
-    ret['ret'] = 2;
-    ret['ret_msg'] = 'Please provide the xml file.'
+    (fd, fname) = tempfile.mkstemp(suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
+    fzip = os.fdopen(fd, 'w')
+    z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
-    return HttpResponse(json.dumps(ret), content_type="application/json");
+    jobini =  "# Generated automatically with IPT at %s\n" % formatdate()
+    jobini += "description = %s\n" % data['description']
+
+    # FIXME depends on hazard + risk combination
+    jobini += "calculation_mode = scenario\n"
+
+    jobini += "random_seed = 113\n"
+
+    jobini += "\n[Rupture information]\n"
+    #            #####################
+
+    jobini += "rupture_model_file = %s\n" % os.path.basename(data['rupture_model_file'])
+    z.write(data['rupture_model_file'], os.path.basename(data['rupture_model_file']))
+
+    jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
+
+    jobini += "\n[Hazard sites]\n"
+    #            ##############
+
+    if data['hazard_sites_choice'] == 'region-grid':
+        jobini += "region_grid_spacing = %s\n" % data['grid_spacing']
+        is_first = True
+        jobini += "region = "
+        for el in data['reggrid_coords_data']:
+            if is_first:
+                is_first = False
+            else:
+                jobini += ", "
+            jobini += "%s %s" % (el[0], el[1])
+        jobini += "\n"
+    elif data['hazard_sites_choice'] == 'list-of-sites':
+        jobini += "sites = %s\n" % os.path.basename(data['list_of_sites'])
+        z.write(data['list_of_sites'], os.path.basename(data['list_of_sites']))
+    elif data['hazard_sites_choice'] == 'exposure-model':
+        jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
+        z.write(data['exposure_model'], os.path.basename(data['exposure_model']))
+    elif data['hazard_sites_choice'] == 'site-cond-model':
+        if data['site_conditions_choice'] != 'from-file':
+            ret['ret'] = 4
+            ret['msg'] = 'Input hazard sites choices mismatch method to specify site conditions.'
+            return HttpResponse(json.dumps(ret), content_type="application/json")
+    else:
+        ret['ret'] = 4
+        ret['msg'] = 'Unknown hazard_sites_choice.'
+        return HttpResponse(json.dumps(ret), content_type="application/json")
+
+    jobini += "\n[Site conditions]\n"
+    #            #################
+
+    if data['site_conditions_choice'] == 'from-file':
+        jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
+        z.write(data['site_model_file'], os.path.basename(data['site_model_file']))
+    elif data['site_conditions_choice'] == 'uniform-param':
+        jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
+        jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
+        jobini += "reference_depth_to_2pt5km_per_sec = %s\n" % data['reference_depth_to_2pt5km_per_sec']
+        jobini += "reference_depth_to_1pt0km_per_sec = %s\n" % data['reference_depth_to_1pt0km_per_sec']
+
+    jobini += "\n[calculation parameters]\n"
+    #            ########################
+
+    if data['gmpe_choice'] == 'specify-gmpe':
+        jobini += "gsim = %s\n" % data['gsim'][0]
+    elif data['gmpe_choice'] == 'from-file':
+        jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(data['fravul_model_file'])
+        z.write(data['fravul_model_file'], os.path.basename(data['fravul_model_file']))
+
+    jobini += "intensity_measure_types = "
+    is_first = True
+    for imt in data['intensity_measure_types']:
+        if is_first:
+            is_first = False
+        else:
+            jobini += ", "
+        jobini += imt
+    if data['custom_imt'] != '':
+        if not is_first:
+            jobini += ", "
+        jobini += data['custom_imt']
+    jobini += "\n"
+
+    jobini += "ground_motion_correlation_model = %s\n" % data['ground_motion_correlation_model']
+    # FIXME
+
+    jobini += "truncation_level = %s\n" % data['truncation_level']
+    jobini += "maximum_distance = %s\n" % data['maximum_distance']
+    jobini += "number_of_ground_motion_fields = %s\n" % data['number_of_ground_motion_fields']
+
+    print jobini
+
+    z.writestr('job.ini', jobini)
+    z.close()
+
+    ret['ret'] = 0
+    ret['msg'] = 'Success, download it.'
+    ret['zipname'] = os.path.basename(fname)
+    return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-    
-    if target not in ['rupture_file', 'list_of_sites', 'exposure_model',
-                      'site_model', 'site_conditions', 'imt', 'fravul_model']:
-        ret['ret'] = 4;
-        ret['ret_msg'] = 'Unknown target "' + target + '".'
-        return HttpResponse(json.dumps(ret), content_type="application/json");
-    
-    if request.is_ajax():
-        if request.method == 'POST':
-            class FileUpload(forms.Form):
-                file_upload = forms.FileField()
-            form =  FileUpload(request.POST, request.FILES)
-            if form.is_valid():
-                if request.FILES['file_upload'].name.endswith('.xml'):
-                    bname = settings.FILE_PATH_FIELD_DIRECTORY + target + '/'
-                    f = file(bname + request.FILES['file_upload'].name, "w")
-                    f.write(request.FILES['file_upload'].read())
-                    f.close()
+def download(request):
 
-                    suffix = target + "/"
-                    class FileHtml(forms.Form):
-                        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix), match=".*\.xml", recursive=True)
+    if request.method == 'POST':
+        zipname = request.POST.get('zipname', '')
+        if zipname == '':
+            return HttpResponseBadRequest('No zipname provided.')
+        absfile = os.path.join(tempfile.gettempdir(), zipname)
+        if not os.path.isfile(absfile):
+            return HttpResponseBadRequest('Zipfile not found.')
+        with open(absfile, 'r') as content_file:
+            content = content_file.read()
 
-                    fileslist = FileHtml()
-                    fileslist.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
-                    fileslist.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
-
-                    # import pdb ; pdb.set_trace()
-                    ret['ret'] = 0;
-                    ret['selected'] = bname + request.FILES['file_upload'].name
-                    ret['items'] = fileslist.fields['file_html'].choices
-                    ret['ret_msg'] = 'File ' + str(request.FILES['file_upload']) + ' uploaded successfully.';
-                else:
-                    ret['ret'] = 1;
-                    ret['ret_msg'] = 'File uploaded isn\'t an XML file.';
-
-                # Redirect to the document list after POST
-                return HttpResponse(json.dumps(ret), content_type="application/json");
-
-    ret['ret'] = 2;
-    ret['ret_msg'] = 'Please provide the xml file.'
-
-    return HttpResponse(json.dumps(ret), content_type="application/json");
+        resp = HttpResponse(content=content,
+                            content_type='application/zip')
+        resp['Content-Disposition'] = (
+            'attachment; filename="oq-input.zip"')
+        return resp

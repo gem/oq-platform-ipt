@@ -148,7 +148,6 @@ $(document).ready(function () {
                   + ' input[name="eq-scenario_hazard_sitecond"][value="uniform-param"]')[0]
     });
 
-
     /* hazard gmpe callbacks */
     function eqScenario_hazard_gmpe_onclick_cb(e) {
         $(cf_obj.shpfx + ' div[name^="hazard-gmpe_"]').css('display', 'none');
@@ -172,7 +171,7 @@ $(document).ready(function () {
         startCols: 2,
         maxCols: 2,
         viewportRowRenderingOffset: 100,
-        className: "htRight",
+        className: "htLeft",
         stretchH: "all"
     });
     cf_obj.scen_haz_regGrid_coords = $(cf_obj.shpfx + ' div[name="table"]').handsontable('getInstance');
@@ -225,10 +224,13 @@ $(document).ready(function () {
             obj: null
         };
         var obj = {
+            is_hazard: false,
+            is_risk: false,
+            risk_type: '',
             description: null,
 
             /* rupture information */
-            rupture_information: null,
+            rupture_model_file: null,
             rupture_mesh_spacing: null,
 
             /* hazard sites */
@@ -258,21 +260,28 @@ $(document).ready(function () {
             number_of_ground_motion_fields: null
         };
 
-        obj.description = $(cf_obj.shpfx + ' textarea[name="description"]').val();
+        obj.is_hazard = $('.cf_gid div[name="eq-scenario"] input[type="checkbox"][name="hazard"]').is(':checked');
+        obj.is_risk = $('.cf_gid div[name="eq-scenario"] input[type="checkbox"][name="risk"]').is(':checked');
+        if (obj.is_risk) {
+            obj.risk_type = $('.cf_gid div[name="eq-scenario"] input[type="radio"][name="risk-type"]:checked').val();
+        }
+
+
+        obj.description = $('.cf_gid div[name="eq-scenario"] textarea[name="description"]').val();
         if (obj.description == '') {
             ret.str += "'Description' field is empty.\n";
         }
 
         /* rupture information */
-        obj.rupture_information = $(cf_obj.shpfx + ' div[name="rupture-file-html"] select[name="file_html"]').val();
-        if (obj.rupture_information == '') {
+        obj.rupture_model_file = $(cf_obj.shpfx + ' div[name="rupture-file-html"] select[name="file_html"]').val();
+        if (obj.rupture_model_file == '') {
             ret.str += "'Rupture file' field is empty.\n";
         }
         obj.rupture_mesh_spacing = $(cf_obj.shpfx + ' input[name="rupture_mesh_spacing"]').val();
         if (!isFloat(obj.rupture_mesh_spacing) || parseFloat(obj.rupture_mesh_spacing) <= 0.0) {
             ret.str += "'Rupture Mesh Spacing' field isn't greater than 0 float number (" + obj.rupture_mesh_spacing + ").\n";
         }
-        uniqueness_add(files_list, 'rupture information', obj.rupture_information);
+        uniqueness_add(files_list, 'rupture model file', obj.rupture_model_file);
 
         /* hazard sites */
         obj.hazard_sites_choice = $(cf_obj.shpfx + ' input[type="radio"]'
@@ -343,9 +352,13 @@ $(document).ready(function () {
                 ret.str += "Reference vs30 type choice (" + obj.reference_vs30_type + ") unknown";
             }
 
+            obj.reference_depth_to_2pt5km_per_sec = $(cf_obj.shpfx + ' div[name="hazard-sitecond_uniform-param"]'
+                                     + ' input[type="text"][name="reference_depth_to_2pt5km_per_sec"]').val();
             if (!isFloat(obj.reference_depth_to_2pt5km_per_sec) || parseFloat(obj.reference_depth_to_2pt5km_per_sec) < 0.0) {
                 ret.str += "'Minimum depth at which vs30 >= 2.5' field isn't positive float number (" + obj.reference_depth_to_2pt5km_per_sec + ").\n";
             }
+            obj.reference_depth_to_1pt0km_per_sec = $(cf_obj.shpfx + ' div[name="hazard-sitecond_uniform-param"]'
+                                     + ' input[type="text"][name="reference_depth_to_1pt0km_per_sec"]').val();
             if (!isFloat(obj.reference_depth_to_1pt0km_per_sec) || parseFloat(obj.reference_depth_to_1pt0km_per_sec) < 0.0) {
                 ret.str += "'Minimum depth at which vs30 >= 1.0' field isn't positive float number (" + obj.reference_depth_to_1pt0km_per_sec + ").\n";
             }
@@ -399,16 +412,17 @@ $(document).ready(function () {
                     return $(el).val();
                 }).get();
 
-        if (obj.intensity_measure_types.length < 1) {
+        obj.custom_imt = $(cf_obj.shpfx + ' input[name="custom_imt"]').val();
+
+        if (obj.intensity_measure_types.length < 1 && obj.custom_imt == "") {
             ret.str += "IMT's not selected.\n";
         }
-
 
         obj.ground_motion_correlation_model = $(
             cf_obj.shpfx + ' select[name="ground-motion-correlation"]').val();
 
-        if (["none", "JB2009"].indexOf(obj.ground_motion_correlation_model) == -1) {
-            ret.str += "'Ground Motion Correlation' field unknown or empty.\n";
+        if (["", "JB2009"].indexOf(obj.ground_motion_correlation_model) == -1) {
+            ret.str += "'Ground Motion Correlation' field unknown.\n";
         }
 
         obj.truncation_level = $(cf_obj.shpfx + ' input[name="truncation_level"]').val();
@@ -465,20 +479,17 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function(data) {
-                console.log("SUCCESS! ");
-
-                // if (data.ret == 0) {
-                //     $sel = $(cf_obj.shpfx + ' div[name="' + name + '-html"] select[name="file_html"]')
-                //     $sel.empty()
-
-                //     var options = null;
-                //     for (var i = 0 ; i < data.items.length ; i++) {
-                //         $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
-                //     }
-                //     $sel.val(data.selected);
-                // }
-                // $(cf_obj.shpfx + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
-                // $(cf_obj.shpfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
+                if (data.ret == 0) {
+                    var $form = $('.cf_gid #downloadForm');
+                    $form.empty();
+                    $form.append(csrf_token);
+                    $form.attr({'action': 'download'});
+                    $new_input = $('<input/>');
+                    $new_input.attr('type', 'hidden').attr({'name': 'zipname', 'value': data.zipname });
+                    $form.append($new_input);
+                    console.log($form);
+                    $form.submit();
+                }
             }
         });
         return false;
