@@ -16,7 +16,7 @@
 */
 
 var cf_obj = {
-    shpfx: '.cf_gid div[name="eq-scenario"] div[name="hazard-content"]',
+    shpfx: '.cf_gid div[name="eq-scenario"]',
     scen_haz_regGrid_coords: null
 }
 
@@ -26,20 +26,108 @@ $(document).ready(function () {
         $(this).tab('show');
     });
 
+    function scenario_sect_manager() {
+        console.log('scenario_sect_manager');
+        var hazard = null; // null or hazard
+        var risk = null;   // null, damage or loss
+        var hazard_sites_choice = null; // null, region-grid, list-of-sites, exposure-model, site-cond-model
+
+        if ($(cf_obj.shpfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
+            hazard = 'hazard';
+        }
+        if ($(cf_obj.shpfx + ' input[type="checkbox"][name="risk"]').is(':checked')) {
+            risk = $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]:checked').val();
+        }
+
+        $target = $(cf_obj.shpfx + ' div[name="hazard-sites"]');
+
+        // Hazard sites
+        if (hazard != null) {
+            hazard_sites_choice = $(cf_obj.shpfx + ' input[type="radio"]'
+                                    + '[name="eq-scenario_hazard_sites"]:checked').val();
+            $target.css('display', '');
+        }
+        else {
+            $target.css('display', 'none');
+        }
+
+        // Rupture information
+        $target = $(cf_obj.shpfx + ' div[name="rupture-information"]');
+        if (hazard != null)
+            $target.css('display', '');
+        else
+            $target.css('display', 'none');
+
+        // Region grid
+        $target = $(cf_obj.shpfx + ' div[name="region-grid"]');
+        if (hazard != null && hazard_sites_choice == 'region-grid')
+            $target.css('display', '');
+        else
+            $target.css('display', 'none');
+
+        // List of sites
+        $target = $(cf_obj.shpfx + ' div[name="list-of-sites"]');
+        if (hazard != null && hazard_sites_choice == 'list-of-sites')
+            $target.css('display', '');
+        else
+            $target.css('display', 'none');
+
+        // Exposure model
+        $target = $(cf_obj.shpfx + ' div[name="exposure-model"]');
+        if ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null)
+            $target.css('display', '');
+        else
+            $target.css('display', 'none');
+
+        // Site cond model (force site conditions to file)
+        $target = $(cf_obj.shpfx + ' div[name="site-conditions"]');
+        if (hazard != null) {
+            $target.css('display', '');
+
+            if (hazard_sites_choice == 'site-cond-model') {
+                $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"]').prop('disabled', true);
+                $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"][value="from-file"]').prop('checked', true);
+                $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"][value="from-file"]').trigger('click');
+                $(cf_obj.shpfx + ' span[name="eq-scenario_hazard_sitecond"]').addClass('inlible_disabled');
+            }
+            else {
+                $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"]').prop('disabled', false);
+                $(cf_obj.shpfx + ' span[name="eq-scenario_hazard_sitecond"]').removeClass('inlible_disabled');
+            }
+        }
+        else {
+            $target.css('display', 'none');
+        }
+
+        // calculation parameters
+        $target = $(cf_obj.shpfx + ' div[name="calculation-parameters"]');
+        if (hazard != null)
+            $target.css('display', '');
+        else
+            $target.css('display', 'none');
+    }
+
     /* hazard components callbacks */
     function eqScenario_hazard_onclick_cb(e) {
-        $(cf_obj.shpfx).css('display', $(e.target).is(':checked') ? '' : 'none');
+        scenario_sect_manager();
     }
-    $('.cf_gid div[name="eq-scenario"] input[name="hazard"]').click(eqScenario_hazard_onclick_cb);
-    eqScenario_hazard_onclick_cb({ target: $('.cf_gid div[name="eq-scenario"] input[name="hazard"]')[0]});
+    $(cf_obj.shpfx + ' input[name="hazard"]').click(eqScenario_hazard_onclick_cb);
+    eqScenario_hazard_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="hazard"]')[0]});
 
     /* risk components callbacks */
     function eqScenario_risk_onclick_cb(e) {
-        $('.cf_gid div[name="eq-scenario"] span[name="risk-menu"]').css('display', $(e.target).is(':checked') ? '' : 'none');
+        $(cf_obj.shpfx + ' span[name="risk-menu"]').css('display', $(e.target).is(':checked') ? '' : 'none');
+        scenario_sect_manager();
     }
-    $('.cf_gid div[name="eq-scenario"] input[name="risk"]').click(eqScenario_risk_onclick_cb);
-    eqScenario_risk_onclick_cb({ target: $('.cf_gid div[name="eq-scenario"] input[name="risk"]')[0] });
+    $(cf_obj.shpfx + ' input[name="risk"]').click(eqScenario_risk_onclick_cb);
+    eqScenario_risk_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="risk"]')[0] });
 
+    /* risk type components callbacks */
+    function eqScenario_risktype_onclick_cb(e) {
+        scenario_sect_manager();
+    }
+    $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]').click(eqScenario_risktype_onclick_cb);
+    eqScenario_risktype_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="risk-type"]')[0] });
 
     /* generic callback to show upload div */
     function eqScenario_fileNew_cb(e) {
@@ -115,21 +203,9 @@ $(document).ready(function () {
     $(cf_obj.shpfx + ' div[name="fravul-model-new"]' +
       ' form[name="fravul-model"]').submit(eqScenario_fileNew_upload);
 
-
     /* hazard sites callbacks */
     function eqScenario_hazard_hazardSites_onclick_cb(e) {
-        $(cf_obj.shpfx + ' div[name^="hazard-sites_"]').css('display', 'none');
-        $(cf_obj.shpfx + ' div[name="hazard-sites_' + e.target.value + '"]').css('display', '');
-        if (e.target.value == "site-cond-model") {
-            $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"]').prop('disabled', true);
-            $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"][value="from-file"]').prop('checked', true);
-            $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"][value="from-file"]').trigger('click');
-            $(cf_obj.shpfx + ' span[name="eq-scenario_hazard_sitecond"]').addClass('inlible_disabled');
-        }
-        else {
-            $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"]').prop('disabled', false);
-            $(cf_obj.shpfx + ' span[name="eq-scenario_hazard_sitecond"]').removeClass('inlible_disabled');
-        }
+        scenario_sect_manager();
     }
     $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sites"]').click(
         eqScenario_hazard_hazardSites_onclick_cb);
@@ -138,8 +214,7 @@ $(document).ready(function () {
 
     /* hazard site conditions callbacks */
     function eqScenario_hazard_siteCond_onclick_cb(e) {
-        $(cf_obj.shpfx + ' div[name^="hazard-sitecond_"]').css('display', 'none');
-        $(cf_obj.shpfx + ' div[name="hazard-sitecond_' + e.target.value + '"]').css('display', '');
+        scenario_sect_manager();
     }
     $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"]').click(
         eqScenario_hazard_siteCond_onclick_cb);
@@ -150,8 +225,7 @@ $(document).ready(function () {
 
     /* hazard gmpe callbacks */
     function eqScenario_hazard_gmpe_onclick_cb(e) {
-        $(cf_obj.shpfx + ' div[name^="hazard-gmpe_"]').css('display', 'none');
-        $(cf_obj.shpfx + ' div[name="hazard-gmpe_' + e.target.value + '"]').css('display', '');
+        scenario_sect_manager();
     }
     $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_gmpe"]').click(
         eqScenario_hazard_gmpe_onclick_cb);
@@ -260,14 +334,14 @@ $(document).ready(function () {
             number_of_ground_motion_fields: null
         };
 
-        obj.is_hazard = $('.cf_gid div[name="eq-scenario"] input[type="checkbox"][name="hazard"]').is(':checked');
-        obj.is_risk = $('.cf_gid div[name="eq-scenario"] input[type="checkbox"][name="risk"]').is(':checked');
+        obj.is_hazard = $(cf_obj.shpfx + ' input[type="checkbox"][name="hazard"]').is(':checked');
+        obj.is_risk = $(cf_obj.shpfx + ' input[type="checkbox"][name="risk"]').is(':checked');
         if (obj.is_risk) {
-            obj.risk_type = $('.cf_gid div[name="eq-scenario"] input[type="radio"][name="risk-type"]:checked').val();
+            obj.risk_type = $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]:checked').val();
         }
 
 
-        obj.description = $('.cf_gid div[name="eq-scenario"] textarea[name="description"]').val();
+        obj.description = $(cf_obj.shpfx + ' textarea[name="description"]').val();
         if (obj.description == '') {
             ret.str += "'Description' field is empty.\n";
         }
@@ -496,6 +570,8 @@ $(document).ready(function () {
     }
 
     $(cf_obj.shpfx + ' button[name="download"]').click(eqScenario_download_cb);
+
+    scenario_sect_manager();
 
 });
 
