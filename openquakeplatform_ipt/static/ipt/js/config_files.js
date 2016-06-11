@@ -74,8 +74,23 @@ $(document).ready(function () {
 
         // Exposure model
         $target = $(cf_obj.shpfx + ' div[name="exposure-model"]');
-        if ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null)
+        if ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null) {
             $target.css('display', '');
+            $subtarget = $(cf_obj.shpfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]');
+            if (risk != null) {
+                $subtarget.css('display', '');
+                $subsubt = $(cf_obj.shpfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+                             + ' div[name="region-constraint"]');
+                if ($(cf_obj.shpfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+                      + ' input[name="include"]').is(':checked'))
+                    $subsubt.css('display', '');
+                else
+                    $subsubt.css('display', 'none');
+            }
+            else {
+                $subtarget.css('display', 'none');
+            }
+        }
         else
             $target.css('display', 'none');
 
@@ -128,6 +143,16 @@ $(document).ready(function () {
     }
     $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]').click(eqScenario_risktype_onclick_cb);
     eqScenario_risktype_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="risk-type"]')[0] });
+
+    /* risk-only region constraint checkbox */
+    function eqScenario_region_constraint_cb(e) {
+        scenario_sect_manager();
+    }
+    $(cf_obj.shpfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+      + ' input[name="include"]').click(eqScenario_region_constraint_cb);
+    eqScenario_region_constraint_cb(
+        {target: $(cf_obj.shpfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+                   + ' input[name="include"]')[0]});
 
     /* generic callback to show upload div */
     function eqScenario_fileNew_cb(e) {
@@ -248,6 +273,22 @@ $(document).ready(function () {
         className: "htLeft",
         stretchH: "all"
     });
+
+    /* hazard content region-constr table handsontable */
+    $(cf_obj.shpfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable({
+        colHeaders: ['Longitude', 'Latitude'],
+        allowInsertColumn: false,
+        allowRemoveColumn: false,
+        rowHeaders: false,
+        contextMenu: true,
+        startRows: 3,
+        startCols: 2,
+        maxCols: 2,
+        viewportRowRenderingOffset: 100,
+        className: "htLeft",
+        stretchH: "all"
+    });
+
     cf_obj.scen_haz_regGrid_coords = $(cf_obj.shpfx + ' div[name="table"]').handsontable('getInstance');
     {
         var tbl = cf_obj.scen_haz_regGrid_coords;
