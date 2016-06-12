@@ -44,7 +44,7 @@ $(document).ready(function () {
         // Hazard sites
         if (hazard != null) {
             hazard_sites_choice = $(cf_obj.shpfx + ' input[type="radio"]'
-                                    + '[name="eq-scenario_hazard_sites"]:checked').val();
+                                    + '[name="hazard_sites"]:checked').val();
             $target.css('display', '');
         }
         else {
@@ -100,14 +100,13 @@ $(document).ready(function () {
             $target.css('display', '');
 
             if (hazard_sites_choice == 'site-cond-model') {
-                $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"]').prop('disabled', true);
-                $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"][value="from-file"]').prop('checked', true);
-                $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"][value="from-file"]').trigger('click');
-                $(cf_obj.shpfx + ' span[name="eq-scenario_hazard_sitecond"]').addClass('inlible_disabled');
+                $(cf_obj.shpfx + ' input[name="hazard_sitecond"]').prop('disabled', true);
+                $(cf_obj.shpfx + ' input[name="hazard_sitecond"][value="from-file"]').prop('checked', true);
+                $(cf_obj.shpfx + ' span[name="hazard_sitecond"]').addClass('inlible_disabled');
             }
             else {
-                $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"]').prop('disabled', false);
-                $(cf_obj.shpfx + ' span[name="eq-scenario_hazard_sitecond"]').removeClass('inlible_disabled');
+                $(cf_obj.shpfx + ' input[name="hazard_sitecond"]').prop('disabled', false);
+                $(cf_obj.shpfx + ' span[name="hazard_sitecond"]').removeClass('inlible_disabled');
             }
         }
         else {
@@ -232,30 +231,30 @@ $(document).ready(function () {
     function eqScenario_hazard_hazardSites_onclick_cb(e) {
         scenario_sect_manager();
     }
-    $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sites"]').click(
+    $(cf_obj.shpfx + ' input[name="hazard_sites"]').click(
         eqScenario_hazard_hazardSites_onclick_cb);
     eqScenario_hazard_hazardSites_onclick_cb({ target: $(
-        cf_obj.shpfx + ' input[name="eq-scenario_hazard_sites"][value="region-grid"]')[0] });
+        cf_obj.shpfx + ' input[name="hazard_sites"][value="region-grid"]')[0] });
 
     /* hazard site conditions callbacks */
     function eqScenario_hazard_siteCond_onclick_cb(e) {
         scenario_sect_manager();
     }
-    $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_sitecond"]').click(
+    $(cf_obj.shpfx + ' input[name="hazard_sitecond"]').click(
         eqScenario_hazard_siteCond_onclick_cb);
     eqScenario_hazard_siteCond_onclick_cb({
         target: $(cf_obj.shpfx
-                  + ' input[name="eq-scenario_hazard_sitecond"][value="uniform-param"]')[0]
+                  + ' input[name="hazard_sitecond"][value="uniform-param"]')[0]
     });
 
     /* hazard gmpe callbacks */
     function eqScenario_hazard_gmpe_onclick_cb(e) {
         scenario_sect_manager();
     }
-    $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_gmpe"]').click(
+    $(cf_obj.shpfx + ' input[name="hazard_gmpe"]').click(
         eqScenario_hazard_gmpe_onclick_cb);
     eqScenario_hazard_gmpe_onclick_cb({
-        target: $(cf_obj.shpfx + ' input[name="eq-scenario_hazard_gmpe"][value="specify-gmpe"]')[0]
+        target: $(cf_obj.shpfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]')[0]
     });
 
     /* handsontables creations */
@@ -400,7 +399,7 @@ $(document).ready(function () {
 
         /* hazard sites */
         obj.hazard_sites_choice = $(cf_obj.shpfx + ' input[type="radio"]'
-                                    + '[name="eq-scenario_hazard_sites"]:checked').val();
+                                    + '[name="hazard_sites"]:checked').val();
 
 
         if (obj.hazard_sites_choice == 'region-grid') {
@@ -452,7 +451,7 @@ $(document).ready(function () {
 
         /* site conditions */
         obj.site_conditions_choice = $(cf_obj.shpfx + ' input[type="radio"]'
-                                   + '[name="eq-scenario_hazard_sitecond"]:checked').val();
+                                   + '[name="hazard_sitecond"]:checked').val();
 
         if (obj.site_conditions_choice == 'uniform-param') {
             /* site conditions -> uniform-param */
@@ -462,7 +461,7 @@ $(document).ready(function () {
                 ret.str += "'Reference vs30 value' field isn't positive float number (" + obj.reference_vs30_value + ").\n";
             }
             obj.reference_vs30_type = $(cf_obj.shpfx + ' input[type="radio"]'
-                                   + '[name="eq-scenario_hazard_sitecond_type"]:checked').val();
+                                   + '[name="hazard_sitecond_type"]:checked').val();
             if (obj.reference_vs30_type != 'inferred' && obj.reference_vs30_type != 'measured') {
                 ret.str += "Reference vs30 type choice (" + obj.reference_vs30_type + ") unknown";
             }
@@ -495,7 +494,7 @@ $(document).ready(function () {
         /* calculation parameters */
 
         obj.gmpe_choice = $(cf_obj.shpfx + ' input[type="radio"]'
-                        + '[name="eq-scenario_hazard_gmpe"]:checked').val();
+                        + '[name="hazard_gmpe"]:checked').val();
 
         if (obj.gmpe_choice == 'specify-gmpe') {
             obj.gsim = $(cf_obj.shpfx + ' input[type="radio"][name="gmpe"]:checked').map(function(_, el) {
