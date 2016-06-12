@@ -174,15 +174,29 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function(data) {
+                var $sel;
+                var gem_group = null;
+                var old_sel = [];
                 if (data.ret == 0) {
-                    $sel = $(cf_obj.shpfx + ' div[name="' + name + '-html"] select[name="file_html"]')
-                    $sel.empty()
+                    if ($(cf_obj.shpfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data_gem_group')) {
+                        gem_group = $(cf_obj.shpfx + ' div[name="' + name + '-html"]').attr('data_gem_group');
+                        $sel = $(cf_obj.shpfx + ' div[data_gem_group="' + gem_group + '"] select[name="file_html"]');
+                        for (var i = 0 ; i < $sel.length ; i++) {
+                            old_sel[i] = $($(cf_obj.shpfx + ' div[data_gem_group="' + gem_group + '"] select[name="file_html"]')[i]).val();
+                        }
+                    }
+                    else {
+                        $sel = $(cf_obj.shpfx + ' div[name="' + name + '-html"] select[name="file_html"]');
+                    }
 
-                    var options = null;
+                    $sel.empty();
                     for (var i = 0 ; i < data.items.length ; i++) {
                         $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
                     }
-                    $sel.val(data.selected);
+                    for (var i = 0 ; i < old_sel.length ; i++) {
+                        $($sel[i]).val(old_sel[i]);
+                    }
+                    $(cf_obj.shpfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(data.selected);
                 }
                 $(cf_obj.shpfx + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
                 $(cf_obj.shpfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
