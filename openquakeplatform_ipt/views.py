@@ -151,13 +151,14 @@ class FileUpload(forms.Form):
     file_upload = forms.FileField()
 
 
-def filehtml_create(suffix):
+def filehtml_create(suffix, dirnam=None):
+    if dirnam == None:
+        dirnam = suffix
     class FileHtml(forms.Form):
-        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix + '/'), match=".*\.xml", recursive=True)
+        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + dirnam + '/'), match=".*\.xml", recursive=True)
     fh = FileHtml()
     fh.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
     fh.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
-    # import pdb ; pdb.set_trace()
     return fh
 
 def view(request, **kwargs):
@@ -174,6 +175,35 @@ def view(request, **kwargs):
 
     site_model_html = filehtml_create('site_model')
     site_model_upload = FileUpload()
+
+    fm_structural_html = filehtml_create('fm_structural', 'fragility_model')
+    fm_structural_upload = FileUpload()
+    fm_nonstructural_html = filehtml_create('fm_nonstructural', 'fragility_model')
+    fm_nonstructural_upload = FileUpload()
+    fm_contents_html = filehtml_create('fm_contents', 'fragility_model')
+    fm_contents_upload = FileUpload()
+    fm_businter_html = filehtml_create('fm_businter', 'fragility_model')
+    fm_businter_upload = FileUpload()
+
+    fm_structural_cons_html = filehtml_create('fragility_cons')
+    fm_structural_cons_upload = FileUpload()
+    fm_nonstructural_cons_html = filehtml_create('fragility_cons')
+    fm_nonstructural_cons_upload = FileUpload()
+    fm_contents_cons_html = filehtml_create('fragility_cons')
+    fm_contents_cons_upload = FileUpload()
+    fm_businter_cons_html = filehtml_create('fragility_cons')
+    fm_businter_cons_upload = FileUpload()
+
+    vm_structural_html = filehtml_create('vm_structural', 'vulnerability_model')
+    vm_structural_upload = FileUpload()
+    vm_nonstructural_html = filehtml_create('vm_nonstructural', 'vulnerability_model')
+    vm_nonstructural_upload = FileUpload()
+    vm_contents_html = filehtml_create('vm_contents', 'vulnerability_model')
+    vm_contents_upload = FileUpload()
+    vm_businter_html = filehtml_create('vm_businter', 'vulnerability_model')
+    vm_businter_upload = FileUpload()
+    vm_occupants_html = filehtml_create('vm_occupants', 'vulnerability_model')
+    vm_occupants_upload = FileUpload()
 
     site_conditions_html = filehtml_create('site_conditions')
     site_conditions_upload = FileUpload()
@@ -195,6 +225,36 @@ def view(request, **kwargs):
                                   exposure_model_upload=exposure_model_upload,
                                   site_model_html=site_model_html,
                                   site_model_upload=site_model_upload,
+
+                                  fm_structural_html=fm_structural_html,
+                                  fm_structural_upload=fm_structural_upload,
+                                  fm_nonstructural_html=fm_nonstructural_html,
+                                  fm_nonstructural_upload=fm_nonstructural_upload,
+                                  fm_contents_html=fm_contents_html,
+                                  fm_contents_upload=fm_contents_upload,
+                                  fm_businter_html=fm_businter_html,
+                                  fm_businter_upload=fm_businter_upload,
+
+                                  fm_structural_cons_html=fm_structural_cons_html,
+                                  fm_structural_cons_upload=fm_structural_cons_upload,
+                                  fm_nonstructural_cons_html=fm_nonstructural_cons_html,
+                                  fm_nonstructural_cons_upload=fm_nonstructural_cons_upload,
+                                  fm_contents_cons_html=fm_contents_cons_html,
+                                  fm_contents_cons_upload=fm_contents_cons_upload,
+                                  fm_businter_cons_html=fm_businter_cons_html,
+                                  fm_businter_cons_upload=fm_businter_cons_upload,
+
+                                  vm_structural_html=vm_structural_html,
+                                  vm_structural_upload=vm_structural_upload,
+                                  vm_nonstructural_html=vm_nonstructural_html,
+                                  vm_nonstructural_upload=vm_nonstructural_upload,
+                                  vm_contents_html=vm_contents_html,
+                                  vm_contents_upload=vm_contents_upload,
+                                  vm_businter_html=vm_businter_html,
+                                  vm_businter_upload=vm_businter_upload,
+                                  vm_occupants_html=vm_occupants_html,
+                                  vm_occupants_upload=vm_occupants_upload,
+
                                   site_conditions_html=site_conditions_html,
                                   site_conditions_upload=site_conditions_upload,
                                   imt_html=imt_html,
@@ -216,7 +276,9 @@ def upload(request, **kwargs):
 
     target = kwargs['target']
     if target not in ['rupture_file', 'list_of_sites', 'exposure_model',
-                      'site_model', 'site_conditions', 'imt', 'fravul_model']:
+                      'site_model', 'site_conditions', 'imt', 'fravul_model',
+                      'fragility_model', 'fragility_cons',
+                      'vulnerability_model']:
         ret['ret'] = 4;
         ret['ret_msg'] = 'Unknown target "' + target + '".'
         return HttpResponse(json.dumps(ret), content_type="application/json");

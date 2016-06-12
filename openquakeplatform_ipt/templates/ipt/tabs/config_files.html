@@ -144,7 +144,276 @@
         </div>
       </div>
 
+
+      <div name="fragility-model">
+        <h3>Fragility model</h3>
+
+        <div class="alert alert-info ipt-info" role="alert">
+          Select loss types:<br>
+          <div style="text-align: center;">
+            <div class="chbox">
+              <input type="checkbox" name="losstype" value="structural" checked="checked">
+              <span class="inlible">Structural</span>
+            </div>
+            <div class="chbox">
+              <input type="checkbox" name="losstype" value="nonstructural">
+              <span class="inlible">Non Structural</span>
+            </div>
+            <div class="chbox">
+              <input type="checkbox" name="losstype" value="contents">
+              <span class="inlible">Contents</span>
+            </div>
+            <div class="chbox">
+              <input type="checkbox" name="losstype" value="businter">
+              <span class="inlible">Business Interruption</span>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div name="fm-loss-structural">
+          <div class="menuItems" name="fm-structural-html" data_gem_group="fragility-model">
+            <label>Structural fragility model:</label>
+            {{ fm_structural_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-structural-new">New</button>
+          </div>
+          <div class="menuItems" name="fm-structural-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/fragility_model" method="post" id="file-upload-form" name="fm-structural" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ fm_structural_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+
+        <div name="fm-loss-nonstructural">
+          <div class="menuItems" name="fm-nonstructural-html" data_gem_group="fragility-model">
+            <label>Nonstructural fragility model:</label>
+            {{ fm_nonstructural_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-nonstructural-new">New</button>
+          </div>
+          <div class="menuItems" name="fm-nonstructural-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/fragility_model" method="post" id="file-upload-form" name="fm-nonstructural" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ fm_nonstructural_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+
+        <div name="fm-loss-contents">
+          <div class="menuItems" name="fm-contents-html" data_gem_group="fragility-model">
+            <label>Contents fragility model:</label>
+            {{ fm_contents_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-contents-new">New</button>
+          </div>
+          <div class="menuItems" name="fm-contents-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/fragility_model" method="post" id="file-upload-form" name="fm-contents" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ fm_contents_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+
+        <div name="fm-loss-businter">
+          <div class="menuItems" name="fm-businter-html" data_gem_group="fragility-model">
+            <label>Business interruption fragility model:</label>
+            {{ fm_businter_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-businter-new">New</button>
+          </div>
+          <div class="menuItems" name="fm-businter-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/fragility_model" method="post" id="file-upload-form" name="fm-businter" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ fm_businter_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+        <!-- models end -->
+
+        <!-- show consequences ? -->
+        <div class="alert alert-info ipt-info" role="alert" style="text-align: center;">
+          <input style="margin:0;" type="checkbox" name="fm-loss-include-cons">
+          Include consequence models
+        </div>
+
+        <!-- cons -->
+        <div name="fm-loss-structural-cons">
+          <div class="menuItems" name="fm-structural-cons-html" data_gem_group="fragility-cons">
+            <label>Structural consequence model:</label>
+            {{ fm_structural_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-structural-cons-new">New</button>
+          </div>
+          <div class="menuItems" name="fm-structural-cons-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/fragility_cons" method="post" id="file-upload-form" name="fm-structural-cons" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ fm_structural_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+
+        <div name="fm-loss-nonstructural-cons">
+          <div class="menuItems" name="fm-nonstructural-cons-html" data_gem_group="fragility-cons">
+            <label>Nonstructural consequence model:</label>
+            {{ fm_nonstructural_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-nonstructural-cons-new">New</button>
+          </div>
+          <div class="menuItems" name="fm-nonstructural-cons-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/fragility_cons" method="post" id="file-upload-form" name="fm-nonstructural-cons" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ fm_nonstructural_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+
+        <div name="fm-loss-contents-cons">
+          <div class="menuItems" name="fm-contents-cons-html" data_gem_group="fragility-cons">
+            <label>Contents consequence model:</label>
+            {{ fm_contents_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-contents-cons-new">New</button>
+          </div>
+          <div class="menuItems" name="fm-contents-cons-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/fragility_cons" method="post" id="file-upload-form" name="fm-contents-cons" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ fm_contents_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+
+        <div name="fm-loss-businter">
+          <div class="menuItems" name="fm-businter-cons-html" data_gem_group="fragility-cons">
+            <label>Business interruption consequence model:</label>
+            {{ fm_businter_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-businter-cons-new">New</button>
+          </div>
+          <div class="menuItems" name="fm-businter-cons-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/fragility_cons" method="post" id="file-upload-form" name="fm-businter-cons" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ fm_businter_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+        <!-- cons end -->
+      </div><!-- fragility-model end -->
+
+      <div name="vulnerability-model">
+        <h3>Vulnerability model</h3>
+
+        <div class="alert alert-info ipt-info" role="alert">
+          Select loss types:<br>
+          <div style="text-align: center;">
+            <div class="chbox">
+              <input type="checkbox" name="losstype" value="structural" checked="checked">
+              <span class="inlible">Structural</span>
+            </div>
+            <div class="chbox">
+              <input type="checkbox" name="losstype" value="nonstructural">
+              <span class="inlible">Non Structural</span>
+            </div>
+            <div class="chbox">
+              <input type="checkbox" name="losstype" value="contents">
+              <span class="inlible">Contents</span>
+            </div>
+            <div class="chbox">
+              <input type="checkbox" name="losstype" value="businter">
+              <span class="inlible">Business Interruption</span>
+            </div>
+            <div class="chbox">
+              <input type="checkbox" name="losstype" value="occupants">
+              <span class="inlible">Occupants</span>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div name="vm-loss-structural">
+          <div class="menuItems" name="vm-structural-html" data_gem_group="vulnerability-model">
+            <label>Structural vulnerability model:</label>
+            {{ vm_structural_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="vm-structural-new">New</button>
+          </div>
+          <div class="menuItems" name="vm-structural-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/vulnerability_model" method="post" id="file-upload-form" name="vm-structural" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ vm_structural_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+
+        <div name="vm-loss-nonstructural">
+          <div class="menuItems" name="vm-nonstructural-html" data_gem_group="vulnerability-model">
+            <label>Nonstructural vulnerability model:</label>
+            {{ vm_nonstructural_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="vm-nonstructural-new">New</button>
+          </div>
+          <div class="menuItems" name="vm-nonstructural-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/vulnerability_model" method="post" id="file-upload-form" name="vm-nonstructural" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ vm_nonstructural_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+
+        <div name="vm-loss-contents">
+          <div class="menuItems" name="vm-contents-html" data_gem_group="vulnerability-model">
+            <label>Contents vulnerability model:</label>
+            {{ vm_contents_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="vm-contents-new">New</button>
+          </div>
+          <div class="menuItems" name="vm-contents-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/vulnerability_model" method="post" id="file-upload-form" name="vm-contents" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ vm_contents_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+
+        <div name="vm-loss-businter">
+          <div class="menuItems" name="vm-businter-html" data_gem_group="vulnerability-model">
+            <label>Business interruption vulnerability model:</label>
+            {{ vm_businter_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="vm-businter-new">New</button>
+          </div>
+          <div class="menuItems" name="vm-businter-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/vulnerability_model" method="post" id="file-upload-form" name="vm-businter" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ vm_businter_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+
+        <div name="vm-loss-occupants">
+          <div class="menuItems" name="vm-occupants-html" data_gem_group="vulnerability-model">
+            <label>Occupants vulnerability model:</label>
+            {{ vm_occupants_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="vm-occupants-new">New</button>
+          </div>
+          <div class="menuItems" name="vm-occupants-new" style="display: none;">
+            <div name="msg"><br></div>
+            <form action="upload/vulnerability_model" method="post" id="file-upload-form" name="vm-occupants" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ vm_occupants_upload.file_upload }}
+              <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- models end -->
+      </div> <!-- vulnerability model -->
+
       <div style="min-height: 50px;" name="site-conditions"><!-- site conditions block -->
+        <h3>Site conditions</h3>
+
         <div class="alert alert-info ipt-info" role="alert">
           Select a method to specify site conditions:<br>
           <div style="text-align: center;">
@@ -158,8 +427,6 @@
             </div>
           </div>
         </div>
-        <h3>Site conditions</h3>
-
         <div name="hazard-sitecond_uniform-param" class="menuItems">
           <table style="width: 100%; margin: auto;">
             <tr><td style="text-align: left;">

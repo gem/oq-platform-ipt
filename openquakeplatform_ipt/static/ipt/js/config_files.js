@@ -94,6 +94,58 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
 
+        // Fragility model
+        var $frag_model = $(cf_obj.shpfx + ' div[name="fragility-model"]');
+        var $vuln_model = $(cf_obj.shpfx + ' div[name="vulnerability-model"]');
+        $frag_model.css('display', 'none');
+        $vuln_model.css('display', 'none');
+        if (risk == 'damage') {
+            $frag_model.css('display', '');
+            var show_cons = $(cf_obj.shpfx + ' div[name="fragility-model"] input[type="checkbox"]'
+                          + '[name="fm-loss-include-cons"]').is(':checked');
+            var losslist = ['structural', 'nonstructural', 'contents', 'businter' ];
+            for (var lossidx in losslist) {
+                var losstype = losslist[lossidx];
+
+                $target = $(cf_obj.shpfx + ' div[name="fragility-model"] div[name="fm-loss-'
+                            + losstype + '"]');
+                $target2 = $(cf_obj.shpfx + ' div[name="fragility-model"] div[name="fm-loss-'
+                            + losstype + '-cons"]');
+
+                if($(cf_obj.shpfx + ' div[name="fragility-model"] input[type="checkbox"][name="losstype"]'
+                     + '[value="' + losstype + '"]').is(':checked')) {
+                    $target.css('display', '');
+                    if (show_cons)
+                        $target2.css('display', '');
+                    else
+                        $target2.css('display', 'none');
+                }
+                else {
+                    $target.css('display', 'none');
+                    $target2.css('display', 'none');
+                }
+
+            }
+        }
+        else if(risk == 'losses') {
+            $vuln_model.css('display', '');
+            var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
+            for (var lossidx in losslist) {
+                var losstype = losslist[lossidx];
+
+                $target = $(cf_obj.shpfx + ' div[name="vulnerability-model"] div[name="vm-loss-'
+                            + losstype + '"]');
+
+                if($(cf_obj.shpfx + ' div[name="vulnerability-model"] input[type="checkbox"][name="losstype"]'
+                     + '[value="' + losstype + '"]').is(':checked')) {
+                    $target.css('display', '');
+                }
+                else {
+                    $target.css('display', 'none');
+                }
+            }
+        }
+
         // Site cond model (force site conditions to file)
         $target = $(cf_obj.shpfx + ' div[name="site-conditions"]');
         if (hazard != null) {
@@ -222,6 +274,89 @@ $(document).ready(function () {
         eqScenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="exposure-model-new"]' +
       ' form[name="exposure-model"]').submit(eqScenario_fileNew_upload);
+
+    /* fragility model */
+    $(cf_obj.shpfx + ' div[name="fragility-model"] input[type="checkbox"]').click(
+        scenario_sect_manager);
+
+    /* vulnerability model */
+    $(cf_obj.shpfx + ' div[name="vulnerability-model"] input[type="checkbox"]').click(
+        scenario_sect_manager);
+
+    /*  +- structural */
+    $(cf_obj.shpfx + ' button[name="fm-structural-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="fm-structural-new"]' +
+      ' form[name="fm-structural"]').submit(eqScenario_fileNew_upload);
+
+    $(cf_obj.shpfx + ' button[name="fm-structural-cons-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="fm-structural-cons-new"]' +
+      ' form[name="fm-structural-cons"]').submit(eqScenario_fileNew_upload);
+
+    /*  +- nonstructural */
+    $(cf_obj.shpfx + ' button[name="fm-nonstructural-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="fm-nonstructural-new"]' +
+      ' form[name="fm-nonstructural"]').submit(eqScenario_fileNew_upload);
+
+    $(cf_obj.shpfx + ' button[name="fm-nonstructural-cons-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="fm-nonstructural-cons-new"]' +
+      ' form[name="fm-nonstructural-cons"]').submit(eqScenario_fileNew_upload);
+
+    /*  +- contents */
+    $(cf_obj.shpfx + ' button[name="fm-contents-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="fm-contents-new"]' +
+      ' form[name="fm-contents"]').submit(eqScenario_fileNew_upload);
+
+    $(cf_obj.shpfx + ' button[name="fm-contents-cons-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="fm-contents-cons-new"]' +
+      ' form[name="fm-contents-cons"]').submit(eqScenario_fileNew_upload);
+
+    /*  +- businter */
+    $(cf_obj.shpfx + ' button[name="fm-businter-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="fm-businter-new"]' +
+      ' form[name="fm-businter"]').submit(eqScenario_fileNew_upload);
+
+    $(cf_obj.shpfx + ' button[name="fm-businter-cons-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="fm-businter-cons-new"]' +
+      ' form[name="fm-businter-cons"]').submit(eqScenario_fileNew_upload);
+
+    /* vulnerability model */
+        /*  +- structural */
+    $(cf_obj.shpfx + ' button[name="vm-structural-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="vm-structural-new"]' +
+      ' form[name="vm-structural"]').submit(eqScenario_fileNew_upload);
+
+    /*  +- nonstructural */
+    $(cf_obj.shpfx + ' button[name="vm-nonstructural-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="vm-nonstructural-new"]' +
+      ' form[name="vm-nonstructural"]').submit(eqScenario_fileNew_upload);
+
+    /*  +- contents */
+    $(cf_obj.shpfx + ' button[name="vm-contents-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="vm-contents-new"]' +
+      ' form[name="vm-contents"]').submit(eqScenario_fileNew_upload);
+
+    /*  +- businter */
+    $(cf_obj.shpfx + ' button[name="vm-businter-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="vm-businter-new"]' +
+      ' form[name="vm-businter"]').submit(eqScenario_fileNew_upload);
+
+    /*  +- occupants */
+    $(cf_obj.shpfx + ' button[name="vm-occupants-new"]').click(
+        eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' div[name="vm-occupants-new"]' +
+      ' form[name="vm-occupants"]').submit(eqScenario_fileNew_upload);
 
     /* site conditions */
     $(cf_obj.shpfx + ' button[name="site-conditions-new"]').click(
