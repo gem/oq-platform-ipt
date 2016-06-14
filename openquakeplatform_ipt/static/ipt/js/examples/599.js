@@ -15,7 +15,7 @@ $(document).ready(function () {
         // waiting for gmpe list population
         $('.cf_gid div[name="hazard-gmpe_specify-gmpe"] div.sol-label-text:contains("AbrahamsonEtAl2014RegCHN")'
          ).click()
-//        $('.cf_gid button[name="download"]').click();
+        $('.cf_gid button[name="download"]').click();
 
 
 

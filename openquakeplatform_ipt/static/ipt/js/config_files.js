@@ -17,7 +17,9 @@
 
 var cf_obj = {
     shpfx: '.cf_gid div[name="eq-scenario"]',
-    scen_haz_regGrid_coords: null
+    scen_haz_regGrid_coords: null,
+    scen_haz_expModel_coords: null
+
 }
 
 $(document).ready(function () {
@@ -39,9 +41,15 @@ $(document).ready(function () {
             risk = $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]:checked').val();
         }
 
-        $target = $(cf_obj.shpfx + ' div[name="hazard-sites"]');
+        // Rupture information (ui)
+        $target = $(cf_obj.shpfx + ' div[name="rupture-information"]');
+        if (hazard != null)
+            $target.css('display', '');
+        else
+            $target.css('display', 'none');
 
-        // Hazard sites
+        $target = $(cf_obj.shpfx + ' div[name="hazard-sites"]');
+        // Hazard sites (ui)
         if (hazard != null) {
             hazard_sites_choice = $(cf_obj.shpfx + ' input[type="radio"]'
                                     + '[name="hazard_sites"]:checked').val();
@@ -50,13 +58,6 @@ $(document).ready(function () {
         else {
             $target.css('display', 'none');
         }
-
-        // Rupture information
-        $target = $(cf_obj.shpfx + ' div[name="rupture-information"]');
-        if (hazard != null)
-            $target.css('display', '');
-        else
-            $target.css('display', 'none');
 
         // Region grid
         $target = $(cf_obj.shpfx + ' div[name="region-grid"]');
@@ -72,7 +73,7 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
 
-        // Exposure model
+        // Exposure model (ui)
         $target = $(cf_obj.shpfx + ' div[name="exposure-model"]');
         if ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null) {
             $target.css('display', '');
@@ -94,12 +95,13 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
 
-        // Fragility model
+        // Fragility and vulnerability model (ui)
         var $frag_model = $(cf_obj.shpfx + ' div[name="fragility-model"]');
         var $vuln_model = $(cf_obj.shpfx + ' div[name="vulnerability-model"]');
         $frag_model.css('display', 'none');
         $vuln_model.css('display', 'none');
         if (risk == 'damage') {
+            // Fragility model (ui)
             $frag_model.css('display', '');
             var show_cons = $(cf_obj.shpfx + ' div[name="fragility-model"] input[type="checkbox"]'
                           + '[name="fm-loss-include-cons"]').is(':checked');
@@ -128,6 +130,7 @@ $(document).ready(function () {
             }
         }
         else if(risk == 'losses') {
+            // Vulnerability model (ui)
             $vuln_model.css('display', '');
             var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
             for (var lossidx in losslist) {
@@ -146,7 +149,7 @@ $(document).ready(function () {
             }
         }
 
-        // Site cond model (force site conditions to file)
+        // Site cond model (force site conditions to file) (ui)
         $target = $(cf_obj.shpfx + ' div[name="site-conditions"]');
         if (hazard != null) {
             $target.css('display', '');
@@ -165,10 +168,32 @@ $(document).ready(function () {
             $target.css('display', 'none');
         }
 
-        // calculation parameters
+        var sitecond_choice = $(cf_obj.shpfx + ' input[name="hazard_sitecond"]:checked').val();
+        $(cf_obj.shpfx + ' div[name^="hazard-sitecond_"]').css('display', 'none');
+        $(cf_obj.shpfx + ' div[name="hazard-sitecond_' + sitecond_choice + '"]').css('display', '');
+
+
+
+        // Calculation parameters (ui)
         $target = $(cf_obj.shpfx + ' div[name="calculation-parameters"]');
-        if (hazard != null)
+        if (hazard != null) {
             $target.css('display', '');
+
+            if (risk == null) {
+                // if risk disabled imts fields must be shown
+                $(cf_obj.shpfx + ' div[name="hazard-imt_specify-imt"]').css('display', '');
+            }
+            else {
+                $(cf_obj.shpfx + ' div[name="hazard-imt_specify-imt"]').css('display', 'none');
+            }
+            // GMPE sub choice
+            var gmpe_choice = $(cf_obj.shpfx + ' input[type="radio"]'
+                                + '[name="hazard_gmpe"]:checked').val();
+
+            $(cf_obj.shpfx + ' div[name^="hazard-gmpe_"]').css('display', 'none');
+            $(cf_obj.shpfx + ' div[name="hazard-gmpe_' + gmpe_choice + '"]').css('display', '');
+
+        }
         else
             $target.css('display', 'none');
     }
@@ -438,6 +463,10 @@ $(document).ready(function () {
     });
 
     cf_obj.scen_haz_regGrid_coords = $(cf_obj.shpfx + ' div[name="table"]').handsontable('getInstance');
+    cf_obj.scen_haz_expModel_coords = $(
+        cf_obj.shpfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'
+    ).handsontable('getInstance');
+
     {
         var tbl = cf_obj.scen_haz_regGrid_coords;
         var $box = $(cf_obj.shpfx + ' div[name="table"]')
@@ -487,32 +516,65 @@ $(document).ready(function () {
             obj: null
         };
         var obj = {
-            is_hazard: false,
-            is_risk: false,
-            risk_type: '',
+            hazard: null,
+            risk: null,
             description: null,
 
-            /* rupture information */
-            rupture_model_file: null,
-            rupture_mesh_spacing: null,
-
-            /* hazard sites */
             hazard_sites_choice: null,
+
+            // hazard sites
             grid_spacing: null,
             reggrid_coords_data: null,
             list_of_sites: null,
-            exposure_model: null,
 
-            /* site conditions */
+            exposure_model: null,
+            exposure_model_regcons_choice: false,
+            exposure_model_regcons_coords_data: null,
+
+            // rupture information
+            rupture_model_file: null,
+            rupture_mesh_spacing: null,
+
+            // site conditions
             site_conditions_choice: null,
             reference_vs30_value: null,
             reference_vs30_type: null,
             reference_depth_to_2pt5km_per_sec: null,
             reference_depth_to_1pt0km_per_sec: null,
 
+            // fragility model
+            fm_loss_show_cons_choice: false,
+
+            fm_loss_structural_choice: false,
+            fm_loss_structural: null,
+            fm_loss_nonstructural_choice: false,
+            fm_loss_nonstructural: null,
+            fm_loss_contents_choice: false,
+            fm_loss_contents: null,
+            fm_loss_businter_choice: false,
+            fm_loss_businter: null,
+
+            fm_loss_structural_cons: null,
+            fm_loss_nonstructural_cons: null,
+            fm_loss_contents_cons: null,
+            fm_loss_businter_cons: null,
+
+
+            // vulnerability model
+            vm_loss_structural_choice: false,
+            vm_loss_structural: null,
+            vm_loss_nonstructural_choice: false,
+            vm_loss_nonstructural: null,
+            vm_loss_contents_choice: false,
+            vm_loss_contents: null,
+            vm_loss_businter_choice: false,
+            vm_loss_businter: null,
+            vm_loss_occupants_choice: false,
+            vm_loss_occupants: null,
+
             site_model_file: null,
 
-            /* calculation parameters */
+            // calculation parameters
             gmpe_choice: null,
             intensity_measure_types: null,
             fravul_model_file: null,
@@ -523,64 +585,80 @@ $(document).ready(function () {
             number_of_ground_motion_fields: null
         };
 
-        obj.is_hazard = $(cf_obj.shpfx + ' input[type="checkbox"][name="hazard"]').is(':checked');
-        obj.is_risk = $(cf_obj.shpfx + ' input[type="checkbox"][name="risk"]').is(':checked');
-        if (obj.is_risk) {
-            obj.risk_type = $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]:checked').val();
+        if ($(cf_obj.shpfx + ' input[type="checkbox"][name="hazard"]').is(':checked'))
+            obj.hazard = 'hazard';
+        if ($(cf_obj.shpfx + ' input[type="checkbox"][name="risk"]').is(':checked')) {
+            obj.risk = $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]:checked').val();
         }
-
 
         obj.description = $(cf_obj.shpfx + ' textarea[name="description"]').val();
         if (obj.description == '') {
             ret.str += "'Description' field is empty.\n";
         }
 
-        /* rupture information */
-        obj.rupture_model_file = $(cf_obj.shpfx + ' div[name="rupture-file-html"] select[name="file_html"]').val();
-        if (obj.rupture_model_file == '') {
-            ret.str += "'Rupture file' field is empty.\n";
-        }
-        obj.rupture_mesh_spacing = $(cf_obj.shpfx + ' input[name="rupture_mesh_spacing"]').val();
-        if (!isFloat(obj.rupture_mesh_spacing) || parseFloat(obj.rupture_mesh_spacing) <= 0.0) {
-            ret.str += "'Rupture Mesh Spacing' field isn't greater than 0 float number (" + obj.rupture_mesh_spacing + ").\n";
-        }
-        uniqueness_add(files_list, 'rupture model file', obj.rupture_model_file);
-
-        /* hazard sites */
-        obj.hazard_sites_choice = $(cf_obj.shpfx + ' input[type="radio"]'
-                                    + '[name="hazard_sites"]:checked').val();
-
-
-        if (obj.hazard_sites_choice == 'region-grid') {
-            /* hazard sites -> region-grid */
-            obj.grid_spacing = $(cf_obj.shpfx + ' input[name="grid_spacing"]').val();
-            if (!isFloat(obj.grid_spacing) || parseFloat(obj.grid_spacing) <= 0.0) {
-                ret.str += "'Grid spacing' field isn't greater than 0 float number (" + obj.grid_spacing + ").\n";
+        // Rupture information (get)
+        if (obj.hazard == 'hazard') {
+            obj.rupture_model_file = $(cf_obj.shpfx + ' div[name="rupture-file-html"] select[name="file_html"]').val();
+            if (obj.rupture_model_file == '') {
+                ret.str += "'Rupture file' field is empty.\n";
             }
+            obj.rupture_mesh_spacing = $(cf_obj.shpfx + ' input[name="rupture_mesh_spacing"]').val();
+            if (!isFloat(obj.rupture_mesh_spacing) || parseFloat(obj.rupture_mesh_spacing) <= 0.0) {
+                ret.str += "'Rupture Mesh Spacing' field isn't greater than 0 float number (" + obj.rupture_mesh_spacing + ").\n";
+            }
+            uniqueness_add(files_list, 'rupture model file', obj.rupture_model_file);
+        }
 
-            obj.reggrid_coords_data = cf_obj.scen_haz_regGrid_coords.getData();
-            // Check for invalid value
-            for (var i = 0; i < obj.reggrid_coords_data.length; i++) {
-                var lon = obj.reggrid_coords_data[i][0], lat = obj.reggrid_coords_data[i][1];
-                if (lon === null || lat === null || !isFloat(lon) || !isFloat(lat) ||
-                    parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
-                    parseFloat(lat) < -90.0  || parseFloat(lat) > 180.0) {
-                    ret.str += "Entry #" + (i+1) + " of region grid 'Coordinates'"
-                        + " field is invalid (" + lon + ", " + lat + ").\n";
+        // Hazard sites (get)
+        if (obj.hazard == 'hazard') {
+            obj.hazard_sites_choice = $(cf_obj.shpfx + ' input[type="radio"]'
+                                        + '[name="hazard_sites"]:checked').val();
+
+            if (obj.hazard_sites_choice == 'region-grid') {
+                // Hazard sites -> Region-grid (get)
+                obj.grid_spacing = $(cf_obj.shpfx + ' input[name="grid_spacing"]').val();
+                if (!isFloat(obj.grid_spacing) || parseFloat(obj.grid_spacing) <= 0.0) {
+                    ret.str += "'Grid spacing' field isn't greater than 0 float number (" + obj.grid_spacing + ").\n";
+                }
+
+                obj.reggrid_coords_data = cf_obj.scen_haz_regGrid_coords.getData();
+                // Check for invalid value (get)
+                for (var i = 0; i < obj.reggrid_coords_data.length; i++) {
+                    var lon = obj.reggrid_coords_data[i][0], lat = obj.reggrid_coords_data[i][1];
+                    if (lon === null || lat === null || !isFloat(lon) || !isFloat(lat) ||
+                        parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
+                        parseFloat(lat) < -90.0  || parseFloat(lat) > 180.0) {
+                        ret.str += "Entry #" + (i+1) + " of region grid 'Coordinates'"
+                            + " field is invalid (" + lon + ", " + lat + ").\n";
+                    }
                 }
             }
-        }
-        else if (obj.hazard_sites_choice == 'list-of-sites') {
-            /* hazard sites -> list-of-sites */
-            obj.list_of_sites = $(cf_obj.shpfx + ' div[name="list-of-sites-html"] select[name="file_html"]').val();
-            if (obj.list_of_sites == '') {
-                ret.str += "'List of sites' field is empty.\n";
+            else if (obj.hazard_sites_choice == 'list-of-sites') {
+                // Hazard sites -> List-of-sites (get)
+                obj.list_of_sites = $(cf_obj.shpfx + ' div[name="list-of-sites-html"] select[name="file_html"]').val();
+                if (obj.list_of_sites == '') {
+                    ret.str += "'List of sites' field is empty.\n";
+                }
+                uniqueness_add(files_list, 'list of sites', obj.list_of_sites);
+                ret.str += uniqueness_check(files_list);
             }
-            uniqueness_add(files_list, 'list of sites', obj.list_of_sites);
-            ret.str += uniqueness_check(files_list);
+            else if (obj.hazard_sites_choice == 'exposure-model') {
+                // Hazard sites -> Exposure-model (get)
+                // checked below because risk related too
+            }
+            else if (obj.hazard_sites_choice == 'site-cond-model') {
+                // Hazard sites -> Site-cond-model (get)
+                // check below the Site conditions session
+            }
+            else {
+                ret.str += "Unknown 'Hazard sites' choice (' + obj.hazard_sites_choice + ').\n";
+            }
         }
-        else if (obj.hazard_sites_choice == 'exposure-model') {
-            /* hazard sites -> exposure-model */
+
+        // Exposure model (get)
+        if ((obj.hazard == 'hazard' && obj.hazard_sites_choice == 'exposure-model')
+            || obj.risk != null) {
+            // hazard sites -> exposure-model
             obj.exposure_model = $(cf_obj.shpfx + ' div[name="exposure-model-html"] select[name="file_html"]').val();
             if (obj.exposure_model == '') {
                 ret.str += "'Exposure model' field is empty.\n";
@@ -588,121 +666,199 @@ $(document).ready(function () {
 
             uniqueness_add(files_list, 'exposure model', obj.exposure_model);
             ret.str += uniqueness_check(files_list);
-        }
-        else if (obj.hazard_sites_choice == 'site-cond-model') {
-            /* hazard sites -> site-cond-model */
+            if (obj.risk != null) {
+                obj.exposure_model_regcons_choice = $(
+                    cf_obj.shpfx + ' div[name="exposure-model"] input[type="checkbox"][name="include"]'
+                ).is(':checked');
+                if (obj.exposure_model_regcons_choice) {
+                    obj.exposure_model_regcons_coords_data = cf_obj.scen_haz_expModel_coords.getData();
 
-            /* no other checks in this case */
-        }
-        else {
-            ret.str += "Unknown 'Hazard sites' choice (' + obj.hazard_sites_choice + ').\n";
-        }
-
-        /* site conditions */
-        obj.site_conditions_choice = $(cf_obj.shpfx + ' input[type="radio"]'
-                                   + '[name="hazard_sitecond"]:checked').val();
-
-        if (obj.site_conditions_choice == 'uniform-param') {
-            /* site conditions -> uniform-param */
-            obj.reference_vs30_value = $(cf_obj.shpfx + ' div[name="hazard-sitecond_uniform-param"]'
-                                     + ' input[type="text"][name="reference_vs30_value"]').val();
-            if (!isFloat(obj.reference_vs30_value) || parseFloat(obj.reference_vs30_value) < 0.0) {
-                ret.str += "'Reference vs30 value' field isn't positive float number (" + obj.reference_vs30_value + ").\n";
-            }
-            obj.reference_vs30_type = $(cf_obj.shpfx + ' input[type="radio"]'
-                                   + '[name="hazard_sitecond_type"]:checked').val();
-            if (obj.reference_vs30_type != 'inferred' && obj.reference_vs30_type != 'measured') {
-                ret.str += "Reference vs30 type choice (" + obj.reference_vs30_type + ") unknown";
-            }
-
-            obj.reference_depth_to_2pt5km_per_sec = $(cf_obj.shpfx + ' div[name="hazard-sitecond_uniform-param"]'
-                                     + ' input[type="text"][name="reference_depth_to_2pt5km_per_sec"]').val();
-            if (!isFloat(obj.reference_depth_to_2pt5km_per_sec) || parseFloat(obj.reference_depth_to_2pt5km_per_sec) < 0.0) {
-                ret.str += "'Minimum depth at which vs30 >= 2.5' field isn't positive float number (" + obj.reference_depth_to_2pt5km_per_sec + ").\n";
-            }
-            obj.reference_depth_to_1pt0km_per_sec = $(cf_obj.shpfx + ' div[name="hazard-sitecond_uniform-param"]'
-                                     + ' input[type="text"][name="reference_depth_to_1pt0km_per_sec"]').val();
-            if (!isFloat(obj.reference_depth_to_1pt0km_per_sec) || parseFloat(obj.reference_depth_to_1pt0km_per_sec) < 0.0) {
-                ret.str += "'Minimum depth at which vs30 >= 1.0' field isn't positive float number (" + obj.reference_depth_to_1pt0km_per_sec + ").\n";
+                    // Check for invalid value
+                    for (var i = 0; i < obj.exposure_model_regcons_coords_data.length; i++) {
+                        var lon = obj.exposure_model_regcons_coords_data[i][0];
+                        var lat = obj.exposure_model_regcons_coords_data[i][1];
+                        if (lon === null || lat === null || !isFloat(lon) || !isFloat(lat) ||
+                            parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
+                            parseFloat(lat) < -90.0  || parseFloat(lat) > 180.0) {
+                            ret.str += "Entry #" + (i+1) + " of exposure model 'Region constraint'"
+                                + " field is invalid (" + lon + ", " + lat + ").\n";
+                        }
+                    }
+                }
             }
         }
-        else if (obj.site_conditions_choice == 'from-file') {
-            /* site conditions -> from-file */
-            obj.site_model_file = $(cf_obj.shpfx + ' div[name="site-conditions-html"] select[name="file_html"]').val();
-            if (obj.site_model_file == '') {
-                ret.str += "'Site conditions file' field is empty.\n";
+
+        // Fragility and vulnerability model (get)
+        var $frag_model = $(cf_obj.shpfx + ' div[name="fragility-model"]');
+        var $vuln_model = $(cf_obj.shpfx + ' div[name="vulnerability-model"]');
+        if (obj.risk == 'damage') {
+            // Fragility model (get)
+            var show_cons = $(cf_obj.shpfx + ' div[name="fragility-model"] input[type="checkbox"]'
+                              + '[name="fm-loss-include-cons"]').is(':checked');
+            obj.fm_loss_show_cons_choice = show_cons;
+            var losslist = ['structural', 'nonstructural', 'contents', 'businter' ];
+            var descr = { structural: 'structural', nonstructural: 'nonstructural',
+                          contents: 'contents', businter: 'business interruption' };
+
+            for (var lossidx in losslist) {
+                var losstype = losslist[lossidx];
+
+                $target = $(cf_obj.shpfx + ' div[name="fragility-model"] div[name="fm-loss-'
+                            + losstype + '"]');
+                $target2 = $(cf_obj.shpfx + ' div[name="fragility-model"] div[name="fm-loss-'
+                            + losstype + '-cons"]');
+
+                obj['fm_loss_' + losstype + '_choice'] = $(
+                    cf_obj.shpfx + ' div[name="fragility-model"] input[type="checkbox"][name="losstype"]'
+                        + '[value="' + losstype + '"]').is(':checked')
+                if(obj['fm_loss_' + losstype + '_choice']) {
+                    obj['fm_loss_' + losstype] = $target.find('select[name="file_html"]').val();
+                    uniqueness_add(files_list, 'fragility model: ' + descr[losstype], obj['fm_loss_' + losstype]);
+                    ret.str += uniqueness_check(files_list);
+
+                    if (show_cons) {
+                        obj['fm_loss_' + losstype + '_cons'] = $target2.find('select[name="file_html"]').val();
+                        uniqueness_add(files_list, 'fragility model: ' + descr[losstype] + ' consequencies', obj['fm_loss_' + losstype + '_cons']);
+                        ret.str += uniqueness_check(files_list);
+                    }
+
+                }
             }
-            uniqueness_add(files_list, 'site conditions', obj.site_model_file);
-            ret.str += uniqueness_check(files_list);
-
         }
-        else {
-            ret.str += "Unknown 'Site conditions' choice (' + obj.site_conditions_choice + ').\n";
-        }
+        else if(obj.risk == 'losses') {
+            // Vulnerability model (get)
+            var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
+            for (var lossidx in losslist) {
+                var losstype = losslist[lossidx];
 
-        /* calculation parameters */
+                $target = $(cf_obj.shpfx + ' div[name="vulnerability-model"] div[name="vm-loss-'
+                            + losstype + '"]');
 
-        obj.gmpe_choice = $(cf_obj.shpfx + ' input[type="radio"]'
-                        + '[name="hazard_gmpe"]:checked').val();
+                obj['vm_loss_' + losstype + '_choice'] = $(
+                    cf_obj.shpfx + ' div[name="vulnerability-model"] input[type="checkbox"][name="losstype"]'
+                        + '[value="' + losstype + '"]').is(':checked')
+                if(obj['vm_loss_' + losstype + '_choice']) {
+                    var descr = { structural: 'structural', nonstructural: 'nonstructural',
+                                  contents: 'contents', businter: 'business interruption' };
 
-        if (obj.gmpe_choice == 'specify-gmpe') {
-            obj.gsim = $(cf_obj.shpfx + ' input[type="radio"][name="gmpe"]:checked').map(function(_, el) {
-                return $(el).val();
-            }).get();
-
-            if (obj.gsim.length < 1) {
-                ret.str += "Unique GMPE not selected.\n";
+                    obj['vm_loss_' + losstype] = $target.find('select[name="file_html"]').val();
+                    uniqueness_add(files_list, 'vulnerability model: ' + descr[losstype], obj['vm_loss_' + losstype]);
+                    ret.str += uniqueness_check(files_list);
+                }
             }
         }
-        else if (obj.gmpe_choice == 'from-file') {
-            /* calculation parameters -> from file */
-            obj.fravul_model_file = $(cf_obj.shpfx + ' div[name="hazard-gmpe_from-file"]'
-                                  + ' div[name="fravul-model-html"] select[name="file_html"]').val();
-            if (obj.fravul_model_file == '') {
-                ret.str += "'GMPE logic tree file' field is empty.\n";
+
+        // Site conditions (get)
+        if (obj.hazard == 'hazard') {
+            obj.site_conditions_choice = $(cf_obj.shpfx + ' input[type="radio"]'
+                                           + '[name="hazard_sitecond"]:checked').val();
+
+            if (obj.site_conditions_choice == 'uniform-param') {
+                // site conditions -> uniform-param (get)
+                obj.reference_vs30_value = $(cf_obj.shpfx + ' div[name="hazard-sitecond_uniform-param"]'
+                                             + ' input[type="text"][name="reference_vs30_value"]').val();
+                if (!isFloat(obj.reference_vs30_value) || parseFloat(obj.reference_vs30_value) < 0.0) {
+                    ret.str += "'Reference vs30 value' field isn't positive float number (" + obj.reference_vs30_value + ").\n";
+                }
+                obj.reference_vs30_type = $(cf_obj.shpfx + ' input[type="radio"]'
+                                            + '[name="hazard_sitecond_type"]:checked').val();
+                if (obj.reference_vs30_type != 'inferred' && obj.reference_vs30_type != 'measured') {
+                    ret.str += "Reference vs30 type choice (" + obj.reference_vs30_type + ") unknown";
+                }
+
+                obj.reference_depth_to_2pt5km_per_sec = $(cf_obj.shpfx + ' div[name="hazard-sitecond_uniform-param"]'
+                                                          + ' input[type="text"][name="reference_depth_to_2pt5km_per_sec"]').val();
+                if (!isFloat(obj.reference_depth_to_2pt5km_per_sec) || parseFloat(obj.reference_depth_to_2pt5km_per_sec) < 0.0) {
+                    ret.str += "'Minimum depth at which vs30 >= 2.5' field isn't positive float number (" + obj.reference_depth_to_2pt5km_per_sec + ").\n";
+                }
+                obj.reference_depth_to_1pt0km_per_sec = $(cf_obj.shpfx + ' div[name="hazard-sitecond_uniform-param"]'
+                                                          + ' input[type="text"][name="reference_depth_to_1pt0km_per_sec"]').val();
+                if (!isFloat(obj.reference_depth_to_1pt0km_per_sec) || parseFloat(obj.reference_depth_to_1pt0km_per_sec) < 0.0) {
+                    ret.str += "'Minimum depth at which vs30 >= 1.0' field isn't positive float number (" + obj.reference_depth_to_1pt0km_per_sec + ").\n";
+                }
             }
-            uniqueness_add(files_list, 'GMPE logic tree', obj.fravul_model_file);
-            ret.str += uniqueness_check(files_list);
-        }
-        else {
-            ret.str += "Unknown 'GMPE' choice (" + obj.gmpe_choice + ").\n";
+            else if (obj.site_conditions_choice == 'from-file') {
+                // site conditions -> from-file (get)
+                obj.site_model_file = $(cf_obj.shpfx + ' div[name="site-conditions-html"] select[name="file_html"]').val();
+                if (obj.site_model_file == '') {
+                    ret.str += "'Site conditions file' field is empty.\n";
+                }
+                uniqueness_add(files_list, 'site conditions', obj.site_model_file);
+                ret.str += uniqueness_check(files_list);
+
+            }
+            else {
+                ret.str += "Unknown 'Site conditions' choice (' + obj.site_conditions_choice + ').\n";
+            }
         }
 
-        /* calculation parameters -> specify-imt */
-        obj.intensity_measure_types = $(
-            cf_obj.shpfx + ' div[name="hazard-imt_specify-imt"]'
-                + ' input[type="checkbox"][name="imt"]:checked').map(function(_, el) {
+
+        // Calculation parameters (get)
+        if (obj.hazard == 'hazard') {
+            obj.gmpe_choice = $(cf_obj.shpfx + ' input[type="radio"]'
+                                + '[name="hazard_gmpe"]:checked').val();
+
+            if (obj.gmpe_choice == 'specify-gmpe') {
+                obj.gsim = $(cf_obj.shpfx + ' input[type="radio"][name="gmpe"]:checked').map(function(_, el) {
                     return $(el).val();
                 }).get();
 
-        obj.custom_imt = $(cf_obj.shpfx + ' input[name="custom_imt"]').val();
+                if (obj.gsim.length < 1) {
+                    ret.str += "Unique GMPE not selected.\n";
+                }
+            }
+            else if (obj.gmpe_choice == 'from-file') {
+                // calculation parameters -> from file (get)
+                obj.fravul_model_file = $(cf_obj.shpfx + ' div[name="hazard-gmpe_from-file"]'
+                                          + ' div[name="fravul-model-html"] select[name="file_html"]').val();
+                if (obj.fravul_model_file == '') {
+                    ret.str += "'GMPE logic tree file' field is empty.\n";
+                }
+                uniqueness_add(files_list, 'GMPE logic tree', obj.fravul_model_file);
+                ret.str += uniqueness_check(files_list);
+            }
+            else {
+                ret.str += "Unknown 'GMPE' choice (" + obj.gmpe_choice + ").\n";
+            }
 
-        if (obj.intensity_measure_types.length < 1 && obj.custom_imt == "") {
-            ret.str += "IMT's not selected.\n";
+            if (obj.risk == null) {
+                // if risk disabled imts fields must be shown
+                // calculation parameters -> specify-imt (get)
+                obj.intensity_measure_types = $(
+                    cf_obj.shpfx + ' div[name="hazard-imt_specify-imt"]'
+                        + ' input[type="checkbox"][name="imt"]:checked').map(function(_, el) {
+                            return $(el).val();
+                        }).get();
+
+                obj.custom_imt = $(cf_obj.shpfx + ' input[name="custom_imt"]').val();
+
+                if (obj.intensity_measure_types.length < 1 && obj.custom_imt == "") {
+                    ret.str += "IMT's not selected.\n";
+                }
+            }
+
+            obj.ground_motion_correlation_model = $(
+                cf_obj.shpfx + ' select[name="ground-motion-correlation"]').val();
+
+            if (["", "JB2009"].indexOf(obj.ground_motion_correlation_model) == -1) {
+                ret.str += "'Ground Motion Correlation' field unknown.\n";
+            }
+
+            obj.truncation_level = $(cf_obj.shpfx + ' input[name="truncation_level"]').val();
+            if (!isFloat(obj.truncation_level) || parseFloat(obj.truncation_level) < 0.0) {
+                ret.str += "'Level of truncation' field isn't positive float number (" + obj.truncation_level + ").\n";
+            }
+
+            obj.maximum_distance = $(cf_obj.shpfx + ' input[name="maximum_distance"]').val();
+            if (!isFloat(obj.maximum_distance) || parseFloat(obj.maximum_distance) < 0.0) {
+                ret.str += "'Maximum source-to-site distance' field isn't positive float number (" + obj.maximum_distance + ").\n";
+            }
+
+            obj.number_of_ground_motion_fields = $(cf_obj.shpfx + ' input[name="number_of_ground_motion_fields"]').val();
+            if (!isInt(obj.number_of_ground_motion_fields) || parseInt(obj.number_of_ground_motion_fields) <= 0) {
+                ret.str += "'Number of ground motion fields' field isn't greater than 0 integer number (" + obj.number_of_ground_motion_fields + ").\n";
+            }
         }
-
-        obj.ground_motion_correlation_model = $(
-            cf_obj.shpfx + ' select[name="ground-motion-correlation"]').val();
-
-        if (["", "JB2009"].indexOf(obj.ground_motion_correlation_model) == -1) {
-            ret.str += "'Ground Motion Correlation' field unknown.\n";
-        }
-
-        obj.truncation_level = $(cf_obj.shpfx + ' input[name="truncation_level"]').val();
-        if (!isFloat(obj.truncation_level) || parseFloat(obj.truncation_level) < 0.0) {
-            ret.str += "'Level of truncation' field isn't positive float number (" + obj.truncation_level + ").\n";
-        }
-
-        obj.maximum_distance = $(cf_obj.shpfx + ' input[name="maximum_distance"]').val();
-        if (!isFloat(obj.maximum_distance) || parseFloat(obj.maximum_distance) < 0.0) {
-            ret.str += "'Maximum source-to-site distance' field isn't positive float number (" + obj.maximum_distance + ").\n";
-        }
-
-        obj.number_of_ground_motion_fields = $(cf_obj.shpfx + ' input[name="number_of_ground_motion_fields"]').val();
-        if (!isInt(obj.number_of_ground_motion_fields) || parseInt(obj.number_of_ground_motion_fields) <= 0) {
-            ret.str += "'Number of ground motion fields' field isn't greater than 0 integer number (" + obj.number_of_ground_motion_fields + ").\n";
-        }
-
 
         if (ret.str == '') {
             ret.ret = 0;

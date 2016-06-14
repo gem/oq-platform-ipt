@@ -151,11 +151,11 @@ class FileUpload(forms.Form):
     file_upload = forms.FileField()
 
 
-def filehtml_create(suffix, dirnam=None):
+def filehtml_create(suffix, dirnam=None, match=".*\.xml"):
     if dirnam == None:
         dirnam = suffix
     class FileHtml(forms.Form):
-        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + dirnam + '/'), match=".*\.xml", recursive=True)
+        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + dirnam + '/'), match=match, recursive=True)
     fh = FileHtml()
     fh.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
     fh.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
@@ -167,7 +167,7 @@ def view(request, **kwargs):
     rupture_file_html = filehtml_create('rupture_file')
     rupture_file_upload = FileUpload()
 
-    list_of_sites_html = filehtml_create('list_of_sites')
+    list_of_sites_html = filehtml_create('list_of_sites', match=".*\.csv")
     list_of_sites_upload = FileUpload()
 
     exposure_model_html = filehtml_create('exposure_model')
@@ -288,16 +288,22 @@ def upload(request, **kwargs):
             class FileUpload(forms.Form):
                 file_upload = forms.FileField()
             form =  FileUpload(request.POST, request.FILES)
+            if target in ['list_of_sites']:
+                exten = "csv"
+            else:
+                exten = "xml"
+
             if form.is_valid():
-                if request.FILES['file_upload'].name.endswith('.xml'):
+                if request.FILES['file_upload'].name.endswith('.' + exten):
                     bname = settings.FILE_PATH_FIELD_DIRECTORY + target + '/'
                     f = file(bname + request.FILES['file_upload'].name, "w")
                     f.write(request.FILES['file_upload'].read())
                     f.close()
 
                     suffix = target + "/"
+                    match = ".*\." + exten
                     class FileHtml(forms.Form):
-                        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix), match=".*\.xml", recursive=True)
+                        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix), match=match, recursive=True)
 
                     fileslist = FileHtml()
                     fileslist.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
@@ -310,7 +316,7 @@ def upload(request, **kwargs):
                     ret['ret_msg'] = 'File ' + str(request.FILES['file_upload']) + ' uploaded successfully.';
                 else:
                     ret['ret'] = 1;
-                    ret['ret_msg'] = 'File uploaded isn\'t an XML file.';
+                    ret['ret_msg'] = 'File uploaded isn\'t an ' + exten.upper() + ' file.';
 
                 # Redirect to the document list after POST
                 return HttpResponse(json.dumps(ret), content_type="application/json");
@@ -326,7 +332,7 @@ def prepare(request, **kwargs):
     ret = {};
 
     if request.POST.get('data', '') == '':
-        ret['ret'] = 3
+        ret['ret'] = 1
         ret['msg'] = 'Malformed request.'
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
@@ -340,89 +346,152 @@ def prepare(request, **kwargs):
     jobini += "description = %s\n" % data['description']
 
     # FIXME depends on hazard + risk combination
-    jobini += "calculation_mode = scenario\n"
+    if data['risk'] == 'damage':
+        jobini += "calculation_mode = scenario_damage\n"
+    elif data['risk'] == 'losses':
+        jobini += "calculation_mode = scenario_risk\n"
+    elif data['hazard'] == 'hazard':
+        jobini += "calculation_mode = scenario\n"
+    else:
+        ret['ret'] = 2
+        ret['msg'] = 'Neither hazard nor risk selected.'
+        return HttpResponse(json.dumps(ret), content_type="application/json")
 
     jobini += "random_seed = 113\n"
 
-    jobini += "\n[Rupture information]\n"
-    #            #####################
+    if data['hazard'] == 'hazard':
+        jobini += "\n[Rupture information]\n"
+        #            #####################
 
-    jobini += "rupture_model_file = %s\n" % os.path.basename(data['rupture_model_file'])
-    z.write(data['rupture_model_file'], os.path.basename(data['rupture_model_file']))
+        jobini += "rupture_model_file = %s\n" % os.path.basename(data['rupture_model_file'])
+        z.write(data['rupture_model_file'], os.path.basename(data['rupture_model_file']))
 
-    jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
+        jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
 
-    jobini += "\n[Hazard sites]\n"
-    #            ##############
+    if data['hazard'] == 'hazard':
+        jobini += "\n[Hazard sites]\n"
+        #            ##############
 
-    if data['hazard_sites_choice'] == 'region-grid':
-        jobini += "region_grid_spacing = %s\n" % data['grid_spacing']
-        is_first = True
-        jobini += "region = "
-        for el in data['reggrid_coords_data']:
-            if is_first:
-                is_first = False
-            else:
-                jobini += ", "
-            jobini += "%s %s" % (el[0], el[1])
-        jobini += "\n"
-    elif data['hazard_sites_choice'] == 'list-of-sites':
-        jobini += "sites = %s\n" % os.path.basename(data['list_of_sites'])
-        z.write(data['list_of_sites'], os.path.basename(data['list_of_sites']))
-    elif data['hazard_sites_choice'] == 'exposure-model':
+        if data['hazard_sites_choice'] == 'region-grid':
+            jobini += "region_grid_spacing = %s\n" % data['grid_spacing']
+            is_first = True
+            jobini += "region = "
+            for el in data['reggrid_coords_data']:
+                if is_first:
+                    is_first = False
+                else:
+                    jobini += ", "
+                jobini += "%s %s" % (el[0], el[1])
+            jobini += "\n"
+        elif data['hazard_sites_choice'] == 'list-of-sites':
+            jobini += "sites = %s\n" % os.path.basename(data['list_of_sites'])
+            z.write(data['list_of_sites'], os.path.basename(data['list_of_sites']))
+        elif data['hazard_sites_choice'] == 'exposure-model':
+            pass
+        elif data['hazard_sites_choice'] == 'site-cond-model':
+            if data['site_conditions_choice'] != 'from-file':
+                ret['ret'] = 4
+                ret['msg'] = 'Input hazard sites choices mismatch method to specify site conditions.'
+                return HttpResponse(json.dumps(ret), content_type="application/json")
+        else:
+            ret['ret'] = 4
+            ret['msg'] = 'Unknown hazard_sites_choice.'
+            return HttpResponse(json.dumps(ret), content_type="application/json")
+
+    if ((data['hazard'] == 'hazard' and data['hazard_sites_choice'] == 'exposure-model')
+        or data['risk'] != None):
+        jobini += "\n[Exposure model]\n"
+        #            ################
+
         jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
         z.write(data['exposure_model'], os.path.basename(data['exposure_model']))
-    elif data['hazard_sites_choice'] == 'site-cond-model':
-        if data['site_conditions_choice'] != 'from-file':
-            ret['ret'] = 4
-            ret['msg'] = 'Input hazard sites choices mismatch method to specify site conditions.'
-            return HttpResponse(json.dumps(ret), content_type="application/json")
-    else:
-        ret['ret'] = 4
-        ret['msg'] = 'Unknown hazard_sites_choice.'
-        return HttpResponse(json.dumps(ret), content_type="application/json")
+        if data['risk'] != None:
+            if data['exposure_model_regcons_choice'] == True:
+                is_first = True
+                jobini += "region_constraint = "
+                for el in data['exposure_model_regcons_coords_data']:
+                    if is_first:
+                        is_first = False
+                    else:
+                        jobini += ", "
+                    jobini += "%s %s" % (el[0], el[1])
+                jobini += "\n"
 
-    jobini += "\n[Site conditions]\n"
-    #            #################
+    if data['risk'] == 'damage':
+        jobini += "\n[Fragility model]\n"
+        #            #################
+        descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
+                 'contents': 'contents', 'businter': 'business_interruption'}
+        with_cons = data['fm_loss_show_cons_choice']
+        for losslist in ['structural', 'nonstructural', 'contents', 'businter']:
+            if data['fm_loss_'+ losslist + '_choice'] == True:
+                jobini += "%s_fragility_file = %s\n" % (
+                    descr[losslist], os.path.basename(data['fm_loss_' + losslist]))
+                z.write(data['fm_loss_' + losslist], os.path.basename(data['fm_loss_' + losslist]))
+                if with_cons == True:
+                    jobini += "%s_consequence_file = %s\n" % (
+                        descr[losslist], os.path.basename(data['fm_loss_' + losslist + '_cons']))
+                    z.write(data['fm_loss_' + losslist + '_cons'],
+                            os.path.basename(data['fm_loss_' + losslist + '_cons']))
+    elif data['risk'] == 'losses':
+        jobini += "\n[Vulnerability model]\n"
+        #            #####################
+        descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
+                 'contents': 'contents', 'businter': 'business_interruption',
+                 'occupants': 'occupants'}
+        for losslist in ['structural', 'nonstructural', 'contents', 'businter',
+                         'occupants']:
+            if data['vm_loss_'+ losslist + '_choice'] == True:
+                jobini += "%s_vulnerability_file = %s\n" % (
+                    descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
+                z.write(data['vm_loss_' + losslist],
+                        os.path.basename(data['vm_loss_' + losslist]))
 
-    if data['site_conditions_choice'] == 'from-file':
-        jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
-        z.write(data['site_model_file'], os.path.basename(data['site_model_file']))
-    elif data['site_conditions_choice'] == 'uniform-param':
-        jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
-        jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
-        jobini += "reference_depth_to_2pt5km_per_sec = %s\n" % data['reference_depth_to_2pt5km_per_sec']
-        jobini += "reference_depth_to_1pt0km_per_sec = %s\n" % data['reference_depth_to_1pt0km_per_sec']
+    if data['hazard'] == 'hazard':
+        jobini += "\n[Site conditions]\n"
+        #            #################
 
-    jobini += "\n[calculation parameters]\n"
-    #            ########################
+        if data['site_conditions_choice'] == 'from-file':
+            jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
+            z.write(data['site_model_file'], os.path.basename(data['site_model_file']))
+        elif data['site_conditions_choice'] == 'uniform-param':
+            jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
+            jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
+            jobini += "reference_depth_to_2pt5km_per_sec = %s\n" % data['reference_depth_to_2pt5km_per_sec']
+            jobini += "reference_depth_to_1pt0km_per_sec = %s\n" % data['reference_depth_to_1pt0km_per_sec']
 
-    if data['gmpe_choice'] == 'specify-gmpe':
-        jobini += "gsim = %s\n" % data['gsim'][0]
-    elif data['gmpe_choice'] == 'from-file':
-        jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(data['fravul_model_file'])
-        z.write(data['fravul_model_file'], os.path.basename(data['fravul_model_file']))
+    if data['hazard'] == 'hazard':
+        jobini += "\n[Calculation parameters]\n"
+        #            ########################
 
-    jobini += "intensity_measure_types = "
-    is_first = True
-    for imt in data['intensity_measure_types']:
-        if is_first:
-            is_first = False
-        else:
-            jobini += ", "
-        jobini += imt
-    if data['custom_imt'] != '':
-        if not is_first:
-            jobini += ", "
-        jobini += data['custom_imt']
-    jobini += "\n"
+        if data['gmpe_choice'] == 'specify-gmpe':
+            jobini += "gsim = %s\n" % data['gsim'][0]
+        elif data['gmpe_choice'] == 'from-file':
+            jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(data['fravul_model_file'])
+            z.write(data['fravul_model_file'], os.path.basename(data['fravul_model_file']))
 
-    jobini += "ground_motion_correlation_model = %s\n" % data['ground_motion_correlation_model']
-    # FIXME
+        if data['risk'] == None:
+            jobini += "intensity_measure_types = "
+            is_first = True
+            for imt in data['intensity_measure_types']:
+                if is_first:
+                    is_first = False
+                else:
+                    jobini += ", "
+                jobini += imt
+            if data['custom_imt'] != '':
+                if not is_first:
+                    jobini += ", "
+                jobini += data['custom_imt']
+            jobini += "\n"
 
-    jobini += "truncation_level = %s\n" % data['truncation_level']
-    jobini += "maximum_distance = %s\n" % data['maximum_distance']
-    jobini += "number_of_ground_motion_fields = %s\n" % data['number_of_ground_motion_fields']
+        jobini += "ground_motion_correlation_model = %s\n" % data['ground_motion_correlation_model']
+        if data['ground_motion_correlation_model'] == 'JB2009':
+            jobini += "ground_motion_correlation_params = {\"vs30_clustering\": True}\n"
+
+        jobini += "truncation_level = %s\n" % data['truncation_level']
+        jobini += "maximum_distance = %s\n" % data['maximum_distance']
+        jobini += "number_of_ground_motion_fields = %s\n" % data['number_of_ground_motion_fields']
 
     print jobini
 
