@@ -10,15 +10,15 @@ $(document).ready(function () {
     table.loadData(data);
 
     /* exposure model */
-    $(cf_obj.shpfx + ' div[name="exposure-model-html"] select[name="file_html"]').val('data/exposure_model/exposure_model.xml');
-    $(cf_obj.shpfx + ' div[name="exposure-model"] input[type="checkbox"][name="include"]').prop('checked', true).triggerHandler('click');
+    $(cf_obj['scen'].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val('data/exposure_model/exposure_model.xml');
+    $(cf_obj['scen'].pfx + ' div[name="exposure-model"] input[type="checkbox"][name="include"]').prop('checked', true).triggerHandler('click');
     var data = [ [ "4", "4" ], ["3", "3"], ["2", "2" ] ];
     var table = $(
-        cf_obj.shpfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'
+        cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'
     ).handsontable('getInstance');
     table.loadData(data);
 
-    $(cf_obj.shpfx + ' div[name="fragility-model"] div[name="fm-loss-'
+    $(cf_obj['scen'].pfx + ' div[name="fragility-model"] div[name="fm-loss-'
                             + "structural" + '"] select[name="file_html"]').val('data/fragility_model/pippo.xml');
     
     $('.cf_gid div[name="hazard-gmpe_specify-gmpe"] input[type="text"]').focus();
