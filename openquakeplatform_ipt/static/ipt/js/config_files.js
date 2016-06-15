@@ -28,7 +28,30 @@ $(document).ready(function () {
         e.preventDefault();
         $(this).tab('show');
     });
-
+    function exposure_model_manager(scope, enabled, with_constraints)
+    {
+        $target = $(scope + ' div[name="exposure-model"]');
+        if (enabled) {
+            $target.css('display', '');
+            $subtarget = $(scope + ' div[name="exposure-model"] div[name="exposure-model-risk"]');
+            if (with_constraints) {
+                $subtarget.css('display', '');
+                $subsubt = $(scope + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+                             + ' div[name="region-constraint"]');
+                if ($(scope + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+                      + ' input[name="include"]').is(':checked'))
+                    $subsubt.css('display', '');
+                else
+                    $subsubt.css('display', 'none');
+            }
+            else {
+                $subtarget.css('display', 'none');
+            }
+        }
+        else
+            $target.css('display', 'none');
+    }
+    
     function scenario_sect_manager() {
         console.log('scenario_sect_manager');
         var hazard = null; // null or hazard
@@ -75,6 +98,14 @@ $(document).ready(function () {
             $target.css('display', 'none');
 
         // Exposure model (ui)
+
+
+        exposure_model_manager(cf_obj.shpfx,
+                               ((hazard != null && hazard_sites_choice == 'exposure-model')
+                                 || risk != null),
+                               (risk != null)
+                              );
+
         $target = $(cf_obj.shpfx + ' div[name="exposure-model"]');
         if ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null) {
             $target.css('display', '');
@@ -205,11 +236,8 @@ $(document).ready(function () {
     }
 
     /* hazard components callbacks */
-    function scenario_hazard_onclick_cb(e) {
-        scenario_sect_manager();
-    }
-    $(cf_obj.shpfx + ' input[name="hazard"]').click(scenario_hazard_onclick_cb);
-    scenario_hazard_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="hazard"]')[0]});
+    $(cf_obj.shpfx + ' input[name="hazard"]').click(scenario_sect_manager);
+    $(cf_obj.shpfx + ' input[name="hazard"]').prop('checked', true).triggerHandler('click');
 
     /* risk components callbacks */
     function scenario_risk_onclick_cb(e) {
@@ -220,21 +248,14 @@ $(document).ready(function () {
     scenario_risk_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="risk"]')[0] });
 
     /* risk type components callbacks */
-    function scenario_risktype_onclick_cb(e) {
-        scenario_sect_manager();
-    }
-    $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]').click(scenario_risktype_onclick_cb);
-    scenario_risktype_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="risk-type"]')[0] });
+    $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]').click(scenario_sect_manager);
+    $(cf_obj.shpfx + ' input[name="risk-type"][value="damage"]').prop('checked', true);
 
     /* risk-only region constraint checkbox */
-    function scenario_region_constraint_cb(e) {
-        scenario_sect_manager();
-    }
     $(cf_obj.shpfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-      + ' input[name="include"]').click(scenario_region_constraint_cb);
-    scenario_region_constraint_cb(
-        {target: $(cf_obj.shpfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                   + ' input[name="include"]')[0]});
+      + ' input[name="include"]').click(scenario_sect_manager);
+    $(cf_obj.shpfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+                   + ' input[name="include"]').prop('checked', true).triggerHandler('click');
 
     /* generic callback to show upload div */
     function scenario_fileNew_cb(e) {
@@ -408,35 +429,22 @@ $(document).ready(function () {
       ' form[name="fravul-model"]').submit(scenario_fileNew_upload);
 
     /* hazard sites callbacks */
-    function scenario_hazard_hazardSites_onclick_cb(e) {
-        scenario_sect_manager();
-    }
     $(cf_obj.shpfx + ' input[name="hazard_sites"]').click(
-        scenario_hazard_hazardSites_onclick_cb);
-    scenario_hazard_hazardSites_onclick_cb({ target: $(
-        cf_obj.shpfx + ' input[name="hazard_sites"][value="region-grid"]')[0] });
+        scenario_sect_manager);
+    $(cf_obj.shpfx + ' input[name="hazard_sites"][value="region-grid"]'
+     ).prop('checked', true).triggerHandler('click');
 
     /* hazard site conditions callbacks */
-    function scenario_hazard_siteCond_onclick_cb(e) {
-        scenario_sect_manager();
-    }
     $(cf_obj.shpfx + ' input[name="hazard_sitecond"]').click(
-        scenario_hazard_siteCond_onclick_cb);
-    scenario_hazard_siteCond_onclick_cb({
-        target: $(cf_obj.shpfx
-                  + ' input[name="hazard_sitecond"][value="uniform-param"]')[0]
-    });
+        scenario_sect_manager);
+    $(cf_obj.shpfx + ' input[name="hazard_sitecond"][value="uniform-param"]'
+     ).prop('checked', true).triggerHandler('click');
 
     /* hazard gmpe callbacks */
-    function scenario_hazard_gmpe_onclick_cb(e) {
-        scenario_sect_manager();
-    }
-    $(cf_obj.shpfx + ' input[name="hazard_gmpe"]').click(
-        scenario_hazard_gmpe_onclick_cb);
-    scenario_hazard_gmpe_onclick_cb({
-        target: $(cf_obj.shpfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]')[0]
-    });
-
+    $(cf_obj.shpfx + ' input[name="hazard_gmpe"]').click(scenario_sect_manager);
+    $(cf_obj.shpfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]'
+     ).prop('checked', true).triggerHandler('click');
+    
     /* handsontables creations */
     /* hazard content table handsontable */
     $(cf_obj.shpfx + ' div[name="table"]').handsontable({
@@ -949,6 +957,7 @@ $(document).ready(function () {
     $(cf_obj.shpfx + ' button[name="download"]').click(scenario_download_cb);
 
     scenario_sect_manager();
+    event_based_sect_manager();
 
 });
 
