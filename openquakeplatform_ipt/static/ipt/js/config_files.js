@@ -16,7 +16,8 @@
 */
 
 var cf_obj = {
-    shpfx: '.cf_gid div[name="eq-scenario"]',
+    shpfx: '.cf_gid div[name="scenario"]',
+    ebpfx: '.cf_gid div[name="event-based"]',
     scen_haz_regGrid_coords: null,
     scen_haz_expModel_coords: null
 
