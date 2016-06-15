@@ -56,30 +56,31 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
     }
-    /*  FIXME TO BE FINISHED !!!! */
-    function exposure_model_getData(scope, ret, obj, enabled, with_constraints)
+
+    // Exposure model (get)
+    // scope == 'scen' or 'e_b'
+    function exposure_model_getData(scope, ret, files_list, obj, enabled, with_constraints)
     {
-        // Exposure model (get)
+        if (enabled) {
+            // hazard sites -> exposure-model
+            obj.exposure_model = $(cf_obj[scope].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val();
+            if (obj.exposure_model == '') {
+                ret.str += "'Exposure model' field is empty.\n";
+            }
 
-        // hazard sites -> exposure-model
-        obj.exposure_model = $(pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val();
-        if (obj.exposure_model == '') {
-            ret.str += "'Exposure model' field is empty.\n";
-        }
+            uniqueness_add(files_list, 'exposure model', obj.exposure_model);
+            ret.str += uniqueness_check(files_list);
+            if (with_constraints) {
+                obj.exposure_model_regcons_choice = $(
+                    cf_obj[scope].pfx + ' div[name="exposure-model"] input[type="checkbox"][name="include"]'
+                ).is(':checked');
+                if (obj.exposure_model_regcons_choice) {
+                    obj.exposure_model_regcons_coords_data = cf_obj[scope].expModel_coords.getData();
 
-        uniqueness_add(files_list, 'exposure model', obj.exposure_model);
-        ret.str += uniqueness_check(files_list);
-        if (with_constraints) {
-            obj.exposure_model_regcons_choice = $(
-                cf_obj['scen'].pfx + ' div[name="exposure-model"] input[type="checkbox"][name="include"]'
-            ).is(':checked');
-            if (obj.exposure_model_regcons_choice) {
-                obj.exposure_model_regcons_coords_data = cf_obj['scen'].expModel_coords.getData();
-
-                // Check for invalid value
-                for (var i = 0; i < obj.exposure_model_regcons_coords_data.length; i++) {
-                    var lon = obj.exposure_model_regcons_coords_data[i][0];
-                    var lat = obj.exposure_model_regcons_coords_data[i][1];
+                    // Check for invalid value
+                    for (var i = 0; i < obj.exposure_model_regcons_coords_data.length; i++) {
+                        var lon = obj.exposure_model_regcons_coords_data[i][0];
+                        var lat = obj.exposure_model_regcons_coords_data[i][1];
                         if (lon === null || lat === null || !isFloat(lon) || !isFloat(lat) ||
                             parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
                             parseFloat(lat) < -90.0  || parseFloat(lat) > 180.0) {
@@ -90,12 +91,13 @@ $(document).ready(function () {
                 }
             }
         }
+    }
 
-    
+
     /*
      * - - - SCENARIO - - -
      */
-    
+
     function scenario_sect_manager() {
         console.log('scenario_sect_manager');
         var hazard = null; // null or hazard
@@ -488,7 +490,7 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"]').click(scenario_sect_manager);
     $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]'
      ).prop('checked', true).triggerHandler('click');
-    
+
     /* handsontables creations */
     /* hazard content table handsontable */
     $(cf_obj['scen'].pfx + ' div[name="table"]').handsontable({
@@ -703,40 +705,13 @@ $(document).ready(function () {
                 ret.str += "Unknown 'Hazard sites' choice (' + obj.hazard_sites_choice + ').\n";
             }
         }
-        /* da qui */
+
         // Exposure model (get)
-        if ((obj.hazard == 'hazard' && obj.hazard_sites_choice == 'exposure-model')
-            || obj.risk != null) {
-            // hazard sites -> exposure-model
-            obj.exposure_model = $(cf_obj['scen'].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val();
-            if (obj.exposure_model == '') {
-                ret.str += "'Exposure model' field is empty.\n";
-            }
+        exposure_model_getData(
+            'scen', ret, files_list, obj,
+            ((obj.hazard == 'hazard' && obj.hazard_sites_choice == 'exposure-model') || obj.risk != null),
+            obj.risk);
 
-            uniqueness_add(files_list, 'exposure model', obj.exposure_model);
-            ret.str += uniqueness_check(files_list);
-            if (obj.risk != null) {
-                obj.exposure_model_regcons_choice = $(
-                    cf_obj['scen'].pfx + ' div[name="exposure-model"] input[type="checkbox"][name="include"]'
-                ).is(':checked');
-                if (obj.exposure_model_regcons_choice) {
-                    obj.exposure_model_regcons_coords_data = cf_obj['scen'].expModel_coords.getData();
-
-                    // Check for invalid value
-                    for (var i = 0; i < obj.exposure_model_regcons_coords_data.length; i++) {
-                        var lon = obj.exposure_model_regcons_coords_data[i][0];
-                        var lat = obj.exposure_model_regcons_coords_data[i][1];
-                        if (lon === null || lat === null || !isFloat(lon) || !isFloat(lat) ||
-                            parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
-                            parseFloat(lat) < -90.0  || parseFloat(lat) > 180.0) {
-                            ret.str += "Entry #" + (i+1) + " of exposure model 'Region constraint'"
-                                + " field is invalid (" + lon + ", " + lat + ").\n";
-                        }
-                    }
-                }
-            }
-        }
-        /* fino qui  */
         // Fragility and vulnerability model (get)
         var $frag_model = $(cf_obj['scen'].pfx + ' div[name="fragility-model"]');
         var $vuln_model = $(cf_obj['scen'].pfx + ' div[name="vulnerability-model"]');
