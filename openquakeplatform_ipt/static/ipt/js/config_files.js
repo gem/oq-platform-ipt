@@ -199,46 +199,51 @@ $(document).ready(function () {
             $target.css('display', 'none');
     }
 
+    function event_based_sect_manager()
+    {
+        exposure_model_manager(cf_obj.ebpfx, true, true);
+    }
+
     /* hazard components callbacks */
-    function eqScenario_hazard_onclick_cb(e) {
+    function scenario_hazard_onclick_cb(e) {
         scenario_sect_manager();
     }
-    $(cf_obj.shpfx + ' input[name="hazard"]').click(eqScenario_hazard_onclick_cb);
-    eqScenario_hazard_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="hazard"]')[0]});
+    $(cf_obj.shpfx + ' input[name="hazard"]').click(scenario_hazard_onclick_cb);
+    scenario_hazard_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="hazard"]')[0]});
 
     /* risk components callbacks */
-    function eqScenario_risk_onclick_cb(e) {
+    function scenario_risk_onclick_cb(e) {
         $(cf_obj.shpfx + ' span[name="risk-menu"]').css('display', $(e.target).is(':checked') ? '' : 'none');
         scenario_sect_manager();
     }
-    $(cf_obj.shpfx + ' input[name="risk"]').click(eqScenario_risk_onclick_cb);
-    eqScenario_risk_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="risk"]')[0] });
+    $(cf_obj.shpfx + ' input[name="risk"]').click(scenario_risk_onclick_cb);
+    scenario_risk_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="risk"]')[0] });
 
     /* risk type components callbacks */
-    function eqScenario_risktype_onclick_cb(e) {
+    function scenario_risktype_onclick_cb(e) {
         scenario_sect_manager();
     }
-    $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]').click(eqScenario_risktype_onclick_cb);
-    eqScenario_risktype_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="risk-type"]')[0] });
+    $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]').click(scenario_risktype_onclick_cb);
+    scenario_risktype_onclick_cb({ target: $(cf_obj.shpfx + ' input[name="risk-type"]')[0] });
 
     /* risk-only region constraint checkbox */
-    function eqScenario_region_constraint_cb(e) {
+    function scenario_region_constraint_cb(e) {
         scenario_sect_manager();
     }
     $(cf_obj.shpfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-      + ' input[name="include"]').click(eqScenario_region_constraint_cb);
-    eqScenario_region_constraint_cb(
+      + ' input[name="include"]').click(scenario_region_constraint_cb);
+    scenario_region_constraint_cb(
         {target: $(cf_obj.shpfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
                    + ' input[name="include"]')[0]});
 
     /* generic callback to show upload div */
-    function eqScenario_fileNew_cb(e) {
+    function scenario_fileNew_cb(e) {
         $(cf_obj.shpfx + ' div[name="' + e.target.name + '"]').slideToggle();
     }
 
     /* form widgets and previous remote list select element must follow precise
        naming schema with '<name>-html' and '<name>-new', see config_files.html */
-    function eqScenario_fileNew_upload(event)
+    function scenario_fileNew_upload(event)
     {
         event.preventDefault();
         var name = $(this).attr('name');
@@ -284,22 +289,22 @@ $(document).ready(function () {
     }
 
     /* rupture file */
-    $(cf_obj.shpfx + ' button[name="rupture-file-new"]').click(eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' button[name="rupture-file-new"]').click(scenario_fileNew_cb);
 
     $(cf_obj.shpfx + ' div[name="rupture-file-new"]' +
-      ' form[name="rupture-file"]').submit(eqScenario_fileNew_upload);
+      ' form[name="rupture-file"]').submit(scenario_fileNew_upload);
 
     /* hazard list of sites */
-    $(cf_obj.shpfx + ' button[name="list-of-sites-new"]').click(eqScenario_fileNew_cb);
+    $(cf_obj.shpfx + ' button[name="list-of-sites-new"]').click(scenario_fileNew_cb);
 
     $(cf_obj.shpfx + ' div[name="list-of-sites-new"]' +
-      ' form[name="list-of-sites"]').submit(eqScenario_fileNew_upload);
+      ' form[name="list-of-sites"]').submit(scenario_fileNew_upload);
 
     /* exposure model */
     $(cf_obj.shpfx + ' button[name="exposure-model-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="exposure-model-new"]' +
-      ' form[name="exposure-model"]').submit(eqScenario_fileNew_upload);
+      ' form[name="exposure-model"]').submit(scenario_fileNew_upload);
 
     /* fragility model */
     $(cf_obj.shpfx + ' div[name="fragility-model"] input[type="checkbox"]').click(
@@ -311,124 +316,124 @@ $(document).ready(function () {
 
     /*  +- structural */
     $(cf_obj.shpfx + ' button[name="fm-structural-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="fm-structural-new"]' +
-      ' form[name="fm-structural"]').submit(eqScenario_fileNew_upload);
+      ' form[name="fm-structural"]').submit(scenario_fileNew_upload);
 
     $(cf_obj.shpfx + ' button[name="fm-structural-cons-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="fm-structural-cons-new"]' +
-      ' form[name="fm-structural-cons"]').submit(eqScenario_fileNew_upload);
+      ' form[name="fm-structural-cons"]').submit(scenario_fileNew_upload);
 
     /*  +- nonstructural */
     $(cf_obj.shpfx + ' button[name="fm-nonstructural-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="fm-nonstructural-new"]' +
-      ' form[name="fm-nonstructural"]').submit(eqScenario_fileNew_upload);
+      ' form[name="fm-nonstructural"]').submit(scenario_fileNew_upload);
 
     $(cf_obj.shpfx + ' button[name="fm-nonstructural-cons-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="fm-nonstructural-cons-new"]' +
-      ' form[name="fm-nonstructural-cons"]').submit(eqScenario_fileNew_upload);
+      ' form[name="fm-nonstructural-cons"]').submit(scenario_fileNew_upload);
 
     /*  +- contents */
     $(cf_obj.shpfx + ' button[name="fm-contents-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="fm-contents-new"]' +
-      ' form[name="fm-contents"]').submit(eqScenario_fileNew_upload);
+      ' form[name="fm-contents"]').submit(scenario_fileNew_upload);
 
     $(cf_obj.shpfx + ' button[name="fm-contents-cons-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="fm-contents-cons-new"]' +
-      ' form[name="fm-contents-cons"]').submit(eqScenario_fileNew_upload);
+      ' form[name="fm-contents-cons"]').submit(scenario_fileNew_upload);
 
     /*  +- businter */
     $(cf_obj.shpfx + ' button[name="fm-businter-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="fm-businter-new"]' +
-      ' form[name="fm-businter"]').submit(eqScenario_fileNew_upload);
+      ' form[name="fm-businter"]').submit(scenario_fileNew_upload);
 
     $(cf_obj.shpfx + ' button[name="fm-businter-cons-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="fm-businter-cons-new"]' +
-      ' form[name="fm-businter-cons"]').submit(eqScenario_fileNew_upload);
+      ' form[name="fm-businter-cons"]').submit(scenario_fileNew_upload);
 
     /* vulnerability model */
         /*  +- structural */
     $(cf_obj.shpfx + ' button[name="vm-structural-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="vm-structural-new"]' +
-      ' form[name="vm-structural"]').submit(eqScenario_fileNew_upload);
+      ' form[name="vm-structural"]').submit(scenario_fileNew_upload);
 
     /*  +- nonstructural */
     $(cf_obj.shpfx + ' button[name="vm-nonstructural-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="vm-nonstructural-new"]' +
-      ' form[name="vm-nonstructural"]').submit(eqScenario_fileNew_upload);
+      ' form[name="vm-nonstructural"]').submit(scenario_fileNew_upload);
 
     /*  +- contents */
     $(cf_obj.shpfx + ' button[name="vm-contents-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="vm-contents-new"]' +
-      ' form[name="vm-contents"]').submit(eqScenario_fileNew_upload);
+      ' form[name="vm-contents"]').submit(scenario_fileNew_upload);
 
     /*  +- businter */
     $(cf_obj.shpfx + ' button[name="vm-businter-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="vm-businter-new"]' +
-      ' form[name="vm-businter"]').submit(eqScenario_fileNew_upload);
+      ' form[name="vm-businter"]').submit(scenario_fileNew_upload);
 
     /*  +- occupants */
     $(cf_obj.shpfx + ' button[name="vm-occupants-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="vm-occupants-new"]' +
-      ' form[name="vm-occupants"]').submit(eqScenario_fileNew_upload);
+      ' form[name="vm-occupants"]').submit(scenario_fileNew_upload);
 
     /* site conditions */
     $(cf_obj.shpfx + ' button[name="site-conditions-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="site-conditions-new"]' +
-      ' form[name="site-conditions"]').submit(eqScenario_fileNew_upload);
+      ' form[name="site-conditions"]').submit(scenario_fileNew_upload);
 
     /* imt */
     $(cf_obj.shpfx + ' button[name="gmpe-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="gmpe-new"]' +
-      ' form[name="gmpe"]').submit(eqScenario_fileNew_upload);
+      ' form[name="gmpe"]').submit(scenario_fileNew_upload);
 
     /* fravul_model */
     $(cf_obj.shpfx + ' button[name="fravul-model-new"]').click(
-        eqScenario_fileNew_cb);
+        scenario_fileNew_cb);
     $(cf_obj.shpfx + ' div[name="fravul-model-new"]' +
-      ' form[name="fravul-model"]').submit(eqScenario_fileNew_upload);
+      ' form[name="fravul-model"]').submit(scenario_fileNew_upload);
 
     /* hazard sites callbacks */
-    function eqScenario_hazard_hazardSites_onclick_cb(e) {
+    function scenario_hazard_hazardSites_onclick_cb(e) {
         scenario_sect_manager();
     }
     $(cf_obj.shpfx + ' input[name="hazard_sites"]').click(
-        eqScenario_hazard_hazardSites_onclick_cb);
-    eqScenario_hazard_hazardSites_onclick_cb({ target: $(
+        scenario_hazard_hazardSites_onclick_cb);
+    scenario_hazard_hazardSites_onclick_cb({ target: $(
         cf_obj.shpfx + ' input[name="hazard_sites"][value="region-grid"]')[0] });
 
     /* hazard site conditions callbacks */
-    function eqScenario_hazard_siteCond_onclick_cb(e) {
+    function scenario_hazard_siteCond_onclick_cb(e) {
         scenario_sect_manager();
     }
     $(cf_obj.shpfx + ' input[name="hazard_sitecond"]').click(
-        eqScenario_hazard_siteCond_onclick_cb);
-    eqScenario_hazard_siteCond_onclick_cb({
+        scenario_hazard_siteCond_onclick_cb);
+    scenario_hazard_siteCond_onclick_cb({
         target: $(cf_obj.shpfx
                   + ' input[name="hazard_sitecond"][value="uniform-param"]')[0]
     });
 
     /* hazard gmpe callbacks */
-    function eqScenario_hazard_gmpe_onclick_cb(e) {
+    function scenario_hazard_gmpe_onclick_cb(e) {
         scenario_sect_manager();
     }
     $(cf_obj.shpfx + ' input[name="hazard_gmpe"]').click(
-        eqScenario_hazard_gmpe_onclick_cb);
-    eqScenario_hazard_gmpe_onclick_cb({
+        scenario_hazard_gmpe_onclick_cb);
+    scenario_hazard_gmpe_onclick_cb({
         target: $(cf_obj.shpfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]')[0]
     });
 
@@ -507,7 +512,7 @@ $(document).ready(function () {
         return  !/^\s*$/.test(n) && !isNaN(n);
     }
 
-    function eqScenario_getData()
+    function scenario_getData()
     {
         var files_list = [];
 
@@ -868,11 +873,11 @@ $(document).ready(function () {
         return ret;
     }
 
-    function eqScenario_download_cb(e)
+    function scenario_download_cb(e)
     {
         e.preventDefault();
 
-        var ret = eqScenario_getData();
+        var ret = scenario_getData();
 
         if (ret.ret != 0) {
             $( "#dialog-message" ).html(ret.str.replace(/\n/g, "<br/>"));
@@ -941,7 +946,7 @@ $(document).ready(function () {
         return false;
     }
 
-    $(cf_obj.shpfx + ' button[name="download"]').click(eqScenario_download_cb);
+    $(cf_obj.shpfx + ' button[name="download"]').click(scenario_download_cb);
 
     scenario_sect_manager();
 
