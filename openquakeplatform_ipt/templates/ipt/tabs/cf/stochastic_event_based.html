@@ -1,0 +1,19 @@
+<div class="menuItems">
+  <label>Description:</label>
+  <textarea id="description" rows="4" cols="10" name="description">Scenario calculation</textarea>
+</div>
+
+<div name="exposure-model">
+  {% include "ipt/tabs/cf/sect_exposure_model.html" %}
+</div>
+
+<div name="vulnerability-model">
+ {% include "ipt/tabs/cf/sect_vulnerability_model.html" %}
+</div> <!-- vulnerability model -->
+
+<h3>Hazard model</h3>
+<div> TODO </div>
+
+<div style="min-height: 50px;" name="site-conditions"><!-- site conditions block -->
+  {% include "ipt/tabs/cf/sect_site_conditions.html" %}
+</div> <!-- end site conditions -->

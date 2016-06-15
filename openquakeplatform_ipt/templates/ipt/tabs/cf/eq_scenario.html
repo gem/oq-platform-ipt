@@ -2,21 +2,22 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 <div class="alert alert-info" role="alert">Choose components of your configuration file and fill related fields.
 
   <div class="menuItems" style="text-align: center;">
-    <div class="chbox">
-      <input style="margin:0;" type="checkbox" name="hazard">
-      <span class="inlible">Hazard</span>
-    </div>
-    <div class="chbox">
-      <input style="margin:0;" type="checkbox" name="risk">
-      <span class="inlible">Risk</span>
-
-      <span style="display: none;" name="risk-menu">
-        <input style="margin:0;" type="radio" name="risk-type" value="damage" checked="checked">
-        <span class="inlible">Damage</span>
-        <input style="margin:0;" type="radio" name="risk-type" value="losses">
-        <span class="inlible">Losses</span>
-      </span>
-    </div>
+    <form style="margin: 0px;">
+      <div class="chbox">
+        <input style="margin:0;" type="checkbox" name="hazard">
+        <span class="inlible">Hazard</span>
+      </div>
+      <div class="chbox">
+        <input style="margin:0;" type="checkbox" name="risk">
+        <span class="inlible">Risk</span>
+        <span style="display: none;" name="risk-menu">
+          <input style="margin:0;" type="radio" name="risk-type" value="damage" checked="checked">
+          <span class="inlible">Damage</span>
+          <input style="margin:0;" type="radio" name="risk-type" value="losses">
+          <span class="inlible">Losses</span>
+        </span>
+      </div>
+    </form>
   </div>
 </div>
 <div class="menuItems">
@@ -49,23 +50,25 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   <div class="alert alert-info ipt-info" role="alert">
     Choose a method to input hazard sites:<br>
     <div style="text-align: center;">
-      <div class="chbox">
-        <input type="radio" name="hazard_sites" value="region-grid" checked="checked">
-        <span class="inlible">Region grid</span>
-      </div>
-      <div class="chbox">
-        <input type="radio" name="hazard_sites" value="list-of-sites">
-        <span class="inlible">List of sites</span>
-      </div>
-      <div style="clear: both;"></div>
-      <div class="chbox">
-        <input type="radio" name="hazard_sites" value="exposure-model">
-        <span class="inlible">Exposure model</span>
-      </div>
-      <div class="chbox">
-        <input type="radio" name="hazard_sites" value="site-cond-model">
-        <span class="inlible">Read locations from site conditions</span>
-      </div>
+      <form style="margin: 0px;">
+        <div class="chbox">
+          <input type="radio" name="hazard_sites" value="region-grid" checked="checked">
+          <span class="inlible">Region grid</span>
+        </div>
+        <div class="chbox">
+          <input type="radio" name="hazard_sites" value="list-of-sites">
+          <span class="inlible">List of sites</span>
+        </div>
+        <div style="clear: both;"></div>
+        <div class="chbox">
+          <input type="radio" name="hazard_sites" value="exposure-model">
+          <span class="inlible">Exposure model</span>
+        </div>
+        <div class="chbox">
+          <input type="radio" name="hazard_sites" value="site-cond-model">
+          <span class="inlible">Read locations from site conditions</span>
+        </div>
+      </form>
     </div>
   </div>
 </div><!-- end div name="hazard-sites" -->
@@ -278,14 +281,16 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   <div class="alert alert-info ipt-info" role="alert">
     Select a method to specify Ground Motion Prediction Equations (GMPE):<br>
     <div style="text-align: center;">
-      <div class="chbox">
-        <input type="radio" name="hazard_gmpe" value="specify-gmpe" checked="checked">
-        <span class="inlible">Unique GMPE</span>
-      </div>
-      <div class="chbox">
-        <input type="radio" name="hazard_gmpe" value="from-file">
-        <span class="inlible">GMPE logic tree file</span>
-      </div>
+      <form style="margin: 0px;">
+        <div class="chbox">
+          <input type="radio" name="hazard_gmpe" value="specify-gmpe" checked="checked">
+          <span class="inlible">Unique GMPE</span>
+        </div>
+        <div class="chbox">
+          <input type="radio" name="hazard_gmpe" value="from-file">
+          <span class="inlible">GMPE logic tree file</span>
+        </div>
+      </form>
     </div>
   </div>
 
