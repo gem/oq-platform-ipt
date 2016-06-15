@@ -44,3 +44,6 @@ function gem_tableHeightUpdate(tbl, $box) {
     }
 }
 
+function gem_capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}

@@ -788,7 +788,7 @@ $(document).ready(function () {
 
             }
             else {
-                ret.str += "Unknown 'Site conditions' choice (' + obj.site_conditions_choice + ').\n";
+                ret.str += "Unknown 'Site conditions' choice (" + obj.site_conditions_choice + ").\n";
             }
         }
 
@@ -891,7 +891,7 @@ $(document).ready(function () {
         var data = new FormData();
         data.append('data', JSON.stringify(ret.obj));
         $.ajax({
-            url: 'prepare',
+            url: 'prepare/scenario',
             type: 'POST',
             data: data,
             cache: false,
@@ -900,12 +900,38 @@ $(document).ready(function () {
             success: function(data) {
                 if (data.ret == 0) {
                     var $form = $('.cf_gid #downloadForm');
+                    var hazard = null, risk = null, plus_hazard = '', plus_risk = '';
+                    var dest_name = 'Unknown';
+                    var $new_input;
+
                     $form.empty();
                     $form.append(csrf_token);
                     $form.attr({'action': 'download'});
                     $new_input = $('<input/>');
                     $new_input.attr('type', 'hidden').attr({'name': 'zipname', 'value': data.zipname });
                     $form.append($new_input);
+
+
+                    $new_input = $('<input/>');
+
+                    if ($(cf_obj.shpfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
+                        hazard = 'hazard';
+                    }
+                    if ($(cf_obj.shpfx + ' input[type="checkbox"][name="risk"]').is(':checked')) {
+                        risk = $(cf_obj.shpfx + ' input[type="radio"][name="risk-type"]:checked').val();
+                    }
+
+                    if (hazard == 'hazard') {
+                        plus_hazard = "Hazard";
+                    }
+                    if (risk != null) {
+                        plus_risk = gem_capitalize(risk);
+                    }
+                    dest_name = "Scenario" + plus_hazard + plus_risk;
+
+                    $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
+                    $form.append($new_input);
+
                     console.log($form);
                     $form.submit();
                 }

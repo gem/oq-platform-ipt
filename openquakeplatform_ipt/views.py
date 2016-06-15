@@ -328,7 +328,7 @@ def upload(request, **kwargs):
 
 
 
-def prepare(request, **kwargs):
+def prepare_scenario(request, **kwargs):
     ret = {};
 
     if request.POST.get('data', '') == '':
@@ -343,6 +343,7 @@ def prepare(request, **kwargs):
     z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
     jobini =  "# Generated automatically with IPT at %s\n" % formatdate()
+    jobini += "[general]\n"
     jobini += "description = %s\n" % data['description']
 
     # FIXME depends on hazard + risk combination
@@ -487,7 +488,7 @@ def prepare(request, **kwargs):
 
         jobini += "ground_motion_correlation_model = %s\n" % data['ground_motion_correlation_model']
         if data['ground_motion_correlation_model'] == 'JB2009':
-            jobini += "ground_motion_correlation_params = {\"vs30_clustering\": True}\n"
+            jobini += "ground_motion_correlation_params = {\"vs30_clustering\": False}\n"
 
         jobini += "truncation_level = %s\n" % data['truncation_level']
         jobini += "maximum_distance = %s\n" % data['maximum_distance']
@@ -508,6 +509,7 @@ def download(request):
 
     if request.method == 'POST':
         zipname = request.POST.get('zipname', '')
+        dest_name = request.POST.get('dest_name', 'Unknown')
         if zipname == '':
             return HttpResponseBadRequest('No zipname provided.')
         absfile = os.path.join(tempfile.gettempdir(), zipname)
@@ -519,5 +521,5 @@ def download(request):
         resp = HttpResponse(content=content,
                             content_type='application/zip')
         resp['Content-Disposition'] = (
-            'attachment; filename="oq-input.zip"')
+            'attachment; filename="' + dest_name + '.zip"')
         return resp
