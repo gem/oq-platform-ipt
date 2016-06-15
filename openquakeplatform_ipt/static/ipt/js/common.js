@@ -47,3 +47,13 @@ function gem_tableHeightUpdate(tbl, $box) {
 function gem_capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+
+function isInt(n){
+    return !isNaN(n) && n % 1 === 0;
+}
+
+function isFloat(n) {
+    return  !/^\s*$/.test(n) && !isNaN(n);
+}
+

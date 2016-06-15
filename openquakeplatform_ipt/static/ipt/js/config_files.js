@@ -28,6 +28,7 @@ $(document).ready(function () {
         e.preventDefault();
         $(this).tab('show');
     });
+
     function exposure_model_manager(scope, enabled, with_constraints)
     {
         $target = $(scope + ' div[name="exposure-model"]');
@@ -51,6 +52,10 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
     }
+
+    /*
+     * - - - SCENARIO - - -
+     */
     
     function scenario_sect_manager() {
         console.log('scenario_sect_manager');
@@ -511,15 +516,6 @@ $(document).ready(function () {
         {showSelectionBelowList: true,
          maxHeight: '300px'});
 
-
-    function isInt(n){
-        return !isNaN(n) && n % 1 === 0;
-    }
-
-    function isFloat(n) {
-        return  !/^\s*$/.test(n) && !isNaN(n);
-    }
-
     function scenario_getData()
     {
         var files_list = [];
@@ -913,7 +909,7 @@ $(document).ready(function () {
             contentType: false,
             success: function(data) {
                 if (data.ret == 0) {
-                    var $form = $('.cf_gid #downloadForm');
+                    var $form = $(cf_obj.shpfx + ' form[name="downloadForm"]');
                     var hazard = null, risk = null, plus_hazard = '', plus_risk = '';
                     var dest_name = 'Unknown';
                     var $new_input;
@@ -953,10 +949,77 @@ $(document).ready(function () {
         });
         return false;
     }
-
     $(cf_obj.shpfx + ' button[name="download"]').click(scenario_download_cb);
-
     scenario_sect_manager();
+
+    /*
+     * - - - EVENT BASED - - -
+     */
+
+    function event_based_getData()
+    {
+    }
+
+    function event_based_download_cb(e)
+    {
+        e.preventDefault();
+
+        var ret = event_based_getData();
+
+        if (ret.ret != 0) {
+            $( "#dialog-message" ).html(ret.str.replace(/\n/g, "<br/>"));
+            $( "#dialog-message" ).dialog({
+                modal: true,
+                width: '600px',
+                buttons: {
+                    Ok: function() {
+                        $(this).dialog( "close" );
+                    }
+                }
+            });
+
+            return;
+        }
+
+        var data = new FormData();
+        data.append('data', JSON.stringify(ret.obj));
+        $.ajax({
+            url: 'prepare/event_based',
+            type: 'POST',
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.ret == 0) {
+                    var $form = $(cf_obj.ebpfx + ' form[name="downloadForm"]');
+                    var dest_name = 'Unknown';
+                    var $new_input;
+
+                    $form.empty();
+                    $form.append(csrf_token);
+                    $form.attr({'action': 'download'});
+                    $new_input = $('<input/>');
+                    $new_input.attr('type', 'hidden').attr({'name': 'zipname', 'value': data.zipname });
+                    $form.append($new_input);
+
+
+                    $new_input = $('<input/>');
+
+                    dest_name = "EventBased";
+
+                    $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
+                    $form.append($new_input);
+
+                    console.log($form);
+                    $form.submit();
+                }
+            }
+        });
+        return false;
+    }
+
+    $(cf_obj.ebpfx + ' button[name="download"]').click(event_based_download_cb);
     event_based_sect_manager();
 
 });

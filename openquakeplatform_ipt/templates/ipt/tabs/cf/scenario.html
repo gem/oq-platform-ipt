@@ -368,7 +368,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 </div>
 <div style="text-align: center;">
   <hr>
-  <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button><form id="downloadForm" method="post">{% csrf_token %}</form>
+  <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button><form name="downloadForm" method="post">{% csrf_token %}</form>
 </div>
 
 <div id="dialog-message" title="Error" style="display: none; width: 600px;">
