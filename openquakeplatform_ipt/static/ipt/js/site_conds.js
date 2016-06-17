@@ -225,19 +225,17 @@ function sc_updateTable() {
         className: "htRight"
     });
     sc_obj.tbl = $('.sc_gid #table').handsontable('getInstance');
-    {
-        setTimeout(function() {
-            return gem_tableHeightUpdate($('.sc_gid #table'));
-        }, 0);
+    setTimeout(function() {
+        return gem_tableHeightUpdate($('.sc_gid #table'));
+    }, 0);
 
-        sc_obj.tbl.addHook('afterCreateRow', function() {
-            return gem_tableHeightUpdate($('.sc_gid #table'));
-        });
+    sc_obj.tbl.addHook('afterCreateRow', function() {
+        return gem_tableHeightUpdate($('.sc_gid #table'));
+    });
 
-        sc_obj.tbl.addHook('afterRemoveRow', function() {
-            return gem_tableHeightUpdate($('.sc_gid #table'));
-        });
-    }
+    sc_obj.tbl.addHook('afterRemoveRow', function() {
+        return gem_tableHeightUpdate($('.sc_gid #table'));
+    });
 
     $('.sc_gid #outputText').empty();
     $('.sc_gid #convertBtn').show();

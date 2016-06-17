@@ -56,8 +56,9 @@ $(document).ready(function () {
                 $subtarget.css('display', 'none');
             }
         }
-        else
+        else {
             $target.css('display', 'none');
+        }
     }
 
     // Exposure model (get)
@@ -330,13 +331,14 @@ $(document).ready(function () {
     /* - - - SCENARIO (INIT) - - - */
 
 
-    /* Rupture information (init) */
+    // Rupture information (init)
     $(cf_obj['scen'].pfx + ' button[name="rupture-file-new"]').click(scenario_fileNew_cb);
 
     $(cf_obj['scen'].pfx + ' div[name="rupture-file-new"]' +
       ' form[name="rupture-file"]').submit(scenario_fileNew_upload);
 
-    /* Region Grid (init) */
+    // Hazard site
+    //   Hazard site Region Grid (init)
     $(cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]').handsontable({
         colHeaders: ['Longitude', 'Latitude'],
         allowInsertColumn: false,
@@ -355,22 +357,20 @@ $(document).ready(function () {
         cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]').handsontable(
             'getInstance');
 
-    {
-        setTimeout(function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]'));
-        }, 0);
+    setTimeout(function() {
+        return gem_tableHeightUpdate(
+            $(cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]'));
+    }, 0);
 
-        cf_obj['scen'].regGrid_coords.addHook('afterCreateRow', function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]'));
-        });
+    cf_obj['scen'].regGrid_coords.addHook('afterCreateRow', function() {
+        return gem_tableHeightUpdate(
+            $(cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]'));
+    });
 
-        cf_obj['scen'].regGrid_coords.addHook('afterRemoveRow', function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]'));
-        });
-    }
+    cf_obj['scen'].regGrid_coords.addHook('afterRemoveRow', function() {
+        return gem_tableHeightUpdate(
+            $(cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]'));
+    });
 
     $(cf_obj['scen'].pfx + ' div[name="region-grid"] button[name="new_row_add"]').click(function () {
         cf_obj['scen'].regGrid_coords.alter('insert_row');
@@ -410,22 +410,21 @@ $(document).ready(function () {
     cf_obj['scen'].expModel_coords = $(
         cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable(
             'getInstance');
-    {
-        setTimeout(function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
-        }, 0);
 
-        cf_obj['scen'].expModel_coords.addHook('afterCreateRow', function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
-        });
+    setTimeout(function() {
+        return gem_tableHeightUpdate(
+            $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+    }, 0);
 
-        cf_obj['scen'].expModel_coords.addHook('afterRemoveRow', function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
-        });
-    }
+    cf_obj['scen'].expModel_coords.addHook('afterCreateRow', function() {
+        return gem_tableHeightUpdate(
+            $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+    });
+
+    cf_obj['scen'].expModel_coords.addHook('afterRemoveRow', function() {
+        return gem_tableHeightUpdate(
+            $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+    });
 
     $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] button[name="new_row_add"]').click(function () {
         cf_obj['scen'].expModel_coords.alter('insert_row');
@@ -1074,23 +1073,20 @@ $(document).ready(function () {
         cf_obj['e_b'].expModel_coords.alter('insert_row');
     });
 
-    {
-        setTimeout(function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
-        }, 0);
+    setTimeout(function() {
+        return gem_tableHeightUpdate(
+            $(cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+    }, 0);
 
-        cf_obj['e_b'].expModel_coords.addHook('afterCreateRow', function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
-        });
+    cf_obj['e_b'].expModel_coords.addHook('afterCreateRow', function() {
+        return gem_tableHeightUpdate(
+            $(cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+    });
 
-        cf_obj['e_b'].expModel_coords.addHook('afterRemoveRow', function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
-        });
-    }
-
+    cf_obj['e_b'].expModel_coords.addHook('afterRemoveRow', function() {
+        return gem_tableHeightUpdate(
+            $(cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+    });
 
 
     function event_based_getData()
