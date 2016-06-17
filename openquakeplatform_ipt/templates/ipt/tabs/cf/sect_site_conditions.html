@@ -5,7 +5,7 @@
   <form style="margin: 0px;">
     <div style="text-align: center;">
       <div class="chbox">
-        <input type="radio" name="hazard_sitecond" value="uniform-param" checked="checked">
+        <input type="radio" name="hazard_sitecond" value="uniform-param">
         <span class="inlible" name="hazard_sitecond">Use uniform site parameters</span>
       </div>
       <div class="chbox">
@@ -43,7 +43,7 @@
   </table>
 </div>
 <div name="hazard-sitecond_from-file">
-  <div class="menuItems" name="site-conditions-html">
+  <div class="menuItems" name="site-conditions-html" data_gem_group="site-conditions">
     <label>Site conditions file:</label>
     {{ site_conditions_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="site-conditions-new">New</button>
   </div>
