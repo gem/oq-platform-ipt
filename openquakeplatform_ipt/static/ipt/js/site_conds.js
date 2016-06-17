@@ -226,19 +226,16 @@ function sc_updateTable() {
     });
     sc_obj.tbl = $('.sc_gid #table').handsontable('getInstance');
     {
-        var tbl = sc_obj.tbl;
-        var $box = $('.sc_gid #table');
-
         setTimeout(function() {
-            return gem_tableHeightUpdate(tbl, $box);
+            return gem_tableHeightUpdate($('.sc_gid #table'));
         }, 0);
 
         sc_obj.tbl.addHook('afterCreateRow', function() {
-            return gem_tableHeightUpdate(tbl, $box);
+            return gem_tableHeightUpdate($('.sc_gid #table'));
         });
 
         sc_obj.tbl.addHook('afterRemoveRow', function() {
-            return gem_tableHeightUpdate(tbl, $box);
+            return gem_tableHeightUpdate($('.sc_gid #table'));
         });
     }
 

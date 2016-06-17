@@ -17,3 +17,11 @@
 <div style="min-height: 50px;" name="site-conditions"><!-- site conditions block -->
   {% include "ipt/tabs/cf/sect_site_conditions.html" %}
 </div> <!-- end site conditions -->
+
+<div style="text-align: center;">
+  <hr>
+  <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button><form name="downloadForm" method="post">{% csrf_token %}</form>
+</div>
+
+<div id="dialog-message" title="Error" style="display: none; width: 600px;">
+</div>

@@ -35,6 +35,9 @@ $(document).ready(function () {
 
     function exposure_model_manager(scope, enabled, with_constraints)
     {
+        console.log($(scope + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+                      + ' input[name="include"]').is(':checked'));
+
         $target = $(scope + ' div[name="exposure-model"]');
         if (enabled) {
             $target.css('display', '');
@@ -93,6 +96,54 @@ $(document).ready(function () {
         }
     }
 
+    /* form widgets and previous remote list select element must follow precise
+       naming schema with '<name>-html' and '<name>-new', see config_files.html */
+    function generic_fileNew_upload(scope, obj, event)
+    {
+        event.preventDefault();
+        var name = $(obj).attr('name');
+        var data = new FormData($(obj).get(0));
+
+        $.ajax({
+            url: $(obj).attr('action'),
+            type: $(obj).attr('method'),
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                var $sel;
+                var gem_group = null;
+                var old_sel = [];
+                if (data.ret == 0) {
+                    if ($(cf_obj[scope].pfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data_gem_group')) {
+                        gem_group = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"]').attr('data_gem_group');
+                        // find elements of groups around all the config_file tab
+                        $sel = $('.cf_gid div[data_gem_group="' + gem_group + '"] select[name="file_html"]');
+                        for (var i = 0 ; i < $sel.length ; i++) {
+                            old_sel[i] = $($sel[i]).val();
+                        }
+                    }
+                    else {
+                        $sel = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]');
+                    }
+
+                    $sel.empty();
+                    for (var i = 0 ; i < data.items.length ; i++) {
+                        $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
+                    }
+                    for (var i = 0 ; i < old_sel.length ; i++) {
+                        $($sel[i]).val(old_sel[i]);
+                    }
+                    $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(data.selected);
+                }
+                $(cf_obj[scope].pfx + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
+                $(cf_obj[scope].pfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
+            }
+        });
+        return false;
+    }
+
 
     /*
      * - - - SCENARIO - - -
@@ -129,14 +180,14 @@ $(document).ready(function () {
             $target.css('display', 'none');
         }
 
-        // Region grid
+        // Region grid (ui)
         $target = $(cf_obj['scen'].pfx + ' div[name="region-grid"]');
         if (hazard != null && hazard_sites_choice == 'region-grid')
             $target.css('display', '');
         else
             $target.css('display', 'none');
 
-        // List of sites
+        // List of sites (ui)
         $target = $(cf_obj['scen'].pfx + ' div[name="list-of-sites"]');
         if (hazard != null && hazard_sites_choice == 'list-of-sites')
             $target.css('display', '');
@@ -276,112 +327,118 @@ $(document).ready(function () {
             $target.css('display', 'none');
     }
 
-    function event_based_sect_manager()
-    {
-        exposure_model_manager(cf_obj.ebpfx, true, true);
-    }
+    /* - - - SCENARIO (INIT) - - - */
 
-    /* hazard components callbacks */
-    $(cf_obj['scen'].pfx + ' input[name="hazard"]').click(scenario_sect_manager);
-    $(cf_obj['scen'].pfx + ' input[name="hazard"]').prop('checked', true).triggerHandler('click');
 
-    /* risk components callbacks */
-    function scenario_risk_onclick_cb(e) {
-        $(cf_obj['scen'].pfx + ' span[name="risk-menu"]').css('display', $(e.target).is(':checked') ? '' : 'none');
-        scenario_sect_manager();
-    }
-    $(cf_obj['scen'].pfx + ' input[name="risk"]').click(scenario_risk_onclick_cb);
-    scenario_risk_onclick_cb({ target: $(cf_obj['scen'].pfx + ' input[name="risk"]')[0] });
-
-    /* risk type components callbacks */
-    $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]').click(scenario_sect_manager);
-    $(cf_obj['scen'].pfx + ' input[name="risk-type"][value="damage"]').prop('checked', true);
-
-    /* risk-only region constraint checkbox */
-    $(cf_obj['scen'].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-      + ' input[name="include"]').click(scenario_sect_manager);
-    $(cf_obj['scen'].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                   + ' input[name="include"]').prop('checked', true).triggerHandler('click');
-
-    /* generic callback to show upload div */
-    function scenario_fileNew_cb(e) {
-        $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
-    }
-
-    /* form widgets and previous remote list select element must follow precise
-       naming schema with '<name>-html' and '<name>-new', see config_files.html */
-    function scenario_fileNew_upload(event)
-    {
-        event.preventDefault();
-        var name = $(this).attr('name');
-        var data = new FormData($(this).get(0));
-
-        $.ajax({
-            url: $(this).attr('action'),
-            type: $(this).attr('method'),
-            data: data,
-            cache: false,
-            processData: false,
-            contentType: false,
-            success: function(data) {
-                var $sel;
-                var gem_group = null;
-                var old_sel = [];
-                if (data.ret == 0) {
-                    if ($(cf_obj['scen'].pfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data_gem_group')) {
-                        gem_group = $(cf_obj['scen'].pfx + ' div[name="' + name + '-html"]').attr('data_gem_group');
-                        $sel = $(cf_obj['scen'].pfx + ' div[data_gem_group="' + gem_group + '"] select[name="file_html"]');
-                        for (var i = 0 ; i < $sel.length ; i++) {
-                            old_sel[i] = $($(cf_obj['scen'].pfx + ' div[data_gem_group="' + gem_group + '"] select[name="file_html"]')[i]).val();
-                        }
-                    }
-                    else {
-                        $sel = $(cf_obj['scen'].pfx + ' div[name="' + name + '-html"] select[name="file_html"]');
-                    }
-
-                    $sel.empty();
-                    for (var i = 0 ; i < data.items.length ; i++) {
-                        $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
-                    }
-                    for (var i = 0 ; i < old_sel.length ; i++) {
-                        $($sel[i]).val(old_sel[i]);
-                    }
-                    $(cf_obj['scen'].pfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(data.selected);
-                }
-                $(cf_obj['scen'].pfx + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
-                $(cf_obj['scen'].pfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
-            }
-        });
-        return false;
-    }
-
-    /* rupture file */
+    /* Rupture information (init) */
     $(cf_obj['scen'].pfx + ' button[name="rupture-file-new"]').click(scenario_fileNew_cb);
 
     $(cf_obj['scen'].pfx + ' div[name="rupture-file-new"]' +
       ' form[name="rupture-file"]').submit(scenario_fileNew_upload);
 
-    /* hazard list of sites */
+    /* Region Grid (init) */
+    $(cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]').handsontable({
+        colHeaders: ['Longitude', 'Latitude'],
+        allowInsertColumn: false,
+        allowRemoveColumn: false,
+        rowHeaders: false,
+        contextMenu: true,
+        startRows: 3,
+        startCols: 2,
+        maxCols: 2,
+        width: "300px",
+        viewportRowRenderingOffset: 100,
+        className: "htLeft",
+        stretchH: "all"
+    });
+    cf_obj['scen'].regGrid_coords = $(
+        cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]').handsontable(
+            'getInstance');
+
+    {
+        setTimeout(function() {
+            return gem_tableHeightUpdate(
+                $(cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]'));
+        }, 0);
+
+        cf_obj['scen'].regGrid_coords.addHook('afterCreateRow', function() {
+            return gem_tableHeightUpdate(
+                $(cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]'));
+        });
+
+        cf_obj['scen'].regGrid_coords.addHook('afterRemoveRow', function() {
+            return gem_tableHeightUpdate(
+                $(cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]'));
+        });
+    }
+
+    $(cf_obj['scen'].pfx + ' div[name="region-grid"] button[name="new_row_add"]').click(function () {
+        cf_obj['scen'].regGrid_coords.alter('insert_row');
+    });
+
+    /* List of sites (init) */
     $(cf_obj['scen'].pfx + ' button[name="list-of-sites-new"]').click(scenario_fileNew_cb);
 
     $(cf_obj['scen'].pfx + ' div[name="list-of-sites-new"]' +
       ' form[name="list-of-sites"]').submit(scenario_fileNew_upload);
 
-    /* exposure model */
+    /* Exposure model (init) */
     $(cf_obj['scen'].pfx + ' button[name="exposure-model-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="exposure-model-new"]' +
       ' form[name="exposure-model"]').submit(scenario_fileNew_upload);
 
-    /* fragility model */
-    $(cf_obj['scen'].pfx + ' div[name="fragility-model"] input[type="checkbox"]').click(
-        scenario_sect_manager);
+    /* Exposure model: risk-only region constraint checkbox (init) */
+    $(cf_obj['scen'].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+      + ' input[name="include"]').click(scenario_sect_manager);
 
-    /* vulnerability model */
-    $(cf_obj['scen'].pfx + ' div[name="vulnerability-model"] input[type="checkbox"]').click(
-        scenario_sect_manager);
+    /* Exposure model: hazard content region-constr table handsontable (init) */
+    $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable({
+        colHeaders: ['Longitude', 'Latitude'],
+        allowInsertColumn: false,
+        allowRemoveColumn: false,
+        rowHeaders: false,
+        contextMenu: true,
+        startRows: 3,
+        startCols: 2,
+        maxCols: 2,
+        width: "300px",
+        viewportRowRenderingOffset: 100,
+        className: "htLeft",
+        stretchH: "all"
+    });
+    cf_obj['scen'].expModel_coords = $(
+        cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable(
+            'getInstance');
+    {
+        setTimeout(function() {
+            return gem_tableHeightUpdate(
+                $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+        }, 0);
 
-    /*  +- structural */
+        cf_obj['scen'].expModel_coords.addHook('afterCreateRow', function() {
+            return gem_tableHeightUpdate(
+                $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+        });
+
+        cf_obj['scen'].expModel_coords.addHook('afterRemoveRow', function() {
+            return gem_tableHeightUpdate(
+                $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+        });
+    }
+
+    $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] button[name="new_row_add"]').click(function () {
+        cf_obj['scen'].expModel_coords.alter('insert_row');
+    });
+
+
+    // Fragility model (init)
+    $(cf_obj['scen'].pfx + ' div[name="fragility-model"] input[type="checkbox"][name="losstype"]').click(
+        scenario_sect_manager);
+    $(cf_obj['scen'].pfx + ' div[name="fragility-model"] input[type="checkbox"]'
+      + '[name="fm-loss-include-cons"]').click(scenario_sect_manager);
+
+    /* Fragility model: structural (init) */
     $(cf_obj['scen'].pfx + ' button[name="fm-structural-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="fm-structural-new"]' +
@@ -392,7 +449,7 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' div[name="fm-structural-cons-new"]' +
       ' form[name="fm-structural-cons"]').submit(scenario_fileNew_upload);
 
-    /*  +- nonstructural */
+    /* Fragility model: nonstructural (init) */
     $(cf_obj['scen'].pfx + ' button[name="fm-nonstructural-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="fm-nonstructural-new"]' +
@@ -403,7 +460,7 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' div[name="fm-nonstructural-cons-new"]' +
       ' form[name="fm-nonstructural-cons"]').submit(scenario_fileNew_upload);
 
-    /*  +- contents */
+    /* Fragility model: contents (init) */
     $(cf_obj['scen'].pfx + ' button[name="fm-contents-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="fm-contents-new"]' +
@@ -414,7 +471,7 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' div[name="fm-contents-cons-new"]' +
       ' form[name="fm-contents-cons"]').submit(scenario_fileNew_upload);
 
-    /*  +- businter */
+    /* Fragility model: businter (init) */
     $(cf_obj['scen'].pfx + ' button[name="fm-businter-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="fm-businter-new"]' +
@@ -425,54 +482,108 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' div[name="fm-businter-cons-new"]' +
       ' form[name="fm-businter-cons"]').submit(scenario_fileNew_upload);
 
-    /* vulnerability model */
-        /*  +- structural */
+    // Vulnerability model (init)
+    $(cf_obj['scen'].pfx + ' div[name="vulnerability-model"] input[type="checkbox"]').click(
+        scenario_sect_manager);
+
+    // Vulnerability model: structural (init)
     $(cf_obj['scen'].pfx + ' button[name="vm-structural-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="vm-structural-new"]' +
       ' form[name="vm-structural"]').submit(scenario_fileNew_upload);
 
-    /*  +- nonstructural */
+    // Vulnerability model: nonstructural (init)
     $(cf_obj['scen'].pfx + ' button[name="vm-nonstructural-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="vm-nonstructural-new"]' +
       ' form[name="vm-nonstructural"]').submit(scenario_fileNew_upload);
 
-    /*  +- contents */
+    // Vulnerability model: contents (init)
     $(cf_obj['scen'].pfx + ' button[name="vm-contents-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="vm-contents-new"]' +
       ' form[name="vm-contents"]').submit(scenario_fileNew_upload);
 
-    /*  +- businter */
+    // Vulnerability model: businter (init)
     $(cf_obj['scen'].pfx + ' button[name="vm-businter-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="vm-businter-new"]' +
       ' form[name="vm-businter"]').submit(scenario_fileNew_upload);
 
-    /*  +- occupants */
+    // Vulnerability model: occupants (init)
     $(cf_obj['scen'].pfx + ' button[name="vm-occupants-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="vm-occupants-new"]' +
       ' form[name="vm-occupants"]').submit(scenario_fileNew_upload);
 
-    /* site conditions */
+    // Site conditions (init)
     $(cf_obj['scen'].pfx + ' button[name="site-conditions-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="site-conditions-new"]' +
       ' form[name="site-conditions"]').submit(scenario_fileNew_upload);
 
-    /* imt */
+    // Calculation parameters (init)
+
+    // Calculation parameters: imt (init)
     $(cf_obj['scen'].pfx + ' button[name="gmpe-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="gmpe-new"]' +
       ' form[name="gmpe"]').submit(scenario_fileNew_upload);
 
-    /* fravul_model */
+    // Calculation parameters: fravul_model (init)
     $(cf_obj['scen'].pfx + ' button[name="fravul-model-new"]').click(
         scenario_fileNew_cb);
     $(cf_obj['scen'].pfx + ' div[name="fravul-model-new"]' +
       ' form[name="fravul-model"]').submit(scenario_fileNew_upload);
+
+    // Calculation parameters: hazard gmpe callbacks (init)
+    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"]').click(scenario_sect_manager);
+    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]'
+     ).prop('checked', true).triggerHandler('click');
+
+    $(cf_obj['scen'].pfx + ' select[name="gmpe"]').searchableOptionList(
+        {data: g_gmpe_options,
+         showSelectionBelowList: true,
+         maxHeight: '300px'});
+
+    $(cf_obj['scen'].pfx + ' select[name="imt"]').searchableOptionList(
+        {showSelectionBelowList: true,
+         maxHeight: '300px'});
+
+
+
+
+
+
+    /* hazard components callbacks (init) */
+    $(cf_obj['scen'].pfx + ' input[name="hazard"]').click(scenario_sect_manager);
+    $(cf_obj['scen'].pfx + ' input[name="hazard"]').prop('checked', true).triggerHandler('click');
+
+    /* risk components callbacks (init) */
+    function scenario_risk_onclick_cb(e) {
+        $(cf_obj['scen'].pfx + ' span[name="risk-menu"]').css('display', $(e.target).is(':checked') ? '' : 'none');
+        scenario_sect_manager();
+    }
+    $(cf_obj['scen'].pfx + ' input[name="risk"]').click(scenario_risk_onclick_cb);
+    scenario_risk_onclick_cb({ target: $(cf_obj['scen'].pfx + ' input[name="risk"]')[0] });
+
+    /* risk type components callbacks (init) */
+    $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]').click(scenario_sect_manager);
+    $(cf_obj['scen'].pfx + ' input[name="risk-type"][value="damage"]').prop('checked', true);
+
+    /* generic callback to show upload div (init) */
+    function scenario_fileNew_cb(e) {
+        $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+    }
+
+    /* form widgets and previous remote list select element must follow precise
+       naming schema with '<name>-html' and '<name>-new', see config_files.html */
+    function scenario_fileNew_upload(event)
+    {
+        return generic_fileNew_upload('scen', this, event);
+    }
+
+
 
     /* hazard sites callbacks */
     $(cf_obj['scen'].pfx + ' input[name="hazard_sites"]').click(
@@ -486,76 +597,6 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' input[name="hazard_sitecond"][value="uniform-param"]'
      ).prop('checked', true).triggerHandler('click');
 
-    /* hazard gmpe callbacks */
-    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"]').click(scenario_sect_manager);
-    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]'
-     ).prop('checked', true).triggerHandler('click');
-
-    /* handsontables creations */
-    /* hazard content table handsontable */
-    $(cf_obj['scen'].pfx + ' div[name="table"]').handsontable({
-        colHeaders: ['Longitude', 'Latitude'],
-        allowInsertColumn: false,
-        allowRemoveColumn: false,
-        rowHeaders: false,
-        contextMenu: true,
-        startRows: 3,
-        startCols: 2,
-        maxCols: 2,
-        viewportRowRenderingOffset: 100,
-        className: "htLeft",
-        stretchH: "all"
-    });
-
-    /* hazard content region-constr table handsontable */
-    $(cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable({
-        colHeaders: ['Longitude', 'Latitude'],
-        allowInsertColumn: false,
-        allowRemoveColumn: false,
-        rowHeaders: false,
-        contextMenu: true,
-        startRows: 3,
-        startCols: 2,
-        maxCols: 2,
-        viewportRowRenderingOffset: 100,
-        className: "htLeft",
-        stretchH: "all"
-    });
-
-    cf_obj['scen'].regGrid_coords = $(cf_obj['scen'].pfx + ' div[name="table"]').handsontable('getInstance');
-    cf_obj['scen'].expModel_coords = $(
-        cf_obj['scen'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'
-    ).handsontable('getInstance');
-
-    {
-        var tbl = cf_obj['scen'].regGrid_coords;
-        var $box = $(cf_obj['scen'].pfx + ' div[name="table"]')
-
-        setTimeout(function() {
-            return gem_tableHeightUpdate(tbl, $box);
-        }, 0);
-
-        cf_obj['scen'].regGrid_coords.addHook('afterCreateRow', function() {
-            return gem_tableHeightUpdate(tbl, $box);
-        });
-
-        cf_obj['scen'].regGrid_coords.addHook('afterRemoveRow', function() {
-            return gem_tableHeightUpdate(tbl, $box);
-        });
-    }
-
-    $(cf_obj['scen'].pfx + ' button[name="new_row_add"]').click(function () {
-            cf_obj['scen'].regGrid_coords.alter('insert_row');
-        });
-
-    $(cf_obj['scen'].pfx + ' select[name="gmpe"]').searchableOptionList(
-        {data: g_gmpe_options,
-         showSelectionBelowList: true,
-         maxHeight: '300px'});
-
-    $(cf_obj['scen'].pfx + ' select[name="imt"]').searchableOptionList(
-        {showSelectionBelowList: true,
-         maxHeight: '300px'});
 
     function scenario_getData()
     {
@@ -891,7 +932,7 @@ $(document).ready(function () {
         return ret;
     }
 
-    function scenario_download_cb(e)
+    function generic_download_cb(scope, obj, e)
     {
         e.preventDefault();
 
@@ -914,8 +955,9 @@ $(document).ready(function () {
 
         var data = new FormData();
         data.append('data', JSON.stringify(ret.obj));
+        var url_suffix = { scen: "scenario", e_b: "event-based" };
         $.ajax({
-            url: 'prepare/scenario',
+            url: 'prepare/' + url_suffix[scope],
             type: 'POST',
             data: data,
             cache: false,
@@ -923,7 +965,7 @@ $(document).ready(function () {
             contentType: false,
             success: function(data) {
                 if (data.ret == 0) {
-                    var $form = $(cf_obj['scen'].pfx + ' form[name="downloadForm"]');
+                    var $form = $(cf_obj[scope].pfx + ' form[name="downloadForm"]');
                     var hazard = null, risk = null, plus_hazard = '', plus_risk = '';
                     var dest_name = 'Unknown';
                     var $new_input;
@@ -935,24 +977,26 @@ $(document).ready(function () {
                     $new_input.attr('type', 'hidden').attr({'name': 'zipname', 'value': data.zipname });
                     $form.append($new_input);
 
-
                     $new_input = $('<input/>');
+                    if (scope == 'scen') {
+                        if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
+                            hazard = 'hazard';
+                        }
+                        if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="risk"]').is(':checked')) {
+                            risk = $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]:checked').val();
+                        }
 
-                    if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
-                        hazard = 'hazard';
+                        if (hazard == 'hazard') {
+                            plus_hazard = "Hazard";
+                        }
+                        if (risk != null) {
+                            plus_risk = gem_capitalize(risk);
+                        }
+                        dest_name = "Scenario" + plus_hazard + plus_risk;
                     }
-                    if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="risk"]').is(':checked')) {
-                        risk = $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]:checked').val();
+                    else if (scope == 'e_b') {
+                        dest_name = "EventBased";
                     }
-
-                    if (hazard == 'hazard') {
-                        plus_hazard = "Hazard";
-                    }
-                    if (risk != null) {
-                        plus_risk = gem_capitalize(risk);
-                    }
-                    dest_name = "Scenario" + plus_hazard + plus_risk;
-
                     $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
                     $form.append($new_input);
 
@@ -963,6 +1007,18 @@ $(document).ready(function () {
         });
         return false;
     }
+
+    function scenario_download_cb(e)
+    {
+        return generic_download_cb('scen', this, e);
+    }
+
+    function event_based_download_cb(e)
+    {
+        return generic_download_cb('e_b', this, e);
+    }
+
+
     $(cf_obj['scen'].pfx + ' button[name="download"]').click(scenario_download_cb);
     scenario_sect_manager();
 
@@ -970,70 +1026,170 @@ $(document).ready(function () {
      * - - - EVENT BASED - - -
      */
 
+    function event_based_fileNew_upload(event)
+    {
+        return generic_fileNew_upload('e_b', this, event);
+    }
+
+    function event_based_sect_manager()
+    {
+        exposure_model_manager(cf_obj['e_b'].pfx, true, true);
+    }
+
+    /* generic callback to show upload div */
+    function event_based_fileNew_cb(e) {
+        $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+    }
+
+    // Exposure model (init)
+    $(cf_obj['e_b'].pfx + ' button[name="exposure-model-new"]').click(
+        event_based_fileNew_cb);
+    $(cf_obj['e_b'].pfx + ' div[name="exposure-model-new"]' +
+      ' form[name="exposure-model"]').submit(event_based_fileNew_upload);
+
+    /* Exposure model :: constraint checkbox */
+    $(cf_obj['e_b'].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+      + ' input[name="include"]').click(event_based_sect_manager);
+
+    /* Exposure model: hazard content region-constr table handsontable (init) */
+    $(cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable({
+        colHeaders: ['Longitude', 'Latitude'],
+        allowInsertColumn: false,
+        allowRemoveColumn: false,
+        rowHeaders: false,
+        contextMenu: true,
+        startRows: 3,
+        startCols: 2,
+        maxCols: 2,
+        width: "300px",
+        viewportRowRenderingOffset: 100,
+        className: "htLeft",
+        stretchH: "all"
+    });
+    cf_obj['e_b'].expModel_coords = $(
+        cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable(
+            'getInstance');
+
+    $(cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] button[name="new_row_add"]').click(function () {
+        cf_obj['e_b'].expModel_coords.alter('insert_row');
+    });
+
+    {
+        setTimeout(function() {
+            return gem_tableHeightUpdate(
+                $(cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+        }, 0);
+
+        cf_obj['e_b'].expModel_coords.addHook('afterCreateRow', function() {
+            return gem_tableHeightUpdate(
+                $(cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+        });
+
+        cf_obj['e_b'].expModel_coords.addHook('afterRemoveRow', function() {
+            return gem_tableHeightUpdate(
+                $(cf_obj['e_b'].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
+        });
+    }
+
+
+
     function event_based_getData()
     {
-    }
 
-    function event_based_download_cb(e)
-    {
-        e.preventDefault();
+        var files_list = [];
 
-        var ret = event_based_getData();
+        var ret = {
+            ret: -1,
+            str: '',
+            obj: null
+        };
+        var obj = {
+            description: null,
 
-        if (ret.ret != 0) {
-            $( "#dialog-message" ).html(ret.str.replace(/\n/g, "<br/>"));
-            $( "#dialog-message" ).dialog({
-                modal: true,
-                width: '600px',
-                buttons: {
-                    Ok: function() {
-                        $(this).dialog( "close" );
-                    }
-                }
-            });
+            // exposure model
+            exposure_model: null,
+            exposure_model_regcons_choice: false,
+            exposure_model_regcons_coords_data: null,
 
-            return;
+
+/*
+            hazard_sites_choice: null,
+
+            // hazard sites
+            grid_spacing: null,
+            reggrid_coords_data: null,
+            list_of_sites: null,
+
+
+            // rupture information
+            rupture_model_file: null,
+            rupture_mesh_spacing: null,
+
+            // site conditions
+            site_conditions_choice: null,
+            reference_vs30_value: null,
+            reference_vs30_type: null,
+            reference_depth_to_2pt5km_per_sec: null,
+            reference_depth_to_1pt0km_per_sec: null,
+
+            // fragility model
+            fm_loss_show_cons_choice: false,
+
+            fm_loss_structural_choice: false,
+            fm_loss_structural: null,
+            fm_loss_nonstructural_choice: false,
+            fm_loss_nonstructural: null,
+            fm_loss_contents_choice: false,
+            fm_loss_contents: null,
+            fm_loss_businter_choice: false,
+            fm_loss_businter: null,
+
+            fm_loss_structural_cons: null,
+            fm_loss_nonstructural_cons: null,
+            fm_loss_contents_cons: null,
+            fm_loss_businter_cons: null,
+
+
+            // vulnerability model
+            vm_loss_structural_choice: false,
+            vm_loss_structural: null,
+            vm_loss_nonstructural_choice: false,
+            vm_loss_nonstructural: null,
+            vm_loss_contents_choice: false,
+            vm_loss_contents: null,
+            vm_loss_businter_choice: false,
+            vm_loss_businter: null,
+            vm_loss_occupants_choice: false,
+            vm_loss_occupants: null,
+
+            site_model_file: null,
+
+            // calculation parameters
+            gmpe_choice: null,
+            intensity_measure_types: null,
+            fravul_model_file: null,
+
+            ground_motion_correlation_model: null,
+            truncation_level: null,
+            maximum_distance: null,
+            number_of_ground_motion_fields: null
+*/
+        };
+
+
+        // Exposure model (get)
+        console.log('HERE WE ARE');
+        exposure_model_getData('e_b', ret, files_list, obj, true, true);
+
+        if (ret.str == '') {
+            ret.ret = 0;
+            ret.obj = obj;
         }
-
-        var data = new FormData();
-        data.append('data', JSON.stringify(ret.obj));
-        $.ajax({
-            url: 'prepare/event_based',
-            type: 'POST',
-            data: data,
-            cache: false,
-            processData: false,
-            contentType: false,
-            success: function(data) {
-                if (data.ret == 0) {
-                    var $form = $(cf_obj.ebpfx + ' form[name="downloadForm"]');
-                    var dest_name = 'Unknown';
-                    var $new_input;
-
-                    $form.empty();
-                    $form.append(csrf_token);
-                    $form.attr({'action': 'download'});
-                    $new_input = $('<input/>');
-                    $new_input.attr('type', 'hidden').attr({'name': 'zipname', 'value': data.zipname });
-                    $form.append($new_input);
-
-
-                    $new_input = $('<input/>');
-
-                    dest_name = "EventBased";
-
-                    $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
-                    $form.append($new_input);
-
-                    console.log($form);
-                    $form.submit();
-                }
-            }
-        });
-        return false;
+        return ret;
     }
 
-    $(cf_obj.ebpfx + ' button[name="download"]').click(event_based_download_cb);
+    $(cf_obj['e_b'].pfx + ' button[name="download"]').on('click', event_based_download_cb);
+
     event_based_sect_manager();
 
 });

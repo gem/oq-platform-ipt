@@ -22,8 +22,14 @@ function uniqueness_check(files_list)
 }
 
 
-function gem_tableHeightUpdate(tbl, $box) {
+function gem_tableHeightUpdate($box) {
+    try {
+    var tbl = $box.handsontable('getInstance');
     tbl.render();
+    } catch (e) {
+       console.log($box);
+       debugger;
+    }
 
     console.log('gem_tableHeight');
     /* console.log(tbl);
@@ -32,7 +38,8 @@ function gem_tableHeightUpdate(tbl, $box) {
 
     var h_min = 100, h_max = 300;
     var h_prev = $box.height();
-    var h = $(tbl.container).find('div.wtHolder').find('div.wtHider').height() + 20;
+    // var h = $(tbl.container).find('div.wtHolder').find('div.wtHider').height() + 20;
+    var h = $box.find('div.wtHolder').find('div.wtHider').height() + 30;
 
     /* console.log('h_prev: ' + h_prev + 'h: ' + h); */
     if (h_prev <= h_min && h > h_min ||

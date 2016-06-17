@@ -328,7 +328,7 @@ def upload(request, **kwargs):
 
 
 
-def prepare_scenario(request, **kwargs):
+def scenario_prepare(request, **kwargs):
     ret = {};
 
     if request.POST.get('data', '') == '':
@@ -504,7 +504,7 @@ def prepare_scenario(request, **kwargs):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-def prepare_event_based(request, **kwargs):
+def event_based_prepare(request, **kwargs):
     ret = {};
 
     if request.POST.get('data', '') == '':
@@ -526,49 +526,49 @@ def prepare_event_based(request, **kwargs):
 
     jobini += "random_seed = 113\n"
 
-    jobini += "\n[Exposure model]\n"
-    #            ################
+    # jobini += "\n[Exposure model]\n"
+    # #            ################
 
-    jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
-    z.write(data['exposure_model'], os.path.basename(data['exposure_model']))
-    if data['risk'] != None:
-        if data['exposure_model_regcons_choice'] == True:
-            is_first = True
-            jobini += "region_constraint = "
-            for el in data['exposure_model_regcons_coords_data']:
-                if is_first:
-                    is_first = False
-                else:
-                    jobini += ", "
-                jobini += "%s %s" % (el[0], el[1])
-            jobini += "\n"
+    # jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
+    # z.write(data['exposure_model'], os.path.basename(data['exposure_model']))
+    # if data['risk'] != None:
+    #     if data['exposure_model_regcons_choice'] == True:
+    #         is_first = True
+    #         jobini += "region_constraint = "
+    #         for el in data['exposure_model_regcons_coords_data']:
+    #             if is_first:
+    #                 is_first = False
+    #             else:
+    #                 jobini += ", "
+    #             jobini += "%s %s" % (el[0], el[1])
+    #         jobini += "\n"
 
-    jobini += "\n[Vulnerability model]\n"
-    #            #####################
-    descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
-             'contents': 'contents', 'businter': 'business_interruption',
-             'occupants': 'occupants'}
-    for losslist in ['structural', 'nonstructural', 'contents', 'businter',
-                     'occupants']:
-        if data['vm_loss_'+ losslist + '_choice'] == True:
-            jobini += "%s_vulnerability_file = %s\n" % (
-                descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
-            z.write(data['vm_loss_' + losslist],
-                    os.path.basename(data['vm_loss_' + losslist]))
+    # jobini += "\n[Vulnerability model]\n"
+    # #            #####################
+    # descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
+    #          'contents': 'contents', 'businter': 'business_interruption',
+    #          'occupants': 'occupants'}
+    # for losslist in ['structural', 'nonstructural', 'contents', 'businter',
+    #                  'occupants']:
+    #     if data['vm_loss_'+ losslist + '_choice'] == True:
+    #         jobini += "%s_vulnerability_file = %s\n" % (
+    #             descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
+    #         z.write(data['vm_loss_' + losslist],
+    #                 os.path.basename(data['vm_loss_' + losslist]))
 
-            # FIXME HERE HAZARD MODEL
-            
-    jobini += "\n[Site conditions]\n"
-    #            #################
+    #         # FIXME HERE HAZARD MODEL
 
-    if data['site_conditions_choice'] == 'from-file':
-        jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
-        z.write(data['site_model_file'], os.path.basename(data['site_model_file']))
-    elif data['site_conditions_choice'] == 'uniform-param':
-        jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
-        jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
-        jobini += "reference_depth_to_2pt5km_per_sec = %s\n" % data['reference_depth_to_2pt5km_per_sec']
-        jobini += "reference_depth_to_1pt0km_per_sec = %s\n" % data['reference_depth_to_1pt0km_per_sec']
+    # jobini += "\n[Site conditions]\n"
+    # #            #################
+
+    # if data['site_conditions_choice'] == 'from-file':
+    #     jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
+    #     z.write(data['site_model_file'], os.path.basename(data['site_model_file']))
+    # elif data['site_conditions_choice'] == 'uniform-param':
+    #     jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
+    #     jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
+    #     jobini += "reference_depth_to_2pt5km_per_sec = %s\n" % data['reference_depth_to_2pt5km_per_sec']
+    #     jobini += "reference_depth_to_1pt0km_per_sec = %s\n" % data['reference_depth_to_1pt0km_per_sec']
 
 
     print jobini
