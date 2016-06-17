@@ -151,67 +151,86 @@ class FileUpload(forms.Form):
     file_upload = forms.FileField()
 
 
-def filehtml_create(suffix, dirnam=None, match=".*\.xml"):
+def filehtml_create(suffix, userid, dirnam=None, match=".*\.xml"):
     if dirnam == None:
         dirnam = suffix
+    dirnam = '%s/%s/' % (userid, dirnam)
     class FileHtml(forms.Form):
-        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + dirnam + '/'), match=match, recursive=True)
+        file_html = forms.FilePathField(
+            path=(settings.FILE_PATH_FIELD_DIRECTORY + dirnam),
+            match=match, recursive=True)
     fh = FileHtml()
     fh.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
     fh.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
     return fh
 
 def view(request, **kwargs):
+    userid = request.user.id
     gmpe = list(gsim.get_available_gsims())
 
-    rupture_file_html = filehtml_create('rupture_file')
+    rupture_file_html = filehtml_create('rupture_file', userid=userid)
     rupture_file_upload = FileUpload()
 
-    list_of_sites_html = filehtml_create('list_of_sites', match=".*\.csv")
+    list_of_sites_html = filehtml_create(
+        'list_of_sites', userid=userid, match=".*\.csv")
     list_of_sites_upload = FileUpload()
 
-    exposure_model_html = filehtml_create('exposure_model')
+    exposure_model_html = filehtml_create('exposure_model', userid=userid)
     exposure_model_upload = FileUpload()
 
-    site_model_html = filehtml_create('site_model')
+    site_model_html = filehtml_create('site_model', userid=userid)
     site_model_upload = FileUpload()
 
-    fm_structural_html = filehtml_create('fm_structural', 'fragility_model')
+    fm_structural_html = filehtml_create(
+        'fm_structural', dirnam='fragility_model', userid=userid)
     fm_structural_upload = FileUpload()
-    fm_nonstructural_html = filehtml_create('fm_nonstructural', 'fragility_model')
+    fm_nonstructural_html = filehtml_create(
+        'fm_nonstructural', dirnam='fragility_model', userid=userid)
     fm_nonstructural_upload = FileUpload()
-    fm_contents_html = filehtml_create('fm_contents', 'fragility_model')
+    fm_contents_html = filehtml_create(
+        'fm_contents', dirnam='fragility_model', userid=userid)
     fm_contents_upload = FileUpload()
-    fm_businter_html = filehtml_create('fm_businter', 'fragility_model')
+    fm_businter_html = filehtml_create(
+        'fm_businter', dirnam='fragility_model', userid=userid)
     fm_businter_upload = FileUpload()
 
-    fm_structural_cons_html = filehtml_create('fragility_cons')
+    fm_structural_cons_html = filehtml_create(
+        'fragility_cons', userid=userid)
     fm_structural_cons_upload = FileUpload()
-    fm_nonstructural_cons_html = filehtml_create('fragility_cons')
+    fm_nonstructural_cons_html = filehtml_create(
+        'fragility_cons', userid=userid)
     fm_nonstructural_cons_upload = FileUpload()
-    fm_contents_cons_html = filehtml_create('fragility_cons')
+    fm_contents_cons_html = filehtml_create(
+        'fragility_cons', userid=userid)
     fm_contents_cons_upload = FileUpload()
-    fm_businter_cons_html = filehtml_create('fragility_cons')
+    fm_businter_cons_html = filehtml_create(
+        'fragility_cons', userid=userid)
     fm_businter_cons_upload = FileUpload()
 
-    vm_structural_html = filehtml_create('vm_structural', 'vulnerability_model')
+    vm_structural_html = filehtml_create(
+        'vm_structural', dirnam='vulnerability_model', userid=userid)
     vm_structural_upload = FileUpload()
-    vm_nonstructural_html = filehtml_create('vm_nonstructural', 'vulnerability_model')
+    vm_nonstructural_html = filehtml_create(
+        'vm_nonstructural', dirnam='vulnerability_model', userid=userid)
     vm_nonstructural_upload = FileUpload()
-    vm_contents_html = filehtml_create('vm_contents', 'vulnerability_model')
+    vm_contents_html = filehtml_create(
+        'vm_contents', dirnam='vulnerability_model', userid=userid)
     vm_contents_upload = FileUpload()
-    vm_businter_html = filehtml_create('vm_businter', 'vulnerability_model')
+    vm_businter_html = filehtml_create(
+        'vm_businter', dirnam='vulnerability_model', userid=userid)
     vm_businter_upload = FileUpload()
-    vm_occupants_html = filehtml_create('vm_occupants', 'vulnerability_model')
+    vm_occupants_html = filehtml_create(
+        'vm_occupants', dirnam='vulnerability_model', userid=userid)
     vm_occupants_upload = FileUpload()
 
-    site_conditions_html = filehtml_create('site_conditions')
+    site_conditions_html = filehtml_create(
+        'site_conditions', userid=userid)
     site_conditions_upload = FileUpload()
 
-    imt_html = filehtml_create('imt')
+    imt_html = filehtml_create('imt', userid=userid)
     imt_upload = FileUpload()
 
-    fravul_model_html = filehtml_create('fravul_model')
+    fravul_model_html = filehtml_create('fravul_model', userid=userid)
     fravul_model_upload = FileUpload()
 
     return render_to_response("ipt/ipt.html",
@@ -295,12 +314,14 @@ def upload(request, **kwargs):
 
             if form.is_valid():
                 if request.FILES['file_upload'].name.endswith('.' + exten):
-                    bname = settings.FILE_PATH_FIELD_DIRECTORY + target + '/'
+                    bname = "%s%s/%s/" % (settings.FILE_PATH_FIELD_DIRECTORY,
+                                          request.user.id,
+                                          target)
                     f = file(bname + request.FILES['file_upload'].name, "w")
                     f.write(request.FILES['file_upload'].read())
                     f.close()
 
-                    suffix = target + "/"
+                    suffix = "%s/%s/" % (request.user.id, target)
                     match = ".*\." + exten
                     class FileHtml(forms.Form):
                         file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix), match=match, recursive=True)
