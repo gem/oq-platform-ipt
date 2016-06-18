@@ -211,58 +211,65 @@ def view(request, **kwargs):
     imt_html = filehtml_create('imt')
     imt_upload = FileUpload()
 
-    fravul_model_html = filehtml_create('fravul_model')
-    fravul_model_upload = FileUpload()
+    gsim_logic_tree_file_html = filehtml_create('gsim_logic_tree_file')
+    gsim_logic_tree_file_upload = FileUpload()
 
-    return render_to_response("ipt/ipt.html",
-                              dict(
-                                  g_gmpe=gmpe,
-                                  rupture_file_html=rupture_file_html,
-                                  rupture_file_upload=rupture_file_upload,
-                                  list_of_sites_html=list_of_sites_html,
-                                  list_of_sites_upload=list_of_sites_upload,
-                                  exposure_model_html=exposure_model_html,
-                                  exposure_model_upload=exposure_model_upload,
-                                  site_model_html=site_model_html,
-                                  site_model_upload=site_model_upload,
+    source_model_logic_tree_file_html = filehtml_create('source_model_logic_tree_file')
+    source_model_logic_tree_file_upload = FileUpload()
 
-                                  fm_structural_html=fm_structural_html,
-                                  fm_structural_upload=fm_structural_upload,
-                                  fm_nonstructural_html=fm_nonstructural_html,
-                                  fm_nonstructural_upload=fm_nonstructural_upload,
-                                  fm_contents_html=fm_contents_html,
-                                  fm_contents_upload=fm_contents_upload,
-                                  fm_businter_html=fm_businter_html,
-                                  fm_businter_upload=fm_businter_upload,
+    return render_to_response(
+        "ipt/ipt.html",
+        dict(
+            g_gmpe=gmpe,
+            rupture_file_html=rupture_file_html,
+            rupture_file_upload=rupture_file_upload,
+            list_of_sites_html=list_of_sites_html,
+            list_of_sites_upload=list_of_sites_upload,
+            exposure_model_html=exposure_model_html,
+            exposure_model_upload=exposure_model_upload,
+            site_model_html=site_model_html,
+            site_model_upload=site_model_upload,
 
-                                  fm_structural_cons_html=fm_structural_cons_html,
-                                  fm_structural_cons_upload=fm_structural_cons_upload,
-                                  fm_nonstructural_cons_html=fm_nonstructural_cons_html,
-                                  fm_nonstructural_cons_upload=fm_nonstructural_cons_upload,
-                                  fm_contents_cons_html=fm_contents_cons_html,
-                                  fm_contents_cons_upload=fm_contents_cons_upload,
-                                  fm_businter_cons_html=fm_businter_cons_html,
-                                  fm_businter_cons_upload=fm_businter_cons_upload,
+            fm_structural_html=fm_structural_html,
+            fm_structural_upload=fm_structural_upload,
+            fm_nonstructural_html=fm_nonstructural_html,
+            fm_nonstructural_upload=fm_nonstructural_upload,
+            fm_contents_html=fm_contents_html,
+            fm_contents_upload=fm_contents_upload,
+            fm_businter_html=fm_businter_html,
+            fm_businter_upload=fm_businter_upload,
 
-                                  vm_structural_html=vm_structural_html,
-                                  vm_structural_upload=vm_structural_upload,
-                                  vm_nonstructural_html=vm_nonstructural_html,
-                                  vm_nonstructural_upload=vm_nonstructural_upload,
-                                  vm_contents_html=vm_contents_html,
-                                  vm_contents_upload=vm_contents_upload,
-                                  vm_businter_html=vm_businter_html,
-                                  vm_businter_upload=vm_businter_upload,
-                                  vm_occupants_html=vm_occupants_html,
-                                  vm_occupants_upload=vm_occupants_upload,
+            fm_structural_cons_html=fm_structural_cons_html,
+            fm_structural_cons_upload=fm_structural_cons_upload,
+            fm_nonstructural_cons_html=fm_nonstructural_cons_html,
+            fm_nonstructural_cons_upload=fm_nonstructural_cons_upload,
+            fm_contents_cons_html=fm_contents_cons_html,
+            fm_contents_cons_upload=fm_contents_cons_upload,
+            fm_businter_cons_html=fm_businter_cons_html,
+            fm_businter_cons_upload=fm_businter_cons_upload,
 
-                                  site_conditions_html=site_conditions_html,
-                                  site_conditions_upload=site_conditions_upload,
-                                  imt_html=imt_html,
-                                  imt_upload=imt_upload,
-                                  fravul_model_html=fravul_model_html,
-                                  fravul_model_upload=fravul_model_upload,
-                              ),
-                              context_instance=RequestContext(request))
+            vm_structural_html=vm_structural_html,
+            vm_structural_upload=vm_structural_upload,
+            vm_nonstructural_html=vm_nonstructural_html,
+            vm_nonstructural_upload=vm_nonstructural_upload,
+            vm_contents_html=vm_contents_html,
+            vm_contents_upload=vm_contents_upload,
+            vm_businter_html=vm_businter_html,
+            vm_businter_upload=vm_businter_upload,
+            vm_occupants_html=vm_occupants_html,
+            vm_occupants_upload=vm_occupants_upload,
+
+            site_conditions_html=site_conditions_html,
+            site_conditions_upload=site_conditions_upload,
+            imt_html=imt_html,
+            imt_upload=imt_upload,
+            gsim_logic_tree_file_html=gsim_logic_tree_file_html,
+            gsim_logic_tree_file_upload=gsim_logic_tree_file_upload,
+
+            source_model_logic_tree_file_html=source_model_logic_tree_file_html,
+            source_model_logic_tree_file_upload=source_model_logic_tree_file_upload
+        ),
+        context_instance=RequestContext(request))
 
 
 def upload(request, **kwargs):
@@ -278,7 +285,8 @@ def upload(request, **kwargs):
     if target not in ['rupture_file', 'list_of_sites', 'exposure_model',
                       'site_model', 'site_conditions', 'imt', 'fravul_model',
                       'fragility_model', 'fragility_cons',
-                      'vulnerability_model']:
+                      'vulnerability_model', 'gsim_logic_tree_file',
+                      'source_model_logic_tree_file']:
         ret['ret'] = 4;
         ret['ret_msg'] = 'Unknown target "' + target + '".'
         return HttpResponse(json.dumps(ret), content_type="application/json");

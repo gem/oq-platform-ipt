@@ -732,11 +732,11 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' div[name="gmpe-new"]' +
       ' form[name="gmpe"]').submit(scenario_fileNew_upload);
 
-    // Calculation parameters: fravul_model (init)
-    $(cf_obj['scen'].pfx + ' button[name="fravul-model-new"]').click(
+    // Calculation parameters: gsim_logic_tree_file (init)
+    $(cf_obj['scen'].pfx + ' button[name="gsim-logic-tree-file-new"]').click(
         scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fravul-model-new"]' +
-      ' form[name="fravul-model"]').submit(scenario_fileNew_upload);
+    $(cf_obj['scen'].pfx + ' div[name="gsim-logic-tree-file-new"]' +
+      ' form[name="gsim-logic-tree-file"]').submit(scenario_fileNew_upload);
 
     // Calculation parameters: hazard gmpe callbacks (init)
     $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"]').click(scenario_sect_manager);
@@ -861,7 +861,7 @@ $(document).ready(function () {
             // calculation parameters
             gmpe_choice: null,
             intensity_measure_types: null,
-            fravul_model_file: null,
+            gsim_logic_tree_file: null,
 
             ground_motion_correlation_model: null,
             truncation_level: null,
@@ -1005,12 +1005,12 @@ $(document).ready(function () {
             }
             else if (obj.gmpe_choice == 'from-file') {
                 // calculation parameters -> from file (get)
-                obj.fravul_model_file = $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_from-file"]'
-                                          + ' div[name="fravul-model-html"] select[name="file_html"]').val();
-                if (obj.fravul_model_file == '') {
+                obj.gsim_logic_tree_file = $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_from-file"]'
+                                          + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
+                if (obj.gsim_logic_tree_file == '') {
                     ret.str += "'GMPE logic tree file' field is empty.\n";
                 }
-                uniqueness_add(files_list, 'GMPE logic tree', obj.fravul_model_file);
+                uniqueness_add(files_list, 'GMPE logic tree', obj.gsim_logic_tree_file);
                 ret.str += uniqueness_check(files_list);
             }
             else {
@@ -1097,6 +1097,19 @@ $(document).ready(function () {
     exposure_model_init('e_b', event_based_fileNew_cb, event_based_fileNew_upload,
                         event_based_sect_manager);
 
+    // Hazard model: source_model_logic_tree_file (init)
+    $(cf_obj['e_b'].pfx + ' button[name="source-model-logic-tree-file-new"]').click(
+        event_based_fileNew_cb);
+    $(cf_obj['e_b'].pfx + ' div[name="source-model-logic-tree-file-new"]' +
+      ' form[name="source-model-logic-tree-file"]').submit(event_based_fileNew_upload);
+
+    // Hazard model: gsim_logic_tree_file (init)
+    $(cf_obj['e_b'].pfx + ' button[name="gsim-logic-tree-file-new"]').click(
+        event_based_fileNew_cb);
+    $(cf_obj['e_b'].pfx + ' div[name="gsim-logic-tree-file-new"]' +
+      ' form[name="gsim-logic-tree-file"]').submit(event_based_fileNew_upload);
+
+
     // Vulnerability model (init)
     vulnerability_model_init('e_b', event_based_fileNew_cb, event_based_fileNew_upload,
                              event_based_sect_manager);
@@ -1168,6 +1181,9 @@ $(document).ready(function () {
             insured_losses: false,
             asset_correlation_choice: false,
             asset_correlation: null,
+
+            // hazard model
+            gsim_logic_tree_file: null,
 
 /*
 

@@ -299,15 +299,15 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
 
   <div class="menuItems" name="hazard-gmpe_from-file">
-    <div name="fravul-model-html">
+    <div name="gsim-logic-tree-file-html" data_gem_group="gsim">
       <label>Use GMPE logic tree file:</label>
-      {{ fravul_model_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fravul-model-new">New</button>
+      {{ gsim_logic_tree_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="gsim-logic-tree-file-new">New</button>
     </div>
-    <div class="menuItems" name="fravul-model-new" style="margin-right: 0px; display: none;">
+    <div class="menuItems" name="gsim-logic-tree-file-new" style="margin-right: 0px; display: none;">
       <div name="msg"><br></div>
-      <form action="upload/fravul_model" method="post" id="file-upload-form" name="fravul-model" enctype="multipart/form-data">
+      <form action="upload/gsim-logic-tree-file" method="post" id="file-upload-form" name="gsim-logic-tree-file" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ fravul_model_upload.file_upload }}
+        {{ gsim_logic_tree_file_upload.file_upload }}
         <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
       </form>
     </div>
