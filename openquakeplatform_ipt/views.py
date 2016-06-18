@@ -585,6 +585,17 @@ def event_based_prepare(request, **kwargs):
     # Site conditions
     jobini += site_conditions_prep_sect(data, z)
 
+    jobini += "\n[Hazard calculations]\n"
+    #            #####################
+    jobini += "truncation_level = %s\n" % data['truncation_level']
+    jobini += "maximum_distance = %s\n" % data['maximum_distance']
+    jobini += "investigation_time = %s\n" % data['investigation_time']
+    jobini += "ses_per_logic_tree_path = %s\n" % data['ses_per_logic_tree_path']
+    jobini += "number_of_logic_tree_samples = %s\n" % data['number_of_logic_tree_samples']
+    jobini += "ground_motion_correlation_model = %s\n" % data['ground_motion_correlation_model']
+    if data['ground_motion_correlation_model'] == 'JB2009':
+        jobini += "ground_motion_correlation_params = {\"vs30_clustering\": True}"
+
     print jobini
 
     z.writestr('job.ini', jobini)

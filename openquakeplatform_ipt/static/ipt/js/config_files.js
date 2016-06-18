@@ -1213,7 +1213,12 @@ $(document).ready(function () {
             reference_depth_to_2pt5km_per_sec: null,
             reference_depth_to_1pt0km_per_sec: null,
 
-
+            // hazard calculations
+            truncation_level: null,
+            maximum_distance: null,
+            investigation_time: null,
+            ses_per_logic_tree_path: null,
+            number_of_logic_tree_samples: null,
 
 /*
             hazard_sites_choice: null,
@@ -1293,6 +1298,45 @@ $(document).ready(function () {
                 if (!isFloat(obj.area_source_discretization) || parseFloat(obj.area_source_discretization) < 0.0) {
                     ret.str += "'Area source discretization' field isn't a not negative float number (" + obj.area_source_discretization + ").\n";
                 }
+            }
+        }
+        // Hazard calculations (get)
+        {
+            var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-calculations"]';
+
+            obj.truncation_level = $(pfx + ' input[type="text"][name="truncation_level"]').val();
+            if (!isFloat(obj.truncation_level) || parseFloat(obj.truncation_level) < 0.0) {
+                ret.str += "'Level of truncation' field is negative float number ("
+                    + obj.width_of_mfd_bin + ").\n";
+            }
+
+            obj.maximum_distance = $(pfx + ' input[type="text"][name="maximum_distance"]').val();
+            if (!isFloat(obj.maximum_distance) || parseFloat(obj.maximum_distance) < 0.0) {
+                ret.str += "'Maximum source-to-site distance' field is negative float number ("
+                    + obj.maximum_distance + ").\n";
+            }
+
+            obj.investigation_time = $(pfx + ' input[type="text"][name="investigation_time"]').val();
+            if (!isInt(obj.investigation_time) || parseInt(obj.investigation_time) <= 0.0) {
+                ret.str += "'Hazard investigation time' field isn't positive number ("
+                    + obj.investigation_time + ").\n";
+            }
+
+            obj.ses_per_logic_tree_path = $(pfx + ' input[type="text"][name="ses_per_logic_tree_path"]').val();
+            if (!isInt(obj.ses_per_logic_tree_path) || parseInt(obj.ses_per_logic_tree_path) <= 0.0) {
+                ret.str += "'Stochastic event sets per logic tree path' field isn't positive number ("
+                    + obj.ses_per_logic_tree_path + ").\n";
+            }
+
+            obj.number_of_logic_tree_samples = $(pfx + ' input[type="text"][name="number_of_logic_tree_samples"]').val();
+            if (!isInt(obj.number_of_logic_tree_samples) || parseInt(obj.number_of_logic_tree_samples) < 0.0) {
+                ret.str += "'Number of logic tree samples' field isn't positive number ("
+                    + obj.number_of_logic_tree_samples + ").\n";
+            }
+
+            obj.ground_motion_correlation_model = $(pfx + ' select[name="ground_motion_correlation_model"]').val();
+            if (obj.ground_motion_correlation_model != '' && obj.ground_motion_correlation_model != 'JB2009') {
+                ret.str += "Unknown 'Ground Motion Correlation' field (" + obj.ground_motion_correlation_model + ").\n";
             }
         }
 

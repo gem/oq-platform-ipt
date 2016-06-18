@@ -72,14 +72,54 @@
     </div>
   </div>
   <div class="menuItems" name="area-source-discretization">
-    <label>area source discretization (km):</label>
+    <label>Area source discretization (km):</label>
     <input type="text" name="area_source_discretization" value="10.0">
   </div>
 </div>
 
 <div style="min-height: 50px;" name="site-conditions"><!-- site conditions block -->
   {% include "ipt/tabs/cf/sect_site_conditions.html" %}
-</div> <!-- end site conditions -->
+</div>
+
+
+
+<div name="hazard-calculations">
+  <h3>Hazard calculations</h3>
+
+  <div class="menuItems">
+    <label>Level of truncation:</label>
+    <input type="text" name="truncation_level" value="0.0">
+  </div>
+
+  <div class="menuItems">
+    <label>Maximum source-to-site distance (km):</label>
+    <input type="text" name="maximum_distance" value="200">
+  </div>
+
+  <div class="menuItems">
+    <label>Hazard investigation time (years):</label>
+    <input type="text" name="investigation_time" value="1">
+  </div>
+
+  <div class="menuItems">
+    <label>Stochastic event sets per logic tree path:</label>
+    <input type="text" name="ses_per_logic_tree_path" value="1000">
+  </div>
+
+  <div class="menuItems">
+    <label>Number of logic tree samples:</label>
+    <input type="text" name="number_of_logic_tree_samples" value="0">
+  </div>
+
+  <div class="menuItems">
+    <label>Ground Motion Correlation:</label>
+
+    <select name="ground_motion_correlation_model">
+      <option value="" selected="selected">None</option>
+      <option value="JB2009">JB2009</option>
+    </select>
+  </div>
+</div>
 
 <div style="text-align: center;">
   <hr>
