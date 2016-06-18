@@ -37,9 +37,6 @@ $(document).ready(function () {
 
     function exposure_model_manager(scope, enabled, with_constraints)
     {
-        console.log($(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                      + ' input[name="include"]').is(':checked'));
-
         $target = $(cf_obj[scope].pfx + ' div[name="exposure-model"]');
         if (enabled) {
             $target.css('display', '');
@@ -102,7 +99,8 @@ $(document).ready(function () {
 
     function vulnerability_model_manager(scope, is_enabled)
     {
-        var $vuln_model = $(cf_obj['scen'].pfx + ' div[name="vulnerability-model"]');
+        var pfx = cf_obj[scope].pfx + ' div[name="vulnerability-model"]';
+        var $vuln_model = $(pfx);
 
         if (! is_enabled) {
             $vuln_model.css('display', 'none');
@@ -115,24 +113,27 @@ $(document).ready(function () {
         for (var lossidx in losslist) {
             var losstype = losslist[lossidx];
 
-            $target = $(cf_obj[scope].pfx + ' div[name="vulnerability-model"] div[name="vm-loss-'
-                        + losstype + '"]');
+            $target = $(pfx + ' div[name="vm-loss-' + losstype + '"]');
 
-            if($(cf_obj[scope].pfx + ' div[name="vulnerability-model"] input[type="checkbox"][name="losstype"]'
-                 + '[value="' + losstype + '"]').is(':checked')) {
+            if($(pfx + ' input[type="checkbox"][name="losstype"][value="' + losstype + '"]').is(':checked')) {
                 $target.css('display', '');
             }
             else {
                 $target.css('display', 'none');
             }
         }
+
+        if($(pfx + ' input[name="asset-correlation-choice"]').is(':checked'))
+            $(pfx + ' div[name="asset-correlation"]').css('display', '');
+        else
+            $(pfx + ' div[name="asset-correlation"]').css('display', 'none');
     }
 
     function site_conditions_manager(scope, is_enabled, force_file_choice)
     {
         // Site conditions model (force site conditions to file) (ui)
         $target = $(cf_obj[scope].pfx + ' div[name="site-conditions"]');
-        if (is_enabled != null) {
+        if (is_enabled != false) {
             $target.css('display', '');
 
             if (force_file_choice) {
@@ -197,20 +198,30 @@ $(document).ready(function () {
         var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
         var descr = { structural: 'structural', nonstructural: 'nonstructural',
                       contents: 'contents', businter: 'business interruption' };
-
+        var pfx = cf_obj[scope].pfx + ' div[name="vulnerability-model"]';
         for (var lossidx in losslist) {
             var losstype = losslist[lossidx];
 
-            $target = $(cf_obj[scope].pfx + ' div[name="vulnerability-model"] div[name="vm-loss-'
-                        + losstype + '"]');
+            $target = $(pfx + ' div[name="vm-loss-' + losstype + '"]');
 
             obj['vm_loss_' + losstype + '_choice'] = $(
-                cf_obj[scope].pfx + ' div[name="vulnerability-model"] input[type="checkbox"][name="losstype"]'
-                    + '[value="' + losstype + '"]').is(':checked')
+                pfx + ' input[type="checkbox"][name="losstype"][value="' + losstype + '"]'
+            ).is(':checked');
             if(obj['vm_loss_' + losstype + '_choice']) {
                 obj['vm_loss_' + losstype] = $target.find('select[name="file_html"]').val();
                 uniqueness_add(files_list, 'vulnerability model: ' + descr[losstype], obj['vm_loss_' + losstype]);
                 ret.str += uniqueness_check(files_list);
+            }
+        }
+
+        obj['insured_losses'] = $(pfx + ' input[type="checkbox"][name="insured_losses"]').is(':checked');
+
+        obj['asset_correlation_choice'] = $(
+            pfx + ' input[type="checkbox"][name="asset-correlation-choice"]').is(':checked');
+        if (obj['asset_correlation_choice'] == true) {
+            obj['asset_correlation'] = $(pfx + ' input[type="text"][name="asset_correlation"]').val();
+            if (obj['asset_correlation'] < 0.0 || obj['asset_correlation'] > 1.0) {
+                ret.str += "'asset correlation' out of range 0.0 ≤ x ≤ 1.0";
             }
         }
     }
@@ -361,39 +372,38 @@ $(document).ready(function () {
 
     function vulnerability_model_init(scope, fileNew_cb, fileNew_upload, sect_manager)
     {
+        var pfx = cf_obj[scope].pfx + ' div[name="vulnerability-model"]';
         // Vulnerability model (init)
-        $(cf_obj[scope].pfx + ' div[name="vulnerability-model"] input[type="checkbox"]').click(
-            sect_manager);
+        $(pfx + ' input[type="checkbox"]').click(sect_manager);
 
         // Vulnerability model: structural (init)
-        $(cf_obj[scope].pfx + ' button[name="vm-structural-new"]').click(
-            fileNew_cb);
-        $(cf_obj[scope].pfx + ' div[name="vm-structural-new"]' +
+        $(pfx + ' button[name="vm-structural-new"]').click(fileNew_cb);
+        $(pfx + ' div[name="vm-structural-new"]' +
           ' form[name="vm-structural"]').submit(fileNew_upload);
 
         // Vulnerability model: nonstructural (init)
-        $(cf_obj[scope].pfx + ' button[name="vm-nonstructural-new"]').click(
-            fileNew_cb);
-        $(cf_obj[scope].pfx + ' div[name="vm-nonstructural-new"]' +
+        $(pfx + ' button[name="vm-nonstructural-new"]').click(fileNew_cb);
+        $(pfx + ' div[name="vm-nonstructural-new"]' +
           ' form[name="vm-nonstructural"]').submit(fileNew_upload);
 
         // Vulnerability model: contents (init)
-        $(cf_obj[scope].pfx + ' button[name="vm-contents-new"]').click(
-            fileNew_cb);
-        $(cf_obj[scope].pfx + ' div[name="vm-contents-new"]' +
+        $(pfx + ' button[name="vm-contents-new"]').click(fileNew_cb);
+        $(pfx + ' div[name="vm-contents-new"]' +
           ' form[name="vm-contents"]').submit(fileNew_upload);
 
         // Vulnerability model: businter (init)
-        $(cf_obj[scope].pfx + ' button[name="vm-businter-new"]').click(
-            fileNew_cb);
-        $(cf_obj[scope].pfx + ' div[name="vm-businter-new"]' +
+        $(pfx + ' button[name="vm-businter-new"]').click(fileNew_cb);
+        $(pfx + ' div[name="vm-businter-new"]' +
           ' form[name="vm-businter"]').submit(fileNew_upload);
 
         // Vulnerability model: occupants (init)
-        $(cf_obj[scope].pfx + ' button[name="vm-occupants-new"]').click(
-            fileNew_cb);
-        $(cf_obj[scope].pfx + ' div[name="vm-occupants-new"]' +
+        $(pfx + ' button[name="vm-occupants-new"]').click(fileNew_cb);
+        $(pfx + ' div[name="vm-occupants-new"]' +
           ' form[name="vm-occupants"]').submit(fileNew_upload);
+
+        $(pfx + ' input[type="checkbox"]').click(sect_manager);
+        $(pfx + ' input[name="insured_losses"]').prop('checked', false).triggerHandler('click');
+        $(pfx + ' input[name="asset-correlation-choice"]').prop('checked', false).triggerHandler('click');
     }
 
     // Site conditions (init)
@@ -492,7 +502,6 @@ $(document).ready(function () {
      */
 
     function scenario_sect_manager() {
-        console.log('scenario_sect_manager');
         var hazard = null; // null or hazard
         var risk = null;   // null, damage or loss
         var hazard_sites_choice = null; // null, region-grid, list-of-sites, exposure-model, site-cond-model
@@ -511,8 +520,8 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
 
-        $target = $(cf_obj['scen'].pfx + ' div[name="hazard-sites"]');
         // Hazard sites (ui)
+        $target = $(cf_obj['scen'].pfx + ' div[name="hazard-sites"]');
         if (hazard != null) {
             hazard_sites_choice = $(cf_obj['scen'].pfx + ' input[type="radio"]'
                                     + '[name="hazard_sites"]:checked').val();
@@ -571,6 +580,10 @@ $(document).ready(function () {
             vulnerability_model_manager('scen', true);
             fragility_model_manager('scen', false);
         }
+        else {
+            fragility_model_manager('scen', false);
+            vulnerability_model_manager('scen', false);
+        }
 
         // Site conditions model (force site conditions to file) (ui)
         site_conditions_manager('scen', (hazard != null), (hazard_sites_choice == 'site-cond-model'));
@@ -597,7 +610,6 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
     }
-
     /* - - - SCENARIO (INIT) - - - */
 
     // Rupture information (init)
@@ -742,7 +754,6 @@ $(document).ready(function () {
 
     /* hazard components callbacks (init) */
     $(cf_obj['scen'].pfx + ' input[name="hazard"]').click(scenario_sect_manager);
-    $(cf_obj['scen'].pfx + ' input[name="hazard"]').prop('checked', true).triggerHandler('click');
 
     /* risk components callbacks (init) */
     function scenario_risk_onclick_cb(e) {
@@ -842,6 +853,10 @@ $(document).ready(function () {
             vm_loss_businter: null,
             vm_loss_occupants_choice: false,
             vm_loss_occupants: null,
+
+            insured_losses: false,
+            asset_correlation_choice: false,
+            asset_correlation: null,
 
             // calculation parameters
             gmpe_choice: null,
@@ -1149,6 +1164,11 @@ $(document).ready(function () {
             vm_loss_businter: null,
             vm_loss_occupants_choice: false,
             vm_loss_occupants: null,
+
+            insured_losses: false,
+            asset_correlation_choice: false,
+            asset_correlation: null,
+
 /*
 
             // calculation parameters

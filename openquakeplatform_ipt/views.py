@@ -361,6 +361,12 @@ def vulnerability_model_prep_sect(data, z):
             z.write(data['vm_loss_' + losslist],
                     os.path.basename(data['vm_loss_' + losslist]))
 
+    jobini += "insured_losses = %s\n" % (
+        "True" if data['insured_losses'] else "False")
+
+    if data['asset_correlation_choice']:
+        jobini += "asset_correlation = %s" % data['asset_correlation']
+
     return jobini
 
 
@@ -452,7 +458,7 @@ def scenario_prepare(request, **kwargs):
     if ((data['hazard'] == 'hazard' and data['hazard_sites_choice'] == 'exposure-model')
         or data['risk'] != None):
         jobini += exposure_model_prep_sect(data, z, (data['risk'] != None))
-                
+
     if data['risk'] == 'damage':
         jobini += "\n[Fragility model]\n"
         #            #################
@@ -586,9 +592,7 @@ def event_based_prepare(request, **kwargs):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-
 def download(request):
-
     if request.method == 'POST':
         zipname = request.POST.get('zipname', '')
         dest_name = request.POST.get('dest_name', 'Unknown')
