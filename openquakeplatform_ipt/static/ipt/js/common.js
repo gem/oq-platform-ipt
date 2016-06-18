@@ -12,6 +12,9 @@ function uniqueness_check(files_list)
 {
     for (var i = 0 ; i < files_list.length - 1; i++) {
         for (var e = i+1 ; e < files_list.length ; e++) {
+            // empty filename case already managed
+            if (files_list[i].filename == '')
+                continue;
             if (files_list[i].filename == files_list[e].filename) {
                 return "Selected '" + files_list[i].label + "' and '" +
                     files_list[e].label + "' have the same name.\n";
@@ -23,13 +26,13 @@ function uniqueness_check(files_list)
 
 
 function gem_tableHeightUpdate($box) {
-    try {
+    // try {
     var tbl = $box.handsontable('getInstance');
     tbl.render();
-    } catch (e) {
-       console.log($box);
-       debugger;
-    }
+    //} catch (e) {
+    //   console.log($box);
+    //   debugger;
+    //}
 
     console.log('gem_tableHeight');
     /* console.log(tbl);

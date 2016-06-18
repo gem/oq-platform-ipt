@@ -35,7 +35,7 @@ $(document).ready(function () {
         $(this).tab('show');
     });
 
-    function exposure_model_manager(scope, enabled, with_constraints)
+    function exposure_model_sect_manager(scope, enabled, with_constraints)
     {
         $target = $(cf_obj[scope].pfx + ' div[name="exposure-model"]');
         if (enabled) {
@@ -60,7 +60,7 @@ $(document).ready(function () {
         }
     }
 
-    function fragility_model_manager(scope, is_active)
+    function fragility_model_sect_manager(scope, is_active)
     {
         var $frag_model = $(cf_obj[scope].pfx + ' div[name="fragility-model"]');
 
@@ -97,7 +97,7 @@ $(document).ready(function () {
         }
     }
 
-    function vulnerability_model_manager(scope, is_enabled)
+    function vulnerability_model_sect_manager(scope, is_enabled)
     {
         var pfx = cf_obj[scope].pfx + ' div[name="vulnerability-model"]';
         var $vuln_model = $(pfx);
@@ -129,7 +129,7 @@ $(document).ready(function () {
             $(pfx + ' div[name="asset-correlation"]').css('display', 'none');
     }
 
-    function site_conditions_manager(scope, is_enabled, force_file_choice)
+    function site_conditions_sect_manager(scope, is_enabled, force_file_choice)
     {
         // Site conditions model (force site conditions to file) (ui)
         $target = $(cf_obj[scope].pfx + ' div[name="site-conditions"]');
@@ -209,7 +209,11 @@ $(document).ready(function () {
             ).is(':checked');
             if(obj['vm_loss_' + losstype + '_choice']) {
                 obj['vm_loss_' + losstype] = $target.find('select[name="file_html"]').val();
-                uniqueness_add(files_list, 'vulnerability model: ' + descr[losstype], obj['vm_loss_' + losstype]);
+
+                if (obj['vm_loss_' + losstype] == '') {
+                    ret.str += "'" + descr[losstype] + " vulnerability model' field is empty.\n";
+                }
+                uniqueness_add(files_list, descr[losstype] + " vulnerability model", obj['vm_loss_' + losstype]);
                 ret.str += uniqueness_check(files_list);
             }
         }
@@ -320,7 +324,7 @@ $(document).ready(function () {
         return false;
     }
 
-    function exposure_model_init(scope, fileNew_cb, fileNew_upload, sect_manager)
+    function exposure_model_init(scope, fileNew_cb, fileNew_upload, manager)
     {
         $(cf_obj[scope].pfx + ' button[name="exposure-model-new"]').click(
             fileNew_cb);
@@ -329,7 +333,7 @@ $(document).ready(function () {
 
         // Exposure model: risk-only region constraint checkbox (init)
         $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-          + ' input[name="include"]').click(sect_manager);
+          + ' input[name="include"]').click(manager);
 
         // Exposure model: hazard content region-constr table handsontable (init)
         $(cf_obj[scope].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable({
@@ -370,11 +374,11 @@ $(document).ready(function () {
         });
     }
 
-    function vulnerability_model_init(scope, fileNew_cb, fileNew_upload, sect_manager)
+    function vulnerability_model_init(scope, fileNew_cb, fileNew_upload, manager)
     {
         var pfx = cf_obj[scope].pfx + ' div[name="vulnerability-model"]';
         // Vulnerability model (init)
-        $(pfx + ' input[type="checkbox"]').click(sect_manager);
+        $(pfx + ' input[type="checkbox"]').click(manager);
 
         // Vulnerability model: structural (init)
         $(pfx + ' button[name="vm-structural-new"]').click(fileNew_cb);
@@ -401,17 +405,16 @@ $(document).ready(function () {
         $(pfx + ' div[name="vm-occupants-new"]' +
           ' form[name="vm-occupants"]').submit(fileNew_upload);
 
-        $(pfx + ' input[type="checkbox"]').click(sect_manager);
+        $(pfx + ' input[type="checkbox"]').click(manager);
         $(pfx + ' input[name="insured_losses"]').prop('checked', false).triggerHandler('click');
         $(pfx + ' input[name="asset-correlation-choice"]').prop('checked', false).triggerHandler('click');
     }
 
     // Site conditions (init)
-    function site_conditions_init(scope, fileNew_cb, fileNew_upload, sect_manager)
+    function site_conditions_init(scope, fileNew_cb, fileNew_upload, manager)
     {
         /* hazard site conditions callbacks */
-        $(cf_obj[scope].pfx + ' input[name="hazard_sitecond"]').click(
-            sect_manager);
+        $(cf_obj[scope].pfx + ' input[name="hazard_sitecond"]').click(manager);
         $(cf_obj[scope].pfx + ' input[name="hazard_sitecond"][value="uniform-param"]'
          ).prop('checked', true).triggerHandler('click');
 
@@ -501,7 +504,7 @@ $(document).ready(function () {
      * - - - SCENARIO - - -
      */
 
-    function scenario_sect_manager() {
+    function scenario_manager() {
         var hazard = null; // null or hazard
         var risk = null;   // null, damage or loss
         var hazard_sites_choice = null; // null, region-grid, list-of-sites, exposure-model, site-cond-model
@@ -546,7 +549,7 @@ $(document).ready(function () {
             $target.css('display', 'none');
 
         // Exposure model (ui)
-        exposure_model_manager(
+        exposure_model_sect_manager(
             'scen', ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null),
             (risk != null));
 
@@ -573,20 +576,20 @@ $(document).ready(function () {
 
         // Fragility and vulnerability model (ui)
         if (risk == 'damage') {
-            fragility_model_manager('scen', true);
-            vulnerability_model_manager('scen', false);
+            fragility_model_sect_manager('scen', true);
+            vulnerability_model_sect_manager('scen', false);
         }
         else if(risk == 'losses') {
-            vulnerability_model_manager('scen', true);
-            fragility_model_manager('scen', false);
+            vulnerability_model_sect_manager('scen', true);
+            fragility_model_sect_manager('scen', false);
         }
         else {
-            fragility_model_manager('scen', false);
-            vulnerability_model_manager('scen', false);
+            fragility_model_sect_manager('scen', false);
+            vulnerability_model_sect_manager('scen', false);
         }
 
         // Site conditions model (force site conditions to file) (ui)
-        site_conditions_manager('scen', (hazard != null), (hazard_sites_choice == 'site-cond-model'));
+        site_conditions_sect_manager('scen', (hazard != null), (hazard_sites_choice == 'site-cond-model'));
 
         // Calculation parameters (ui)
         $target = $(cf_obj['scen'].pfx + ' div[name="calculation-parameters"]');
@@ -664,13 +667,13 @@ $(document).ready(function () {
       ' form[name="list-of-sites"]').submit(scenario_fileNew_upload);
 
     // Exposure model (init)
-    exposure_model_init('scen', scenario_fileNew_cb, scenario_fileNew_upload, scenario_sect_manager);
+    exposure_model_init('scen', scenario_fileNew_cb, scenario_fileNew_upload, scenario_manager);
 
     // Fragility model (init)
     $(cf_obj['scen'].pfx + ' div[name="fragility-model"] input[type="checkbox"][name="losstype"]').click(
-        scenario_sect_manager);
+        scenario_manager);
     $(cf_obj['scen'].pfx + ' div[name="fragility-model"] input[type="checkbox"]'
-      + '[name="fm-loss-include-cons"]').click(scenario_sect_manager);
+      + '[name="fm-loss-include-cons"]').click(scenario_manager);
 
     // Fragility model: structural (init)
     $(cf_obj['scen'].pfx + ' button[name="fm-structural-new"]').click(
@@ -718,11 +721,11 @@ $(document).ready(function () {
 
     // Vulnerability model (init)
     vulnerability_model_init('scen', scenario_fileNew_cb, scenario_fileNew_upload,
-                             scenario_sect_manager);
+                             scenario_manager);
 
     // Site conditions (init)
     site_conditions_init('scen', scenario_fileNew_cb, scenario_fileNew_upload,
-                         scenario_sect_manager);
+                         scenario_manager);
 
     // Calculation parameters (init)
 
@@ -739,7 +742,7 @@ $(document).ready(function () {
       ' form[name="gsim-logic-tree-file"]').submit(scenario_fileNew_upload);
 
     // Calculation parameters: hazard gmpe callbacks (init)
-    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"]').click(scenario_sect_manager);
+    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"]').click(scenario_manager);
     $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]'
      ).prop('checked', true).triggerHandler('click');
 
@@ -753,18 +756,18 @@ $(document).ready(function () {
          maxHeight: '300px'});
 
     /* hazard components callbacks (init) */
-    $(cf_obj['scen'].pfx + ' input[name="hazard"]').click(scenario_sect_manager);
+    $(cf_obj['scen'].pfx + ' input[name="hazard"]').click(scenario_manager);
 
     /* risk components callbacks (init) */
     function scenario_risk_onclick_cb(e) {
         $(cf_obj['scen'].pfx + ' span[name="risk-menu"]').css('display', $(e.target).is(':checked') ? '' : 'none');
-        scenario_sect_manager();
+        scenario_manager();
     }
     $(cf_obj['scen'].pfx + ' input[name="risk"]').click(scenario_risk_onclick_cb);
     scenario_risk_onclick_cb({ target: $(cf_obj['scen'].pfx + ' input[name="risk"]')[0] });
 
     /* risk type components callbacks (init) */
-    $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]').click(scenario_sect_manager);
+    $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]').click(scenario_manager);
     $(cf_obj['scen'].pfx + ' input[name="risk-type"][value="damage"]').prop('checked', true);
 
     /* generic callback to show upload div (init) */
@@ -781,7 +784,7 @@ $(document).ready(function () {
 
     /* hazard sites callbacks */
     $(cf_obj['scen'].pfx + ' input[name="hazard_sites"]').click(
-        scenario_sect_manager);
+        scenario_manager);
     $(cf_obj['scen'].pfx + ' input[name="hazard_sites"][value="region-grid"]'
      ).prop('checked', true).triggerHandler('click');
 
@@ -1071,7 +1074,7 @@ $(document).ready(function () {
     }
     $(cf_obj['scen'].pfx + ' button[name="download"]').click(scenario_download_cb);
 
-    scenario_sect_manager();
+    scenario_manager();
 
     /*
      * - - - EVENT BASED - - -
@@ -1082,11 +1085,32 @@ $(document).ready(function () {
         return generic_fileNew_upload('e_b', this, event);
     }
 
-    function event_based_sect_manager()
+    function event_based_manager()
     {
-        exposure_model_manager('e_b', true, true);
-        vulnerability_model_manager('e_b', true);
-        site_conditions_manager('e_b', true, false);
+        exposure_model_sect_manager('e_b', true, true);
+        vulnerability_model_sect_manager('e_b', true);
+
+        // Hazard model (UI)
+        {
+            var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-model"]';
+
+            $target = $(pfx + ' div[name="rupture-mesh-spacing"]');
+            if ($(cf_obj['e_b'].pfx + ' div[name="hazard-model"]'
+                  + ' input[type="checkbox"][name="rupture_mesh_spacing_choice"]').is(':checked'))
+                $target.css('display', '');
+            else
+                $target.css('display', 'none');
+
+            $target = $(pfx + ' div[name="area-source-discretization"]');
+            if ($(cf_obj['e_b'].pfx + ' div[name="hazard-model"]'
+                  + ' input[type="checkbox"][name="area_source_discretization_choice"]').is(':checked'))
+                $target.css('display', '');
+            else
+                $target.css('display', 'none');
+        }
+
+        // Site conditions (UI)
+        site_conditions_sect_manager('e_b', true, false);
     }
 
     /* generic callback to show upload div */
@@ -1096,28 +1120,37 @@ $(document).ready(function () {
 
     // Exposure model (init)
     exposure_model_init('e_b', event_based_fileNew_cb, event_based_fileNew_upload,
-                        event_based_sect_manager);
-
-    // Hazard model: source_model_logic_tree_file (init)
-    $(cf_obj['e_b'].pfx + ' button[name="source-model-logic-tree-file-new"]').click(
-        event_based_fileNew_cb);
-    $(cf_obj['e_b'].pfx + ' div[name="source-model-logic-tree-file-new"]' +
-      ' form[name="source-model-logic-tree-file"]').submit(event_based_fileNew_upload);
-
-    // Hazard model: gsim_logic_tree_file (init)
-    $(cf_obj['e_b'].pfx + ' button[name="gsim-logic-tree-file-new"]').click(
-        event_based_fileNew_cb);
-    $(cf_obj['e_b'].pfx + ' div[name="gsim-logic-tree-file-new"]' +
-      ' form[name="gsim-logic-tree-file"]').submit(event_based_fileNew_upload);
-
+                        event_based_manager);
 
     // Vulnerability model (init)
     vulnerability_model_init('e_b', event_based_fileNew_cb, event_based_fileNew_upload,
-                             event_based_sect_manager);
+                             event_based_manager);
+
+    // Hazard model (init)
+    {
+        pfx = cf_obj['e_b'].pfx + ' div[name="hazard-model"]';
+
+        // Hazard model: source_model_logic_tree_file (init)
+        $(pfx + ' button[name="source-model-logic-tree-file-new"]').click(
+            event_based_fileNew_cb);
+        $(pfx + ' div[name="source-model-logic-tree-file-new"]' +
+          ' form[name="source-model-logic-tree-file"]').submit(event_based_fileNew_upload);
+
+        // Hazard model: gsim_logic_tree_file (init)
+        $(pfx + ' button[name="gsim-logic-tree-file-new"]').click(
+            event_based_fileNew_cb);
+        $(pfx + ' div[name="gsim-logic-tree-file-new"]' +
+          ' form[name="gsim-logic-tree-file"]').submit(event_based_fileNew_upload);
+
+        $(pfx + ' input[type="checkbox"][name="rupture_mesh_spacing_choice"]').click(
+            event_based_manager);
+        $(pfx + ' input[type="checkbox"][name="area_source_discretization_choice"]').click(
+            event_based_manager);
+    }
 
     // Site conditions (init)
     site_conditions_init('e_b', event_based_fileNew_cb, event_based_fileNew_upload,
-                         event_based_sect_manager);
+                         event_based_manager);
 
     function event_based_download_cb(e)
     {
@@ -1143,30 +1176,6 @@ $(document).ready(function () {
             exposure_model_regcons_choice: false,
             exposure_model_regcons_coords_data: null,
 
-
-/*
-            hazard_sites_choice: null,
-
-            // hazard sites
-            grid_spacing: null,
-            reggrid_coords_data: null,
-            list_of_sites: null,
-
-
-            // rupture information
-            rupture_model_file: null,
-            rupture_mesh_spacing: null,
-*/
-            // site conditions
-            site_conditions_choice: null,
-
-            site_model_file: null,
-
-            reference_vs30_value: null,
-            reference_vs30_type: null,
-            reference_depth_to_2pt5km_per_sec: null,
-            reference_depth_to_1pt0km_per_sec: null,
-
             // vulnerability model
             vm_loss_structural_choice: false,
             vm_loss_structural: null,
@@ -1186,8 +1195,38 @@ $(document).ready(function () {
             // hazard model
             source_model_logic_tree_file: null,
             gsim_logic_tree_file: null,
+            width_of_mfd_bin: 0.1,
+
+            rupture_mesh_spacing_choice: false,
+            rupture_mesh_spacing: null,
+
+            area_source_discretization_choice: false,
+            area_source_discretization: null,
+
+            // site conditions
+            site_conditions_choice: null,
+
+            site_model_file: null,
+
+            reference_vs30_value: null,
+            reference_vs30_type: null,
+            reference_depth_to_2pt5km_per_sec: null,
+            reference_depth_to_1pt0km_per_sec: null,
+
+
 
 /*
+            hazard_sites_choice: null,
+
+            // hazard sites
+            grid_spacing: null,
+            reggrid_coords_data: null,
+            list_of_sites: null,
+
+
+            // rupture information
+            rupture_model_file: null,
+            rupture_mesh_spacing: null,
 
             // calculation parameters
             gmpe_choice: null,
@@ -1213,22 +1252,49 @@ $(document).ready(function () {
         vulnerability_model_getData('e_b', ret, files_list, obj);
 
         // Hazard model (get)
-        obj.source_model_logic_tree_file = $(
-            cf_obj['e_b'].pfx + ' div[name="source-model-logic-tree-file-html"] select[name="file_html"]').val();
-        if (obj.source_model_logic_tree_file == '') {
-            ret.str += "'Source model logic tree file' field is empty.\n";
-        }
-        uniqueness_add(files_list, 'source model logic tree', obj.source_model_logic_tree_file);
-        ret.str += uniqueness_check(files_list);
+        {
+            var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-model"]';
 
-        obj.gsim_logic_tree_file = $(
-            cf_obj['e_b'].pfx + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
-        if (obj.gsim_logic_tree_file == '') {
-            ret.str += "'GMPE logic tree file' field is empty.\n";
-        }
-        uniqueness_add(files_list, 'gmpe logic tree', obj.gsim_logic_tree_file);
-        ret.str += uniqueness_check(files_list);
+            obj.source_model_logic_tree_file = $(
+                pfx + ' div[name="source-model-logic-tree-file-html"] select[name="file_html"]').val();
+            if (obj.source_model_logic_tree_file == '') {
+                ret.str += "'Source model logic tree file' field is empty.\n";
+            }
+            uniqueness_add(files_list, 'source model logic tree', obj.source_model_logic_tree_file);
+            ret.str += uniqueness_check(files_list);
 
+            obj.gsim_logic_tree_file = $(
+                pfx + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
+            if (obj.gsim_logic_tree_file == '') {
+                ret.str += "'GMPE logic tree file' field is empty.\n";
+            }
+            uniqueness_add(files_list, 'gmpe logic tree', obj.gsim_logic_tree_file);
+            ret.str += uniqueness_check(files_list);
+
+            obj.width_of_mfd_bin = $(
+                pfx + ' input[type="text"][name="width_of_mfd_bin"]').val();
+            if (!isFloat(obj.width_of_mfd_bin) || parseFloat(obj.width_of_mfd_bin) < 0.0) {
+                ret.str += "'Bin width of the magnitude frequency distribution' field isn't a not negative float number (" + obj.width_of_mfd_bin + ").\n";
+            }
+
+            obj.rupture_mesh_spacing_choice = $(
+                pfx + ' input[type="checkbox"][name="rupture_mesh_spacing_choice"]').is(':checked');
+            if (obj.rupture_mesh_spacing_choice) {
+                obj.rupture_mesh_spacing = $(pfx + ' input[type="text"][name="rupture_mesh_spacing"]').val();
+                if (!isFloat(obj.rupture_mesh_spacing) || parseFloat(obj.rupture_mesh_spacing) < 0.0) {
+                    ret.str += "'Rupture mesh spacing' field isn't a not negative float number (" + obj.rupture_mesh_spacing + ").\n";
+                }
+            }
+
+            obj.area_source_discretization_choice = $(
+                pfx + ' input[type="checkbox"][name="area_source_discretization_choice"]').is(':checked');
+            if (obj.area_source_discretization_choice) {
+                obj.area_source_discretization = $(pfx + ' input[type="text"][name="area_source_discretization"]').val();
+                if (!isFloat(obj.area_source_discretization) || parseFloat(obj.area_source_discretization) < 0.0) {
+                    ret.str += "'Area source discretization' field isn't a not negative float number (" + obj.area_source_discretization + ").\n";
+                }
+            }
+        }
 
         site_conditions_getData('e_b', ret, files_list, obj);
 
@@ -1240,8 +1306,6 @@ $(document).ready(function () {
     }
     cf_obj['e_b'].getData = event_based_getData;
 
-
-    event_based_sect_manager();
-
+    event_based_manager();
 });
 

@@ -572,6 +572,15 @@ def event_based_prepare(request, **kwargs):
     z.write(data['gsim_logic_tree_file'],
             os.path.basename(data['gsim_logic_tree_file']))
 
+    jobini += "\n[Hazard model]\n"
+    #            ##############
+    jobini += "width_of_mfd_bin = %s\n" % data['width_of_mfd_bin']
+
+    if data['rupture_mesh_spacing_choice'] == True:
+        jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
+    if data['area_source_discretization_choice'] == True:
+        jobini += ("area_source_discretization = %s\n" %
+                   data['area_source_discretization'])
 
     # Site conditions
     jobini += site_conditions_prep_sect(data, z)
