@@ -555,39 +555,26 @@ def event_based_prepare(request, **kwargs):
 
     jobini += "random_seed = 113\n"
 
+    # Exposure model
     jobini += exposure_model_prep_sect(data, z, True)
 
+    # Vulnerability model
     jobini += vulnerability_model_prep_sect(data, z)
 
+    # Hazard model
+    jobini += "source_model_logic_tree_file = %s\n" % os.path.basename(
+        data['source_model_logic_tree_file'])
+    z.write(data['source_model_logic_tree_file'],
+            os.path.basename(data['source_model_logic_tree_file']))
+
+    jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(
+        data['gsim_logic_tree_file'])
+    z.write(data['gsim_logic_tree_file'],
+            os.path.basename(data['gsim_logic_tree_file']))
+
+
+    # Site conditions
     jobini += site_conditions_prep_sect(data, z)
-
-    # jobini += "\n[Vulnerability model]\n"
-    # #            #####################
-    # descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
-    #          'contents': 'contents', 'businter': 'business_interruption',
-    #          'occupants': 'occupants'}
-    # for losslist in ['structural', 'nonstructural', 'contents', 'businter',
-    #                  'occupants']:
-    #     if data['vm_loss_'+ losslist + '_choice'] == True:
-    #         jobini += "%s_vulnerability_file = %s\n" % (
-    #             descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
-    #         z.write(data['vm_loss_' + losslist],
-    #                 os.path.basename(data['vm_loss_' + losslist]))
-
-    #         # FIXME HERE HAZARD MODEL
-
-    # jobini += "\n[Site conditions]\n"
-    # #            #################
-
-    # if data['site_conditions_choice'] == 'from-file':
-    #     jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
-    #     z.write(data['site_model_file'], os.path.basename(data['site_model_file']))
-    # elif data['site_conditions_choice'] == 'uniform-param':
-    #     jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
-    #     jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
-    #     jobini += "reference_depth_to_2pt5km_per_sec = %s\n" % data['reference_depth_to_2pt5km_per_sec']
-    #     jobini += "reference_depth_to_1pt0km_per_sec = %s\n" % data['reference_depth_to_1pt0km_per_sec']
-
 
     print jobini
 

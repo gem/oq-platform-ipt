@@ -891,6 +891,7 @@ $(document).ready(function () {
                 ret.str += "'Rupture Mesh Spacing' field isn't greater than 0 float number (" + obj.rupture_mesh_spacing + ").\n";
             }
             uniqueness_add(files_list, 'rupture model file', obj.rupture_model_file);
+            ret.str += uniqueness_check(files_list);
         }
 
         // Hazard sites (get)
@@ -1183,6 +1184,7 @@ $(document).ready(function () {
             asset_correlation: null,
 
             // hazard model
+            source_model_logic_tree_file: null,
             gsim_logic_tree_file: null,
 
 /*
@@ -1207,7 +1209,26 @@ $(document).ready(function () {
         // Exposure model (get)
         exposure_model_getData('e_b', ret, files_list, obj, true, true);
 
+        // Vulnerability model (get)
         vulnerability_model_getData('e_b', ret, files_list, obj);
+
+        // Hazard model (get)
+        obj.source_model_logic_tree_file = $(
+            cf_obj['e_b'].pfx + ' div[name="source-model-logic-tree-file-html"] select[name="file_html"]').val();
+        if (obj.source_model_logic_tree_file == '') {
+            ret.str += "'Source model logic tree file' field is empty.\n";
+        }
+        uniqueness_add(files_list, 'source model logic tree', obj.source_model_logic_tree_file);
+        ret.str += uniqueness_check(files_list);
+
+        obj.gsim_logic_tree_file = $(
+            cf_obj['e_b'].pfx + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
+        if (obj.gsim_logic_tree_file == '') {
+            ret.str += "'GMPE logic tree file' field is empty.\n";
+        }
+        uniqueness_add(files_list, 'gmpe logic tree', obj.gsim_logic_tree_file);
+        ret.str += uniqueness_check(files_list);
+
 
         site_conditions_getData('e_b', ret, files_list, obj);
 
