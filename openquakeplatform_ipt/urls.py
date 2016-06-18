@@ -36,6 +36,6 @@ urlpatterns = patterns(
     url(r'^valid$', views.validate_nrml, name='validate_nrml'),
     url(r'^sendback$', views.sendback_nrml, name='sendback_nrml'),
     url(r'^prepare/scenario$', views.scenario_prepare, name='scenario_prepare'),
-    url(r'^prepare/event_based$', views.scenario_prepare, name='event_based_prepare'),
+    url(r'^prepare/event-based$', views.event_based_prepare, name='event_based_prepare'),
     url(r'^download$', views.download, name='download'),
 )

@@ -327,6 +327,57 @@ def upload(request, **kwargs):
     return HttpResponse(json.dumps(ret), content_type="application/json");
 
 
+def exposure_model_prep_sect(data, z, is_regcons):
+    jobini = "\n[Exposure model]\n"
+    #           ################
+
+    jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
+    z.write(data['exposure_model'], os.path.basename(data['exposure_model']))
+    if is_regcons:
+        if data['exposure_model_regcons_choice'] == True:
+            is_first = True
+            jobini += "region_constraint = "
+            for el in data['exposure_model_regcons_coords_data']:
+                if is_first:
+                    is_first = False
+                else:
+                    jobini += ", "
+                jobini += "%s %s" % (el[0], el[1])
+            jobini += "\n"
+    return jobini
+
+
+def vulnerability_model_prep_sect(data, z):
+    jobini = "\n[Vulnerability model]\n"
+    #            #####################
+    descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
+             'contents': 'contents', 'businter': 'business_interruption',
+             'occupants': 'occupants'}
+    for losslist in ['structural', 'nonstructural', 'contents', 'businter',
+                     'occupants']:
+        if data['vm_loss_'+ losslist + '_choice'] == True:
+            jobini += "%s_vulnerability_file = %s\n" % (
+                descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
+            z.write(data['vm_loss_' + losslist],
+                    os.path.basename(data['vm_loss_' + losslist]))
+
+    return jobini
+
+
+def site_conditions_prep_sect(data, z):
+    jobini = "\n[Site conditions]\n"
+    #           #################
+
+    if data['site_conditions_choice'] == 'from-file':
+        jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
+        z.write(data['site_model_file'], os.path.basename(data['site_model_file']))
+    elif data['site_conditions_choice'] == 'uniform-param':
+        jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
+        jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
+        jobini += "reference_depth_to_2pt5km_per_sec = %s\n" % data['reference_depth_to_2pt5km_per_sec']
+        jobini += "reference_depth_to_1pt0km_per_sec = %s\n" % data['reference_depth_to_1pt0km_per_sec']
+    return jobini
+
 
 def scenario_prepare(request, **kwargs):
     ret = {};
@@ -400,23 +451,8 @@ def scenario_prepare(request, **kwargs):
 
     if ((data['hazard'] == 'hazard' and data['hazard_sites_choice'] == 'exposure-model')
         or data['risk'] != None):
-        jobini += "\n[Exposure model]\n"
-        #            ################
-
-        jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
-        z.write(data['exposure_model'], os.path.basename(data['exposure_model']))
-        if data['risk'] != None:
-            if data['exposure_model_regcons_choice'] == True:
-                is_first = True
-                jobini += "region_constraint = "
-                for el in data['exposure_model_regcons_coords_data']:
-                    if is_first:
-                        is_first = False
-                    else:
-                        jobini += ", "
-                    jobini += "%s %s" % (el[0], el[1])
-                jobini += "\n"
-
+        jobini += exposure_model_prep_sect(data, z, (data['risk'] != None))
+                
     if data['risk'] == 'damage':
         jobini += "\n[Fragility model]\n"
         #            #################
@@ -434,31 +470,10 @@ def scenario_prepare(request, **kwargs):
                     z.write(data['fm_loss_' + losslist + '_cons'],
                             os.path.basename(data['fm_loss_' + losslist + '_cons']))
     elif data['risk'] == 'losses':
-        jobini += "\n[Vulnerability model]\n"
-        #            #####################
-        descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
-                 'contents': 'contents', 'businter': 'business_interruption',
-                 'occupants': 'occupants'}
-        for losslist in ['structural', 'nonstructural', 'contents', 'businter',
-                         'occupants']:
-            if data['vm_loss_'+ losslist + '_choice'] == True:
-                jobini += "%s_vulnerability_file = %s\n" % (
-                    descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
-                z.write(data['vm_loss_' + losslist],
-                        os.path.basename(data['vm_loss_' + losslist]))
+        jobini += vulnerability_model_prep_sect(data, z)
 
     if data['hazard'] == 'hazard':
-        jobini += "\n[Site conditions]\n"
-        #            #################
-
-        if data['site_conditions_choice'] == 'from-file':
-            jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
-            z.write(data['site_model_file'], os.path.basename(data['site_model_file']))
-        elif data['site_conditions_choice'] == 'uniform-param':
-            jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
-            jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
-            jobini += "reference_depth_to_2pt5km_per_sec = %s\n" % data['reference_depth_to_2pt5km_per_sec']
-            jobini += "reference_depth_to_1pt0km_per_sec = %s\n" % data['reference_depth_to_1pt0km_per_sec']
+        jobini += site_conditions_prep_sect(data, z)
 
     if data['hazard'] == 'hazard':
         jobini += "\n[Calculation parameters]\n"
@@ -526,22 +541,11 @@ def event_based_prepare(request, **kwargs):
 
     jobini += "random_seed = 113\n"
 
-    # jobini += "\n[Exposure model]\n"
-    # #            ################
+    jobini += exposure_model_prep_sect(data, z, True)
 
-    # jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
-    # z.write(data['exposure_model'], os.path.basename(data['exposure_model']))
-    # if data['risk'] != None:
-    #     if data['exposure_model_regcons_choice'] == True:
-    #         is_first = True
-    #         jobini += "region_constraint = "
-    #         for el in data['exposure_model_regcons_coords_data']:
-    #             if is_first:
-    #                 is_first = False
-    #             else:
-    #                 jobini += ", "
-    #             jobini += "%s %s" % (el[0], el[1])
-    #         jobini += "\n"
+    jobini += vulnerability_model_prep_sect(data, z)
+
+    jobini += site_conditions_prep_sect(data, z)
 
     # jobini += "\n[Vulnerability model]\n"
     # #            #####################

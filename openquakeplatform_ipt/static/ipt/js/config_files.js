@@ -18,11 +18,13 @@
 var cf_obj = {
     scen: {
         pfx: '.cf_gid div[name="scenario"]',
+        getData: null,
         regGrid_coords: null,
         expModel_coords: null
     },
     e_b: {
         pfx: '.cf_gid div[name="event-based"]',
+        getData: null,
         expModel_coords: null
     }
 }
@@ -188,6 +190,77 @@ $(document).ready(function () {
         }
     }
 
+    // Vulnerability model (get)
+    function vulnerability_model_getData(scope, ret, files_list, obj)
+    {
+
+        var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
+        var descr = { structural: 'structural', nonstructural: 'nonstructural',
+                      contents: 'contents', businter: 'business interruption' };
+
+        for (var lossidx in losslist) {
+            var losstype = losslist[lossidx];
+
+            $target = $(cf_obj[scope].pfx + ' div[name="vulnerability-model"] div[name="vm-loss-'
+                        + losstype + '"]');
+
+            obj['vm_loss_' + losstype + '_choice'] = $(
+                cf_obj[scope].pfx + ' div[name="vulnerability-model"] input[type="checkbox"][name="losstype"]'
+                    + '[value="' + losstype + '"]').is(':checked')
+            if(obj['vm_loss_' + losstype + '_choice']) {
+                obj['vm_loss_' + losstype] = $target.find('select[name="file_html"]').val();
+                uniqueness_add(files_list, 'vulnerability model: ' + descr[losstype], obj['vm_loss_' + losstype]);
+                ret.str += uniqueness_check(files_list);
+            }
+        }
+    }
+
+    function site_conditions_getData(scope, ret, files_list, obj)
+    {
+        obj.site_conditions_choice = $(cf_obj[scope].pfx + ' input[type="radio"]'
+                                       + '[name="hazard_sitecond"]:checked').val();
+
+        if (obj.site_conditions_choice == 'uniform-param') {
+            // site conditions -> uniform-param (get)
+            obj.reference_vs30_value = $(cf_obj[scope].pfx + ' div[name="hazard-sitecond_uniform-param"]'
+                                         + ' input[type="text"][name="reference_vs30_value"]').val();
+            if (!isFloat(obj.reference_vs30_value) || parseFloat(obj.reference_vs30_value) < 0.0) {
+                ret.str += "'Reference vs30 value' field isn't positive float number (" + obj.reference_vs30_value + ").\n";
+            }
+            obj.reference_vs30_type = $(cf_obj[scope].pfx + ' input[type="radio"]'
+                                        + '[name="hazard_sitecond_type"]:checked').val();
+            if (obj.reference_vs30_type != 'inferred' && obj.reference_vs30_type != 'measured') {
+                ret.str += "Reference vs30 type choice (" + obj.reference_vs30_type + ") unknown";
+            }
+
+            obj.reference_depth_to_2pt5km_per_sec = $(cf_obj[scope].pfx + ' div[name="hazard-sitecond_uniform-param"]'
+                                                      + ' input[type="text"][name="reference_depth_to_2pt5km_per_sec"]').val();
+            if (!isFloat(obj.reference_depth_to_2pt5km_per_sec) || parseFloat(obj.reference_depth_to_2pt5km_per_sec) < 0.0) {
+                ret.str += "'Minimum depth at which vs30 >= 2.5' field isn't positive float number (" + obj.reference_depth_to_2pt5km_per_sec + ").\n";
+            }
+            obj.reference_depth_to_1pt0km_per_sec = $(cf_obj[scope].pfx + ' div[name="hazard-sitecond_uniform-param"]'
+                                                      + ' input[type="text"][name="reference_depth_to_1pt0km_per_sec"]').val();
+            if (!isFloat(obj.reference_depth_to_1pt0km_per_sec) || parseFloat(obj.reference_depth_to_1pt0km_per_sec) < 0.0) {
+                ret.str += "'Minimum depth at which vs30 >= 1.0' field isn't positive float number (" + obj.reference_depth_to_1pt0km_per_sec + ").\n";
+            }
+        }
+        else if (obj.site_conditions_choice == 'from-file') {
+            // site conditions -> from-file (get)
+            obj.site_model_file = $(cf_obj[scope].pfx + ' div[name="site-conditions-html"] select[name="file_html"]').val();
+            if (obj.site_model_file == '') {
+                ret.str += "'Site conditions file' field is empty.\n";
+            }
+            uniqueness_add(files_list, 'site conditions', obj.site_model_file);
+            ret.str += uniqueness_check(files_list);
+
+        }
+        else {
+            ret.str += "Unknown 'Site conditions' choice (" + obj.site_conditions_choice + ").\n";
+        }
+        return;
+    }
+
+
     /* form widgets and previous remote list select element must follow precise
        naming schema with '<name>-html' and '<name>-new', see config_files.html */
     function generic_fileNew_upload(scope, obj, event)
@@ -342,7 +415,7 @@ $(document).ready(function () {
     {
         e.preventDefault();
 
-        var ret = scenario_getData();
+        var ret = cf_obj[scope].getData();
 
         if (ret.ret != 0) {
             $( "#dialog-message" ).html(ret.str.replace(/\n/g, "<br/>"));
@@ -401,7 +474,7 @@ $(document).ready(function () {
                         dest_name = "Scenario" + plus_hazard + plus_risk;
                     }
                     else if (scope == 'e_b') {
-                        dest_name = "EventBased";
+                        dest_name = "EventBasedRisk";
                     }
                     $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
                     $form.append($new_input);
@@ -732,6 +805,9 @@ $(document).ready(function () {
 
             // site conditions
             site_conditions_choice: null,
+
+            site_model_file: null,
+
             reference_vs30_value: null,
             reference_vs30_type: null,
             reference_depth_to_2pt5km_per_sec: null,
@@ -766,8 +842,6 @@ $(document).ready(function () {
             vm_loss_businter: null,
             vm_loss_occupants_choice: false,
             vm_loss_occupants: null,
-
-            site_model_file: null,
 
             // calculation parameters
             gmpe_choice: null,
@@ -857,8 +931,6 @@ $(document).ready(function () {
             obj.risk);
 
         // Fragility and vulnerability model (get)
-        var $frag_model = $(cf_obj['scen'].pfx + ' div[name="fragility-model"]');
-        var $vuln_model = $(cf_obj['scen'].pfx + ' div[name="vulnerability-model"]');
         if (obj.risk == 'damage') {
             // Fragility model (get)
             var show_cons = $(cf_obj['scen'].pfx + ' div[name="fragility-model"] input[type="checkbox"]'
@@ -894,69 +966,12 @@ $(document).ready(function () {
         }
         else if(obj.risk == 'losses') {
             // Vulnerability model (get)
-            var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
-            for (var lossidx in losslist) {
-                var losstype = losslist[lossidx];
-
-                $target = $(cf_obj['scen'].pfx + ' div[name="vulnerability-model"] div[name="vm-loss-'
-                            + losstype + '"]');
-
-                obj['vm_loss_' + losstype + '_choice'] = $(
-                    cf_obj['scen'].pfx + ' div[name="vulnerability-model"] input[type="checkbox"][name="losstype"]'
-                        + '[value="' + losstype + '"]').is(':checked')
-                if(obj['vm_loss_' + losstype + '_choice']) {
-                    var descr = { structural: 'structural', nonstructural: 'nonstructural',
-                                  contents: 'contents', businter: 'business interruption' };
-
-                    obj['vm_loss_' + losstype] = $target.find('select[name="file_html"]').val();
-                    uniqueness_add(files_list, 'vulnerability model: ' + descr[losstype], obj['vm_loss_' + losstype]);
-                    ret.str += uniqueness_check(files_list);
-                }
-            }
+            vulnerability_model_getData('scen', ret, files_list, obj);
         }
 
         // Site conditions (get)
         if (obj.hazard == 'hazard') {
-            obj.site_conditions_choice = $(cf_obj['scen'].pfx + ' input[type="radio"]'
-                                           + '[name="hazard_sitecond"]:checked').val();
-
-            if (obj.site_conditions_choice == 'uniform-param') {
-                // site conditions -> uniform-param (get)
-                obj.reference_vs30_value = $(cf_obj['scen'].pfx + ' div[name="hazard-sitecond_uniform-param"]'
-                                             + ' input[type="text"][name="reference_vs30_value"]').val();
-                if (!isFloat(obj.reference_vs30_value) || parseFloat(obj.reference_vs30_value) < 0.0) {
-                    ret.str += "'Reference vs30 value' field isn't positive float number (" + obj.reference_vs30_value + ").\n";
-                }
-                obj.reference_vs30_type = $(cf_obj['scen'].pfx + ' input[type="radio"]'
-                                            + '[name="hazard_sitecond_type"]:checked').val();
-                if (obj.reference_vs30_type != 'inferred' && obj.reference_vs30_type != 'measured') {
-                    ret.str += "Reference vs30 type choice (" + obj.reference_vs30_type + ") unknown";
-                }
-
-                obj.reference_depth_to_2pt5km_per_sec = $(cf_obj['scen'].pfx + ' div[name="hazard-sitecond_uniform-param"]'
-                                                          + ' input[type="text"][name="reference_depth_to_2pt5km_per_sec"]').val();
-                if (!isFloat(obj.reference_depth_to_2pt5km_per_sec) || parseFloat(obj.reference_depth_to_2pt5km_per_sec) < 0.0) {
-                    ret.str += "'Minimum depth at which vs30 >= 2.5' field isn't positive float number (" + obj.reference_depth_to_2pt5km_per_sec + ").\n";
-                }
-                obj.reference_depth_to_1pt0km_per_sec = $(cf_obj['scen'].pfx + ' div[name="hazard-sitecond_uniform-param"]'
-                                                          + ' input[type="text"][name="reference_depth_to_1pt0km_per_sec"]').val();
-                if (!isFloat(obj.reference_depth_to_1pt0km_per_sec) || parseFloat(obj.reference_depth_to_1pt0km_per_sec) < 0.0) {
-                    ret.str += "'Minimum depth at which vs30 >= 1.0' field isn't positive float number (" + obj.reference_depth_to_1pt0km_per_sec + ").\n";
-                }
-            }
-            else if (obj.site_conditions_choice == 'from-file') {
-                // site conditions -> from-file (get)
-                obj.site_model_file = $(cf_obj['scen'].pfx + ' div[name="site-conditions-html"] select[name="file_html"]').val();
-                if (obj.site_model_file == '') {
-                    ret.str += "'Site conditions file' field is empty.\n";
-                }
-                uniqueness_add(files_list, 'site conditions', obj.site_model_file);
-                ret.str += uniqueness_check(files_list);
-
-            }
-            else {
-                ret.str += "Unknown 'Site conditions' choice (" + obj.site_conditions_choice + ").\n";
-            }
+            site_conditions_getData('scen', ret, files_list, obj);
         }
 
         // Calculation parameters (get)
@@ -1032,6 +1047,7 @@ $(document).ready(function () {
         }
         return ret;
     }
+    cf_obj['scen'].getData = scenario_getData;
 
     function scenario_download_cb(e)
     {
@@ -1111,31 +1127,16 @@ $(document).ready(function () {
             // rupture information
             rupture_model_file: null,
             rupture_mesh_spacing: null,
-
+*/
             // site conditions
             site_conditions_choice: null,
+
+            site_model_file: null,
+
             reference_vs30_value: null,
             reference_vs30_type: null,
             reference_depth_to_2pt5km_per_sec: null,
             reference_depth_to_1pt0km_per_sec: null,
-
-            // fragility model
-            fm_loss_show_cons_choice: false,
-
-            fm_loss_structural_choice: false,
-            fm_loss_structural: null,
-            fm_loss_nonstructural_choice: false,
-            fm_loss_nonstructural: null,
-            fm_loss_contents_choice: false,
-            fm_loss_contents: null,
-            fm_loss_businter_choice: false,
-            fm_loss_businter: null,
-
-            fm_loss_structural_cons: null,
-            fm_loss_nonstructural_cons: null,
-            fm_loss_contents_cons: null,
-            fm_loss_businter_cons: null,
-
 
             // vulnerability model
             vm_loss_structural_choice: false,
@@ -1148,8 +1149,7 @@ $(document).ready(function () {
             vm_loss_businter: null,
             vm_loss_occupants_choice: false,
             vm_loss_occupants: null,
-
-            site_model_file: null,
+/*
 
             // calculation parameters
             gmpe_choice: null,
@@ -1163,10 +1163,17 @@ $(document).ready(function () {
 */
         };
 
+        obj.description = $(cf_obj['e_b'].pfx + ' textarea[name="description"]').val();
+        if (obj.description == '') {
+            ret.str += "'Description' field is empty.\n";
+        }
 
         // Exposure model (get)
-        console.log('HERE WE ARE');
         exposure_model_getData('e_b', ret, files_list, obj, true, true);
+
+        vulnerability_model_getData('e_b', ret, files_list, obj);
+
+        site_conditions_getData('e_b', ret, files_list, obj);
 
         if (ret.str == '') {
             ret.ret = 0;
@@ -1174,6 +1181,7 @@ $(document).ready(function () {
         }
         return ret;
     }
+    cf_obj['e_b'].getData = event_based_getData;
 
 
     event_based_sect_manager();
