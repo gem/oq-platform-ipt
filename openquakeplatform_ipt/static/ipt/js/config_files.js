@@ -1126,7 +1126,7 @@ $(document).ready(function () {
                 $(pfx + ' div[name="' + $cur.val() + '"]').css('display', ($cur.is(':checked') ? '' : 'none'));
             }
 
-            // intersection constraint IF loss-ratios THEN risk_outputs::loss-maps block is enabled
+            // inter-sections constraint IF loss-ratios THEN risk_outputs::loss-maps block is enabled
             var $target = $(cf_obj['e_b'].pfx + ' div[name="risk-outputs"] div[name="loss-maps"]');
             if ($(pfx + ' input[type="radio"][name="loss_choice"][value="loss-ratios"]').is(':checked')) {
                 $target.css('display', '');
@@ -1181,7 +1181,7 @@ $(document).ready(function () {
         {
             var pfx = cf_obj['e_b'].pfx + ' div[name="risk-outputs"]';
             var $target = $(pfx + ' div[name="quantile-loss-curves"]');
-            if ($(pfx + ' input[type="checkbox"][name="quantile-loss-curves-choice"]').is(':checked')) {
+            if ($(pfx + ' input[type="checkbox"][name="quantile_loss_curves_choice"]').is(':checked')) {
                 $target.css('display', '');
             }
             else {
@@ -1189,7 +1189,7 @@ $(document).ready(function () {
             }
 
             var $target = $(pfx + ' div[name="conditional-loss-poes"]');
-            if ($(pfx + ' input[type="checkbox"][name="loss-maps-choice"]').is(':checked')) {
+            if ($(pfx + ' input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked')) {
                 $target.css('display', '');
             }
             else {
@@ -1261,8 +1261,8 @@ $(document).ready(function () {
     // Risk outputs (init)
     {
         var pfx = cf_obj['e_b'].pfx + ' div[name="risk-outputs"]';
-        $(pfx + ' input[type="checkbox"][name="quantile-loss-curves-choice"]').click(event_based_manager);
-        $(pfx + ' input[type="checkbox"][name="loss-maps-choice"]').click(event_based_manager);
+        $(pfx + ' input[type="checkbox"][name="quantile_loss_curves_choice"]').click(event_based_manager);
+        $(pfx + ' input[type="checkbox"][name="conditional_loss_poes_choice"]').click(event_based_manager);
     }
 
     function event_based_download_cb(e)
@@ -1347,10 +1347,21 @@ $(document).ready(function () {
             ground_motion_fields: null,
             hazard_curves_from_gmfs: null,
             mean_hazard_curves: null,
+            quantile_hazard_curves_choice: false,
             quantile_hazard_curves: null,
             hazard_maps: null,
             poes: null,
-            uniform_hazard_spectra: null
+            uniform_hazard_spectra: null,
+
+            // risk outputs
+            avg_losses: false,
+            asset_loss_table: false,
+
+            quantile_loss_curves_choice: false,
+            quantile_loss_curves: null,
+
+            conditional_loss_poes_choice: false,
+            conditional_loss_poes: null
         };
 
         obj.description = $(cf_obj['e_b'].pfx + ' textarea[name="description"]').val();
@@ -1507,7 +1518,9 @@ $(document).ready(function () {
             if (obj.hazard_curves_from_gmfs) {
                 obj.mean_hazard_curves = $(pfx + ' input[type="checkbox"][name="mean_hazard_curves"]'
                                           ).is(':checked');
-                if ($(pfx + ' input[type="checkbox"][name="quantile_hazard_curves_choice"]').is(':checked')) {
+                obj.quantile_hazard_curves_choice = $(
+                    pfx + ' input[type="checkbox"][name="quantile_hazard_curves_choice"]').is(':checked');
+                if (obj.quantile_hazard_curves_choice) {
                     obj.quantile_hazard_curves = $(pfx + ' input[type="text"][name="quantile_hazard_curves"]'
                                                   ).val();
 
@@ -1539,6 +1552,48 @@ $(document).ready(function () {
 
             obj.uniform_hazard_spectra = $(pfx + ' input[type="checkbox"][name="uniform_hazard_spectra"]'
                                           ).is(':checked');
+        }
+
+        // Risk outputs (get)
+        {
+            var pfx = cf_obj['e_b'].pfx + ' div[name="risk-outputs"]';
+            var pfx_riscal = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
+
+            obj.avg_losses = $(pfx + ' input[type="checkbox"][name="avg_losses"]').is(':checked');
+            obj.asset_loss_table = $(pfx + ' input[type="checkbox"][name="asset_loss_table"]').is(':checked');
+
+            obj.quantile_loss_curves_choice = $(
+                pfx + ' input[type="checkbox"][name="quantile_loss_curves_choice"]').is(':checked');
+            if (obj.quantile_loss_curves_choice) {
+                obj.quantile_loss_curves = $(pfx + ' input[type="text"][name="quantile_loss_curves"]'
+                                            ).val();
+
+                var arr = obj.quantile_loss_curves.split(',');
+                for (var k in arr) {
+                    var cur = arr[k].trim(' ');
+                    if (!isFloat(cur) || cur <= 0.0) {
+                        ret.str += "'Quantile loss curves' field element #" + (parseInt(k)+1)
+                            + " isn't positive number (" + cur + ").\n";
+                    }
+                }
+            }
+
+            if ($(pfx_riscal + ' input[type="radio"][name="loss_choice"][value="loss-ratios"]').is(':checked')) {
+                obj.conditional_loss_poes_choice = $(
+                    pfx + ' input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked');
+                if (obj.conditional_loss_poes_choice) {
+                    obj.conditional_loss_poes = $(pfx + ' input[type="text"][name="conditional_loss_poes"]').val();
+
+                    var arr = obj.conditional_loss_poes.split(',');
+                    for (var k in arr) {
+                        var cur = arr[k].trim(' ');
+                        if (!isFloat(cur) || cur <= 0.0) {
+                            ret.str += "'Loss maps' field element #" + (parseInt(k)+1)
+                                + " isn't positive number (" + cur + ").\n";
+                        }
+                    }
+                }
+            }
         }
 
         if (ret.str == '') {

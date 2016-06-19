@@ -622,7 +622,7 @@ def event_based_prepare(request, **kwargs):
     jobini += "hazard_curves_from_gmfs = %s\n" % data['hazard_curves_from_gmfs']
     if data['hazard_curves_from_gmfs']:
         jobini += "mean_hazard_curves = %s\n" % data['mean_hazard_curves']
-        if 'quantile_hazard_curves' in data:
+        if data['quantile_hazard_curves_choice']:
             jobini += "quantile_hazard_curves = %s\n" % data['quantile_hazard_curves']
     jobini += "hazard_maps = %s\n" % data['hazard_maps']
     if data['hazard_maps']:
@@ -631,6 +631,12 @@ def event_based_prepare(request, **kwargs):
 
     jobini += "\n[Risk outputs]\n"
     #            ##############
+    jobini += "avg_losses = %s\n" % data['avg_losses']
+    jobini += "asset_loss_table = %s\n" % data['asset_loss_table']
+    if data['quantile_loss_curves_choice']:
+        jobini += "quantile_loss_curves = %s\n" % data['quantile_loss_curves']
+    if data['conditional_loss_poes_choice']:
+        jobini += "conditional_loss_poes = %s\n" % data['conditional_loss_poes']
 
     print jobini
 
