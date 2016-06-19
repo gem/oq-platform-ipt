@@ -197,7 +197,8 @@ $(document).ready(function () {
 
         var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
         var descr = { structural: 'structural', nonstructural: 'nonstructural',
-                      contents: 'contents', businter: 'business interruption' };
+                      contents: 'contents', businter: 'business interruption',
+                      occupants: 'occupants' };
         var pfx = cf_obj[scope].pfx + ' div[name="vulnerability-model"]';
         for (var lossidx in losslist) {
             var losstype = losslist[lossidx];
@@ -406,8 +407,8 @@ $(document).ready(function () {
           ' form[name="vm-occupants"]').submit(fileNew_upload);
 
         $(pfx + ' input[type="checkbox"]').click(manager);
-        $(pfx + ' input[name="insured_losses"]').prop('checked', false).triggerHandler('click');
-        $(pfx + ' input[name="asset-correlation-choice"]').prop('checked', false).triggerHandler('click');
+        $(pfx + ' input[name="insured_losses"]').prop('checked', false); // .triggerHandler('click');
+        $(pfx + ' input[name="asset-correlation-choice"]').prop('checked', false); // .triggerHandler('click');
     }
 
     // Site conditions (init)
@@ -416,7 +417,7 @@ $(document).ready(function () {
         /* hazard site conditions callbacks */
         $(cf_obj[scope].pfx + ' input[name="hazard_sitecond"]').click(manager);
         $(cf_obj[scope].pfx + ' input[name="hazard_sitecond"][value="uniform-param"]'
-         ).prop('checked', true).triggerHandler('click');
+         ).prop('checked', true);  // .triggerHandler('click');
 
         $(cf_obj[scope].pfx + ' button[name="site-conditions-new"]').click(
             fileNew_cb);
@@ -744,7 +745,7 @@ $(document).ready(function () {
     // Calculation parameters: hazard gmpe callbacks (init)
     $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"]').click(scenario_manager);
     $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]'
-     ).prop('checked', true).triggerHandler('click');
+     ).prop('checked', true);  // .triggerHandler('click');
 
     $(cf_obj['scen'].pfx + ' select[name="gmpe"]').searchableOptionList(
         {data: g_gmpe_options,
@@ -786,7 +787,7 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' input[name="hazard_sites"]').click(
         scenario_manager);
     $(cf_obj['scen'].pfx + ' input[name="hazard_sites"][value="region-grid"]'
-     ).prop('checked', true).triggerHandler('click');
+     ).prop('checked', true); // .triggerHandler('click');
 
     function scenario_getData()
     {
@@ -1095,15 +1096,13 @@ $(document).ready(function () {
             var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-model"]';
 
             $target = $(pfx + ' div[name="rupture-mesh-spacing"]');
-            if ($(cf_obj['e_b'].pfx + ' div[name="hazard-model"]'
-                  + ' input[type="checkbox"][name="rupture_mesh_spacing_choice"]').is(':checked'))
+            if ($(pfx + ' input[type="checkbox"][name="rupture_mesh_spacing_choice"]').is(':checked'))
                 $target.css('display', '');
             else
                 $target.css('display', 'none');
 
             $target = $(pfx + ' div[name="area-source-discretization"]');
-            if ($(cf_obj['e_b'].pfx + ' div[name="hazard-model"]'
-                  + ' input[type="checkbox"][name="area_source_discretization_choice"]').is(':checked'))
+            if ($(pfx + ' input[type="checkbox"][name="area_source_discretization_choice"]').is(':checked'))
                 $target.css('display', '');
             else
                 $target.css('display', 'none');
@@ -1111,7 +1110,36 @@ $(document).ready(function () {
 
         // Site conditions (UI)
         site_conditions_sect_manager('e_b', true, false);
-    }
+
+        // Hazard calculations (UI)
+        // nothing
+
+        // Risk calculations (UI)
+        {
+            var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
+            var pfx_vuln = cf_obj['e_b'].pfx + ' div[name="vulnerability-model"]';
+
+            var $cur, $all = $(pfx + ' input[type="radio"][name="loss_choice"]');
+
+            for (var i = 0 ; i < $all.length ; i++) {
+                $cur = $($all[i]);
+                $(pfx + ' div[name="' + $cur.val() + '"]').css('display', ($cur.is(':checked') ? '' : 'none'));
+            }
+
+            var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
+            for (var lossidx in losslist) {
+                var losstype = losslist[lossidx];
+
+                $target = $(pfx + ' div[name="loss-ratios-' + losstype + '"]');
+                if($(pfx_vuln + ' input[type="checkbox"][name="losstype"][value="' + losstype + '"]').is(':checked')) {
+                    $target.css('display', '');
+                }
+                else {
+                    $target.css('display', 'none');
+                }
+            }
+        }
+    } // function event_based_manager
 
     /* generic callback to show upload div */
     function event_based_fileNew_cb(e) {
@@ -1151,6 +1179,18 @@ $(document).ready(function () {
     // Site conditions (init)
     site_conditions_init('e_b', event_based_fileNew_cb, event_based_fileNew_upload,
                          event_based_manager);
+
+    // Hazard calculations (init)
+    // no init
+
+    // Risk calculations (init)
+    {
+        pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
+
+        $(pfx + ' input[type="radio"][name="loss_choice"]').click(event_based_manager);
+        $(pfx + ' input[type="radio"][name="loss_choice"][value="loss-curve-resolution"]').prop('checked', true);
+    }
+
 
     function event_based_download_cb(e)
     {
@@ -1220,6 +1260,15 @@ $(document).ready(function () {
             ses_per_logic_tree_path: null,
             number_of_logic_tree_samples: null,
 
+            // risk calculations
+            risk_investigation_time: null,
+            loss_choice: null,
+            loss_curve_resolution: null,
+            loss_ratios_structural: null,
+            loss_ratios_nonstructural: null,
+            loss_ratios_contents: null,
+            loss_ratios_businter: null,
+            loss_ratios_occupants: null,
 /*
             hazard_sites_choice: null,
 
@@ -1300,9 +1349,10 @@ $(document).ready(function () {
                 }
             }
         }
+
         // Hazard calculations (get)
         {
-            var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-calculations"]';
+            var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-calculation"]';
 
             obj.truncation_level = $(pfx + ' input[type="text"][name="truncation_level"]').val();
             if (!isFloat(obj.truncation_level) || parseFloat(obj.truncation_level) < 0.0) {
@@ -1329,7 +1379,7 @@ $(document).ready(function () {
             }
 
             obj.number_of_logic_tree_samples = $(pfx + ' input[type="text"][name="number_of_logic_tree_samples"]').val();
-            if (!isInt(obj.number_of_logic_tree_samples) || parseInt(obj.number_of_logic_tree_samples) < 0.0) {
+            if (!isInt(obj.number_of_logic_tree_samples) || parseInt(obj.number_of_logic_tree_samples) <= 0.0) {
                 ret.str += "'Number of logic tree samples' field isn't positive number ("
                     + obj.number_of_logic_tree_samples + ").\n";
             }
@@ -1340,6 +1390,47 @@ $(document).ready(function () {
             }
         }
 
+        // Risk calculations (get)
+        {
+            var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
+            var pfx_vuln = cf_obj['e_b'].pfx + ' div[name="vulnerability-model"]';
+
+            obj.risk_investigation_time = $(pfx + ' input[type="text"][name="risk_investigation_time"]').val();
+            if (!isInt(obj.risk_investigation_time) || parseInt(obj.risk_investigation_time) <= 0.0) {
+                ret.str += "'Risk investigation time' field isn't positive number ("
+                    + obj.risk_investigation_time + ").\n";
+            }
+
+            obj.loss_choice = $(cf_obj['e_b'].pfx + ' input[type="radio"][name="loss_choice"]:checked').val();
+            if (obj.loss_choice == "loss-curve-resolution") {
+                obj.loss_curve_resolution = $(pfx + ' input[type="text"][name="loss_curve_resolution"]').val();
+                if (!isInt(obj.loss_curve_resolution) || parseInt(obj.loss_curve_resolution) <= 0.0) {
+                    ret.str += "'Loss curve resolution' field isn't positive number ("
+                        + obj.risk_investigation_time + ").\n";
+                }
+            }
+
+
+            var descr = { structural: 'structural', nonstructural: 'nonstructural',
+                          contents: 'contents', businter: 'business interruption',
+                          occupants: 'occupants' };
+            var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
+            for (var lossidx in losslist) {
+                var losstype = losslist[lossidx];
+
+                if(obj['vm_loss_' + losstype + '_choice']) {
+                    obj['loss_ratios_' + losstype] = $(pfx + ' input[type="text"][name="loss_ratios_' + losstype + '"]').val();
+                    var arr = obj['loss_ratios_' + losstype].split(',');
+                    for (var k in arr) {
+                        var cur = arr[k].trim(' ');
+                        if (!isFloat(cur) || cur < 0.0) {
+                            ret.str += "'" + descr[losstype] + " vulnerability model' field element #" + (parseInt(k)+1)
+                                + " is negative number (" + cur + ").\n";
+                        }
+                    }
+                }
+            }
+        }
         site_conditions_getData('e_b', ret, files_list, obj);
 
         if (ret.str == '') {

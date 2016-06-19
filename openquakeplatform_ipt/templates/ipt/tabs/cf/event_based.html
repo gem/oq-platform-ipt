@@ -29,7 +29,6 @@
     </div>
   </div>
 
-
   <div class="menuItems">
     <div name="gsim-logic-tree-file-html" data_gem_group="gsim">
       <label>GMPE logic tree file:</label>
@@ -81,10 +80,8 @@
   {% include "ipt/tabs/cf/sect_site_conditions.html" %}
 </div>
 
-
-
-<div name="hazard-calculations">
-  <h3>Hazard calculations</h3>
+<div name="hazard-calculation">
+  <h3>Hazard calculation</h3>
 
   <div class="menuItems">
     <label>Level of truncation:</label>
@@ -119,6 +116,72 @@
       <option value="JB2009">JB2009</option>
     </select>
   </div>
+</div>
+
+<div name="risk-calculation">
+  <h3>Risk calculation</h3>
+  <div class="menuItems">
+    <label>Risk investigation time (years):</label>
+    <input type="text" name="risk_investigation_time" value="1">
+  </div>
+
+  <div class="alert alert-info ipt-info" role="alert">
+    <div style="text-align: center;">
+      <form style="margin: 0px;">
+        <div class="chbox">
+          <input type="radio" name="loss_choice" value="loss-curve-resolution">
+          <span class="inlible">Loss curve resolution</span>
+        </div>
+        <div class="chbox">
+          <input type="radio" name="loss_choice" value="loss-ratios">
+          <span class="inlible">Loss ratios</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="menuItems" name="loss-curve-resolution">
+    <label>Loss curve resolution:</label>
+    <input type="text" name="loss_curve_resolution" value="20">
+  </div>
+
+  <div class="menuItems" name="loss-ratios">
+    <div name="loss-ratios-structural">
+      <label>Structural vulnerability model:</label><br>
+      <input type="text" name="loss_ratios_structural"
+             value="0.00010, 0.00016, 0.00025, 0.00040, 0.00065, 0.0010, 0.0016, 0.0025, 0.0040, 0.0065, 0.010, 0.016, 0.025, 0.040, 0.065, 0.10, 0.16, 0.25, 0.40, 0.65, 1.0"
+             style="width: 600px";>
+    </div>
+
+    <div name="loss-ratios-nonstructural">
+      <label>Nonstructural vulnerability model:</label><br>
+      <input type="text" name="loss_ratios_nonstructural"
+             value="0.00010, 0.00016, 0.00025, 0.00040, 0.00065, 0.0010, 0.0016, 0.0025, 0.0040, 0.0065, 0.010, 0.016, 0.025, 0.040, 0.065, 0.10, 0.16, 0.25, 0.40, 0.65, 1.0"
+             style="width: 600px";>
+    </div>
+
+    <div name="loss-ratios-contents">
+      <label>Contents vulnerability model:</label><br>
+      <input type="text" name="loss_ratios_contents"
+             value="0.00010, 0.00016, 0.00025, 0.00040, 0.00065, 0.0010, 0.0016, 0.0025, 0.0040, 0.0065, 0.010, 0.016, 0.025, 0.040, 0.065, 0.10, 0.16, 0.25, 0.40, 0.65, 1.0"
+             style="width: 600px";>
+    </div>
+
+    <div name="loss-ratios-businter">
+      <label>Business interruption vulnerability model:</label><br>
+      <input type="text" name="loss_ratios_businter"
+             value="0.00010, 0.00016, 0.00025, 0.00040, 0.00065, 0.0010, 0.0016, 0.0025, 0.0040, 0.0065, 0.010, 0.016, 0.025, 0.040, 0.065, 0.10, 0.16, 0.25, 0.40, 0.65, 1.0"
+             style="width: 600px";>
+    </div>
+
+    <div name="loss-ratios-occupants">
+      <label>Occupants vulnerability model:</label><br>
+      <input type="text" name="loss_ratios_occupants"
+             value="0.00010, 0.00016, 0.00025, 0.00040, 0.00065, 0.0010, 0.0016, 0.0025, 0.0040, 0.0065, 0.010, 0.016, 0.025, 0.040, 0.065, 0.10, 0.16, 0.25, 0.40, 0.65, 1.0"
+             style="width: 600px";>
+    </div>
+  </div>
+
 </div>
 
 <div style="text-align: center;">

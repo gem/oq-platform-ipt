@@ -585,8 +585,8 @@ def event_based_prepare(request, **kwargs):
     # Site conditions
     jobini += site_conditions_prep_sect(data, z)
 
-    jobini += "\n[Hazard calculations]\n"
-    #            #####################
+    jobini += "\n[Hazard calculation]\n"
+    #            ####################
     jobini += "truncation_level = %s\n" % data['truncation_level']
     jobini += "maximum_distance = %s\n" % data['maximum_distance']
     jobini += "investigation_time = %s\n" % data['investigation_time']
@@ -595,6 +595,26 @@ def event_based_prepare(request, **kwargs):
     jobini += "ground_motion_correlation_model = %s\n" % data['ground_motion_correlation_model']
     if data['ground_motion_correlation_model'] == 'JB2009':
         jobini += "ground_motion_correlation_params = {\"vs30_clustering\": True}"
+
+    jobini += "\n[Risk calculation]\n"
+    #            ####################
+    jobini += "risk_investigation_time = %s\n" % data['risk_investigation_time']
+    if data['loss_choice'] == "loss-curve-resolution":
+        jobini += "loss_curve_resolution = %s\n" % data['loss_curve_resolution']
+    elif data['loss_choice'] == "loss-ratios":
+        jobini += "loss_ratios = { "
+        descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
+                 'contents': 'contents', 'businter': 'business_interruption',
+                 'occupants': 'occupants'}
+        is_first = True
+        for losslist in ['structural', 'nonstructural', 'contents', 'businter',
+                         'occupants']:
+            if data['vm_loss_'+ losslist + '_choice'] == True:
+                jobini += "%s\"%s\": [ %s ]" % (
+                    ("" if is_first else ", "),
+                    descr[losslist], data['loss_ratios_' + losslist])
+                is_first = False
+        jobini += "}\n"
 
     print jobini
 
