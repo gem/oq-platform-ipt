@@ -1126,6 +1126,15 @@ $(document).ready(function () {
                 $(pfx + ' div[name="' + $cur.val() + '"]').css('display', ($cur.is(':checked') ? '' : 'none'));
             }
 
+            // intersection constraint IF loss-ratios THEN risk_outputs::loss-maps block is enabled
+            var $target = $(cf_obj['e_b'].pfx + ' div[name="risk-outputs"] div[name="loss-maps"]');
+            if ($(pfx + ' input[type="radio"][name="loss_choice"][value="loss-ratios"]').is(':checked')) {
+                $target.css('display', '');
+            }
+            else {
+                $target.css('display', 'none');
+            }
+
             var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
             for (var lossidx in losslist) {
                 var losstype = losslist[lossidx];
@@ -1161,6 +1170,26 @@ $(document).ready(function () {
 
             $target = $(pfx + ' div[name="poes"]');
             if ($(pfx + ' input[type="checkbox"][name="hazard_maps"]').is(':checked')) {
+                $target.css('display', '');
+            }
+            else {
+                $target.css('display', 'none');
+            }
+        }
+
+        // Risk outputs (UI)
+        {
+            var pfx = cf_obj['e_b'].pfx + ' div[name="risk-outputs"]';
+            var $target = $(pfx + ' div[name="quantile-loss-curves"]');
+            if ($(pfx + ' input[type="checkbox"][name="quantile-loss-curves-choice"]').is(':checked')) {
+                $target.css('display', '');
+            }
+            else {
+                $target.css('display', 'none');
+            }
+
+            var $target = $(pfx + ' div[name="conditional-loss-poes"]');
+            if ($(pfx + ' input[type="checkbox"][name="loss-maps-choice"]').is(':checked')) {
                 $target.css('display', '');
             }
             else {
@@ -1227,6 +1256,13 @@ $(document).ready(function () {
         $(pfx + ' input[type="checkbox"][name="hazard_curves_from_gmfs"]').click(event_based_manager);
         $(pfx + ' input[type="checkbox"][name="quantile_hazard_curves_choice"]').click(event_based_manager);
         $(pfx + ' input[type="checkbox"][name="hazard_maps"]').click(event_based_manager);
+    }
+
+    // Risk outputs (init)
+    {
+        var pfx = cf_obj['e_b'].pfx + ' div[name="risk-outputs"]';
+        $(pfx + ' input[type="checkbox"][name="quantile-loss-curves-choice"]').click(event_based_manager);
+        $(pfx + ' input[type="checkbox"][name="loss-maps-choice"]').click(event_based_manager);
     }
 
     function event_based_download_cb(e)

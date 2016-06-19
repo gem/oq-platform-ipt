@@ -261,6 +261,65 @@
       </td></tr>
     </table>
   </div>
+</div> <!-- end of div name="hazard-outputs" -->
+
+<div name="risk-outputs">
+  <h3>Risk outputs</h3>
+
+  <div class="menuItems">
+    <table class="field">
+      <tr><td class="cbox">
+          <input style="vertical-align: top;" type="checkbox" name="avg_losses" checked="checked">
+        </td><td>
+          <label>Average losses</label>
+      </td></tr>
+    </table>
+  </div>
+
+  <div class="menuItems">
+    <table class="field">
+      <tr><td class="cbox">
+          <input style="vertical-align: top;" type="checkbox" name="asset_loss_table">
+        </td><td>
+          <label>Asset loss table</label>
+      </td></tr>
+    </table>
+  </div>
+
+  <div class="alert alert-info ipt-info" role="alert">
+    <div style="text-align: center;">
+      <form style="margin: 0px;">
+        <div class="chbox">
+          <input type="checkbox" name="quantile-loss-curves-choice">
+          <span class="inlible">Include quantile loss curves</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="menuItems" name="quantile-loss-curves">
+    <label>Quantile loss curves:</label><br>
+    <input type="text" name="poes"
+           value="0.02, 0.10" style="width: 600px";>
+  </div>
+
+  <div name="loss-maps">
+    <div class="alert alert-info ipt-info" role="alert">
+      <div style="text-align: center;">
+        <form style="margin: 0px;">
+          <div class="chbox">
+            <input type="checkbox" name="loss-maps-choice">
+            <span class="inlible">Include loss maps</span>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="menuItems" name="conditional-loss-poes">
+      <label>Loss maps:</label><br>
+      <input type="text" name="conditional_loss_poes"
+             value="0.02, 0.10" style="width: 600px";>
+    </div>
+  </div>
 </div>
 
 <div style="text-align: center;">

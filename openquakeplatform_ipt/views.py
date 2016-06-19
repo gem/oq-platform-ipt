@@ -629,6 +629,9 @@ def event_based_prepare(request, **kwargs):
         jobini += "poes = %s\n" % data['poes']
     jobini += "uniform_hazard_spectra = %s\n" % data['uniform_hazard_spectra']
 
+    jobini += "\n[Risk outputs]\n"
+    #            ##############
+
     print jobini
 
     z.writestr('job.ini', jobini)
