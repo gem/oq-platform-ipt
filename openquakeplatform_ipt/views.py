@@ -597,7 +597,7 @@ def event_based_prepare(request, **kwargs):
         jobini += "ground_motion_correlation_params = {\"vs30_clustering\": True}"
 
     jobini += "\n[Risk calculation]\n"
-    #            ####################
+    #            ##################
     jobini += "risk_investigation_time = %s\n" % data['risk_investigation_time']
     if data['loss_choice'] == "loss-curve-resolution":
         jobini += "loss_curve_resolution = %s\n" % data['loss_curve_resolution']
@@ -615,6 +615,19 @@ def event_based_prepare(request, **kwargs):
                     descr[losslist], data['loss_ratios_' + losslist])
                 is_first = False
         jobini += "}\n"
+
+    jobini += "\n[Hazard outputs]\n"
+    #            ################
+    jobini += "ground_motion_fields = %s\n" % data['ground_motion_fields']
+    jobini += "hazard_curves_from_gmfs = %s\n" % data['hazard_curves_from_gmfs']
+    if data['hazard_curves_from_gmfs']:
+        jobini += "mean_hazard_curves = %s\n" % data['mean_hazard_curves']
+        if 'quantile_hazard_curves' in data:
+            jobini += "quantile_hazard_curves = %s\n" % data['quantile_hazard_curves']
+    jobini += "hazard_maps = %s\n" % data['hazard_maps']
+    if data['hazard_maps']:
+        jobini += "poes = %s\n" % data['poes']
+    jobini += "uniform_hazard_spectra = %s\n" % data['uniform_hazard_spectra']
 
     print jobini
 

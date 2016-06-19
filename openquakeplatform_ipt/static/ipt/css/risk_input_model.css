@@ -169,3 +169,16 @@ span.inlible_disabled {
 div.ipt-info {
     margin: 8px 150px 16px 150px;
 }
+
+table.field {
+    margin: auto;
+    width: 250px;
+}
+
+table.field td {
+    width: 85%;
+}
+
+table.field td.cbox {
+    width: 15%;
+}

@@ -120,6 +120,7 @@
 
 <div name="risk-calculation">
   <h3>Risk calculation</h3>
+
   <div class="menuItems">
     <label>Risk investigation time (years):</label>
     <input type="text" name="risk_investigation_time" value="1">
@@ -181,7 +182,85 @@
              style="width: 600px";>
     </div>
   </div>
+</div>
 
+<div name="hazard-outputs">
+  <h3>Hazard outputs</h3>
+
+  <div class="menuItems">
+    <table class="field">
+      <tr><td class="cbox">
+          <input style="vertical-align: top;" type="checkbox" name="ground_motion_fields">
+        </td><td>
+          <label>Ground motion fields</label>
+      </td></tr>
+    </table>
+  </div>
+
+  <div class="menuItems">
+    <table class="field">
+      <tr><td class="cbox">
+          <input style="vertical-align: top;" type="checkbox" name="hazard_curves_from_gmfs">
+        </td><td>
+          <label>Hazard curves <span style="font-weight: bold; color: #d9edf7;">(♦)</span></label>
+      </td></tr>
+    </table>
+  </div>
+
+  <div name="hazard-related">
+    <div class="menuItems">
+      <table class="field">
+        <tr><td class="cbox">
+            <input style="vertical-align: top;" type="checkbox" name="mean_hazard_curves">
+          </td><td>
+            <label>Mean hazard curves</label>
+        </td></tr>
+      </table>
+    </div>
+
+    <div class="alert alert-info ipt-info" role="alert">
+      <div style="text-align: center;">
+        <form style="margin: 0px;">
+          <div class="chbox">
+            <input type="checkbox" name="quantile_hazard_curves_choice">
+            <span class="inlible">Include quantile hazard curves</span>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="menuItems" name="quantile-hazard-curves">
+      <label>Quantile hazard curves:</label><br>
+      <input type="text" name="quantile_hazard_curves"
+             value="0.15, 0.50, 0.85" style="width: 600px";>
+    </div>
+  </div>
+
+  <div class="menuItems">
+    <table class="field">
+      <tr><td class="cbox">
+          <input style="vertical-align: top;" type="checkbox" name="hazard_maps">
+        </td><td>
+          <label>Hazard maps <span style="font-weight: bold; color: #d9edf7;">(♦)</span></label>
+      </td></tr>
+    </table>
+  </div>
+
+  <div class="menuItems" name="poes">
+    <label>List of probability of exceedances:</label><br>
+    <input type="text" name="poes"
+           value="0.02, 0.10" style="width: 600px";>
+  </div>
+
+  <div class="menuItems">
+    <table class="field">
+      <tr><td class="cbox">
+          <input style="vertical-align: top;" type="checkbox" name="uniform_hazard_spectra">
+        </td><td>
+          <label>Uniform hazard spectra</label>
+      </td></tr>
+    </table>
+  </div>
 </div>
 
 <div style="text-align: center;">

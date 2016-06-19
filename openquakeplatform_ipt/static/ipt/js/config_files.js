@@ -1111,10 +1111,10 @@ $(document).ready(function () {
         // Site conditions (UI)
         site_conditions_sect_manager('e_b', true, false);
 
-        // Hazard calculations (UI)
+        // Hazard calculation (UI)
         // nothing
 
-        // Risk calculations (UI)
+        // Risk calculation (UI)
         {
             var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
             var pfx_vuln = cf_obj['e_b'].pfx + ' div[name="vulnerability-model"]';
@@ -1139,6 +1139,35 @@ $(document).ready(function () {
                 }
             }
         }
+        // Hazard outputs (UI)
+        {
+            var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-outputs"]';
+
+            $target = $(pfx + ' div[name="hazard-related"]');
+            if ($(pfx + ' input[type="checkbox"][name="hazard_curves_from_gmfs"]').is(':checked')) {
+                $target.css('display', '');
+            }
+            else {
+                $target.css('display', 'none');
+            }
+
+            $target = $(pfx + ' div[name="quantile-hazard-curves"]');
+            if ($(pfx + ' input[type="checkbox"][name="quantile_hazard_curves_choice"]').is(':checked')) {
+                $target.css('display', '');
+            }
+            else {
+                $target.css('display', 'none');
+            }
+
+            $target = $(pfx + ' div[name="poes"]');
+            if ($(pfx + ' input[type="checkbox"][name="hazard_maps"]').is(':checked')) {
+                $target.css('display', '');
+            }
+            else {
+                $target.css('display', 'none');
+            }
+        }
+
     } // function event_based_manager
 
     /* generic callback to show upload div */
@@ -1180,17 +1209,25 @@ $(document).ready(function () {
     site_conditions_init('e_b', event_based_fileNew_cb, event_based_fileNew_upload,
                          event_based_manager);
 
-    // Hazard calculations (init)
+    // Hazard calculation (init)
     // no init
 
-    // Risk calculations (init)
+    // Risk calculation (init)
     {
-        pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
+        var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
 
         $(pfx + ' input[type="radio"][name="loss_choice"]').click(event_based_manager);
         $(pfx + ' input[type="radio"][name="loss_choice"][value="loss-curve-resolution"]').prop('checked', true);
     }
 
+    // Hazard outputs (init)
+    {
+        var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-outputs"]';
+
+        $(pfx + ' input[type="checkbox"][name="hazard_curves_from_gmfs"]').click(event_based_manager);
+        $(pfx + ' input[type="checkbox"][name="quantile_hazard_curves_choice"]').click(event_based_manager);
+        $(pfx + ' input[type="checkbox"][name="hazard_maps"]').click(event_based_manager);
+    }
 
     function event_based_download_cb(e)
     {
@@ -1269,29 +1306,15 @@ $(document).ready(function () {
             loss_ratios_contents: null,
             loss_ratios_businter: null,
             loss_ratios_occupants: null,
-/*
-            hazard_sites_choice: null,
 
-            // hazard sites
-            grid_spacing: null,
-            reggrid_coords_data: null,
-            list_of_sites: null,
-
-
-            // rupture information
-            rupture_model_file: null,
-            rupture_mesh_spacing: null,
-
-            // calculation parameters
-            gmpe_choice: null,
-            intensity_measure_types: null,
-            fravul_model_file: null,
-
-            ground_motion_correlation_model: null,
-            truncation_level: null,
-            maximum_distance: null,
-            number_of_ground_motion_fields: null
-*/
+            // hazard outputs
+            ground_motion_fields: null,
+            hazard_curves_from_gmfs: null,
+            mean_hazard_curves: null,
+            quantile_hazard_curves: null,
+            hazard_maps: null,
+            poes: null,
+            uniform_hazard_spectra: null
         };
 
         obj.description = $(cf_obj['e_b'].pfx + ' textarea[name="description"]').val();
@@ -1349,6 +1372,9 @@ $(document).ready(function () {
                 }
             }
         }
+
+        // Site conditions (get)
+        site_conditions_getData('e_b', ret, files_list, obj);
 
         // Hazard calculations (get)
         {
@@ -1431,7 +1457,53 @@ $(document).ready(function () {
                 }
             }
         }
-        site_conditions_getData('e_b', ret, files_list, obj);
+
+        // Hazard outputs (get)
+        {
+            var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-outputs"]';
+
+            obj.ground_motion_fields = $(pfx + ' input[type="checkbox"][name="ground_motion_fields"]'
+                                        ).is(':checked');
+
+            obj.hazard_curves_from_gmfs = $(pfx + ' input[type="checkbox"][name="hazard_curves_from_gmfs"]'
+                                        ).is(':checked');
+
+            if (obj.hazard_curves_from_gmfs) {
+                obj.mean_hazard_curves = $(pfx + ' input[type="checkbox"][name="mean_hazard_curves"]'
+                                          ).is(':checked');
+                if ($(pfx + ' input[type="checkbox"][name="quantile_hazard_curves_choice"]').is(':checked')) {
+                    obj.quantile_hazard_curves = $(pfx + ' input[type="text"][name="quantile_hazard_curves"]'
+                                                  ).val();
+
+                    var arr = obj.quantile_hazard_curves.split(',');
+                    for (var k in arr) {
+                        var cur = arr[k].trim(' ');
+                        if (!isFloat(cur) || cur <= 0.0) {
+                            ret.str += "'Quantile hazard curves' field element #" + (parseInt(k)+1)
+                                + " isn't positive number (" + cur + ").\n";
+                        }
+                    }
+                }
+            }
+
+            obj.hazard_maps = $(pfx + ' input[type="checkbox"][name="hazard_maps"]').is(':checked');
+
+            if (obj.hazard_maps) {
+                obj.poes = $(pfx + ' input[type="text"][name="poes"]').val();
+
+                var arr = obj.poes.split(',');
+                for (var k in arr) {
+                    var cur = arr[k].trim(' ');
+                    if (!isFloat(cur) || cur <= 0.0) {
+                        ret.str += "'Probability of exceedances' field element #" + (parseInt(k)+1)
+                            + " isn't positive number (" + cur + ").\n";
+                    }
+                }
+            }
+
+            obj.uniform_hazard_spectra = $(pfx + ' input[type="checkbox"][name="uniform_hazard_spectra"]'
+                                          ).is(':checked');
+        }
 
         if (ret.str == '') {
             ret.ret = 0;
