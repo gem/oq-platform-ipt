@@ -1119,16 +1119,25 @@ $(document).ready(function () {
             var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
             var pfx_vuln = cf_obj['e_b'].pfx + ' div[name="vulnerability-model"]';
 
-            var $cur, $all = $(pfx + ' input[type="radio"][name="loss_choice"]');
+            var $target = $(pfx + ' div[name="loss-curve-resolution"]');
+            if ($(pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').is(':checked')) {
+                $target.css('display', '');
+            }
+            else {
+                $target.css('display', 'none');
+            }
 
-            for (var i = 0 ; i < $all.length ; i++) {
-                $cur = $($all[i]);
-                $(pfx + ' div[name="' + $cur.val() + '"]').css('display', ($cur.is(':checked') ? '' : 'none'));
+            var $target = $(pfx + ' div[name="loss-ratios"]');
+            if ($(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked')) {
+                $target.css('display', '');
+            }
+            else {
+                $target.css('display', 'none');
             }
 
             // inter-sections constraint IF loss-ratios THEN risk_outputs::loss-maps block is enabled
             var $target = $(cf_obj['e_b'].pfx + ' div[name="risk-outputs"] div[name="loss-maps"]');
-            if ($(pfx + ' input[type="radio"][name="loss_choice"][value="loss-ratios"]').is(':checked')) {
+            if ($(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked')) {
                 $target.css('display', '');
             }
             else {
@@ -1245,8 +1254,8 @@ $(document).ready(function () {
     {
         var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
 
-        $(pfx + ' input[type="radio"][name="loss_choice"]').click(event_based_manager);
-        $(pfx + ' input[type="radio"][name="loss_choice"][value="loss-curve-resolution"]').prop('checked', true);
+        $(pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').click(event_based_manager);
+        $(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').click(event_based_manager);
     }
 
     // Hazard outputs (init)
@@ -1335,8 +1344,9 @@ $(document).ready(function () {
 
             // risk calculations
             risk_investigation_time: null,
-            loss_choice: null,
+            loss_curve_resolution_choice: false,
             loss_curve_resolution: null,
+            loss_ratios_choice: false,
             loss_ratios_structural: null,
             loss_ratios_nonstructural: null,
             loss_ratios_contents: null,
@@ -1474,8 +1484,9 @@ $(document).ready(function () {
                     + obj.risk_investigation_time + ").\n";
             }
 
-            obj.loss_choice = $(cf_obj['e_b'].pfx + ' input[type="radio"][name="loss_choice"]:checked').val();
-            if (obj.loss_choice == "loss-curve-resolution") {
+            obj.loss_curve_resolution_choice = $(
+                cf_obj['e_b'].pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').is(':checked');
+            if (obj.loss_curve_resolution_choice) {
                 obj.loss_curve_resolution = $(pfx + ' input[type="text"][name="loss_curve_resolution"]').val();
                 if (!isInt(obj.loss_curve_resolution) || parseInt(obj.loss_curve_resolution) <= 0.0) {
                     ret.str += "'Loss curve resolution' field isn't positive number ("
@@ -1483,22 +1494,25 @@ $(document).ready(function () {
                 }
             }
 
+            obj.loss_ratios_choice = $(
+                cf_obj['e_b'].pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked');
+            if (obj.loss_ratios_choice) {
+                var descr = { structural: 'structural', nonstructural: 'nonstructural',
+                              contents: 'contents', businter: 'business interruption',
+                              occupants: 'occupants' };
+                var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
+                for (var lossidx in losslist) {
+                    var losstype = losslist[lossidx];
 
-            var descr = { structural: 'structural', nonstructural: 'nonstructural',
-                          contents: 'contents', businter: 'business interruption',
-                          occupants: 'occupants' };
-            var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
-            for (var lossidx in losslist) {
-                var losstype = losslist[lossidx];
-
-                if(obj['vm_loss_' + losstype + '_choice']) {
-                    obj['loss_ratios_' + losstype] = $(pfx + ' input[type="text"][name="loss_ratios_' + losstype + '"]').val();
-                    var arr = obj['loss_ratios_' + losstype].split(',');
-                    for (var k in arr) {
-                        var cur = arr[k].trim(' ');
-                        if (!isFloat(cur) || cur < 0.0) {
-                            ret.str += "'" + descr[losstype] + " vulnerability model' field element #" + (parseInt(k)+1)
-                                + " is negative number (" + cur + ").\n";
+                    if(obj['vm_loss_' + losstype + '_choice']) {
+                        obj['loss_ratios_' + losstype] = $(pfx + ' input[type="text"][name="loss_ratios_' + losstype + '"]').val();
+                        var arr = obj['loss_ratios_' + losstype].split(',');
+                        for (var k in arr) {
+                            var cur = arr[k].trim(' ');
+                            if (!isFloat(cur) || cur < 0.0) {
+                                ret.str += "'" + descr[losstype] + " vulnerability model' field element #" + (parseInt(k)+1)
+                                    + " is negative number (" + cur + ").\n";
+                            }
                         }
                     }
                 }
@@ -1578,7 +1592,9 @@ $(document).ready(function () {
                 }
             }
 
-            if ($(pfx_riscal + ' input[type="radio"][name="loss_choice"][value="loss-ratios"]').is(':checked')) {
+            obj.loss_ratios_choice = $(
+                cf_obj['e_b'].pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked');
+            if (obj.loss_ratios_choice) {
                 obj.conditional_loss_poes_choice = $(
                     pfx + ' input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked');
                 if (obj.conditional_loss_poes_choice) {

@@ -599,9 +599,9 @@ def event_based_prepare(request, **kwargs):
     jobini += "\n[Risk calculation]\n"
     #            ##################
     jobini += "risk_investigation_time = %s\n" % data['risk_investigation_time']
-    if data['loss_choice'] == "loss-curve-resolution":
+    if data['loss_curve_resolution_choice'] == True:
         jobini += "loss_curve_resolution = %s\n" % data['loss_curve_resolution']
-    elif data['loss_choice'] == "loss-ratios":
+    if data['loss_ratios_choice'] == True:
         jobini += "loss_ratios = { "
         descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
                  'contents': 'contents', 'businter': 'business_interruption',
