@@ -33,6 +33,12 @@ from openquake.hazardlib import gsim
 from django import forms
 from models import ServerSide
 
+ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'exposure_model',
+               'site_model', 'site_conditions', 'imt', 'fravul_model',
+               'fragility_model', 'fragility_cons',
+               'vulnerability_model', 'gsim_logic_tree_file',
+               'source_model_logic_tree_file', 'source_model_file']
+
 def _get_error_line(exc_msg):
     # check if the exc_msg contains a line number indication
     search_match = re.search(r'line \d+', exc_msg)
@@ -151,14 +157,22 @@ class FileUpload(forms.Form):
     file_upload = forms.FileField()
 
 
-def filehtml_create(suffix, dirnam=None, match=".*\.xml"):
+def filehtml_create(suffix, dirnam=None, match=".*\.xml", is_multiple=False):
     if dirnam == None:
         dirnam = suffix
+    if (dirnam not in ALLOWED_DIR):
+        raise KeyError("dirnam (%s) not in allowed list" % dirnam)
+
+    fullpath = os.path.join(settings.FILE_PATH_FIELD_DIRECTORY, dirnam)
+    if not os.path.isdir(fullpath):
+        os.makedirs(fullpath)
+
     class FileHtml(forms.Form):
-        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + dirnam + '/'), match=match, recursive=True)
+        file_html = forms.FilePathField(
+            path=fullpath + '/', match=match, recursive=True, required=is_multiple,
+            widget=(forms.fields.SelectMultiple if is_multiple else None))
     fh = FileHtml()
-    fh.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
-    fh.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
+
     return fh
 
 def view(request, **kwargs):
@@ -217,6 +231,9 @@ def view(request, **kwargs):
     source_model_logic_tree_file_html = filehtml_create('source_model_logic_tree_file')
     source_model_logic_tree_file_upload = FileUpload()
 
+    source_model_file_html = filehtml_create('source_model_file', is_multiple=True)
+    source_model_file_upload = FileUpload()
+
     return render_to_response(
         "ipt/ipt.html",
         dict(
@@ -267,7 +284,10 @@ def view(request, **kwargs):
             gsim_logic_tree_file_upload=gsim_logic_tree_file_upload,
 
             source_model_logic_tree_file_html=source_model_logic_tree_file_html,
-            source_model_logic_tree_file_upload=source_model_logic_tree_file_upload
+            source_model_logic_tree_file_upload=source_model_logic_tree_file_upload,
+
+            source_model_file_html=source_model_file_html,
+            source_model_file_upload=source_model_file_upload
         ),
         context_instance=RequestContext(request))
 
@@ -282,11 +302,7 @@ def upload(request, **kwargs):
         return HttpResponse(json.dumps(ret), content_type="application/json");
 
     target = kwargs['target']
-    if target not in ['rupture_file', 'list_of_sites', 'exposure_model',
-                      'site_model', 'site_conditions', 'imt', 'fravul_model',
-                      'fragility_model', 'fragility_cons',
-                      'vulnerability_model', 'gsim_logic_tree_file',
-                      'source_model_logic_tree_file']:
+    if target not in ALLOWED_DIR:
         ret['ret'] = 4;
         ret['ret_msg'] = 'Unknown target "' + target + '".'
         return HttpResponse(json.dumps(ret), content_type="application/json");
@@ -314,10 +330,7 @@ def upload(request, **kwargs):
                         file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix), match=match, recursive=True)
 
                     fileslist = FileHtml()
-                    fileslist.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
-                    fileslist.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
 
-                    # import pdb ; pdb.set_trace()
                     ret['ret'] = 0;
                     ret['selected'] = bname + request.FILES['file_upload'].name
                     ret['items'] = fileslist.fields['file_html'].choices
@@ -566,6 +579,9 @@ def event_based_prepare(request, **kwargs):
         data['source_model_logic_tree_file'])
     z.write(data['source_model_logic_tree_file'],
             os.path.basename(data['source_model_logic_tree_file']))
+
+    for source_model_name in data['source_model_file']:
+        z.write(source_model_name, os.path.basename(source_model_name))
 
     jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(
         data['gsim_logic_tree_file'])

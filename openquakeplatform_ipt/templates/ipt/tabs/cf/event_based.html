@@ -30,6 +30,21 @@
   </div>
 
   <div class="menuItems">
+    <div name="source-model-file-html">
+      <label>Source model files:</label>
+      {{ source_model_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="source-model-file-new">New</button>
+    </div>
+    <div class="menuItems" name="source-model-file-new" style="margin-right: 0px; display: none;">
+      <div name="msg"><br></div>
+      <form action="upload/source_model_file" method="post" id="file-upload-form" name="source-model-file" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ source_model_file_upload.file_upload }}
+        <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="menuItems">
     <div name="gsim-logic-tree-file-html" data_gem_group="gsim">
       <label>GMPE logic tree file:</label>
       {{ gsim_logic_tree_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="gsim-logic-tree-file-new">New</button>

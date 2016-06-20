@@ -1231,6 +1231,12 @@ $(document).ready(function () {
         $(pfx + ' div[name="source-model-logic-tree-file-new"]' +
           ' form[name="source-model-logic-tree-file"]').submit(event_based_fileNew_upload);
 
+        // Hazard model: source_tree_file (init)
+        $(pfx + ' button[name="source-model-file-new"]').click(
+            event_based_fileNew_cb);
+        $(pfx + ' div[name="source-model-file-new"]' +
+          ' form[name="source-model-file"]').submit(event_based_fileNew_upload);
+
         // Hazard model: gsim_logic_tree_file (init)
         $(pfx + ' button[name="gsim-logic-tree-file-new"]').click(
             event_based_fileNew_cb);
@@ -1316,6 +1322,7 @@ $(document).ready(function () {
 
             // hazard model
             source_model_logic_tree_file: null,
+            source_model_file: null,
             gsim_logic_tree_file: null,
             width_of_mfd_bin: 0.1,
 
@@ -1396,6 +1403,19 @@ $(document).ready(function () {
             }
             uniqueness_add(files_list, 'source model logic tree', obj.source_model_logic_tree_file);
             ret.str += uniqueness_check(files_list);
+
+            // Source model files
+            obj.source_model_file = $(pfx + ' div[name="source-model-file-html"] select').val();
+            if (obj.source_model_file == null || obj.source_model_file.length < 1) {
+                ret.str += "'Source model files' field: at least one file must be selected.\n";
+            }
+            if (obj.source_model_file != null) {
+                for (f_id in obj.source_model_file) {
+                    fname = obj.source_model_file[f_id];
+                    uniqueness_add(files_list, 'source model: item #' + (parseInt(f_id) + 1), fname);
+                ret.str += uniqueness_check(files_list);
+                }
+            }
 
             obj.gsim_logic_tree_file = $(
                 pfx + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
