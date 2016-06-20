@@ -501,6 +501,70 @@ $(document).ready(function () {
         return false;
     }
 
+    function do_clean_all()
+    {
+        $.ajax({
+            url: 'clean_all',
+            type: 'POST',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                console.log('success');
+                if (data.ret == 0) {
+                    var tabs = ['scen', 'e_b'];
+                    for (var i = 0 ; i < tabs.length ; i++) {
+                        tab = tabs[i];
+                        console.log('tab: ' + tab);
+                        
+                        var $all_selects = $(cf_obj[tab].pfx + ' select[name="file_html"]');
+                        
+                        for (var e = 0 ; e < $all_selects.length ; e++) {
+                            console.log('element ' + e);
+                            $sel = $($all_selects[e]);
+                            if ($sel.is("[multiple]")) {
+                                $sel.empty();
+                            }
+                            else {
+                                $sel.empty();
+                                $("<option />", {value: '', text: '---------'}).appendTo($sel);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        return false;
+
+    }
+
+    function clean_all_cb(e)
+    {
+        $('<div></div>').appendTo('body')
+            .html('<div><h6>Do you really want to delete all uploaded files and reset the page ?</h6></div>')
+            .dialog({
+                modal: true,
+                title: 'Clean all uploaded files',
+                zIndex: 10000,
+                autoOpen: true,
+                width: '400px',
+                resizable: false,
+                buttons: {
+                    Yes: function () {
+                        do_clean_all();
+
+                        $(this).dialog("close");
+                    },
+                    No: function () {
+                        $(this).dialog("close");
+                    }
+                },
+                close: function (event, ui) {
+                    $(this).remove();
+                }
+            });
+    }
+
     /*
      * - - - SCENARIO - - -
      */
@@ -1069,6 +1133,8 @@ $(document).ready(function () {
     }
     cf_obj['scen'].getData = scenario_getData;
 
+    $(cf_obj['scen'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
+
     function scenario_download_cb(e)
     {
         return generic_download_cb('scen', this, e);
@@ -1280,6 +1346,7 @@ $(document).ready(function () {
         $(pfx + ' input[type="checkbox"][name="conditional_loss_poes_choice"]').click(event_based_manager);
     }
 
+    $(cf_obj['e_b'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
     function event_based_download_cb(e)
     {
         return generic_download_cb('e_b', this, e);

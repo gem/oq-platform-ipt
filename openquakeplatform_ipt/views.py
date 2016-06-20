@@ -19,6 +19,7 @@ import time
 import json
 import zipfile
 import tempfile
+import shutil
 from email.Utils import formatdate
 
 from lxml import etree
@@ -34,7 +35,7 @@ from django import forms
 from models import ServerSide
 
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'exposure_model',
-               'site_model', 'site_conditions', 'imt', 'fravul_model',
+               'site_model', 'site_conditions', 'imt',
                'fragility_model', 'fragility_cons',
                'vulnerability_model', 'gsim_logic_tree_file',
                'source_model_logic_tree_file', 'source_model_file']
@@ -682,3 +683,17 @@ def download(request):
         resp['Content-Disposition'] = (
             'attachment; filename="' + dest_name + '.zip"')
         return resp
+
+def clean_all(request):
+    if request.method == 'POST':
+        for ipt_dir in ALLOWED_DIR:
+            fullpath = os.path.join(settings.FILE_PATH_FIELD_DIRECTORY, ipt_dir)
+            if not os.path.isdir(fullpath):
+                continue
+            shutil.rmtree(fullpath)
+            os.makedirs(fullpath)
+
+        ret = {}
+        ret['ret'] = 0
+        ret['msg'] = 'Success, reload it.'
+        return HttpResponse(json.dumps(ret), content_type="application/json")
