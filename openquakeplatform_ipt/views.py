@@ -154,10 +154,10 @@ class FileUpload(forms.Form):
 def filehtml_create(suffix, userid, dirnam=None, match=".*\.xml"):
     if dirnam == None:
         dirnam = suffix
-    dirnam = '%s/%s/' % (userid, dirnam)
+    dirnam = os.path.join(str(userid), dirnam)
     class FileHtml(forms.Form):
         file_html = forms.FilePathField(
-            path=(settings.FILE_PATH_FIELD_DIRECTORY + dirnam),
+            path=os.path.join(settings.FILE_PATH_FIELD_DIRECTORY, dirnam),
             match=match, recursive=True)
     fh = FileHtml()
     fh.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
@@ -314,17 +314,17 @@ def upload(request, **kwargs):
 
             if form.is_valid():
                 if request.FILES['file_upload'].name.endswith('.' + exten):
-                    bname = "%s%s/%s/" % (settings.FILE_PATH_FIELD_DIRECTORY,
-                                          request.user.id,
-                                          target)
-                    f = file(bname + request.FILES['file_upload'].name, "w")
+                    bname = os.path.join(settings.FILE_PATH_FIELD_DIRECTORY,
+                                         str(request.user.id),
+                                         target)
+                    f = file(os.path.join(bname, request.FILES['file_upload'].name), "w")
                     f.write(request.FILES['file_upload'].read())
                     f.close()
 
-                    suffix = "%s/%s/" % (request.user.id, target)
+                    suffix = os.path.join(str(request.user.id), target)
                     match = ".*\." + exten
                     class FileHtml(forms.Form):
-                        file_html = forms.FilePathField(path=(settings.FILE_PATH_FIELD_DIRECTORY + suffix), match=match, recursive=True)
+                        file_html = forms.FilePathField(path=os.path.join(settings.FILE_PATH_FIELD_DIRECTORY, suffix), match=match, recursive=True)
 
                     fileslist = FileHtml()
                     fileslist.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
@@ -332,7 +332,7 @@ def upload(request, **kwargs):
 
                     # import pdb ; pdb.set_trace()
                     ret['ret'] = 0;
-                    ret['selected'] = bname + request.FILES['file_upload'].name
+                    ret['selected'] = os.path.join(bname, request.FILES['file_upload'].name)
                     ret['items'] = fileslist.fields['file_html'].choices
                     ret['ret_msg'] = 'File ' + str(request.FILES['file_upload']) + ' uploaded successfully.';
                 else:
