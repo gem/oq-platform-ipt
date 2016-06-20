@@ -1462,8 +1462,8 @@ $(document).ready(function () {
             }
 
             obj.number_of_logic_tree_samples = $(pfx + ' input[type="text"][name="number_of_logic_tree_samples"]').val();
-            if (!isInt(obj.number_of_logic_tree_samples) || parseInt(obj.number_of_logic_tree_samples) <= 0.0) {
-                ret.str += "'Number of logic tree samples' field isn't positive number ("
+            if (!isInt(obj.number_of_logic_tree_samples) || parseInt(obj.number_of_logic_tree_samples) < 0.0) {
+                ret.str += "'Number of logic tree samples' field is negative number ("
                     + obj.number_of_logic_tree_samples + ").\n";
             }
 
