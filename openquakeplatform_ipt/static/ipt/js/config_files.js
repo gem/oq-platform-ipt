@@ -43,10 +43,20 @@ $(document).ready(function () {
             $subtarget = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]');
             if (with_constraints) {
                 $subtarget.css('display', '');
-                $subsubt = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+                $subsubt = $(cf_obj[scope].pfx
+                             + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
                              + ' div[name="region-constraint"]');
                 if ($(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                      + ' input[name="include"]').is(':checked'))
+                      + ' input[name="region_constraint_choice"]').is(':checked'))
+                    $subsubt.css('display', '');
+                else
+                    $subsubt.css('display', 'none');
+
+                $subsubt = $(cf_obj[scope].pfx
+                             + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+                             + ' div[name="asset-hazard-distance"]');
+                if ($(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+                      + ' input[name="asset_hazard_distance_choice"]').is(':checked'))
                     $subsubt.css('display', '');
                 else
                     $subsubt.css('display', 'none');
@@ -170,7 +180,8 @@ $(document).ready(function () {
             ret.str += uniqueness_check(files_list);
             if (with_constraints) {
                 obj.exposure_model_regcons_choice = $(
-                    cf_obj[scope].pfx + ' div[name="exposure-model"] input[type="checkbox"][name="include"]'
+                    cf_obj[scope].pfx + ' div[name="exposure-model"]'
+                    + ' input[type="checkbox"][name="region_constraint_choice"]'
                 ).is(':checked');
                 if (obj.exposure_model_regcons_choice) {
                     obj.exposure_model_regcons_coords_data = cf_obj[scope].expModel_coords.getData();
@@ -185,6 +196,21 @@ $(document).ready(function () {
                             ret.str += "Entry #" + (i+1) + " of exposure model 'Region constraint'"
                                 + " field is invalid (" + lon + ", " + lat + ").\n";
                         }
+                    }
+                }
+
+                obj.asset_hazard_distance_choice = $(
+                    cf_obj[scope].pfx + ' div[name="exposure-model"]'
+                    + ' input[type="checkbox"][name="asset_hazard_distance_choice"]'
+                ).is(':checked');
+                if (obj.asset_hazard_distance_choice) {
+                    obj.asset_hazard_distance = $(
+                        cf_obj[scope].pfx + ' div[name="exposure-model"]'
+                            + ' input[type="text"][name="asset_hazard_distance"]').val();
+                    if (!isFloat(obj.asset_hazard_distance)
+                        || parseFloat(obj.asset_hazard_distance) < 0.0) {
+                        ret.str += "'Asset hazard distance' field is negative float number ("
+                            + obj.asset_hazard_distance + ").\n";
                     }
                 }
             }
@@ -334,7 +360,10 @@ $(document).ready(function () {
 
         // Exposure model: risk-only region constraint checkbox (init)
         $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-          + ' input[name="include"]').click(manager);
+          + ' input[name="region_constraint_choice"]').click(manager);
+
+        $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
+          + ' input[name="asset_hazard_distance_choice"]').click(manager);
 
         // Exposure model: hazard content region-constr table handsontable (init)
         $(cf_obj[scope].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable({
@@ -516,9 +545,9 @@ $(document).ready(function () {
                     for (var i = 0 ; i < tabs.length ; i++) {
                         tab = tabs[i];
                         console.log('tab: ' + tab);
-                        
+
                         var $all_selects = $(cf_obj[tab].pfx + ' select[name="file_html"]');
-                        
+
                         for (var e = 0 ; e < $all_selects.length ; e++) {
                             console.log('element ' + e);
                             $sel = $($all_selects[e]);
@@ -874,9 +903,13 @@ $(document).ready(function () {
             reggrid_coords_data: null,
             list_of_sites: null,
 
+            // exposure model
             exposure_model: null,
             exposure_model_regcons_choice: false,
             exposure_model_regcons_coords_data: null,
+
+            asset_hazard_distance_choice: false,
+            asset_hazard_distance: null,
 
             // rupture information
             rupture_model_file: null,
@@ -1370,6 +1403,9 @@ $(document).ready(function () {
             exposure_model: null,
             exposure_model_regcons_choice: false,
             exposure_model_regcons_coords_data: null,
+
+            asset_hazard_distance_choice: false,
+            asset_hazard_distance: null,
 
             // vulnerability model
             vm_loss_structural_choice: false,
