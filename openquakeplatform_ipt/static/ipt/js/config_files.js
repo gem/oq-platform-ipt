@@ -647,27 +647,6 @@ $(document).ready(function () {
             'scen', ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null),
             (risk != null));
 
-        $target = $(cf_obj['scen'].pfx + ' div[name="exposure-model"]');
-        if ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null) {
-            $target.css('display', '');
-            $subtarget = $(cf_obj['scen'].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]');
-            if (risk != null) {
-                $subtarget.css('display', '');
-                $subsubt = $(cf_obj['scen'].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                             + ' div[name="region-constraint"]');
-                if ($(cf_obj['scen'].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                      + ' input[name="include"]').is(':checked'))
-                    $subsubt.css('display', '');
-                else
-                    $subsubt.css('display', 'none');
-            }
-            else {
-                $subtarget.css('display', 'none');
-            }
-        }
-        else
-            $target.css('display', 'none');
-
         // Fragility and vulnerability model (ui)
         if (risk == 'damage') {
             fragility_model_sect_manager('scen', true);
