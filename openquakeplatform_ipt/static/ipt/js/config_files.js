@@ -192,7 +192,7 @@ $(document).ready(function () {
                         var lat = obj.exposure_model_regcons_coords_data[i][1];
                         if (lon === null || lat === null || !isFloat(lon) || !isFloat(lat) ||
                             parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
-                            parseFloat(lat) < -90.0  || parseFloat(lat) > 180.0) {
+                            parseFloat(lat) < -90.0  || parseFloat(lat) > 90.0) {
                             ret.str += "Entry #" + (i+1) + " of exposure model 'Region constraint'"
                                 + " field is invalid (" + lon + ", " + lat + ").\n";
                         }
@@ -1013,7 +1013,7 @@ $(document).ready(function () {
                     var lon = obj.reggrid_coords_data[i][0], lat = obj.reggrid_coords_data[i][1];
                     if (lon === null || lat === null || !isFloat(lon) || !isFloat(lat) ||
                         parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
-                        parseFloat(lat) < -90.0  || parseFloat(lat) > 180.0) {
+                        parseFloat(lat) < -90.0  || parseFloat(lat) > 90.0) {
                         ret.str += "Entry #" + (i+1) + " of region grid 'Coordinates'"
                             + " field is invalid (" + lon + ", " + lat + ").\n";
                     }
