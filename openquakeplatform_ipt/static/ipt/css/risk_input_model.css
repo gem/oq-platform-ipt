@@ -182,3 +182,11 @@ table.field td {
 table.field td.cbox {
     width: 15%;
 }
+
+span.ipt_help {
+    border-radius: 4px;
+    display: inline-block;
+    vertical-align: text-bottom;
+    border: 1px solid #a0a0a0;
+    background-color: #f7f7f9;";
+}
