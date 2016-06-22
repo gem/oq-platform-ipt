@@ -1716,6 +1716,15 @@ $(document).ready(function () {
 
     event_based_manager();
 
-    $("span.ipt_help").tooltip();
+    $("span.ipt_help").tooltip(
+        {template: '<div class="tooltip" style="opacity: 1.0;">'
+         + '<div class="tooltip-arrow" style="'
+         + ' background-color: #f7f7f9; color: black; font-size: 12px;'
+         + ' font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-weight: normal; '
+         + ' border-radius: 8px; border: 1px solid #e0e0e0;"></div>'
+         + '<div class="tooltip-inner" style="background-color: #f7f7f9; color: black; font-size: 12px;'
+         + ' font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-weight: normal;'
+         + ' border-radius: 8px; border: 1px solid #e0e0e0; max-width: 300px; width: 300px; margin: 0px;">'
+         + '</div></div>', placement: 'bottom'});
 });
 
