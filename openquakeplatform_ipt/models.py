@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from openquakeplatform_server import settings
+from openquakeplatform import settings
 
 print settings.__file__
 

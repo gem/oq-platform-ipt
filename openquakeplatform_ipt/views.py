@@ -19,6 +19,7 @@ import time
 import json
 import zipfile
 import tempfile
+import shutil
 from email.Utils import formatdate
 
 from lxml import etree
@@ -28,10 +29,17 @@ from django.http import (HttpResponse,
                          HttpResponseRedirect
 )
 from django.template import RequestContext
-from openquakeplatform_server import settings
+from openquakeplatform import settings
 from openquake.hazardlib import gsim
 from django import forms
 from models import ServerSide
+
+ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'exposure_model',
+               'site_model', 'site_conditions', 'imt',
+               'fragility_model', 'fragility_cons',
+               'vulnerability_model', 'gsim_logic_tree_file',
+               'source_model_logic_tree_file', 'source_model_file']
+
 
 def _get_error_line(exc_msg):
     # check if the exc_msg contains a line number indication
@@ -211,19 +219,29 @@ class FilePathFieldByUser(forms.ChoiceField):
 
         self.widget.choices = self.choices
 
-def filehtml_create(suffix, userid, dirnam=None, match=".*\.xml"):
+def filehtml_create(
+        suffix, userid, dirnam=None, match=".*\.xml", is_multiple=False):
     if dirnam == None:
         dirnam = suffix
+    if (dirnam not in ALLOWED_DIR):
+        raise KeyError("dirnam (%s) not in allowed list" % dirnam)
+
+    fullpath = os.path.join(settings.FILE_PATH_FIELD_DIRECTORY, dirnam)
+    if not os.path.isdir(fullpath):
+        os.makedirs(fullpath)
+
     class FileHtml(forms.Form):
         file_html = FilePathFieldByUser(
             basepath=settings.FILE_PATH_FIELD_DIRECTORY,
             userid=userid,
             subdir=dirnam,
             app_name='ipt',  # FIXME: where should I get the app_name?
-            match=match, recursive=True)
+            match=match,
+            recursive=True,
+            required=is_multiple,
+            widget=(forms.fields.SelectMultiple if is_multiple else None))
     fh = FileHtml()
-    fh.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
-    fh.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
+
     return fh
 
 def view(request, **kwargs):
@@ -295,58 +313,74 @@ def view(request, **kwargs):
     imt_html = filehtml_create('imt', userid=userid)
     imt_upload = FileUpload()
 
-    fravul_model_html = filehtml_create('fravul_model', userid=userid)
-    fravul_model_upload = FileUpload()
+    gsim_logic_tree_file_html = filehtml_create(
+        'gsim_logic_tree_file', userid=userid)
+    gsim_logic_tree_file_upload = FileUpload()
 
-    return render_to_response("ipt/ipt.html",
-                              dict(
-                                  g_gmpe=gmpe,
-                                  rupture_file_html=rupture_file_html,
-                                  rupture_file_upload=rupture_file_upload,
-                                  list_of_sites_html=list_of_sites_html,
-                                  list_of_sites_upload=list_of_sites_upload,
-                                  exposure_model_html=exposure_model_html,
-                                  exposure_model_upload=exposure_model_upload,
-                                  site_model_html=site_model_html,
-                                  site_model_upload=site_model_upload,
+    source_model_logic_tree_file_html = filehtml_create(
+        'source_model_logic_tree_file', userid=userid)
+    source_model_logic_tree_file_upload = FileUpload()
 
-                                  fm_structural_html=fm_structural_html,
-                                  fm_structural_upload=fm_structural_upload,
-                                  fm_nonstructural_html=fm_nonstructural_html,
-                                  fm_nonstructural_upload=fm_nonstructural_upload,
-                                  fm_contents_html=fm_contents_html,
-                                  fm_contents_upload=fm_contents_upload,
-                                  fm_businter_html=fm_businter_html,
-                                  fm_businter_upload=fm_businter_upload,
+    source_model_file_html = filehtml_create(
+        'source_model_file', userid=userid, is_multiple=True)
+    source_model_file_upload = FileUpload()
 
-                                  fm_structural_cons_html=fm_structural_cons_html,
-                                  fm_structural_cons_upload=fm_structural_cons_upload,
-                                  fm_nonstructural_cons_html=fm_nonstructural_cons_html,
-                                  fm_nonstructural_cons_upload=fm_nonstructural_cons_upload,
-                                  fm_contents_cons_html=fm_contents_cons_html,
-                                  fm_contents_cons_upload=fm_contents_cons_upload,
-                                  fm_businter_cons_html=fm_businter_cons_html,
-                                  fm_businter_cons_upload=fm_businter_cons_upload,
+    return render_to_response(
+        "ipt/ipt.html",
+        dict(
+            g_gmpe=gmpe,
+            rupture_file_html=rupture_file_html,
+            rupture_file_upload=rupture_file_upload,
+            list_of_sites_html=list_of_sites_html,
+            list_of_sites_upload=list_of_sites_upload,
+            exposure_model_html=exposure_model_html,
+            exposure_model_upload=exposure_model_upload,
+            site_model_html=site_model_html,
+            site_model_upload=site_model_upload,
 
-                                  vm_structural_html=vm_structural_html,
-                                  vm_structural_upload=vm_structural_upload,
-                                  vm_nonstructural_html=vm_nonstructural_html,
-                                  vm_nonstructural_upload=vm_nonstructural_upload,
-                                  vm_contents_html=vm_contents_html,
-                                  vm_contents_upload=vm_contents_upload,
-                                  vm_businter_html=vm_businter_html,
-                                  vm_businter_upload=vm_businter_upload,
-                                  vm_occupants_html=vm_occupants_html,
-                                  vm_occupants_upload=vm_occupants_upload,
+            fm_structural_html=fm_structural_html,
+            fm_structural_upload=fm_structural_upload,
+            fm_nonstructural_html=fm_nonstructural_html,
+            fm_nonstructural_upload=fm_nonstructural_upload,
+            fm_contents_html=fm_contents_html,
+            fm_contents_upload=fm_contents_upload,
+            fm_businter_html=fm_businter_html,
+            fm_businter_upload=fm_businter_upload,
 
-                                  site_conditions_html=site_conditions_html,
-                                  site_conditions_upload=site_conditions_upload,
-                                  imt_html=imt_html,
-                                  imt_upload=imt_upload,
-                                  fravul_model_html=fravul_model_html,
-                                  fravul_model_upload=fravul_model_upload,
-                              ),
-                              context_instance=RequestContext(request))
+            fm_structural_cons_html=fm_structural_cons_html,
+            fm_structural_cons_upload=fm_structural_cons_upload,
+            fm_nonstructural_cons_html=fm_nonstructural_cons_html,
+            fm_nonstructural_cons_upload=fm_nonstructural_cons_upload,
+            fm_contents_cons_html=fm_contents_cons_html,
+            fm_contents_cons_upload=fm_contents_cons_upload,
+            fm_businter_cons_html=fm_businter_cons_html,
+            fm_businter_cons_upload=fm_businter_cons_upload,
+
+            vm_structural_html=vm_structural_html,
+            vm_structural_upload=vm_structural_upload,
+            vm_nonstructural_html=vm_nonstructural_html,
+            vm_nonstructural_upload=vm_nonstructural_upload,
+            vm_contents_html=vm_contents_html,
+            vm_contents_upload=vm_contents_upload,
+            vm_businter_html=vm_businter_html,
+            vm_businter_upload=vm_businter_upload,
+            vm_occupants_html=vm_occupants_html,
+            vm_occupants_upload=vm_occupants_upload,
+
+            site_conditions_html=site_conditions_html,
+            site_conditions_upload=site_conditions_upload,
+            imt_html=imt_html,
+            imt_upload=imt_upload,
+            gsim_logic_tree_file_html=gsim_logic_tree_file_html,
+            gsim_logic_tree_file_upload=gsim_logic_tree_file_upload,
+
+            source_model_logic_tree_file_html=source_model_logic_tree_file_html,
+            source_model_logic_tree_file_upload=source_model_logic_tree_file_upload,
+
+            source_model_file_html=source_model_file_html,
+            source_model_file_upload=source_model_file_upload
+        ),
+        context_instance=RequestContext(request))
 
 
 def upload(request, **kwargs):
@@ -359,13 +393,10 @@ def upload(request, **kwargs):
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
     target = kwargs['target']
-    if target not in ['rupture_file', 'list_of_sites', 'exposure_model',
-                      'site_model', 'site_conditions', 'imt', 'fravul_model',
-                      'fragility_model', 'fragility_cons',
-                      'vulnerability_model']:
-        ret['ret'] = 4
-        ret['ret_msg'] = 'Unknown target "%s".' % target
-        return HttpResponse(json.dumps(ret), content_type="application/json")
+    if target not in ALLOWED_DIR:
+        ret['ret'] = 4;
+        ret['ret_msg'] = 'Unknown target "' + target + '".'
+        return HttpResponse(json.dumps(ret), content_type="application/json");
 
     if request.is_ajax():
         if request.method == 'POST':
@@ -421,8 +452,6 @@ def upload(request, **kwargs):
                             recursive=True)
 
                     fileslist = FileHtml()
-                    fileslist.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
-                    fileslist.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
 
                     ret['ret'] = 0;
                     # ret['selected'] = os.path.join(bname, request.FILES['file_upload'].name)
@@ -447,8 +476,69 @@ def upload(request, **kwargs):
     return HttpResponse(json.dumps(ret), content_type="application/json");
 
 
+def exposure_model_prep_sect(data, z, is_regcons):
+    jobini = "\n[Exposure model]\n"
+    #           ################
 
-def prepare(request, **kwargs):
+    jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
+    z.write(data['exposure_model'], os.path.basename(data['exposure_model']))
+    if is_regcons:
+        if data['exposure_model_regcons_choice'] == True:
+            is_first = True
+            jobini += "region_constraint = "
+            for el in data['exposure_model_regcons_coords_data']:
+                if is_first:
+                    is_first = False
+                else:
+                    jobini += ", "
+                jobini += "%s %s" % (el[0], el[1])
+            jobini += "\n"
+
+        if data['asset_hazard_distance_choice'] == True:
+            jobini += "asset_hazard_distance = %s\n" % data['asset_hazard_distance']
+
+    return jobini
+
+
+def vulnerability_model_prep_sect(data, z):
+    jobini = "\n[Vulnerability model]\n"
+    #            #####################
+    descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
+             'contents': 'contents', 'businter': 'business_interruption',
+             'occupants': 'occupants'}
+    for losslist in ['structural', 'nonstructural', 'contents', 'businter',
+                     'occupants']:
+        if data['vm_loss_'+ losslist + '_choice'] == True:
+            jobini += "%s_vulnerability_file = %s\n" % (
+                descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
+            z.write(data['vm_loss_' + losslist],
+                    os.path.basename(data['vm_loss_' + losslist]))
+
+    jobini += "insured_losses = %s\n" % (
+        "True" if data['insured_losses'] else "False")
+
+    if data['asset_correlation_choice']:
+        jobini += "asset_correlation = %s" % data['asset_correlation']
+
+    return jobini
+
+
+def site_conditions_prep_sect(data, z):
+    jobini = "\n[Site conditions]\n"
+    #           #################
+
+    if data['site_conditions_choice'] == 'from-file':
+        jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
+        z.write(data['site_model_file'], os.path.basename(data['site_model_file']))
+    elif data['site_conditions_choice'] == 'uniform-param':
+        jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
+        jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
+        jobini += "reference_depth_to_2pt5km_per_sec = %s\n" % data['reference_depth_to_2pt5km_per_sec']
+        jobini += "reference_depth_to_1pt0km_per_sec = %s\n" % data['reference_depth_to_1pt0km_per_sec']
+    return jobini
+
+
+def scenario_prepare(request, **kwargs):
     ret = {};
 
     if request.POST.get('data', '') == '':
@@ -463,9 +553,9 @@ def prepare(request, **kwargs):
     z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
     jobini =  "# Generated automatically with IPT at %s\n" % formatdate()
+    jobini += "[general]\n"
     jobini += "description = %s\n" % data['description']
 
-    # FIXME depends on hazard + risk combination
     if data['risk'] == 'damage':
         jobini += "calculation_mode = scenario_damage\n"
     elif data['risk'] == 'losses':
@@ -520,22 +610,7 @@ def prepare(request, **kwargs):
 
     if ((data['hazard'] == 'hazard' and data['hazard_sites_choice'] == 'exposure-model')
         or data['risk'] != None):
-        jobini += "\n[Exposure model]\n"
-        #            ################
-
-        jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
-        z.write(data['exposure_model'], os.path.basename(data['exposure_model']))
-        if data['risk'] != None:
-            if data['exposure_model_regcons_choice'] == True:
-                is_first = True
-                jobini += "region_constraint = "
-                for el in data['exposure_model_regcons_coords_data']:
-                    if is_first:
-                        is_first = False
-                    else:
-                        jobini += ", "
-                    jobini += "%s %s" % (el[0], el[1])
-                jobini += "\n"
+        jobini += exposure_model_prep_sect(data, z, (data['risk'] != None))
 
     if data['risk'] == 'damage':
         jobini += "\n[Fragility model]\n"
@@ -554,31 +629,10 @@ def prepare(request, **kwargs):
                     z.write(data['fm_loss_' + losslist + '_cons'],
                             os.path.basename(data['fm_loss_' + losslist + '_cons']))
     elif data['risk'] == 'losses':
-        jobini += "\n[Vulnerability model]\n"
-        #            #####################
-        descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
-                 'contents': 'contents', 'businter': 'business_interruption',
-                 'occupants': 'occupants'}
-        for losslist in ['structural', 'nonstructural', 'contents', 'businter',
-                         'occupants']:
-            if data['vm_loss_'+ losslist + '_choice'] == True:
-                jobini += "%s_vulnerability_file = %s\n" % (
-                    descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
-                z.write(data['vm_loss_' + losslist],
-                        os.path.basename(data['vm_loss_' + losslist]))
+        jobini += vulnerability_model_prep_sect(data, z)
 
     if data['hazard'] == 'hazard':
-        jobini += "\n[Site conditions]\n"
-        #            #################
-
-        if data['site_conditions_choice'] == 'from-file':
-            jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
-            z.write(data['site_model_file'], os.path.basename(data['site_model_file']))
-        elif data['site_conditions_choice'] == 'uniform-param':
-            jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
-            jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
-            jobini += "reference_depth_to_2pt5km_per_sec = %s\n" % data['reference_depth_to_2pt5km_per_sec']
-            jobini += "reference_depth_to_1pt0km_per_sec = %s\n" % data['reference_depth_to_1pt0km_per_sec']
+        jobini += site_conditions_prep_sect(data, z)
 
     if data['hazard'] == 'hazard':
         jobini += "\n[Calculation parameters]\n"
@@ -607,7 +661,7 @@ def prepare(request, **kwargs):
 
         jobini += "ground_motion_correlation_model = %s\n" % data['ground_motion_correlation_model']
         if data['ground_motion_correlation_model'] == 'JB2009':
-            jobini += "ground_motion_correlation_params = {\"vs30_clustering\": True}\n"
+            jobini += "ground_motion_correlation_params = {\"vs30_clustering\": False}\n"
 
         jobini += "truncation_level = %s\n" % data['truncation_level']
         jobini += "maximum_distance = %s\n" % data['maximum_distance']
@@ -624,10 +678,129 @@ def prepare(request, **kwargs):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-def download(request):
+def event_based_prepare(request, **kwargs):
+    ret = {};
 
+    if request.POST.get('data', '') == '':
+        ret['ret'] = 1
+        ret['msg'] = 'Malformed request.'
+        return HttpResponse(json.dumps(ret), content_type="application/json")
+
+    data = json.loads(request.POST.get('data'))
+
+    (fd, fname) = tempfile.mkstemp(suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
+    fzip = os.fdopen(fd, 'w')
+    z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
+
+    jobini =  "# Generated automatically with IPT at %s\n" % formatdate()
+    jobini += "[general]\n"
+    jobini += "description = %s\n" % data['description']
+
+    jobini += "calculation_mode = event_based_risk\n"
+
+    jobini += "random_seed = 113\n"
+
+    # Exposure model
+    jobini += exposure_model_prep_sect(data, z, True)
+
+    # Vulnerability model
+    jobini += vulnerability_model_prep_sect(data, z)
+
+    # Hazard model
+    jobini += "source_model_logic_tree_file = %s\n" % os.path.basename(
+        data['source_model_logic_tree_file'])
+    z.write(data['source_model_logic_tree_file'],
+            os.path.basename(data['source_model_logic_tree_file']))
+
+    for source_model_name in data['source_model_file']:
+        z.write(source_model_name, os.path.basename(source_model_name))
+
+    jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(
+        data['gsim_logic_tree_file'])
+    z.write(data['gsim_logic_tree_file'],
+            os.path.basename(data['gsim_logic_tree_file']))
+
+    jobini += "\n[Hazard model]\n"
+    #            ##############
+    jobini += "width_of_mfd_bin = %s\n" % data['width_of_mfd_bin']
+
+    if data['rupture_mesh_spacing_choice'] == True:
+        jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
+    if data['area_source_discretization_choice'] == True:
+        jobini += ("area_source_discretization = %s\n" %
+                   data['area_source_discretization'])
+
+    # Site conditions
+    jobini += site_conditions_prep_sect(data, z)
+
+    jobini += "\n[Hazard calculation]\n"
+    #            ####################
+    jobini += "truncation_level = %s\n" % data['truncation_level']
+    jobini += "maximum_distance = %s\n" % data['maximum_distance']
+    jobini += "investigation_time = %s\n" % data['investigation_time']
+    jobini += "ses_per_logic_tree_path = %s\n" % data['ses_per_logic_tree_path']
+    jobini += "number_of_logic_tree_samples = %s\n" % data['number_of_logic_tree_samples']
+    jobini += "ground_motion_correlation_model = %s\n" % data['ground_motion_correlation_model']
+    if data['ground_motion_correlation_model'] == 'JB2009':
+        jobini += "ground_motion_correlation_params = {\"vs30_clustering\": True}"
+
+    jobini += "\n[Risk calculation]\n"
+    #            ##################
+    jobini += "risk_investigation_time = %s\n" % data['risk_investigation_time']
+    if data['loss_curve_resolution_choice'] == True:
+        jobini += "loss_curve_resolution = %s\n" % data['loss_curve_resolution']
+    if data['loss_ratios_choice'] == True:
+        jobini += "loss_ratios = { "
+        descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
+                 'contents': 'contents', 'businter': 'business_interruption',
+                 'occupants': 'occupants'}
+        is_first = True
+        for losslist in ['structural', 'nonstructural', 'contents', 'businter',
+                         'occupants']:
+            if data['vm_loss_'+ losslist + '_choice'] == True:
+                jobini += "%s\"%s\": [ %s ]" % (
+                    ("" if is_first else ", "),
+                    descr[losslist], data['loss_ratios_' + losslist])
+                is_first = False
+        jobini += "}\n"
+
+    jobini += "\n[Hazard outputs]\n"
+    #            ################
+    jobini += "ground_motion_fields = %s\n" % data['ground_motion_fields']
+    jobini += "hazard_curves_from_gmfs = %s\n" % data['hazard_curves_from_gmfs']
+    if data['hazard_curves_from_gmfs']:
+        jobini += "mean_hazard_curves = %s\n" % data['mean_hazard_curves']
+        if data['quantile_hazard_curves_choice']:
+            jobini += "quantile_hazard_curves = %s\n" % data['quantile_hazard_curves']
+    jobini += "hazard_maps = %s\n" % data['hazard_maps']
+    if data['hazard_maps']:
+        jobini += "poes = %s\n" % data['poes']
+    jobini += "uniform_hazard_spectra = %s\n" % data['uniform_hazard_spectra']
+
+    jobini += "\n[Risk outputs]\n"
+    #            ##############
+    jobini += "avg_losses = %s\n" % data['avg_losses']
+    jobini += "asset_loss_table = %s\n" % data['asset_loss_table']
+    if data['quantile_loss_curves_choice']:
+        jobini += "quantile_loss_curves = %s\n" % data['quantile_loss_curves']
+    if data['conditional_loss_poes_choice']:
+        jobini += "conditional_loss_poes = %s\n" % data['conditional_loss_poes']
+
+    print jobini
+
+    z.writestr('job.ini', jobini)
+    z.close()
+
+    ret['ret'] = 0
+    ret['msg'] = 'Success, download it.'
+    ret['zipname'] = os.path.basename(fname)
+    return HttpResponse(json.dumps(ret), content_type="application/json")
+
+
+def download(request):
     if request.method == 'POST':
         zipname = request.POST.get('zipname', '')
+        dest_name = request.POST.get('dest_name', 'Unknown')
         if zipname == '':
             return HttpResponseBadRequest('No zipname provided.')
         absfile = os.path.join(tempfile.gettempdir(), zipname)
@@ -639,5 +812,19 @@ def download(request):
         resp = HttpResponse(content=content,
                             content_type='application/zip')
         resp['Content-Disposition'] = (
-            'attachment; filename="oq-input.zip"')
+            'attachment; filename="' + dest_name + '.zip"')
         return resp
+
+def clean_all(request):
+    if request.method == 'POST':
+        for ipt_dir in ALLOWED_DIR:
+            fullpath = os.path.join(settings.FILE_PATH_FIELD_DIRECTORY, ipt_dir)
+            if not os.path.isdir(fullpath):
+                continue
+            shutil.rmtree(fullpath)
+            os.makedirs(fullpath)
+
+        ret = {}
+        ret['ret'] = 0
+        ret['msg'] = 'Success, reload it.'
+        return HttpResponse(json.dumps(ret), content_type="application/json")
