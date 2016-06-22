@@ -29,7 +29,8 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   <h3>Rupture information</h3>
 
   <div class="menuItems" name="rupture-file-html">
-    <label>Rupture model file:</label>
+    <label>Rupture model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake rupture model file describing the scenario event.'></span>
+:</label>
     {{ rupture_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="rupture-file-new">New</button>
   </div>
   <div class="menuItems" name="rupture-file-new" style="display: none;">
@@ -42,7 +43,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
 
   <div class="menuItems">
-    <label>Rupture mesh spacing (km):</label>
+    <label>Rupture mesh spacing (km) <span class="ui-icon ui-icon-help ipt_help" title='A parameter used to specify the mesh size used by the OpenQuake-engine to discretize the rupture. Note that the smaller the mesh spacing, the greater will be (1) the precision in the calculation and (2) the computational demand.'></span>:</label>
     <input type="text" name="rupture_mesh_spacing" value="5.0">
   </div>
 </div><!-- end div name="rupture-information" -->
@@ -62,11 +63,11 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
         <div style="clear: both;"></div>
         <div class="chbox">
           <input type="radio" name="hazard_sites" value="exposure-model">
-          <span class="inlible">Exposure model</span>
+          <span class="inlible">Exposure model <span class="ui-icon ui-icon-help ipt_help" title='In this case, the ground motion fields will be computed at each of the locations of the assets in the exposure model.'></span></span>
         </div>
         <div class="chbox">
           <input type="radio" name="hazard_sites" value="site-cond-model">
-          <span class="inlible">Read locations from site conditions</span>
+          <span class="inlible">Read locations from site conditions <span class="ui-icon ui-icon-help ipt_help" title='In this case, the ground motion fields will be computed at each of the locations specified in the site model file.'></span></span>
         </div>
       </form>
     </div>
@@ -75,12 +76,14 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 <div name="region-grid">
   <h3>Region grid</h3>
   <div class="menuItems">
-    <label>Grid spacing (km):</label>
+    <label>Grid spacing (km) <span class="ui-icon ui-icon-help ipt_help" title='A parameter used to discretize the polygon area.'></span>
+:</label>
     <input type="text" name="grid_spacing" value="5.0">
   </div>
   <div class="menuItems" style="/* background-color: green; */ ">
     <div style="display: inline-block; /* background-color: pink; */ float: left;">
-      <label>Coordinates:</label>
+      <label>Coordinates <span class="ui-icon ui-icon-help ipt_help" title='Polygon used to specify the area where the hazard will be computed.'></span>
+:</label>
     </div>
     <div style="position: relative; display: inline-block; /* background-color: red; */ text-align: center;">
       <div name="table" style=" width: 300px; height: 120px; overflow: hidden; padding: auto;"></div>
@@ -93,7 +96,8 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   <h3>List of sites</h3>
 
   <div class="menuItems" name="list-of-sites-html">
-    <label>Sites:</label>
+    <label>Sites <span class="ui-icon ui-icon-help ipt_help" title='File that contains a number of sites where the hazard will be computed.'></span>
+:</label>
     {{ list_of_sites_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="list-of-sites-new">New</button>
   </div>
   <div class="menuItems" name="list-of-sites-new" style="display: none;">
@@ -137,7 +141,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 
   <div name="fm-loss-structural">
     <div class="menuItems" name="fm-structural-html" data_gem_group="fragility-model">
-      <label>Structural fragility model:</label>
+      <label>Structural fragility model <span class="ui-icon ui-icon-help ipt_help" title='A fragility model defines a set of fragility functions, describing the probability of exceeding a set of limit, or damage, states. Note: it is necessary to define a fragility function for each building typology present in the exposure model.'></span>:</label>
       {{ fm_structural_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-structural-new">New</button>
     </div>
     <div class="menuItems" name="fm-structural-new" style="display: none;">
@@ -152,7 +156,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 
   <div name="fm-loss-nonstructural">
     <div class="menuItems" name="fm-nonstructural-html" data_gem_group="fragility-model">
-      <label>Nonstructural fragility model:</label>
+      <label>Nonstructural fragility model <span class="ui-icon ui-icon-help ipt_help" title='A fragility model defines a set of fragility functions, describing the probability of exceeding a set of limit, or damage, states. Note: it is necessary to define a fragility function for each building typology present in the exposure model.'></span>:</label>
       {{ fm_nonstructural_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-nonstructural-new">New</button>
     </div>
     <div class="menuItems" name="fm-nonstructural-new" style="display: none;">
@@ -167,7 +171,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 
   <div name="fm-loss-contents">
     <div class="menuItems" name="fm-contents-html" data_gem_group="fragility-model">
-      <label>Contents fragility model:</label>
+      <label>Contents fragility model <span class="ui-icon ui-icon-help ipt_help" title='A fragility model defines a set of fragility functions, describing the probability of exceeding a set of limit, or damage, states. Note: it is necessary to define a fragility function for each building typology present in the exposure model.'></span>:</label>
       {{ fm_contents_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-contents-new">New</button>
     </div>
     <div class="menuItems" name="fm-contents-new" style="display: none;">
@@ -182,7 +186,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 
   <div name="fm-loss-businter">
     <div class="menuItems" name="fm-businter-html" data_gem_group="fragility-model">
-      <label>Business interruption fragility model:</label>
+      <label>Business interruption fragility model <span class="ui-icon ui-icon-help ipt_help" title='A fragility model defines a set of fragility functions, describing the probability of exceeding a set of limit, or damage, states. Note: it is necessary to define a fragility function for each building typology present in the exposure model.'></span>:</label>
       {{ fm_businter_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-businter-new">New</button>
     </div>
     <div class="menuItems" name="fm-businter-new" style="display: none;">
@@ -205,7 +209,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   <!-- cons -->
   <div name="fm-loss-structural-cons">
     <div class="menuItems" name="fm-structural-cons-html" data_gem_group="fragility-cons">
-      <label>Structural consequence model:</label>
+      <label>Structural consequence model <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>:</label>
       {{ fm_structural_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-structural-cons-new">New</button>
     </div>
     <div class="menuItems" name="fm-structural-cons-new" style="display: none;">
@@ -220,7 +224,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 
   <div name="fm-loss-nonstructural-cons">
     <div class="menuItems" name="fm-nonstructural-cons-html" data_gem_group="fragility-cons">
-      <label>Nonstructural consequence model:</label>
+      <label>Nonstructural consequence model <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>:</label>
       {{ fm_nonstructural_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-nonstructural-cons-new">New</button>
     </div>
     <div class="menuItems" name="fm-nonstructural-cons-new" style="display: none;">
@@ -235,7 +239,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 
   <div name="fm-loss-contents-cons">
     <div class="menuItems" name="fm-contents-cons-html" data_gem_group="fragility-cons">
-      <label>Contents consequence model:</label>
+      <label>Contents consequence model <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>:</label>
       {{ fm_contents_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-contents-cons-new">New</button>
     </div>
     <div class="menuItems" name="fm-contents-cons-new" style="display: none;">
@@ -250,7 +254,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 
   <div name="fm-loss-businter-cons">
     <div class="menuItems" name="fm-businter-cons-html" data_gem_group="fragility-cons">
-      <label>Business interruption consequence model:</label>
+      <label>Business interruption consequence model <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>:</label>
       {{ fm_businter_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-businter-cons-new">New</button>
     </div>
     <div class="menuItems" name="fm-businter-cons-new" style="display: none;">
@@ -293,14 +297,15 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
 
   <div class="menuItems" name="hazard-gmpe_specify-gmpe" style="overflow: auto; min-height: 80px;">
-    <label>Unique GMPE:</label><br>
+    <label>Unique GMPE <span class="ui-icon ui-icon-help ipt_help" title='Name of the ground motion prediction equation to be used in the generation of the ground-motion fields.'></span>
+:</label><br>
     <select name="gmpe" style="text-align: left; width: 500px; margin-left: auto;">
     </select>
   </div>
 
   <div class="menuItems" name="hazard-gmpe_from-file">
     <div name="gsim-logic-tree-file-html" data_gem_group="gsim">
-      <label>Use GMPE logic tree file:</label>
+      <label>Use GMPE logic tree file <span class="ui-icon ui-icon-help ipt_help" title='File that contains a list of ground motion prediction equations to be used in the generation of the ground-motion fields.'></span>:</label>
       {{ gsim_logic_tree_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="gsim-logic-tree-file-new">New</button>
     </div>
     <div class="menuItems" name="gsim-logic-tree-file-new" style="margin-right: 0px; display: none;">
@@ -316,7 +321,8 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   <div class="menuItems" name="hazard-imt_specify-imt">
     <div> <!-- calculation parameters -->
       <div style="min-height: 50px; overflow: auto;">
-        <label>Specify IMT:</label>
+        <label>Specify IMT <span class="ui-icon ui-icon-help ipt_help" title='Set of intensity measure types for which the ground-motion fields should be generated.'></span>
+:</label>
         <select name="imt" multiple="multiple" style="width: 300px; margin-left: auto; text-align: initial;">
           <option value="PGA" selected="selected">PGA</option>
           <option value="SA(0.3)">SA(0.3)</option>
@@ -339,7 +345,8 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   <div class="menuItems">
     <table style="width: 100%; margin: auto;">
       <tr><td style="text-align: left;">
-          <label>Ground Motion Correlation:</label>
+          <label>Ground Motion Correlation <span class="ui-icon ui-icon-help ipt_help" title='Spatial correlation model to be used for the generation of ground-motion fields.'></span>
+:</label>
         </td><td style="text-align: right;">
           <select name="ground-motion-correlation">
             <option value="" selected="selected">None</option>
@@ -347,17 +354,17 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
           </select>
       </td></tr>
       <tr><td style="text-align: left;">
-          <label>Level of truncation <span class="ui-icon ui-icon-help ipt_help" title="The level of truncation of the Gaussian distribution of the logarithm of ground motion used in the calculation of hazard"></span>:</label>
+          <label>Level of truncation <span class="ui-icon ui-icon-help ipt_help" title='The level of truncation of the Gaussian distribution of the logarithm of ground-motion used in the calculation of hazard.'></span>:</label>
         </td><td style="text-align: right;">
           <input type="text" name="truncation_level" value="0.0">
       </td></tr>
       <tr><td style="text-align: left;">
-          <label>Maximum source-to-site distance (km):</label>
+          <label>Maximum source-to-site distance (km) <span class="ui-icon ui-icon-help ipt_help" title='The distance within which sources will contribute to the computation of the hazard.'></span>:</label>
         </td><td style="text-align: right;">
           <input type="text" name="maximum_distance" value="100.0">
       </td></tr>
       <tr><td style="text-align: left;">
-          <label>Number of ground motion fields:</label>
+          <label>Number of ground motion fields <span class="ui-icon ui-icon-help ipt_help" title='Number of ground-motion fields to be generated.'></span>:</label>
         </td><td style="text-align: right;">
           <input type="text" name="number_of_ground_motion_fields" value="1">
       </td></tr>

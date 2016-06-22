@@ -1,7 +1,7 @@
 <h3>Exposure model</h3>
 
 <div class="menuItems" name="exposure-model-html" data_gem_group="exposure-model">
-  <label>Exposure:</label>
+  <label>Exposure <span class="ui-icon ui-icon-help ipt_help" title='File that contains the exposure model.'></span>:</label>
   {{ exposure_model_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="exposure-model-new">New</button>
 </div>
 <div class="menuItems" name="exposure-model-new" style="display: none;">
@@ -20,7 +20,7 @@
 
   <div class="menuItems" name="region-constraint">
     <div style="display: inline-block; float: left;">
-      <label>Region constraint:</label>
+      <label>Region constraint <span class="ui-icon ui-icon-help ipt_help" title='Region that defines the polygon that will be used for filtering the assets from the exposure model. Assets outside of this region will not be considered in the risk calculations.'></span>:</label>
     </div>
     <div style="position: relative; display: inline-block; text-align: center;">
       <div name="region-constr" style=" width: 300px; height: 120px; overflow: hidden; padding: auto;"></div>
@@ -35,7 +35,7 @@
   </div>
 
   <div class="menuItems" name="asset-hazard-distance">
-    <label>Asset hazard distance:</label>
+    <label>Asset hazard distance <span class="ui-icon ui-icon-help ipt_help" title='This parameter indicates the maximum allowable distance between an asset and the closest hazard input. Hazard inputs can include hazard curves or ground motion intensity values.'></span>:</label>
     <input type="text" name="asset_hazard_distance" value="5.0">
   </div>
 </div>
