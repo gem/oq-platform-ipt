@@ -471,7 +471,7 @@ def upload(request, **kwargs):
                 return HttpResponse(json.dumps(ret), content_type="application/json");
 
     ret['ret'] = 2;
-    ret['ret_msg'] = 'Please provide the xml file.'
+    ret['ret_msg'] = 'Please provide the file.'
 
     return HttpResponse(json.dumps(ret), content_type="application/json");
 
