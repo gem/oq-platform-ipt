@@ -1213,15 +1213,6 @@ $(document).ready(function () {
                 $target.css('display', 'none');
             }
 
-            // inter-sections constraint IF loss-ratios THEN risk_outputs::loss-maps block is enabled
-            var $target = $(cf_obj['e_b'].pfx + ' div[name="risk-outputs"] div[name="loss-maps"]');
-            if ($(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked')) {
-                $target.css('display', '');
-            }
-            else {
-                $target.css('display', 'none');
-            }
-
             var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
             for (var lossidx in losslist) {
                 var losstype = losslist[lossidx];
@@ -1694,11 +1685,12 @@ $(document).ready(function () {
                 }
             }
 
-            obj.loss_ratios_choice = $(
-                cf_obj['e_b'].pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked');
+            obj.conditional_loss_poes_choice = $(
+                pfx + ' input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked');
+
+            if ((!obj.loss_ratios_choice) && obj.conditional_loss_poes_choice) {
+                ret.str += "To include 'Loss maps' you must enable 'Loss ratios' in 'Risk calculation' section.\n";           }
             if (obj.loss_ratios_choice) {
-                obj.conditional_loss_poes_choice = $(
-                    pfx + ' input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked');
                 if (obj.conditional_loss_poes_choice) {
                     obj.conditional_loss_poes = $(pfx + ' input[type="text"][name="conditional_loss_poes"]').val();
 
