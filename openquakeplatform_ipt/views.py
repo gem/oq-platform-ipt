@@ -146,18 +146,80 @@ def sendback_nrml(request):
         return resp
 
 
-
 class FileUpload(forms.Form):
     file_upload = forms.FileField()
 
 
+class FilePathFieldByUser(forms.ChoiceField):
+    def __init__(self, basepath, userid, subdir, app_name, match=None, recursive=False, allow_files=True,
+                 allow_folders=False, required=True, widget=None, label=None,
+                 initial=None, help_text=None, *args, **kwargs):
+        self.basepath, self.match, self.recursive = basepath, match, recursive
+        self.subdir = subdir
+        self.userid = str(userid)
+        self.app_name = app_name
+        self.allow_files, self.allow_folders = allow_files, allow_folders
+        super(FilePathFieldByUser, self).__init__(choices=(), required=required,
+            widget=widget, label=label, initial=initial, help_text=help_text,
+            *args, **kwargs)
+
+        if self.required:
+            self.choices = []
+        else:
+            self.choices = [("", "---------")]
+
+        if self.match is not None:
+            self.match_re = re.compile(self.match)
+
+        normalized_path = os.path.normpath(
+            os.path.join(self.basepath, self.userid, self.app_name, self.subdir))
+        allowed_path = os.path.join(self.basepath, self.userid, self.app_name)
+        if not normalized_path.startswith(allowed_path):
+            raise LookupError('Unauthorized path: "%s"' % normalized_path)
+
+        if recursive:
+            for root, dirs, files in sorted(os.walk(normalized_path)):
+                if self.allow_files:
+                    for f in files:
+                        if self.match is None or self.match_re.search(f):
+                            filename = os.path.basename(f)
+                            self.choices.append((filename, filename))
+                            # f = os.path.join(root, f)
+                            # self.choices.append((f, f.replace(os.path.join(self.basepath, self.userid, path), "", 1)))
+                if self.allow_folders:
+                    for f in dirs:
+                        if f == '__pycache__':
+                            continue
+                        if self.match is None or self.match_re.search(f):
+                            f = os.path.join(root, f)
+                            filename = os.path.basename(f)
+                            self.choices.append((filename, filename))
+                            # self.choices.append((f, f.replace(os.path.join(self.basepath, self.userid, path), "", 1)))
+        else:
+            try:
+                for f in sorted(os.listdir(normalized_path)):
+                    if f == '__pycache__':
+                        continue
+                    full_file = os.path.normpath(os.path.join(normalized_path, f))
+                    if (((self.allow_files and os.path.isfile(full_file)) or
+                        (self.allow_folders and os.path.isdir(full_file))) and
+                        (self.match is None or self.match_re.search(f))):
+                        self.choices.append((f, f))
+                        # self.choices.append((full_file, f))
+            except OSError:
+                pass
+
+        self.widget.choices = self.choices
+
 def filehtml_create(suffix, userid, dirnam=None, match=".*\.xml"):
     if dirnam == None:
         dirnam = suffix
-    dirnam = os.path.join(str(userid), dirnam)
     class FileHtml(forms.Form):
-        file_html = forms.FilePathField(
-            path=os.path.join(settings.FILE_PATH_FIELD_DIRECTORY, dirnam),
+        file_html = FilePathFieldByUser(
+            basepath=settings.FILE_PATH_FIELD_DIRECTORY,
+            userid=userid,
+            subdir=dirnam,
+            app_name='ipt',  # FIXME: where should I get the app_name?
             match=match, recursive=True)
     fh = FileHtml()
     fh.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
@@ -165,7 +227,10 @@ def filehtml_create(suffix, userid, dirnam=None, match=".*\.xml"):
     return fh
 
 def view(request, **kwargs):
-    userid = request.user.id
+    try:
+        userid = str(request.user.id)
+    except:
+        userid = ''
     gmpe = list(gsim.get_available_gsims())
 
     rupture_file_html = filehtml_create('rupture_file', userid=userid)
@@ -285,22 +350,22 @@ def view(request, **kwargs):
 
 
 def upload(request, **kwargs):
-    ret = {};
+    ret = {}
 
     print "UPLOAD"
     if 'target' not in kwargs:
-        ret['ret'] = 3;
+        ret['ret'] = 3
         ret['ret_msg'] = 'Malformed request.'
-        return HttpResponse(json.dumps(ret), content_type="application/json");
+        return HttpResponse(json.dumps(ret), content_type="application/json")
 
     target = kwargs['target']
     if target not in ['rupture_file', 'list_of_sites', 'exposure_model',
                       'site_model', 'site_conditions', 'imt', 'fravul_model',
                       'fragility_model', 'fragility_cons',
                       'vulnerability_model']:
-        ret['ret'] = 4;
-        ret['ret_msg'] = 'Unknown target "' + target + '".'
-        return HttpResponse(json.dumps(ret), content_type="application/json");
+        ret['ret'] = 4
+        ret['ret_msg'] = 'Unknown target "%s".' % target
+        return HttpResponse(json.dumps(ret), content_type="application/json")
 
     if request.is_ajax():
         if request.method == 'POST':
@@ -314,27 +379,61 @@ def upload(request, **kwargs):
 
             if form.is_valid():
                 if request.FILES['file_upload'].name.endswith('.' + exten):
-                    bname = os.path.join(settings.FILE_PATH_FIELD_DIRECTORY,
-                                         str(request.user.id),
-                                         target)
-                    f = file(os.path.join(bname, request.FILES['file_upload'].name), "w")
+                    try:
+                        userid = str(request.user.id)
+                    except:
+                        userid = ''
+                    app_name = 'ipt'  # FIXME: where should I get the app_name?
+                    user_dir = os.path.join(
+                        settings.FILE_PATH_FIELD_DIRECTORY, userid, app_name)
+                    bname = os.path.join(user_dir, target)
+                    # check if the directory exists (or create it)
+                    if not os.path.exists(bname):
+                        os.makedirs(bname)
+                    full_path = os.path.join(bname, request.FILES['file_upload'].name)
+                    overwrite_existing_files = request.POST.get('overwrite_existing_files', True)
+                    if not overwrite_existing_files:
+                        modified_path = full_path
+                        n = 0
+                        while os.path.isfile(modified_path):
+                            n += 1
+                            f_name, f_ext = os.path.splitext(full_path)
+                            modified_path = '%s_%s%s' % (f_name, n, f_ext)
+                        full_path = modified_path
+                    if not os.path.normpath(full_path).startswith(user_dir):
+                        ret['ret'] = 5
+                        ret['ret_msg'] = 'Not authorized to write the file.'
+                        return HttpResponse(json.dumps(ret), content_type="application/json")
+                    # f = file(os.path.join(bname, request.FILES['file_upload'].name), "w")
+                    f = file(full_path, "w")
                     f.write(request.FILES['file_upload'].read())
                     f.close()
 
-                    suffix = os.path.join(str(request.user.id), target)
+                    suffix = target
                     match = ".*\." + exten
                     class FileHtml(forms.Form):
-                        file_html = forms.FilePathField(path=os.path.join(settings.FILE_PATH_FIELD_DIRECTORY, suffix), match=match, recursive=True)
+                        file_html = FilePathFieldByUser(
+                            basepath=settings.FILE_PATH_FIELD_DIRECTORY,
+                            userid=userid,
+                            subdir=suffix,
+                            app_name=app_name,
+                            match=match,
+                            recursive=True)
 
                     fileslist = FileHtml()
                     fileslist.fields['file_html'].choices.insert(0, ('', u'- - - - -'))
                     fileslist.fields['file_html'].widget.choices.insert(0, ('', u'- - - - -'))
 
-                    # import pdb ; pdb.set_trace()
                     ret['ret'] = 0;
-                    ret['selected'] = os.path.join(bname, request.FILES['file_upload'].name)
+                    # ret['selected'] = os.path.join(bname, request.FILES['file_upload'].name)
+                    ret['selected'] = full_path
                     ret['items'] = fileslist.fields['file_html'].choices
-                    ret['ret_msg'] = 'File ' + str(request.FILES['file_upload']) + ' uploaded successfully.';
+                    orig_file_name = str(request.FILES['file_upload'])
+                    new_file_name = os.path.basename(full_path)
+                    changed_msg = ''
+                    if orig_file_name != new_file_name:
+                        changed_msg = '(Renamed into %s)' % new_file_name
+                    ret['ret_msg'] = 'File ' + orig_file_name + ' uploaded successfully.' + changed_msg;
                 else:
                     ret['ret'] = 1;
                     ret['ret_msg'] = 'File uploaded isn\'t an ' + exten.upper() + ' file.';

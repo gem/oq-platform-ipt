@@ -273,7 +273,9 @@ $(document).ready(function () {
                     for (var i = 0 ; i < old_sel.length ; i++) {
                         $($sel[i]).val(old_sel[i]);
                     }
-                    $(cf_obj.shpfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(data.selected);
+                    // get file name from full path
+                    var selected = data.selected.replace(/^.*[\\\/]/, '');
+                    $(cf_obj.shpfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(selected);
                 }
                 $(cf_obj.shpfx + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
                 $(cf_obj.shpfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
