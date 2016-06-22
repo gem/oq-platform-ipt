@@ -1715,5 +1715,7 @@ $(document).ready(function () {
     cf_obj['e_b'].getData = event_based_getData;
 
     event_based_manager();
+
+    $("span.ipt_help").tooltip();
 });
 

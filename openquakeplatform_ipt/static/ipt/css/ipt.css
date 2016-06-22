@@ -188,16 +188,5 @@ span.ipt_help {
     display: inline-block;
     vertical-align: text-bottom;
     border: 1px solid #a0a0a0;
-    background-color: #f7f7f9;";
+    background-color: #f7f7f9;
 }
-
-.ui-tooltip {
-/*    padding: 10px 20px;
-    color: white;
-    border-radius: 20px;
-    font: bold 14px "Helvetica Neue", Sans-Serif;
-    text-transform: uppercase;
-    box-shadow: 0 0 7px black;
-*/
-    background-color: white;
-  }
