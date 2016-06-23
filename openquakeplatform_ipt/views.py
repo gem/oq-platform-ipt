@@ -228,9 +228,14 @@ def filehtml_create(
     if (dirnam not in ALLOWED_DIR):
         raise KeyError("dirnam (%s) not in allowed list" % dirnam)
 
-    fullpath = os.path.join(settings.FILE_PATH_FIELD_DIRECTORY, dirnam)
-    if not os.path.isdir(fullpath):
-        os.makedirs(fullpath)
+    app_name = 'ipt'  # FIXME: where should we get it?
+    user_allowed_path = os.path.join(
+        settings.FILE_PATH_FIELD_DIRECTORY, userid, app_name)
+    normalized_path = get_full_path(dirnam, userid)
+    if not normalized_path.startswith(user_allowed_path):
+        raise LookupError('Unauthorized path: "%s"' % normalized_path)
+    if not os.path.isdir(normalized_path):
+        os.makedirs(normalized_path)
 
     class FileHtml(forms.Form):
         file_html = FilePathFieldByUser(
@@ -835,12 +840,21 @@ def download(request):
 
 def clean_all(request):
     if request.method == 'POST':
+        try:
+            userid = str(request.user.id)
+        except:
+            userid = ''
+        app_name = 'ipt'  # FIXME: where should we get it?
+        user_allowed_path = os.path.join(
+            settings.FILE_PATH_FIELD_DIRECTORY, userid, app_name)
         for ipt_dir in ALLOWED_DIR:
-            fullpath = os.path.join(settings.FILE_PATH_FIELD_DIRECTORY, ipt_dir)
-            if not os.path.isdir(fullpath):
+            normalized_path = get_full_path(ipt_dir, userid)
+            if not normalized_path.startswith(user_allowed_path):
+                raise LookupError('Unauthorized path: "%s"' % normalized_path)
+            if not os.path.isdir(normalized_path):
                 continue
-            shutil.rmtree(fullpath)
-            os.makedirs(fullpath)
+            shutil.rmtree(normalized_path)
+            os.makedirs(normalized_path)
 
         ret = {}
         ret['ret'] = 0
