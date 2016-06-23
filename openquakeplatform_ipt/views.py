@@ -191,7 +191,8 @@ class FilePathFieldByUser(forms.ChoiceField):
                     for f in files:
                         if self.match is None or self.match_re.search(f):
                             filename = os.path.basename(f)
-                            self.choices.append((filename, filename))
+                            subdir_and_name = os.path.join(subdir, filename)
+                            self.choices.append((subdir_and_name, filename))
                             # f = os.path.join(root, f)
                             # self.choices.append((f, f.replace(os.path.join(self.basepath, self.userid, path), "", 1)))
                 if self.allow_folders:
@@ -201,7 +202,8 @@ class FilePathFieldByUser(forms.ChoiceField):
                         if self.match is None or self.match_re.search(f):
                             f = os.path.join(root, f)
                             filename = os.path.basename(f)
-                            self.choices.append((filename, filename))
+                            subdir_and_name = os.path.join(subdir, filename)
+                            self.choices.append((subdir_and_name, filename))
                             # self.choices.append((f, f.replace(os.path.join(self.basepath, self.userid, path), "", 1)))
         else:
             try:
@@ -475,13 +477,19 @@ def upload(request, **kwargs):
 
     return HttpResponse(json.dumps(ret), content_type="application/json");
 
+def get_full_path(subdir_and_filename, userid):
+    app_name = 'ipt'  # FIXME: get it from somewhere else?
+    return os.path.normpath(os.path.join(settings.FILE_PATH_FIELD_DIRECTORY,
+                            userid,
+                            app_name,
+                            subdir_and_filename))
 
-def exposure_model_prep_sect(data, z, is_regcons):
+def exposure_model_prep_sect(data, z, is_regcons, userid):
     jobini = "\n[Exposure model]\n"
     #           ################
 
     jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
-    z.write(data['exposure_model'], os.path.basename(data['exposure_model']))
+    z.write(get_full_path(data['exposure_model'], userid), os.path.basename(data['exposure_model']))
     if is_regcons:
         if data['exposure_model_regcons_choice'] == True:
             is_first = True
@@ -500,7 +508,7 @@ def exposure_model_prep_sect(data, z, is_regcons):
     return jobini
 
 
-def vulnerability_model_prep_sect(data, z):
+def vulnerability_model_prep_sect(data, z, userid):
     jobini = "\n[Vulnerability model]\n"
     #            #####################
     descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
@@ -511,7 +519,7 @@ def vulnerability_model_prep_sect(data, z):
         if data['vm_loss_'+ losslist + '_choice'] == True:
             jobini += "%s_vulnerability_file = %s\n" % (
                 descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
-            z.write(data['vm_loss_' + losslist],
+            z.write(get_full_path(data['vm_loss_' + losslist], userid),
                     os.path.basename(data['vm_loss_' + losslist]))
 
     jobini += "insured_losses = %s\n" % (
@@ -523,13 +531,13 @@ def vulnerability_model_prep_sect(data, z):
     return jobini
 
 
-def site_conditions_prep_sect(data, z):
+def site_conditions_prep_sect(data, z, userid):
     jobini = "\n[Site conditions]\n"
     #           #################
 
     if data['site_conditions_choice'] == 'from-file':
         jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
-        z.write(data['site_model_file'], os.path.basename(data['site_model_file']))
+        z.write(get_full_path(data['site_model_file'], userid), os.path.basename(data['site_model_file']))
     elif data['site_conditions_choice'] == 'uniform-param':
         jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
         jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
@@ -545,6 +553,11 @@ def scenario_prepare(request, **kwargs):
         ret['ret'] = 1
         ret['msg'] = 'Malformed request.'
         return HttpResponse(json.dumps(ret), content_type="application/json")
+
+    try:
+        userid = str(request.user.id)
+    except:
+        userid = ''
 
     data = json.loads(request.POST.get('data'))
 
@@ -574,7 +587,7 @@ def scenario_prepare(request, **kwargs):
         #            #####################
 
         jobini += "rupture_model_file = %s\n" % os.path.basename(data['rupture_model_file'])
-        z.write(data['rupture_model_file'], os.path.basename(data['rupture_model_file']))
+        z.write(get_full_path(data['rupture_model_file'], userid), os.path.basename(data['rupture_model_file']))
 
         jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
 
@@ -595,7 +608,7 @@ def scenario_prepare(request, **kwargs):
             jobini += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
             jobini += "sites = %s\n" % os.path.basename(data['list_of_sites'])
-            z.write(data['list_of_sites'], os.path.basename(data['list_of_sites']))
+            z.write(get_full_path(data['list_of_sites'], userid), os.path.basename(data['list_of_sites']))
         elif data['hazard_sites_choice'] == 'exposure-model':
             pass
         elif data['hazard_sites_choice'] == 'site-cond-model':
@@ -610,7 +623,7 @@ def scenario_prepare(request, **kwargs):
 
     if ((data['hazard'] == 'hazard' and data['hazard_sites_choice'] == 'exposure-model')
         or data['risk'] != None):
-        jobini += exposure_model_prep_sect(data, z, (data['risk'] != None))
+        jobini += exposure_model_prep_sect(data, z, (data['risk'] != None), userid)
 
     if data['risk'] == 'damage':
         jobini += "\n[Fragility model]\n"
@@ -622,17 +635,17 @@ def scenario_prepare(request, **kwargs):
             if data['fm_loss_'+ losslist + '_choice'] == True:
                 jobini += "%s_fragility_file = %s\n" % (
                     descr[losslist], os.path.basename(data['fm_loss_' + losslist]))
-                z.write(data['fm_loss_' + losslist], os.path.basename(data['fm_loss_' + losslist]))
+                z.write(get_full_path(data['fm_loss_' + losslist], userid), os.path.basename(data['fm_loss_' + losslist]))
                 if with_cons == True:
                     jobini += "%s_consequence_file = %s\n" % (
                         descr[losslist], os.path.basename(data['fm_loss_' + losslist + '_cons']))
-                    z.write(data['fm_loss_' + losslist + '_cons'],
+                    z.write(get_full_path(data['fm_loss_' + losslist + '_cons'], userid),
                             os.path.basename(data['fm_loss_' + losslist + '_cons']))
     elif data['risk'] == 'losses':
-        jobini += vulnerability_model_prep_sect(data, z)
+        jobini += vulnerability_model_prep_sect(data, z, userid)
 
     if data['hazard'] == 'hazard':
-        jobini += site_conditions_prep_sect(data, z)
+        jobini += site_conditions_prep_sect(data, z, userid)
 
     if data['hazard'] == 'hazard':
         jobini += "\n[Calculation parameters]\n"
@@ -642,7 +655,7 @@ def scenario_prepare(request, **kwargs):
             jobini += "gsim = %s\n" % data['gsim'][0]
         elif data['gmpe_choice'] == 'from-file':
             jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(data['fravul_model_file'])
-            z.write(data['fravul_model_file'], os.path.basename(data['fravul_model_file']))
+            z.write(get_full_path(data['fravul_model_file'], userid), os.path.basename(data['fravul_model_file']))
 
         if data['risk'] == None:
             jobini += "intensity_measure_types = "
@@ -686,6 +699,11 @@ def event_based_prepare(request, **kwargs):
         ret['msg'] = 'Malformed request.'
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
+    try:
+        userid = str(request.user.id)
+    except:
+        userid = ''
+
     data = json.loads(request.POST.get('data'))
 
     (fd, fname) = tempfile.mkstemp(suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
@@ -701,23 +719,23 @@ def event_based_prepare(request, **kwargs):
     jobini += "random_seed = 113\n"
 
     # Exposure model
-    jobini += exposure_model_prep_sect(data, z, True)
+    jobini += exposure_model_prep_sect(data, z, True, userid)
 
     # Vulnerability model
-    jobini += vulnerability_model_prep_sect(data, z)
+    jobini += vulnerability_model_prep_sect(data, z, userid)
 
     # Hazard model
     jobini += "source_model_logic_tree_file = %s\n" % os.path.basename(
         data['source_model_logic_tree_file'])
-    z.write(data['source_model_logic_tree_file'],
+    z.write(get_full_path(data['source_model_logic_tree_file'], userid),
             os.path.basename(data['source_model_logic_tree_file']))
 
     for source_model_name in data['source_model_file']:
-        z.write(source_model_name, os.path.basename(source_model_name))
+        z.write(get_full_path(source_model_name, userid), os.path.basename(source_model_name))
 
     jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(
         data['gsim_logic_tree_file'])
-    z.write(data['gsim_logic_tree_file'],
+    z.write(get_full_path(data['gsim_logic_tree_file'], userid),
             os.path.basename(data['gsim_logic_tree_file']))
 
     jobini += "\n[Hazard model]\n"
@@ -731,7 +749,7 @@ def event_based_prepare(request, **kwargs):
                    data['area_source_discretization'])
 
     # Site conditions
-    jobini += site_conditions_prep_sect(data, z)
+    jobini += site_conditions_prep_sect(data, z, userid)
 
     jobini += "\n[Hazard calculation]\n"
     #            ####################
