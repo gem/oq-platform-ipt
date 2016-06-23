@@ -222,16 +222,15 @@ class FilePathFieldByUser(forms.ChoiceField):
         self.widget.choices = self.choices
 
 def filehtml_create(
-        suffix, userid, dirnam=None, match=".*\.xml", is_multiple=False):
+        suffix, userid, app_name, dirnam=None, match=".*\.xml", is_multiple=False):
     if dirnam == None:
         dirnam = suffix
     if (dirnam not in ALLOWED_DIR):
         raise KeyError("dirnam (%s) not in allowed list" % dirnam)
 
-    app_name = 'ipt'  # FIXME: where should we get it?
     user_allowed_path = os.path.join(
         settings.FILE_PATH_FIELD_DIRECTORY, userid, app_name)
-    normalized_path = get_full_path(dirnam, userid)
+    normalized_path = get_full_path(dirnam, userid, app_name)
     if not normalized_path.startswith(user_allowed_path):
         raise LookupError('Unauthorized path: "%s"' % normalized_path)
     if not os.path.isdir(normalized_path):
@@ -242,7 +241,7 @@ def filehtml_create(
             basepath=settings.FILE_PATH_FIELD_DIRECTORY,
             userid=userid,
             subdir=dirnam,
-            app_name='ipt',  # FIXME: where should I get the app_name?
+            app_name=app_name,
             match=match,
             recursive=True,
             required=is_multiple,
@@ -256,80 +255,84 @@ def view(request, **kwargs):
         userid = str(request.user.id)
     except:
         userid = ''
+    app_name = request.resolver_match.app_name
     gmpe = list(gsim.get_available_gsims())
 
-    rupture_file_html = filehtml_create('rupture_file', userid=userid)
+    rupture_file_html = filehtml_create(
+        'rupture_file', userid, app_name)
     rupture_file_upload = FileUpload()
 
     list_of_sites_html = filehtml_create(
-        'list_of_sites', userid=userid, match=".*\.csv")
+        'list_of_sites', userid, app_name, match=".*\.csv")
     list_of_sites_upload = FileUpload()
 
-    exposure_model_html = filehtml_create('exposure_model', userid=userid)
+    exposure_model_html = filehtml_create(
+        'exposure_model', userid, app_name)
     exposure_model_upload = FileUpload()
 
-    site_model_html = filehtml_create('site_model', userid=userid)
+    site_model_html = filehtml_create(
+        'site_model', userid, app_name)
     site_model_upload = FileUpload()
 
     fm_structural_html = filehtml_create(
-        'fm_structural', dirnam='fragility_model', userid=userid)
+        'fm_structural', userid, app_name, dirnam='fragility_model')
     fm_structural_upload = FileUpload()
     fm_nonstructural_html = filehtml_create(
-        'fm_nonstructural', dirnam='fragility_model', userid=userid)
+        'fm_nonstructural', userid, app_name, dirnam='fragility_model')
     fm_nonstructural_upload = FileUpload()
     fm_contents_html = filehtml_create(
-        'fm_contents', dirnam='fragility_model', userid=userid)
+        'fm_contents', userid, app_name, dirnam='fragility_model')
     fm_contents_upload = FileUpload()
     fm_businter_html = filehtml_create(
-        'fm_businter', dirnam='fragility_model', userid=userid)
+        'fm_businter', userid, app_name, dirnam='fragility_model')
     fm_businter_upload = FileUpload()
 
     fm_structural_cons_html = filehtml_create(
-        'fragility_cons', userid=userid)
+        'fragility_cons', userid, app_name)
     fm_structural_cons_upload = FileUpload()
     fm_nonstructural_cons_html = filehtml_create(
-        'fragility_cons', userid=userid)
+        'fragility_cons', userid, app_name)
     fm_nonstructural_cons_upload = FileUpload()
     fm_contents_cons_html = filehtml_create(
-        'fragility_cons', userid=userid)
+        'fragility_cons', userid, app_name)
     fm_contents_cons_upload = FileUpload()
     fm_businter_cons_html = filehtml_create(
-        'fragility_cons', userid=userid)
+        'fragility_cons', userid, app_name)
     fm_businter_cons_upload = FileUpload()
 
     vm_structural_html = filehtml_create(
-        'vm_structural', dirnam='vulnerability_model', userid=userid)
+        'vm_structural', userid, app_name, dirnam='vulnerability_model')
     vm_structural_upload = FileUpload()
     vm_nonstructural_html = filehtml_create(
-        'vm_nonstructural', dirnam='vulnerability_model', userid=userid)
+        'vm_nonstructural', userid, app_name, dirnam='vulnerability_model')
     vm_nonstructural_upload = FileUpload()
     vm_contents_html = filehtml_create(
-        'vm_contents', dirnam='vulnerability_model', userid=userid)
+        'vm_contents', userid, app_name, dirnam='vulnerability_model')
     vm_contents_upload = FileUpload()
     vm_businter_html = filehtml_create(
-        'vm_businter', dirnam='vulnerability_model', userid=userid)
+        'vm_businter', userid, app_name, dirnam='vulnerability_model')
     vm_businter_upload = FileUpload()
     vm_occupants_html = filehtml_create(
-        'vm_occupants', dirnam='vulnerability_model', userid=userid)
+        'vm_occupants', userid, app_name, dirnam='vulnerability_model')
     vm_occupants_upload = FileUpload()
 
     site_conditions_html = filehtml_create(
-        'site_conditions', userid=userid)
+        'site_conditions', userid, app_name)
     site_conditions_upload = FileUpload()
 
-    imt_html = filehtml_create('imt', userid=userid)
+    imt_html = filehtml_create('imt', userid, app_name)
     imt_upload = FileUpload()
 
     gsim_logic_tree_file_html = filehtml_create(
-        'gsim_logic_tree_file', userid=userid)
+        'gsim_logic_tree_file', userid, app_name)
     gsim_logic_tree_file_upload = FileUpload()
 
     source_model_logic_tree_file_html = filehtml_create(
-        'source_model_logic_tree_file', userid=userid)
+        'source_model_logic_tree_file', userid, app_name)
     source_model_logic_tree_file_upload = FileUpload()
 
     source_model_file_html = filehtml_create(
-        'source_model_file', userid=userid, is_multiple=True)
+        'source_model_file', userid, app_name, is_multiple=True)
     source_model_file_upload = FileUpload()
 
     return render_to_response(
@@ -421,7 +424,7 @@ def upload(request, **kwargs):
                         userid = str(request.user.id)
                     except:
                         userid = ''
-                    app_name = 'ipt'  # FIXME: where should I get the app_name?
+                    app_name = request.resolver_match.app_name
                     user_dir = os.path.join(
                         settings.FILE_PATH_FIELD_DIRECTORY, userid, app_name)
                     bname = os.path.join(user_dir, target)
@@ -482,19 +485,18 @@ def upload(request, **kwargs):
 
     return HttpResponse(json.dumps(ret), content_type="application/json");
 
-def get_full_path(subdir_and_filename, userid):
-    app_name = 'ipt'  # FIXME: get it from somewhere else?
+def get_full_path(subdir_and_filename, userid, app_name):
     return os.path.normpath(os.path.join(settings.FILE_PATH_FIELD_DIRECTORY,
                             userid,
                             app_name,
                             subdir_and_filename))
 
-def exposure_model_prep_sect(data, z, is_regcons, userid):
+def exposure_model_prep_sect(data, z, is_regcons, userid, app_name):
     jobini = "\n[Exposure model]\n"
     #           ################
 
     jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
-    z.write(get_full_path(data['exposure_model'], userid), os.path.basename(data['exposure_model']))
+    z.write(get_full_path(data['exposure_model'], userid, app_name), os.path.basename(data['exposure_model']))
     if is_regcons:
         if data['exposure_model_regcons_choice'] == True:
             is_first = True
@@ -513,7 +515,7 @@ def exposure_model_prep_sect(data, z, is_regcons, userid):
     return jobini
 
 
-def vulnerability_model_prep_sect(data, z, userid):
+def vulnerability_model_prep_sect(data, z, userid, app_name):
     jobini = "\n[Vulnerability model]\n"
     #            #####################
     descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
@@ -524,7 +526,7 @@ def vulnerability_model_prep_sect(data, z, userid):
         if data['vm_loss_'+ losslist + '_choice'] == True:
             jobini += "%s_vulnerability_file = %s\n" % (
                 descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
-            z.write(get_full_path(data['vm_loss_' + losslist], userid),
+            z.write(get_full_path(data['vm_loss_' + losslist], userid, app_name),
                     os.path.basename(data['vm_loss_' + losslist]))
 
     jobini += "insured_losses = %s\n" % (
@@ -536,13 +538,13 @@ def vulnerability_model_prep_sect(data, z, userid):
     return jobini
 
 
-def site_conditions_prep_sect(data, z, userid):
+def site_conditions_prep_sect(data, z, userid, app_name):
     jobini = "\n[Site conditions]\n"
     #           #################
 
     if data['site_conditions_choice'] == 'from-file':
         jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
-        z.write(get_full_path(data['site_model_file'], userid), os.path.basename(data['site_model_file']))
+        z.write(get_full_path(data['site_model_file'], userid, app_name), os.path.basename(data['site_model_file']))
     elif data['site_conditions_choice'] == 'uniform-param':
         jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
         jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
@@ -563,6 +565,8 @@ def scenario_prepare(request, **kwargs):
         userid = str(request.user.id)
     except:
         userid = ''
+
+    app_name = request.resolver_match.app_name
 
     data = json.loads(request.POST.get('data'))
 
@@ -592,7 +596,7 @@ def scenario_prepare(request, **kwargs):
         #            #####################
 
         jobini += "rupture_model_file = %s\n" % os.path.basename(data['rupture_model_file'])
-        z.write(get_full_path(data['rupture_model_file'], userid), os.path.basename(data['rupture_model_file']))
+        z.write(get_full_path(data['rupture_model_file'], userid, app_name), os.path.basename(data['rupture_model_file']))
 
         jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
 
@@ -613,7 +617,7 @@ def scenario_prepare(request, **kwargs):
             jobini += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
             jobini += "sites = %s\n" % os.path.basename(data['list_of_sites'])
-            z.write(get_full_path(data['list_of_sites'], userid), os.path.basename(data['list_of_sites']))
+            z.write(get_full_path(data['list_of_sites'], userid, app_name), os.path.basename(data['list_of_sites']))
         elif data['hazard_sites_choice'] == 'exposure-model':
             pass
         elif data['hazard_sites_choice'] == 'site-cond-model':
@@ -628,7 +632,7 @@ def scenario_prepare(request, **kwargs):
 
     if ((data['hazard'] == 'hazard' and data['hazard_sites_choice'] == 'exposure-model')
         or data['risk'] != None):
-        jobini += exposure_model_prep_sect(data, z, (data['risk'] != None), userid)
+        jobini += exposure_model_prep_sect(data, z, (data['risk'] != None), userid, app_name)
 
     if data['risk'] == 'damage':
         jobini += "\n[Fragility model]\n"
@@ -640,17 +644,17 @@ def scenario_prepare(request, **kwargs):
             if data['fm_loss_'+ losslist + '_choice'] == True:
                 jobini += "%s_fragility_file = %s\n" % (
                     descr[losslist], os.path.basename(data['fm_loss_' + losslist]))
-                z.write(get_full_path(data['fm_loss_' + losslist], userid), os.path.basename(data['fm_loss_' + losslist]))
+                z.write(get_full_path(data['fm_loss_' + losslist], userid, app_name), os.path.basename(data['fm_loss_' + losslist]))
                 if with_cons == True:
                     jobini += "%s_consequence_file = %s\n" % (
                         descr[losslist], os.path.basename(data['fm_loss_' + losslist + '_cons']))
-                    z.write(get_full_path(data['fm_loss_' + losslist + '_cons'], userid),
+                    z.write(get_full_path(data['fm_loss_' + losslist + '_cons'], userid, app_name),
                             os.path.basename(data['fm_loss_' + losslist + '_cons']))
     elif data['risk'] == 'losses':
-        jobini += vulnerability_model_prep_sect(data, z, userid)
+        jobini += vulnerability_model_prep_sect(data, z, userid, app_name)
 
     if data['hazard'] == 'hazard':
-        jobini += site_conditions_prep_sect(data, z, userid)
+        jobini += site_conditions_prep_sect(data, z, userid, app_name)
 
     if data['hazard'] == 'hazard':
         jobini += "\n[Calculation parameters]\n"
@@ -660,7 +664,7 @@ def scenario_prepare(request, **kwargs):
             jobini += "gsim = %s\n" % data['gsim'][0]
         elif data['gmpe_choice'] == 'from-file':
             jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(data['fravul_model_file'])
-            z.write(get_full_path(data['fravul_model_file'], userid), os.path.basename(data['fravul_model_file']))
+            z.write(get_full_path(data['fravul_model_file'], userid, app_name), os.path.basename(data['fravul_model_file']))
 
         if data['risk'] == None:
             jobini += "intensity_measure_types = "
@@ -709,6 +713,8 @@ def event_based_prepare(request, **kwargs):
     except:
         userid = ''
 
+    app_name = request.resolver_match.app_name
+
     data = json.loads(request.POST.get('data'))
 
     (fd, fname) = tempfile.mkstemp(suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
@@ -724,23 +730,23 @@ def event_based_prepare(request, **kwargs):
     jobini += "random_seed = 113\n"
 
     # Exposure model
-    jobini += exposure_model_prep_sect(data, z, True, userid)
+    jobini += exposure_model_prep_sect(data, z, True, userid, app_name)
 
     # Vulnerability model
-    jobini += vulnerability_model_prep_sect(data, z, userid)
+    jobini += vulnerability_model_prep_sect(data, z, userid, app_name)
 
     # Hazard model
     jobini += "source_model_logic_tree_file = %s\n" % os.path.basename(
         data['source_model_logic_tree_file'])
-    z.write(get_full_path(data['source_model_logic_tree_file'], userid),
+    z.write(get_full_path(data['source_model_logic_tree_file'], userid, app_name),
             os.path.basename(data['source_model_logic_tree_file']))
 
     for source_model_name in data['source_model_file']:
-        z.write(get_full_path(source_model_name, userid), os.path.basename(source_model_name))
+        z.write(get_full_path(source_model_name, userid, app_name), os.path.basename(source_model_name))
 
     jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(
         data['gsim_logic_tree_file'])
-    z.write(get_full_path(data['gsim_logic_tree_file'], userid),
+    z.write(get_full_path(data['gsim_logic_tree_file'], userid, app_name),
             os.path.basename(data['gsim_logic_tree_file']))
 
     jobini += "\n[Hazard model]\n"
@@ -754,7 +760,7 @@ def event_based_prepare(request, **kwargs):
                    data['area_source_discretization'])
 
     # Site conditions
-    jobini += site_conditions_prep_sect(data, z, userid)
+    jobini += site_conditions_prep_sect(data, z, userid, app_name)
 
     jobini += "\n[Hazard calculation]\n"
     #            ####################
@@ -844,11 +850,11 @@ def clean_all(request):
             userid = str(request.user.id)
         except:
             userid = ''
-        app_name = 'ipt'  # FIXME: where should we get it?
+        app_name = request.resolver_match.app_name
         user_allowed_path = os.path.join(
             settings.FILE_PATH_FIELD_DIRECTORY, userid, app_name)
         for ipt_dir in ALLOWED_DIR:
-            normalized_path = get_full_path(ipt_dir, userid)
+            normalized_path = get_full_path(ipt_dir, userid, app_name)
             if not normalized_path.startswith(user_allowed_path):
                 raise LookupError('Unauthorized path: "%s"' % normalized_path)
             if not os.path.isdir(normalized_path):
