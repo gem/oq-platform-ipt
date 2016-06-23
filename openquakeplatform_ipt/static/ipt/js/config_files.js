@@ -956,6 +956,8 @@ $(document).ready(function () {
         }
 
         obj.description = $(cf_obj['scen'].pfx + ' textarea[name="description"]').val();
+        obj.description = obj.description.replace(
+            new RegExp("\n", "g"), " ").replace(new RegExp("\r", "g"), " ").trim();
         if (obj.description == '') {
             ret.str += "'Description' field is empty.\n";
         }
