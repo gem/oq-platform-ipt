@@ -29,7 +29,7 @@ from django.http import (HttpResponse,
                          HttpResponseRedirect
 )
 from django.template import RequestContext
-from openquakeplatform_server import settings
+from django.conf import settings
 from openquake.hazardlib import gsim
 from django import forms
 from models import ServerSide
