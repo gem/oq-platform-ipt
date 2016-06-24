@@ -463,27 +463,27 @@ def upload(request, **kwargs):
 
                     fileslist = FileHtml()
 
-                    ret['ret'] = 0;
-                    # ret['selected'] = os.path.join(bname, request.FILES['file_upload'].name)
-                    ret['selected'] = full_path
+                    ret['ret'] = 0
                     ret['items'] = fileslist.fields['file_html'].choices
                     orig_file_name = str(request.FILES['file_upload'])
                     new_file_name = os.path.basename(full_path)
+                    ret['selected'] = new_file_name
                     changed_msg = ''
                     if orig_file_name != new_file_name:
                         changed_msg = '(Renamed into %s)' % new_file_name
-                    ret['ret_msg'] = 'File ' + orig_file_name + ' uploaded successfully.' + changed_msg;
+                    ret['ret_msg'] = 'File ' + orig_file_name + ' uploaded successfully.' + changed_msg
                 else:
-                    ret['ret'] = 1;
-                    ret['ret_msg'] = 'File uploaded isn\'t an ' + exten.upper() + ' file.';
+                    ret['ret'] = 1
+                    ret['ret_msg'] = 'File uploaded isn\'t an ' + exten.upper() + ' file.'
 
                 # Redirect to the document list after POST
-                return HttpResponse(json.dumps(ret), content_type="application/json");
+                return HttpResponse(json.dumps(ret), content_type="application/json")
 
-    ret['ret'] = 2;
+    ret['ret'] = 2
     ret['ret_msg'] = 'Please provide the file.'
 
-    return HttpResponse(json.dumps(ret), content_type="application/json");
+    return HttpResponse(json.dumps(ret), content_type="application/json")
+
 
 def get_full_path(subdir_and_filename, userid, app_name):
     return os.path.normpath(os.path.join(settings.FILE_PATH_FIELD_DIRECTORY,

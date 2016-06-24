@@ -342,9 +342,7 @@ $(document).ready(function () {
                     for (var i = 0 ; i < old_sel.length ; i++) {
                         $($sel[i]).val(old_sel[i]);
                     }
-                    // get file name from full path
-                    var selected = data.selected.replace(/^.*[\\\/]/, '');
-                    $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(selected);
+                    $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(data.selected);
                 }
                 $(cf_obj[scope].pfx + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
                 $(cf_obj[scope].pfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
