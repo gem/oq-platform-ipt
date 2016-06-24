@@ -297,7 +297,6 @@ def view(request, **kwargs):
 def upload(request, **kwargs):
     ret = {};
 
-    print "UPLOAD"
     if 'target' not in kwargs:
         ret['ret'] = 3;
         ret['ret_msg'] = 'Malformed request.'
@@ -309,11 +308,8 @@ def upload(request, **kwargs):
         ret['ret_msg'] = 'Unknown target "' + target + '".'
         return HttpResponse(json.dumps(ret), content_type="application/json");
 
-    print "UPLOAD2"
     if request.is_ajax():
-        print "UPLOAD3"
         if request.method == 'POST':
-            print "UPLOAD4"
             class FileUpload(forms.Form):
                 file_upload = forms.FileField(allow_empty_file=True)
             form =  FileUpload(request.POST, request.FILES)
@@ -322,11 +318,8 @@ def upload(request, **kwargs):
             else:
                 exten = "xml"
 
-            print "UPLOAD5"
             if form.is_valid():
-                print "UPLOAD6"
                 if request.FILES['file_upload'].name.endswith('.' + exten):
-                    print "UPLOAD7"
                     bname = settings.FILE_PATH_FIELD_DIRECTORY + target + '/'
                     f = file(bname + request.FILES['file_upload'].name, "w")
                     f.write(request.FILES['file_upload'].read())
