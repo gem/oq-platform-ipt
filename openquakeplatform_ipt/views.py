@@ -250,11 +250,12 @@ def filehtml_create(
 
     return fh
 
+
 def view(request, **kwargs):
-    try:
-        userid = str(request.user.id)
-    except:
+    if getattr(settings, 'STANDALONE', False):
         userid = ''
+    else:
+        userid = str(request.user.id)
     app_name = request.resolver_match.app_name
     gmpe = list(gsim.get_available_gsims())
 
@@ -420,10 +421,10 @@ def upload(request, **kwargs):
 
             if form.is_valid():
                 if request.FILES['file_upload'].name.endswith('.' + exten):
-                    try:
-                        userid = str(request.user.id)
-                    except:
+                    if getattr(settings, 'STANDALONE', False):
                         userid = ''
+                    else:
+                        userid = str(request.user.id)
                     app_name = request.resolver_match.app_name
                     user_dir = os.path.join(
                         settings.FILE_PATH_FIELD_DIRECTORY, userid, app_name)
@@ -561,10 +562,10 @@ def scenario_prepare(request, **kwargs):
         ret['msg'] = 'Malformed request.'
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
-    try:
-        userid = str(request.user.id)
-    except:
+    if getattr(settings, 'STANDALONE', False):
         userid = ''
+    else:
+        userid = str(request.user.id)
 
     app_name = request.resolver_match.app_name
 
@@ -708,10 +709,10 @@ def event_based_prepare(request, **kwargs):
         ret['msg'] = 'Malformed request.'
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
-    try:
-        userid = str(request.user.id)
-    except:
+    if getattr(settings, 'STANDALONE', False):
         userid = ''
+    else:
+        userid = str(request.user.id)
 
     app_name = request.resolver_match.app_name
 
@@ -844,12 +845,13 @@ def download(request):
             'attachment; filename="' + dest_name + '.zip"')
         return resp
 
+
 def clean_all(request):
     if request.method == 'POST':
-        try:
-            userid = str(request.user.id)
-        except:
+        if getattr(settings, 'STANDALONE', False):
             userid = ''
+        else:
+            userid = str(request.user.id)
         app_name = request.resolver_match.app_name
         user_allowed_path = os.path.join(
             settings.FILE_PATH_FIELD_DIRECTORY, userid, app_name)
