@@ -1,3 +1,4 @@
+
 # Copyright (c) 2012-2015, GEM Foundation.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -155,7 +156,7 @@ def sendback_nrml(request):
 
 
 class FileUpload(forms.Form):
-    file_upload = forms.FileField()
+    file_upload = forms.FileField(allow_empty_file=True)
 
 
 class FilePathFieldByUser(forms.ChoiceField):
@@ -397,7 +398,6 @@ def view(request, **kwargs):
 def upload(request, **kwargs):
     ret = {}
 
-    print "UPLOAD"
     if 'target' not in kwargs:
         ret['ret'] = 3
         ret['ret_msg'] = 'Malformed request.'
@@ -412,7 +412,7 @@ def upload(request, **kwargs):
     if request.is_ajax():
         if request.method == 'POST':
             class FileUpload(forms.Form):
-                file_upload = forms.FileField()
+                file_upload = forms.FileField(allow_empty_file=True)
             form =  FileUpload(request.POST, request.FILES)
             if target in ['list_of_sites']:
                 exten = "csv"
