@@ -468,7 +468,7 @@ def upload(request, **kwargs):
                     ret['items'] = fileslist.fields['file_html'].choices
                     orig_file_name = str(request.FILES['file_upload'])
                     new_file_name = os.path.basename(full_path)
-                    ret['selected'] = new_file_name
+                    ret['selected'] = os.path.join(target, new_file_name)
                     changed_msg = ''
                     if orig_file_name != new_file_name:
                         changed_msg = '(Renamed into %s)' % new_file_name
