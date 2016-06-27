@@ -345,8 +345,6 @@ $(document).ready(function () {
                     for (var i = 0 ; i < old_sel.length ; i++) {
                         $($sel[i]).val(old_sel[i]);
                     }
-                    console.log('zorro');
-                    console.log(data.selected);
                     $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(data.selected);
                 }
                 $(cf_obj[scope].pfx + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
