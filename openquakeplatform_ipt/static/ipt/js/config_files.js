@@ -336,6 +336,9 @@ $(document).ready(function () {
                     }
 
                     $sel.empty();
+                    if (! $sel.is("[multiple]")) {
+                        $("<option />", {value: '', text: '---------'}).appendTo($sel);
+                    }
                     for (var i = 0 ; i < data.items.length ; i++) {
                         $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
                     }
