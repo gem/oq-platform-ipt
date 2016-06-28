@@ -16,7 +16,6 @@
 
 import os
 import re
-import time
 import json
 import zipfile
 import tempfile
@@ -27,13 +26,11 @@ from lxml import etree
 from django.shortcuts import render_to_response
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
-                         HttpResponseRedirect
-)
+                         )
 from django.template import RequestContext
 from django.conf import settings
 from openquake.hazardlib import gsim
 from django import forms
-from models import ServerSide
 
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
@@ -160,7 +157,8 @@ class FileUpload(forms.Form):
 
 
 class FilePathFieldByUser(forms.ChoiceField):
-    def __init__(self, basepath, userid, subdir, namespace, match=None, recursive=False, allow_files=True,
+    def __init__(self, basepath, userid, subdir, namespace, match=None,
+                 recursive=False, allow_files=True,
                  allow_folders=False, required=True, widget=None, label=None,
                  initial=None, help_text=None, *args, **kwargs):
         self.basepath, self.match, self.recursive = basepath, match, recursive
@@ -168,9 +166,9 @@ class FilePathFieldByUser(forms.ChoiceField):
         self.userid = str(userid)
         self.namespace = namespace
         self.allow_files, self.allow_folders = allow_files, allow_folders
-        super(FilePathFieldByUser, self).__init__(choices=(), required=required,
-            widget=widget, label=label, initial=initial, help_text=help_text,
-            *args, **kwargs)
+        super(FilePathFieldByUser, self).__init__(
+            choices=(), required=required, widget=widget, label=label,
+            initial=initial, help_text=help_text, *args, **kwargs)
 
         if self.required:
             self.choices = []
@@ -180,8 +178,8 @@ class FilePathFieldByUser(forms.ChoiceField):
         if self.match is not None:
             self.match_re = re.compile(self.match)
 
-        normalized_path = os.path.normpath(
-            os.path.join(self.basepath, self.userid, self.namespace, self.subdir))
+        normalized_path = os.path.normpath(os.path.join(
+            self.basepath, self.userid, self.namespace, self.subdir))
         allowed_path = os.path.join(self.basepath, self.userid, self.namespace)
         if not normalized_path.startswith(allowed_path):
             raise LookupError('Unauthorized path: "%s"' % normalized_path)
@@ -194,8 +192,6 @@ class FilePathFieldByUser(forms.ChoiceField):
                             filename = os.path.basename(f)
                             subdir_and_name = os.path.join(subdir, filename)
                             self.choices.append((subdir_and_name, filename))
-                            # f = os.path.join(root, f)
-                            # self.choices.append((f, f.replace(os.path.join(self.basepath, self.userid, path), "", 1)))
                 if self.allow_folders:
                     for f in dirs:
                         if f == '__pycache__':
@@ -205,26 +201,27 @@ class FilePathFieldByUser(forms.ChoiceField):
                             filename = os.path.basename(f)
                             subdir_and_name = os.path.join(subdir, filename)
                             self.choices.append((subdir_and_name, filename))
-                            # self.choices.append((f, f.replace(os.path.join(self.basepath, self.userid, path), "", 1)))
         else:
             try:
                 for f in sorted(os.listdir(normalized_path)):
                     if f == '__pycache__':
                         continue
-                    full_file = os.path.normpath(os.path.join(normalized_path, f))
+                    full_file = os.path.normpath(
+                        os.path.join(normalized_path, f))
                     if (((self.allow_files and os.path.isfile(full_file)) or
-                        (self.allow_folders and os.path.isdir(full_file))) and
-                        (self.match is None or self.match_re.search(f))):
+                            (self.allow_folders and os.path.isdir(full_file)))
+                            and
+                            (self.match is None or self.match_re.search(f))):
                         self.choices.append((f, f))
-                        # self.choices.append((full_file, f))
             except OSError:
                 pass
 
         self.widget.choices = self.choices
 
-def filehtml_create(
-        suffix, userid, namespace, dirnam=None, match=".*\.xml", is_multiple=False):
-    if dirnam == None:
+
+def filehtml_create(suffix, userid, namespace, dirnam=None,
+                    match=".*\.xml", is_multiple=False):
+    if dirnam is None:
         dirnam = suffix
     if (dirnam not in ALLOWED_DIR):
         raise KeyError("dirnam (%s) not in allowed list" % dirnam)
@@ -405,15 +402,15 @@ def upload(request, **kwargs):
 
     target = kwargs['target']
     if target not in ALLOWED_DIR:
-        ret['ret'] = 4;
+        ret['ret'] = 4
         ret['ret_msg'] = 'Unknown target "' + target + '".'
-        return HttpResponse(json.dumps(ret), content_type="application/json");
+        return HttpResponse(json.dumps(ret), content_type="application/json")
 
     if request.is_ajax():
         if request.method == 'POST':
             class FileUpload(forms.Form):
                 file_upload = forms.FileField(allow_empty_file=True)
-            form =  FileUpload(request.POST, request.FILES)
+            form = FileUpload(request.POST, request.FILES)
             if target in ['list_of_sites']:
                 exten = "csv"
             else:
@@ -426,15 +423,16 @@ def upload(request, **kwargs):
                     else:
                         userid = str(request.user.id)
                     namespace = request.resolver_match.namespace
-                    import pdb ; pdb.set_trace()
                     user_dir = os.path.join(
                         settings.FILE_PATH_FIELD_DIRECTORY, userid, namespace)
                     bname = os.path.join(user_dir, target)
                     # check if the directory exists (or create it)
                     if not os.path.exists(bname):
                         os.makedirs(bname)
-                    full_path = os.path.join(bname, request.FILES['file_upload'].name)
-                    overwrite_existing_files = request.POST.get('overwrite_existing_files', True)
+                    full_path = os.path.join(
+                        bname, request.FILES['file_upload'].name)
+                    overwrite_existing_files = request.POST.get(
+                        'overwrite_existing_files', True)
                     if not overwrite_existing_files:
                         modified_path = full_path
                         n = 0
@@ -446,14 +444,15 @@ def upload(request, **kwargs):
                     if not os.path.normpath(full_path).startswith(user_dir):
                         ret['ret'] = 5
                         ret['ret_msg'] = 'Not authorized to write the file.'
-                        return HttpResponse(json.dumps(ret), content_type="application/json")
-                    # f = file(os.path.join(bname, request.FILES['file_upload'].name), "w")
+                        return HttpResponse(json.dumps(ret),
+                                            content_type="application/json")
                     f = file(full_path, "w")
                     f.write(request.FILES['file_upload'].read())
                     f.close()
 
                     suffix = target
                     match = ".*\." + exten
+
                     class FileHtml(forms.Form):
                         file_html = FilePathFieldByUser(
                             basepath=settings.FILE_PATH_FIELD_DIRECTORY,
@@ -472,14 +471,17 @@ def upload(request, **kwargs):
                     ret['selected'] = os.path.join(target, new_file_name)
                     changed_msg = ''
                     if orig_file_name != new_file_name:
-                        changed_msg = '(Renamed into %s)' % new_file_name
-                    ret['ret_msg'] = 'File ' + orig_file_name + ' uploaded successfully.' + changed_msg
+                        changed_msg = ' (Renamed into %s)' % new_file_name
+                    ret['ret_msg'] = ('File %s uploaded successfully.%s' %
+                                      (orig_file_name, changed_msg))
                 else:
                     ret['ret'] = 1
-                    ret['ret_msg'] = 'File uploaded isn\'t an ' + exten.upper() + ' file.'
+                    ret['ret_msg'] = ("File uploaded isn't an %s file." %
+                                      exten.upper())
 
                 # Redirect to the document list after POST
-                return HttpResponse(json.dumps(ret), content_type="application/json")
+                return HttpResponse(json.dumps(ret),
+                                    content_type="application/json")
 
     ret['ret'] = 2
     ret['ret_msg'] = 'Please provide the file.'
@@ -493,14 +495,16 @@ def get_full_path(subdir_and_filename, userid, namespace):
                             namespace,
                             subdir_and_filename))
 
+
 def exposure_model_prep_sect(data, z, is_regcons, userid, namespace):
     jobini = "\n[Exposure model]\n"
     #           ################
 
     jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
-    z.write(get_full_path(data['exposure_model'], userid, namespace), os.path.basename(data['exposure_model']))
+    z.write(get_full_path(data['exposure_model'], userid, namespace),
+            os.path.basename(data['exposure_model']))
     if is_regcons:
-        if data['exposure_model_regcons_choice'] == True:
+        if data['exposure_model_regcons_choice'] is True:
             is_first = True
             jobini += "region_constraint = "
             for el in data['exposure_model_regcons_coords_data']:
@@ -511,8 +515,9 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace):
                 jobini += "%s %s" % (el[0], el[1])
             jobini += "\n"
 
-        if data['asset_hazard_distance_choice'] == True:
-            jobini += "asset_hazard_distance = %s\n" % data['asset_hazard_distance']
+        if data['asset_hazard_distance_choice'] is True:
+            jobini += ("asset_hazard_distance = %s\n" %
+                       data['asset_hazard_distance'])
 
     return jobini
 
@@ -525,11 +530,12 @@ def vulnerability_model_prep_sect(data, z, userid, namespace):
              'occupants': 'occupants'}
     for losslist in ['structural', 'nonstructural', 'contents', 'businter',
                      'occupants']:
-        if data['vm_loss_'+ losslist + '_choice'] == True:
+        if data['vm_loss_%s_choice' % losslist] is True:
             jobini += "%s_vulnerability_file = %s\n" % (
                 descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
-            z.write(get_full_path(data['vm_loss_' + losslist], userid, namespace),
-                    os.path.basename(data['vm_loss_' + losslist]))
+            z.write(get_full_path(data['vm_loss_%s' % losslist],
+                                  userid, namespace),
+                    os.path.basename(data['vm_loss_%s' % losslist]))
 
     jobini += "insured_losses = %s\n" % (
         "True" if data['insured_losses'] else "False")
@@ -545,18 +551,22 @@ def site_conditions_prep_sect(data, z, userid, namespace):
     #           #################
 
     if data['site_conditions_choice'] == 'from-file':
-        jobini += "site_model_file = %s\n" % os.path.basename(data['site_model_file'])
-        z.write(get_full_path(data['site_model_file'], userid, namespace), os.path.basename(data['site_model_file']))
+        jobini += ("site_model_file = %s\n" %
+                   os.path.basename(data['site_model_file']))
+        z.write(get_full_path(data['site_model_file'], userid, namespace),
+                os.path.basename(data['site_model_file']))
     elif data['site_conditions_choice'] == 'uniform-param':
         jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
         jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
-        jobini += "reference_depth_to_2pt5km_per_sec = %s\n" % data['reference_depth_to_2pt5km_per_sec']
-        jobini += "reference_depth_to_1pt0km_per_sec = %s\n" % data['reference_depth_to_1pt0km_per_sec']
+        jobini += ("reference_depth_to_2pt5km_per_sec = %s\n" %
+                   data['reference_depth_to_2pt5km_per_sec'])
+        jobini += ("reference_depth_to_1pt0km_per_sec = %s\n" %
+                   data['reference_depth_to_1pt0km_per_sec'])
     return jobini
 
 
 def scenario_prepare(request, **kwargs):
-    ret = {};
+    ret = {}
 
     if request.POST.get('data', '') == '':
         ret['ret'] = 1
@@ -572,11 +582,12 @@ def scenario_prepare(request, **kwargs):
 
     data = json.loads(request.POST.get('data'))
 
-    (fd, fname) = tempfile.mkstemp(suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
+    (fd, fname) = tempfile.mkstemp(
+        suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
     fzip = os.fdopen(fd, 'w')
     z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
-    jobini =  "# Generated automatically with IPT at %s\n" % formatdate()
+    jobini = "# Generated automatically with IPT at %s\n" % formatdate()
     jobini += "[general]\n"
     jobini += "description = %s\n" % data['description']
 
@@ -597,8 +608,10 @@ def scenario_prepare(request, **kwargs):
         jobini += "\n[Rupture information]\n"
         #            #####################
 
-        jobini += "rupture_model_file = %s\n" % os.path.basename(data['rupture_model_file'])
-        z.write(get_full_path(data['rupture_model_file'], userid, namespace), os.path.basename(data['rupture_model_file']))
+        jobini += ("rupture_model_file = %s\n" %
+                   os.path.basename(data['rupture_model_file']))
+        z.write(get_full_path(data['rupture_model_file'], userid, namespace),
+                os.path.basename(data['rupture_model_file']))
 
         jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
 
@@ -619,22 +632,28 @@ def scenario_prepare(request, **kwargs):
             jobini += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
             jobini += "sites = %s\n" % os.path.basename(data['list_of_sites'])
-            z.write(get_full_path(data['list_of_sites'], userid, namespace), os.path.basename(data['list_of_sites']))
+            z.write(get_full_path(data['list_of_sites'], userid, namespace),
+                    os.path.basename(data['list_of_sites']))
         elif data['hazard_sites_choice'] == 'exposure-model':
             pass
         elif data['hazard_sites_choice'] == 'site-cond-model':
             if data['site_conditions_choice'] != 'from-file':
                 ret['ret'] = 4
-                ret['msg'] = 'Input hazard sites choices mismatch method to specify site conditions.'
-                return HttpResponse(json.dumps(ret), content_type="application/json")
+                ret['msg'] = ('Input hazard sites choices mismatch method to '
+                              'specify site conditions.')
+                return HttpResponse(json.dumps(ret),
+                                    content_type="application/json")
         else:
             ret['ret'] = 4
             ret['msg'] = 'Unknown hazard_sites_choice.'
-            return HttpResponse(json.dumps(ret), content_type="application/json")
+            return HttpResponse(json.dumps(ret),
+                                content_type="application/json")
 
-    if ((data['hazard'] == 'hazard' and data['hazard_sites_choice'] == 'exposure-model')
-        or data['risk'] != None):
-        jobini += exposure_model_prep_sect(data, z, (data['risk'] != None), userid, namespace)
+    if ((data['hazard'] == 'hazard' and
+         data['hazard_sites_choice'] == 'exposure-model')
+            or data['risk'] is not None):
+        jobini += exposure_model_prep_sect(
+            data, z, (data['risk'] is not None), userid, namespace)
 
     if data['risk'] == 'damage':
         jobini += "\n[Fragility model]\n"
@@ -642,16 +661,23 @@ def scenario_prepare(request, **kwargs):
         descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
                  'contents': 'contents', 'businter': 'business_interruption'}
         with_cons = data['fm_loss_show_cons_choice']
-        for losslist in ['structural', 'nonstructural', 'contents', 'businter']:
-            if data['fm_loss_'+ losslist + '_choice'] == True:
+        for losslist in ['structural', 'nonstructural',
+                         'contents', 'businter']:
+            if data['fm_loss_%s_choice' % losslist] is True:
                 jobini += "%s_fragility_file = %s\n" % (
-                    descr[losslist], os.path.basename(data['fm_loss_' + losslist]))
-                z.write(get_full_path(data['fm_loss_' + losslist], userid, namespace), os.path.basename(data['fm_loss_' + losslist]))
-                if with_cons == True:
+                    descr[losslist],
+                    os.path.basename(data['fm_loss_' + losslist]))
+                z.write(get_full_path(data['fm_loss_' + losslist],
+                                      userid, namespace),
+                        os.path.basename(data['fm_loss_' + losslist]))
+                if with_cons is True:
                     jobini += "%s_consequence_file = %s\n" % (
-                        descr[losslist], os.path.basename(data['fm_loss_' + losslist + '_cons']))
-                    z.write(get_full_path(data['fm_loss_' + losslist + '_cons'], userid, namespace),
-                            os.path.basename(data['fm_loss_' + losslist + '_cons']))
+                        descr[losslist],
+                        os.path.basename(data['fm_loss_%s_cons' % losslist]))
+                    z.write(get_full_path(data['fm_loss_%s_cons' % losslist],
+                                          userid, namespace),
+                            os.path.basename(
+                                data['fm_loss_%s_cons' % losslist]))
     elif data['risk'] == 'losses':
         jobini += vulnerability_model_prep_sect(data, z, userid, namespace)
 
@@ -665,10 +691,13 @@ def scenario_prepare(request, **kwargs):
         if data['gmpe_choice'] == 'specify-gmpe':
             jobini += "gsim = %s\n" % data['gsim'][0]
         elif data['gmpe_choice'] == 'from-file':
-            jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(data['fravul_model_file'])
-            z.write(get_full_path(data['fravul_model_file'], userid, namespace), os.path.basename(data['fravul_model_file']))
+            jobini += ("gsim_logic_tree_file = %s\n" %
+                       os.path.basename(data['fravul_model_file']))
+            z.write(get_full_path(data['fravul_model_file'],
+                                  userid, namespace),
+                    os.path.basename(data['fravul_model_file']))
 
-        if data['risk'] == None:
+        if data['risk'] is None:
             jobini += "intensity_measure_types = "
             is_first = True
             for imt in data['intensity_measure_types']:
@@ -683,13 +712,16 @@ def scenario_prepare(request, **kwargs):
                 jobini += data['custom_imt']
             jobini += "\n"
 
-        jobini += "ground_motion_correlation_model = %s\n" % data['ground_motion_correlation_model']
+        jobini += ("ground_motion_correlation_model = %s\n" %
+                   data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
-            jobini += "ground_motion_correlation_params = {\"vs30_clustering\": False}\n"
+            jobini += ('ground_motion_correlation_params = '
+                       '{"vs30_clustering": False}\n')
 
         jobini += "truncation_level = %s\n" % data['truncation_level']
         jobini += "maximum_distance = %s\n" % data['maximum_distance']
-        jobini += "number_of_ground_motion_fields = %s\n" % data['number_of_ground_motion_fields']
+        jobini += ("number_of_ground_motion_fields = %s\n" %
+                   data['number_of_ground_motion_fields'])
 
     print jobini
 
@@ -703,7 +735,7 @@ def scenario_prepare(request, **kwargs):
 
 
 def event_based_prepare(request, **kwargs):
-    ret = {};
+    ret = {}
 
     if request.POST.get('data', '') == '':
         ret['ret'] = 1
@@ -719,11 +751,12 @@ def event_based_prepare(request, **kwargs):
 
     data = json.loads(request.POST.get('data'))
 
-    (fd, fname) = tempfile.mkstemp(suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
+    (fd, fname) = tempfile.mkstemp(
+        suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
     fzip = os.fdopen(fd, 'w')
     z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
-    jobini =  "# Generated automatically with IPT at %s\n" % formatdate()
+    jobini = "# Generated automatically with IPT at %s\n" % formatdate()
     jobini += "[general]\n"
     jobini += "description = %s\n" % data['description']
 
@@ -740,11 +773,13 @@ def event_based_prepare(request, **kwargs):
     # Hazard model
     jobini += "source_model_logic_tree_file = %s\n" % os.path.basename(
         data['source_model_logic_tree_file'])
-    z.write(get_full_path(data['source_model_logic_tree_file'], userid, namespace),
+    z.write(get_full_path(data['source_model_logic_tree_file'],
+                          userid, namespace),
             os.path.basename(data['source_model_logic_tree_file']))
 
     for source_model_name in data['source_model_file']:
-        z.write(get_full_path(source_model_name, userid, namespace), os.path.basename(source_model_name))
+        z.write(get_full_path(source_model_name, userid, namespace),
+                os.path.basename(source_model_name))
 
     jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(
         data['gsim_logic_tree_file'])
@@ -755,9 +790,9 @@ def event_based_prepare(request, **kwargs):
     #            ##############
     jobini += "width_of_mfd_bin = %s\n" % data['width_of_mfd_bin']
 
-    if data['rupture_mesh_spacing_choice'] == True:
+    if data['rupture_mesh_spacing_choice'] is True:
         jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
-    if data['area_source_discretization_choice'] == True:
+    if data['area_source_discretization_choice'] is True:
         jobini += ("area_source_discretization = %s\n" %
                    data['area_source_discretization'])
 
@@ -769,18 +804,24 @@ def event_based_prepare(request, **kwargs):
     jobini += "truncation_level = %s\n" % data['truncation_level']
     jobini += "maximum_distance = %s\n" % data['maximum_distance']
     jobini += "investigation_time = %s\n" % data['investigation_time']
-    jobini += "ses_per_logic_tree_path = %s\n" % data['ses_per_logic_tree_path']
-    jobini += "number_of_logic_tree_samples = %s\n" % data['number_of_logic_tree_samples']
-    jobini += "ground_motion_correlation_model = %s\n" % data['ground_motion_correlation_model']
+    jobini += ("ses_per_logic_tree_path = %s\n" %
+               data['ses_per_logic_tree_path'])
+    jobini += ("number_of_logic_tree_samples = %s\n" %
+               data['number_of_logic_tree_samples'])
+    jobini += ("ground_motion_correlation_model = %s\n" %
+               data['ground_motion_correlation_model'])
     if data['ground_motion_correlation_model'] == 'JB2009':
-        jobini += "ground_motion_correlation_params = {\"vs30_clustering\": True}"
+        jobini += ('ground_motion_correlation_params = '
+                   '{"vs30_clustering": True}')
 
     jobini += "\n[Risk calculation]\n"
     #            ##################
-    jobini += "risk_investigation_time = %s\n" % data['risk_investigation_time']
-    if data['loss_curve_resolution_choice'] == True:
-        jobini += "loss_curve_resolution = %s\n" % data['loss_curve_resolution']
-    if data['loss_ratios_choice'] == True:
+    jobini += ("risk_investigation_time = %s\n" %
+               data['risk_investigation_time'])
+    if data['loss_curve_resolution_choice'] is True:
+        jobini += ("loss_curve_resolution = %s\n" %
+                   data['loss_curve_resolution'])
+    if data['loss_ratios_choice'] is True:
         jobini += "loss_ratios = { "
         descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
                  'contents': 'contents', 'businter': 'business_interruption',
@@ -788,7 +829,7 @@ def event_based_prepare(request, **kwargs):
         is_first = True
         for losslist in ['structural', 'nonstructural', 'contents', 'businter',
                          'occupants']:
-            if data['vm_loss_'+ losslist + '_choice'] == True:
+            if data['vm_loss_%s_choice' % losslist] is True:
                 jobini += "%s\"%s\": [ %s ]" % (
                     ("" if is_first else ", "),
                     descr[losslist], data['loss_ratios_' + losslist])
@@ -798,11 +839,13 @@ def event_based_prepare(request, **kwargs):
     jobini += "\n[Hazard outputs]\n"
     #            ################
     jobini += "ground_motion_fields = %s\n" % data['ground_motion_fields']
-    jobini += "hazard_curves_from_gmfs = %s\n" % data['hazard_curves_from_gmfs']
+    jobini += ("hazard_curves_from_gmfs = %s\n" %
+               data['hazard_curves_from_gmfs'])
     if data['hazard_curves_from_gmfs']:
         jobini += "mean_hazard_curves = %s\n" % data['mean_hazard_curves']
         if data['quantile_hazard_curves_choice']:
-            jobini += "quantile_hazard_curves = %s\n" % data['quantile_hazard_curves']
+            jobini += ("quantile_hazard_curves = %s\n" %
+                       data['quantile_hazard_curves'])
     jobini += "hazard_maps = %s\n" % data['hazard_maps']
     if data['hazard_maps']:
         jobini += "poes = %s\n" % data['poes']
@@ -815,7 +858,8 @@ def event_based_prepare(request, **kwargs):
     if data['quantile_loss_curves_choice']:
         jobini += "quantile_loss_curves = %s\n" % data['quantile_loss_curves']
     if data['conditional_loss_poes_choice']:
-        jobini += "conditional_loss_poes = %s\n" % data['conditional_loss_poes']
+        jobini += ("conditional_loss_poes = %s\n" %
+                   data['conditional_loss_poes'])
 
     print jobini
 

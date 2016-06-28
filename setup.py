@@ -10,7 +10,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup(
     name='oq-platform-ipt',
     version='1.0',
-#    packages=find_packages(),
+    # packages=find_packages(),  # FIXME: is this needed?
     packages=["openquakeplatform_ipt"],
     include_package_data=True,
     license='BSD License',  # example license
