@@ -476,7 +476,7 @@ def upload(request, **kwargs):
                                       (orig_file_name, changed_msg))
                 else:
                     ret['ret'] = 1
-                    ret['ret_msg'] = ("File uploaded isn't an %s file." %
+                    ret['ret_msg'] = ('File uploaded isn\'t an %s file.' %
                                       exten.upper())
 
                 # Redirect to the document list after POST
@@ -715,8 +715,8 @@ def scenario_prepare(request, **kwargs):
         jobini += ("ground_motion_correlation_model = %s\n" %
                    data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
-            jobini += ('ground_motion_correlation_params = '
-                       '{"vs30_clustering": False}\n')
+            jobini += ("ground_motion_correlation_params = "
+                       "{\"vs30_clustering\": False}\n")
 
         jobini += "truncation_level = %s\n" % data['truncation_level']
         jobini += "maximum_distance = %s\n" % data['maximum_distance']
@@ -811,8 +811,8 @@ def event_based_prepare(request, **kwargs):
     jobini += ("ground_motion_correlation_model = %s\n" %
                data['ground_motion_correlation_model'])
     if data['ground_motion_correlation_model'] == 'JB2009':
-        jobini += ('ground_motion_correlation_params = '
-                   '{"vs30_clustering": True}')
+        jobini += ("ground_motion_correlation_params = "
+                   "{\"vs30_clustering\": True}")
 
     jobini += "\n[Risk calculation]\n"
     #            ##################
