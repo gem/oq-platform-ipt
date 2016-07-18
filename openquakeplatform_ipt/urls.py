@@ -19,7 +19,6 @@
 
 from django.conf.urls import patterns, url
 from openquakeplatform_ipt import views
-from django.views.generic import TemplateView
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -28,15 +27,14 @@ admin.autodiscover()
 
 urlpatterns = patterns(
     '',
-
     url(r'^(?P<tab_id>\d+)?$', views.view, name='home'),
-#    url(r'^upload/%$', views.ipt_upload, name='upload'),
     url(r'^upload/(?P<target>[^?]*)', views.upload, name='upload'),
-
     url(r'^valid$', views.validate_nrml, name='validate_nrml'),
     url(r'^sendback$', views.sendback_nrml, name='sendback_nrml'),
-    url(r'^prepare/scenario$', views.scenario_prepare, name='scenario_prepare'),
-    url(r'^prepare/event-based$', views.event_based_prepare, name='event_based_prepare'),
+    url(r'^prepare/scenario$',
+        views.scenario_prepare, name='scenario_prepare'),
+    url(r'^prepare/event-based$',
+        views.event_based_prepare, name='event_based_prepare'),
     url(r'^download$', views.download, name='download'),
     url(r'^clean_all$', views.clean_all, name='clean_all'),
 )
