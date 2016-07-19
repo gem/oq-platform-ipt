@@ -310,7 +310,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
     </div>
     <div class="menuItems" name="gsim-logic-tree-file-new" style="margin-right: 0px; display: none;">
       <div name="msg"><br></div>
-      <form action="upload/gsim-logic-tree-file" method="post" id="file-upload-form" name="gsim-logic-tree-file" enctype="multipart/form-data">
+      <form action="upload/gsim_logic_tree_file" method="post" id="file-upload-form" name="gsim-logic-tree-file" enctype="multipart/form-data">
         {% csrf_token %}
         {{ gsim_logic_tree_file_upload.file_upload }}
         <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
