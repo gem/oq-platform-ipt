@@ -514,8 +514,8 @@ def scenario_prepare(request, **kwargs):
         if data['gmpe_choice'] == 'specify-gmpe':
             jobini += "gsim = %s\n" % data['gsim'][0]
         elif data['gmpe_choice'] == 'from-file':
-            jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(data['fravul_model_file'])
-            z.write(data['fravul_model_file'], os.path.basename(data['fravul_model_file']))
+            jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(data['gsim_logic_tree_file'])
+            z.write(data['gsim_logic_tree_file'], os.path.basename(data['gsim_logic_tree_file']))
 
         if data['risk'] == None:
             jobini += "intensity_measure_types = "
