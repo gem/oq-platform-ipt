@@ -171,15 +171,15 @@ function ff_updateTable (funcType) {
         var $box = $('.ff_gid [name="tableDiv'+ff_obj.tbl_idx+'"]');
 
         setTimeout(function() {
-            return gem_tableHeightUpdate(tbl, $box);
+            return gem_tableHeightUpdate($box);
         }, 0);
 
         tbl.addHook('afterCreateRow', function() {
-            return gem_tableHeightUpdate(tbl, $box);
+            return gem_tableHeightUpdate($box);
         });
 
         tbl.addHook('afterRemoveRow', function() {
-            return gem_tableHeightUpdate(tbl, $box);
+            return gem_tableHeightUpdate($box);
         });
     }
 
