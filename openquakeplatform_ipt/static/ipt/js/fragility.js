@@ -343,7 +343,7 @@ $('.ff_gid #convertBtn').click(function() {
                 limitStatesXML +
                 fragilityFunction +
             '\t</fragilityModel>\n' +
-        '</nrml>';
+        '</nrml>\n';
 
     validateAndDisplayNRML(nrml, 'ff', ff_obj);
 });
