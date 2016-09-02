@@ -45,7 +45,7 @@ def make_function(func_name, tag_id, example):
 def generator():
     for name, examples in imt_examples.iteritems():
         for example in examples['exams']:
-            func_name = "%s_%d" % (name, example['exa_id'])
+            func_name = "%s_%d_test" % (name, example['exa_id'])
             test_func = make_function(func_name,
                                       examples['tag_id'], example)
 
