@@ -1,15 +1,47 @@
 #!/usr/bin/env python
 import unittest
 import os, sys
+import codecs
 
 from openquakeplatform.test import pla
 
 imt_examples = {
+    'Exposure': {
+        'tag_id': 1,
+        'exams': [
+            {'exa_id': 1, 'xpath': "//textarea[@id='textareaex']",
+             'sfx': 'xml' },
+            {'exa_id': 98, 'xpath': "//div[@id='tabs-1']//div[@id='validationErrorMsg']",
+             'sfx': 'txt' },
+            {'exa_id': 99, 'xpath': "//textarea[@id='textareaex']",
+             'sfx': 'xml' }
+        ]
+    },
+    'Fragility': {
+        'tag_id': 2,
+        'exams': [
+            {'exa_id': 1, 'xpath': "//textarea[@id='textareaff']",
+             'sfx': 'xml' },
+            {'exa_id': 99, 'xpath': "//textarea[@id='textareaff']",
+             'sfx': 'xml' }
+        ]
+    },
     'Vulnerability': {
         'tag_id': 3,
         'exams': [
-            {'exa_id': 1, 'sfx': 'xml' },
-            {'exa_id': 99, 'sfx': 'xml' }
+            {'exa_id': 1, 'xpath': "//textarea[@id='textareavf']",
+             'sfx': 'xml' },
+            {'exa_id': 99, 'xpath': "//textarea[@id='textareavf']",
+             'sfx': 'xml' }
+        ]
+    },
+    'SiteConditions': {
+        'tag_id': 4,
+        'exams': [
+            {'exa_id': 1, 'xpath': "//textarea[@id='textareasc']",
+             'sfx': 'xml' },
+            {'exa_id': 99, 'xpath': "//textarea[@id='textareasc']",
+             'sfx': 'xml' }
         ]
     }
 }
@@ -21,14 +53,18 @@ class IptExamplesTest(unittest.TestCase):
 def make_function(func_name, exp_path, tag_id, example):
     def generated(self):
         pla.get('/ipt/?tab_id=%d&example_id=%d' % (tag_id, example['exa_id']))
-        ret_tag = pla.xpath_finduniq("//textarea[@id='textareavf']")
+        ret_tag = pla.xpath_finduniq(example['xpath'], times=20)
 
         exp_filename = os.path.join(exp_path,
                                 "example_%d.%s" % (tag_id * 100 + example['exa_id'],
                                 example['sfx']))
-        with open(exp_filename, 'rb') as exp_file:
+        with codecs.open(exp_filename, 'r', 'utf-8') as exp_file:
             expected = exp_file.read()
-        self.assertEqual(ret_tag.get_attribute("value"), expected)
+
+        ret = ret_tag.get_attribute("value")
+        if ret is None:
+            ret = ret_tag.get_attribute('innerHTML')
+        self.assertEqual(ret, expected)
 
     generated.__name__ = func_name
     return generated
