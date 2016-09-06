@@ -7,7 +7,7 @@ from openquakeplatform.test import pla
 
 imt_examples = {
     'Exposure': {
-        'tag_id': 1,
+        'tab_id': 1,
         'exams': [
             {'exa_id': 1, 'xpath': "//textarea[@id='textareaex']",
              'sfx': 'xml' },
@@ -18,7 +18,7 @@ imt_examples = {
         ]
     },
     'Fragility': {
-        'tag_id': 2,
+        'tab_id': 2,
         'exams': [
             {'exa_id': 1, 'xpath': "//textarea[@id='textareaff']",
              'sfx': 'xml' },
@@ -27,7 +27,7 @@ imt_examples = {
         ]
     },
     'Vulnerability': {
-        'tag_id': 3,
+        'tab_id': 3,
         'exams': [
             {'exa_id': 1, 'xpath': "//textarea[@id='textareavf']",
              'sfx': 'xml' },
@@ -36,7 +36,7 @@ imt_examples = {
         ]
     },
     'SiteConditions': {
-        'tag_id': 4,
+        'tab_id': 4,
         'exams': [
             {'exa_id': 1, 'xpath': "//textarea[@id='textareasc']",
              'sfx': 'xml' },
@@ -50,13 +50,13 @@ imt_examples = {
 class IptExamplesTest(unittest.TestCase):
     pass
 
-def make_function(func_name, exp_path, tag_id, example):
+def make_function(func_name, exp_path, tab_id, example):
     def generated(self):
-        pla.get('/ipt/?tab_id=%d&example_id=%d' % (tag_id, example['exa_id']))
+        pla.get('/ipt/?tab_id=%d&example_id=%d' % (tab_id, example['exa_id']))
         ret_tag = pla.xpath_finduniq(example['xpath'], times=20)
 
         exp_filename = os.path.join(exp_path,
-                                "example_%d.%s" % (tag_id * 100 + example['exa_id'],
+                                "example_%d.%s" % (tab_id * 100 + example['exa_id'],
                                 example['sfx']))
         with codecs.open(exp_filename, 'r', 'utf-8') as exp_file:
             expected = exp_file.read()
@@ -76,7 +76,7 @@ def generator():
         for example in examples['exams']:
             func_name = "%s_%d_test" % (name, example['exa_id'])
             test_func = make_function(func_name, exp_path,
-                                      examples['tag_id'], example)
+                                      examples['tab_id'], example)
 
             setattr(IptExamplesTest, func_name, test_func)
 
