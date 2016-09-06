@@ -463,7 +463,7 @@ $('.ex_gid #convertBtn').click(function() {
                     asset +
                 '\t\t</assets>\n' +
             '\t</exposureModel>\n' +
-        '</nrml>';
+        '</nrml>\n';
 
     validateAndDisplayNRML(nrml, 'ex', ex_obj);
 });

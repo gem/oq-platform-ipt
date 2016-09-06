@@ -87,6 +87,7 @@ def validate_nrml(request):
         return HttpResponseBadRequest(
             'Please provide the "xml_text" parameter')
     try:
+        xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
     except etree.ParseError as exc:
         return _make_response(error_msg=exc.message.message,
@@ -136,6 +137,7 @@ def sendback_nrml(request):
     known_func_types = [
         'exposure', 'fragility', 'vulnerability', 'site']
     try:
+        xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
     except:
         return HttpResponseBadRequest(

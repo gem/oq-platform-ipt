@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nrml xmlns="http://openquake.org/xmlns/nrml/0.4">
+	<exposureModel id="ex1" category="buildings" taxonomySource="GEM taxonomy">
+		<description>The description of exposure function</description>
+		<conversions>
+			<area type="aggregated" unit="Km²" />
+			<costTypes>
+				<costType name="structural" type="per_asset" unit="GBP"/>
+				<costType name="nonstructural" type="aggregated" unit="CAD"/>
+				<costType name="contents" type="per_area" unit="AUD"/>
+				<costType name="business_interruption" type="aggregated" unit="NOK/day"/>
+			</costTypes>
+			<insuranceLimit isAbsolute="false"/>
+			<deductible isAbsolute="true"/>
+		</conversions>
+		<assets>
+			<asset id="0" number="0.04" area="0.11" taxonomy="0.03" >
+				<location lon="0.01" lat="0.02" />
+				<costs>
+					<cost type="structural" value="0.05" retrofitted="0.13" deductible="0.1" insuranceLimit="0.09"/>
+					<cost type="nonstructural" value="0.06"/>
+					<cost type="contents" value="0.07"/>
+					<cost type="business_interruption" value="0.08"/>
+				</costs>
+				<occupancies>
+					<occupancy occupants="0.12" period="night"/>
+				</occupancies>
+			</asset>
+			<asset id="1" number="1.04" area="1.11" taxonomy="1.03" >
+				<location lon="1.01" lat="1.02" />
+				<costs>
+					<cost type="structural" value="1.05" retrofitted="1.13" deductible="1.1" insuranceLimit="1.09"/>
+					<cost type="nonstructural" value="1.06"/>
+					<cost type="contents" value="1.07"/>
+					<cost type="business_interruption" value="1.08"/>
+				</costs>
+				<occupancies>
+					<occupancy occupants="1.12" period="night"/>
+				</occupancies>
+			</asset>
+		</assets>
+	</exposureModel>
+</nrml>
