@@ -16,6 +16,7 @@
 */
 
 var ex_obj = {
+    tbl_file: null,
     tbl: {},
     tbl_idx: 0,
     nrml: "",
@@ -140,6 +141,9 @@ function checkForValueInHeader(header, argument) {
 }
 
 function ex_updateTable() {
+    $('.ex_gid #table_file').val("");
+    ex_obj.tbl_file = null;
+
     // Remove any existing table, if already exists
     if ($('.ex_gid #table').handsontable('getInstance') !== undefined) {
         $('.ex_gid #table').handsontable('destroy');
@@ -236,6 +240,14 @@ function ex_updateTable() {
     ex_obj.tbl.addHook('afterRemoveRow', function() {
         return gem_tableHeightUpdate($('.ex_gid #table'));
     });
+    ex_obj.tbl.addHook('afterChange', function(changes, source) {
+        // when loadData is used, for performace reasons, changes are 'null'
+        if (changes != null || source != 'loadData') {
+            $('.ex_gid #table_file').val("");
+            ex_obj.tbl_file = null;
+        }
+    });
+
     $('.ex_gid #outputText').empty();
     $('.ex_gid #convertBtn').show();
 }
@@ -245,16 +257,20 @@ $('.ex_gid #downloadBtn').click(function() {
 });
 
 $('.ex_gid #convertBtn').click(function() {
-    // Get the values from the table
-    var data = ex_obj.tbl.getData();
-
-    // Check for null values
-    for (var i = 0; i < data.length; i++) {
-        for (var j = 0; j < data[i].length; j++) {
-            var s = data[i][j] + " ";
-            if (data[i][j] === null || data[i][j].toString().trim() == "") {
-                output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
-                return;
+    if ($('.ex_gid input#table_file')[0].files.length > 0) {
+        var data = ex_obj.tbl_file;
+    }
+    else {
+        // Get the values from the table
+        var data = ex_obj.tbl.getData();
+        // Check for null values
+        for (var i = 0; i < data.length; i++) {
+            for (var j = 0; j < data[i].length; j++) {
+                var s = data[i][j] + " ";
+                if (data[i][j] === null || data[i][j].toString().trim() == "") {
+                    output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
+                    return;
+                }
             }
         }
     }
@@ -467,6 +483,58 @@ $('.ex_gid #convertBtn').click(function() {
 
     validateAndDisplayNRML(nrml, 'ex', ex_obj);
 });
+
+function table_file_mgmt(evt)
+{
+    if (evt.target.files.length == 0)
+        return;
+
+    var file = evt.target.files[0];
+
+    if (file) {
+        var cols_n = ex_obj.tbl.countCols();
+        var reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (evt) {
+            ex_obj.tbl_file = [];
+            var rows = evt.target.result.split('\n');
+            for (var i = 0 ; i < rows.length ; i++) {
+                if (rows[i] == "") {
+                    continue;
+                }
+                ex_obj.tbl_file.push([]);
+                var cols = rows[i].split(',');
+                if (cols.length != cols_n) {
+                    // row haven't correct number of columns
+                    alert("row #" + (i+1) + " haven't correct number of columns");
+                    continue;
+                }
+
+                for (var e = 0 ; e < cols.length ; e++) {
+                    ex_obj.tbl_file[i].push(cols[e]);
+                }
+            }
+            ex_obj.tbl.alter('remove_row', 3, 10000000);
+            var data = [];
+            for (var i = 0 ; i < 3 ; i++) {
+                data.push([]);
+                for (var e = 0 ; e < cols_n ; e++) {
+                    data[i].push("");
+                }
+            }
+            ex_obj.tbl.loadData(data);
+        }
+        reader.onerror = function (evt) {
+            alert('import file failed');
+        }
+    }
+    else {
+        alert('File not found.');
+    }
+}
+
+$('.ex_gid input#table_file').on('change', table_file_mgmt);
+
 
 // tab initialization
 $(document).ready(function () {
