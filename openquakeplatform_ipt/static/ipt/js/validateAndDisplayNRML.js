@@ -29,6 +29,7 @@ function sendbackNRML(nrml, sfx)
 {
     var funcType = sfx2name(sfx);
     var $form = $('.' + sfx + '_gid #downloadForm');
+    $form.empty();
 
     $form.attr({'action': SENDBACK_URL});
     $new_input = $('<input/>');

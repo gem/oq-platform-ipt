@@ -1,4 +1,3 @@
-  <form id="downloadForm" method="post" action="sendback" enctype="multipart/form-data">
     <div class="alert alert-info" role="alert">1. Use this form to modify the table header.</div>
     <div id="form">
       <div class="menuItems">
@@ -95,7 +94,7 @@
       </div>
     </div>
     <div class="alert alert-info" role="alert">2. Copy and paste values from a spreadsheet into the table below OR upload a CSV file with the same columns number.</div>
-    <div><input type="file" id="table_file" accept="text/csv,application/csv>,csv"</div>
+    <div><input type="file" id="table_file" accept="text/csv,application/csv,csv"></div>
     <div id="table" style="height: 100px; overflow: hidden;"></div>
     <button id="new_row_add" type="button" class="btn">New Row</button><br>
     <br>
@@ -106,7 +105,6 @@
     <div id="outputDiv">
       <div id="infoMsg" class="alert alert-info" role="alert">3. Download the NRML file for use in the OpenQuake Engine.</div>
       <div id="validationErrorMsg" class="alert alert-warning" role="alert" style="display: none;">Error message</div>
-      <div id="downloadLink" style="display: none;"><button type="button" class="btn" id="downloadBtn">Download</button></div>
+      <div id="downloadLink" style="display: none;"><button type="button" class="btn" id="downloadBtn">Download</button><form id="downloadForm" method="post" action="sendback" enctype="multipart/form-data"></form></div>
       <div id="outputText" style="width:600px; margin: auto;"></div>
     </div>
-  </form>
