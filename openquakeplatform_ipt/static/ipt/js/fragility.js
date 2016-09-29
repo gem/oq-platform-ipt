@@ -89,7 +89,7 @@ function ff_updateTable (funcType) {
     $('.ff_gid #tables').append(
         '<div id="table'+ff_obj.tbl_idx+'" class="tables_gid table'+ff_obj.tbl_idx+'_id' +
             ' ffsTableDiv panel panel-default" data-gem-func-type="'+ funcType + '">' +
-          '<strong class="ffsTitle">' + format_name.toUpperCase() + '</strong><button name="destroy_table" class="destroyTable btn-danger btn">Remove Function</button><br>' +
+          '<strong class="ffsTitle">' + format_name.toUpperCase() + '</strong><button type="button" name="destroy_table" class="destroyTable btn-danger btn">Remove Function</button><br>' +
             '<div class="ffsForm" >' +
                 '<label> Id: </label>' +
                 '<input name="id" class="ffsTable" type="text"><br>' +
@@ -105,7 +105,7 @@ function ff_updateTable (funcType) {
               (funcType == 'discr' ? ' style="width: 100%; height: 100px; overflow: hidden;"' : '') +
               ' class="theTable"></div><br>' +
             (funcType == 'discr' ?
-              '<button id="new_row_add" style="clear: right; float: right; margin-top: 4px;" class="btn">Add Row</button><br>' :
+              '<button id="new_row_add" type="button" style="clear: right; float: right; margin-top: 4px;" class="btn">Add Row</button><br>' :
              '') +
            '</div>' +
          '</div>'

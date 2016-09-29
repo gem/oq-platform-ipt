@@ -506,7 +506,7 @@ function table_file_mgmt(evt)
                 var cols = rows[i].split(',');
                 if (cols.length != cols_n) {
                     // row haven't correct number of columns
-                    alert("row #" + (i+1) + " haven't correct number of columns");
+                    alert("row #" + (i+1) + " haven't correct number of columns, received: " + cols.length + " expected: " + cols_n + "\n[" + rows[i] + "]");
                     continue;
                 }
 
