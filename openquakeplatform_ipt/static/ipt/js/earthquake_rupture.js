@@ -16,6 +16,13 @@
 */
 
 var er_obj = {
+    pfx: "div.er_gid ",
+    rupture_type_manager: function(evt) {
+        var rupt_cur = $(evt.target).attr("value");
+        $(er_obj.pfx + ' div[name="rupture"] div').hide();
+        $(er_obj.pfx + ' div[name="rupture"] div[name="' + rupt_cur + '"').show();
+    },
+
     tbl: {},
     tbl_idx: 0,
     nrml: "",
@@ -284,10 +291,5 @@ $(document).ready(function () {
     /////////////////////////////////////////////////////////
     // Manage the visibility of the perArea selection menu //
     /////////////////////////////////////////////////////////
-    er_updateTable();
-    $('.er_gid #new_row_add').click(function() {
-        er_obj.tbl.alter('insert_row');
-    });
-    $('.er_gid #outputDiv').hide();
-    $('#absoluteSpinner').hide();
+    $(er_obj.pfx + ' input[name="rupture_type"]').click(er_obj.rupture_type_manager);
 });

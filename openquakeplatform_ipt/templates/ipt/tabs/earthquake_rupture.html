@@ -1,14 +1,67 @@
-    <div class="alert alert-info" role="alert">1. Copy and paste values from a spreadsheet into the table below.</div>
-    <div id="table" style="height: 100px; overflow: hidden;"></div>
-    <button id="new_row_add" class="btn">New Row</button><br>
-    <br>
-    <div>
-    <button id="convertBtn" type="button" style="display:none;" class="btn btn-primary">Convert to NRML</button>
-      </div>
-    <br>
-    <div id="outputDiv">
-      <div id="infoMsg" class="alert alert-info" role="alert">3. Download the NRML file for use in the OpenQuake Engine.</div>
-      <div id="validationErrorMsg" class="alert alert-warning" role="alert" style="display: none;">Error message</div>
-      <div id="downloadLink" style="display: none;"><button class="btn" id="downloadBtn">Download</button><form id="downloadForm" method="post"></form></div>
-      <div id="outputText" style="width:600px; margin: auto;"></div>
+<div class="menuItems">
+  <label>Magnitude (Mw) <span class="ui-icon ui-icon-help ipt_help" title='Moment magnitude (Mw) of the event.'></span>: </label>
+  <input type="text" name="magnitude" value="6.0">
+</div>
+<div class="menuItems" name="width-of-mfd-bin">
+  <label>Rake (degrees) <span class="ui-icon ui-icon-help ipt_help" title= 'The rake is the direction (angle) in which a hanging wall block moves during a rupture, measured relative to fault strike on the plane of the fault.'></span>:</label>
+  <input type="text" name="rake" placeholder="-180 ≤ float ≤ 180">
+</div>
+
+<h3>Hypocenter <span class="ui-icon ui-icon-help ipt_help" title='Point within the earth where an earthquake rupture starts.'></span></h3>
+
+<div class="menuItems">
+  <label>Latitude (degrees):</label>
+  <input type="text" name="hypo_lat" placeholder="-90 ≤ float ≤ 90">
+</div>
+<div class="menuItems" name="width-of-mfd-bin">
+  <label>Longitude (degrees):</label>
+  <input type="text" name="hypo_lon" placeholder="-180 ≤ float ≤ 180">
+</div>
+<div class="menuItems" name="width-of-mfd-bin">
+  <label>Depth (km):</label>
+  <input type="text" name="hipo_depth" placeholder="float ≥ 0">
+</div>
+
+<h3>Rupture type</h3>
+<div class="alert alert-info ipt-info" role="alert">
+  Select rupture type:<br>
+  <div style="text-align: center;">
+    <div class="chbox">
+      <input type="radio" name="rupture_type" value="simple" checked="checked"
+             >&nbsp;<span class="inlible">Simple Fault Rupture
+        <span class="ui-icon ui-icon-help ipt_help" title='For this fault type, the geometry is defined by the trace of the fault rupture, the dip and the upper and lower seismogenic depths.'></span>
+      </span>
     </div>
+    <div class="chbox">
+      <input type="radio" name="rupture_type" value="planar"
+             >&nbsp;<span class="inlible">Single Planar Rupture OR Multi-Planar Rupture
+        <span class="ui-icon ui-icon-help ipt_help" title='For this fault type, the geometry is defined as a collection of one or more rectangular planes, each defined by four corners.'></span>
+      </span>
+    </div><br>
+    <div class="chbox">
+      <input type="radio" name="rupture_type" value="complex"
+             >&nbsp;<span class="inlible">Complex Fault Rupture
+        <span class="ui-icon ui-icon-help ipt_help" title='For this fault type, the geometry is defined by the upper, lower and (if applicable) intermediate edges of the fault rupture.'></span>
+      </span>
+    </div>
+    <div class="chbox">
+      <input type="radio" name="rupture_type" value="arbitrary"
+             >&nbsp;<span class="inlible">Arbitrary Fault Rupture</span>
+    </div>
+  </div>
+</div>
+
+<div name="rupture">
+  <div name="simple">
+    SIMPLE
+  </div>
+  <div name="planar" style="display: none;">
+    SINGLE OR MULTIPLE PLANAR
+  </div>
+  <div name="complex" style="display: none;">
+    COMPLEX
+  </div>
+  <div name="arbitrary" style="display: none;">
+    ARBITRARY
+  </div>
+</div>
