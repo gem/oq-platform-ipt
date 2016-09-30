@@ -40,7 +40,7 @@ function ff_sh2long(funcType)
 
 var activeTablesObj = {};
 
-function ff_updateTable (funcType) {
+function ff_addTable (funcType) {
     var table;
     var format_name = ff_sh2long(funcType);
 
@@ -355,13 +355,13 @@ $(document).ready(function (){
 
     $('.ff_gid #addDiscrFunc').click(function() {
         var funcType = 'discr';
-        ff_updateTable(funcType);
+        ff_addTable(funcType);
         $('.ff_gid #outputDiv').hide();
     });
 
     $('.ff_gid #addContFunc').click(function() {
         var funcType = 'cont';
-        ff_updateTable(funcType);
+        ff_addTable(funcType);
         $('.ff_gid #outputDiv').hide();
     });
 
