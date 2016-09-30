@@ -533,15 +533,14 @@ function table_file_mgmt(evt)
     }
 }
 
-$('.ex_gid input#table_file').on('change', table_file_mgmt);
-
-
 // tab initialization
 $(document).ready(function () {
     /////////////////////////////////////////////////////////
     // Manage the visibility of the perArea selection menu //
     /////////////////////////////////////////////////////////
     $('.ex_gid #perArea').hide();
+
+    $('.ex_gid input#table_file').on('change', table_file_mgmt);
 
     $('.ex_gid #retrofittingSelect').hide();
     $('.ex_gid #limitDiv').hide();
