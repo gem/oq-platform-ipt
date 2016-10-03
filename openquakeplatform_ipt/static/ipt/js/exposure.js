@@ -484,55 +484,6 @@ $('.ex_gid #convertBtn').click(function() {
     validateAndDisplayNRML(nrml, 'ex', ex_obj);
 });
 
-function table_file_mgmt(evt)
-{
-    if (evt.target.files.length == 0)
-        return;
-
-    var file = evt.target.files[0];
-
-    if (file) {
-        var cols_n = ex_obj.tbl.countCols();
-        var reader = new FileReader();
-        reader.readAsText(file, "UTF-8");
-        reader.onload = function (evt) {
-            ex_obj.tbl_file = [];
-            var rows = evt.target.result.split('\n');
-            for (var i = 0 ; i < rows.length ; i++) {
-                if (rows[i] == "") {
-                    continue;
-                }
-                ex_obj.tbl_file.push([]);
-                var cols = rows[i].split(',');
-                if (cols.length != cols_n) {
-                    // row haven't correct number of columns
-                    alert("row #" + (i+1) + " haven't correct number of columns, received: " + cols.length + " expected: " + cols_n + "\n[" + rows[i] + "]");
-                    continue;
-                }
-
-                for (var e = 0 ; e < cols.length ; e++) {
-                    ex_obj.tbl_file[i].push(cols[e]);
-                }
-            }
-            ex_obj.tbl.alter('remove_row', 3, 10000000);
-            var data = [];
-            for (var i = 0 ; i < 3 ; i++) {
-                data.push([]);
-                for (var e = 0 ; e < cols_n ; e++) {
-                    data[i].push("");
-                }
-            }
-            ex_obj.tbl.loadData(data);
-        }
-        reader.onerror = function (evt) {
-            alert('import file failed');
-        }
-    }
-    else {
-        alert('File not found.');
-    }
-}
-
 // tab initialization
 $(document).ready(function () {
     /////////////////////////////////////////////////////////
@@ -540,7 +491,8 @@ $(document).ready(function () {
     /////////////////////////////////////////////////////////
     $('.ex_gid #perArea').hide();
 
-    $('.ex_gid input#table_file').on('change', table_file_mgmt);
+    $('.ex_gid input#table_file').on(
+        'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, ex_obj); });
 
     $('.ex_gid #retrofittingSelect').hide();
     $('.ex_gid #limitDiv').hide();

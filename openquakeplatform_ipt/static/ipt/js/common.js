@@ -66,3 +66,50 @@ function isFloat(n) {
     return  !/^\s*$/.test(n) && !isNaN(n);
 }
 
+var ipt_table_file_mgmt = function(evt, that) {
+    if (evt.target.files.length == 0)
+        return;
+
+    var file = evt.target.files[0];
+
+    if (file) {
+        var cols_n = that.tbl.countCols();
+        var reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (evt) {
+            that.tbl_file = [];
+            var rows = evt.target.result.split('\n');
+            for (var i = 0 ; i < rows.length ; i++) {
+                if (rows[i] == "") {
+                    continue;
+                }
+                that.tbl_file.push([]);
+                var cols = rows[i].split(',');
+                if (cols.length != cols_n) {
+                    // row haven't correct number of columns
+                    alert("row #" + (i+1) + " haven't correct number of columns, received: " + cols.length + " expected: " + cols_n + "\n[" + rows[i] + "]");
+                    continue;
+                }
+
+                for (var e = 0 ; e < cols.length ; e++) {
+                    that.tbl_file[i].push(cols[e]);
+                }
+            }
+            that.tbl.alter('remove_row', 3, 10000000);
+            var data = [];
+            for (var i = 0 ; i < 3 ; i++) {
+                data.push([]);
+                for (var e = 0 ; e < cols_n ; e++) {
+                    data[i].push("");
+                }
+            }
+            that.tbl.loadData(data);
+        }
+        reader.onerror = function (evt) {
+            alert('import file failed');
+        }
+    }
+    else {
+        alert('File not found.');
+    }
+}

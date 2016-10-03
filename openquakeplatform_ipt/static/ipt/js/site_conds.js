@@ -294,62 +294,14 @@ $('.sc_gid #convertBtn').click(function() {
     validateAndDisplayNRML(nrml, 'sc', sc_obj);
 });
 
-function table_file_mgmt(evt)
-{
-    if (evt.target.files.length == 0)
-        return;
-
-    var file = evt.target.files[0];
-
-    if (file) {
-        var cols_n = sc_obj.tbl.countCols();
-        var reader = new FileReader();
-        reader.readAsText(file, "UTF-8");
-        reader.onload = function (evt) {
-            sc_obj.tbl_file = [];
-            var rows = evt.target.result.split('\n');
-            for (var i = 0 ; i < rows.length ; i++) {
-                if (rows[i] == "") {
-                    continue;
-                }
-                sc_obj.tbl_file.push([]);
-                var cols = rows[i].split(',');
-                if (cols.length != cols_n) {
-                    // row haven't correct number of columns
-                    alert("row #" + (i+1) + " haven't correct number of columns, received: " + cols.length + " expected: " + cols_n + "\n[" + rows[i] + "]");
-                    continue;
-                }
-
-                for (var e = 0 ; e < cols.length ; e++) {
-                    sc_obj.tbl_file[i].push(cols[e]);
-                }
-            }
-            sc_obj.tbl.alter('remove_row', 3, 10000000);
-            var data = [];
-            for (var i = 0 ; i < 3 ; i++) {
-                data.push([]);
-                for (var e = 0 ; e < cols_n ; e++) {
-                    data[i].push("");
-                }
-            }
-            sc_obj.tbl.loadData(data);
-        }
-        reader.onerror = function (evt) {
-            alert('import file failed');
-        }
-    }
-    else {
-        alert('File not found.');
-    }
-}
-
 // tab initialization
 $(document).ready(function () {
     /////////////////////////////////////////////////////////
     // Manage the visibility of the perArea selection menu //
     /////////////////////////////////////////////////////////
     sc_updateTable();
-    $('.sc_gid input#table_file').on('change', table_file_mgmt);
+    $('.sc_gid input#table_file').on(
+        'change', function sc_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, sc_obj); });
     $('.sc_gid #new_row_add').click(function() {
         sc_obj.tbl.alter('insert_row');
     });
