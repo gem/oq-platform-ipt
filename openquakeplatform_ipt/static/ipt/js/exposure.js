@@ -16,6 +16,7 @@
 */
 
 var ex_obj = {
+    tbl_file: null,
     tbl: {},
     tbl_idx: 0,
     nrml: "",
@@ -140,6 +141,9 @@ function checkForValueInHeader(header, argument) {
 }
 
 function ex_updateTable() {
+    $('.ex_gid #table_file').val("");
+    ex_obj.tbl_file = null;
+
     // Remove any existing table, if already exists
     if ($('.ex_gid #table').handsontable('getInstance') !== undefined) {
         $('.ex_gid #table').handsontable('destroy');
@@ -236,6 +240,14 @@ function ex_updateTable() {
     ex_obj.tbl.addHook('afterRemoveRow', function() {
         return gem_tableHeightUpdate($('.ex_gid #table'));
     });
+    ex_obj.tbl.addHook('afterChange', function(changes, source) {
+        // when loadData is used, for performace reasons, changes are 'null'
+        if (changes != null || source != 'loadData') {
+            $('.ex_gid #table_file').val("");
+            ex_obj.tbl_file = null;
+        }
+    });
+
     $('.ex_gid #outputText').empty();
     $('.ex_gid #convertBtn').show();
 }
@@ -245,16 +257,20 @@ $('.ex_gid #downloadBtn').click(function() {
 });
 
 $('.ex_gid #convertBtn').click(function() {
-    // Get the values from the table
-    var data = ex_obj.tbl.getData();
-
-    // Check for null values
-    for (var i = 0; i < data.length; i++) {
-        for (var j = 0; j < data[i].length; j++) {
-            var s = data[i][j] + " ";
-            if (data[i][j] === null || data[i][j].toString().trim() == "") {
-                output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
-                return;
+    if ($('.ex_gid input#table_file')[0].files.length > 0) {
+        var data = ex_obj.tbl_file;
+    }
+    else {
+        // Get the values from the table
+        var data = ex_obj.tbl.getData();
+        // Check for null values
+        for (var i = 0; i < data.length; i++) {
+            for (var j = 0; j < data[i].length; j++) {
+                var s = data[i][j] + " ";
+                if (data[i][j] === null || data[i][j].toString().trim() == "") {
+                    output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
+                    return;
+                }
             }
         }
     }
@@ -474,6 +490,9 @@ $(document).ready(function () {
     // Manage the visibility of the perArea selection menu //
     /////////////////////////////////////////////////////////
     $('.ex_gid #perArea').hide();
+
+    $('.ex_gid input#table_file').on(
+        'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, ex_obj); });
 
     $('.ex_gid #retrofittingSelect').hide();
     $('.ex_gid #limitDiv').hide();
