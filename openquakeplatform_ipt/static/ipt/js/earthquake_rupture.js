@@ -26,6 +26,26 @@ var er_obj = {
     planar_tbl: {},
     planar_tbl_cur: 0,
 
+    complex_tbl: {},
+    complex_tbl_cur: 0,
+
+    tbl_complex_params: {
+            colHeaders: [ 'Longitude (°)', 'Latitude (°)', 'Depth (km)'],
+            startCols: 3,
+            minCols: 3,
+            maxCols: 3,
+            startRows: 2,
+            minRows: 1,
+            maxRows: 10000,
+            contextMenu: ['row_above', 'row_below', 'remove_row', 'undo', 'redo'],
+            className: "htRight"
+    },
+
+    /************
+     *          *
+     *  PLANAR  *
+     *          *
+     ************/
     planar_surface_del: function (obj) {
         var id = obj.getAttribute("data_gem_id");
         var item = $(er_obj.pfx + 'div[name="planars"] div[name="planar-' + id + '"]');
@@ -72,6 +92,96 @@ var er_obj = {
         er_obj.simple_tbl[ct] = $(table_id).handsontable('getInstance');
 
         er_obj.planar_tbl_cur++;
+    },
+
+    /*************
+     *           *
+     *  COMPLEX  *
+     *           *
+     *************/
+    complex_surface_middle_del: function (obj) {
+        var id = obj.getAttribute("data_gem_id");
+        var mid_id = obj.getAttribute("data_gem_mid_id");
+        var $item = $(er_obj.pfx + 'div[name="complexes"] div[name="complex-' + id + '"] div[name="middle-' + mid_id + '"]');
+        delete(this.complex_tbl[id].middles[mid_id]);
+        $item.remove();
+    },
+
+    complex_surface_middle_add: function (obj) {
+        var id = obj.getAttribute("data_gem_id");
+        var mid_id = er_obj.complex_tbl[id].middles_n;
+
+        var ctx = '\
+          <div class="menuItems" name="middle-' + mid_id + '">\n\
+            <label>Fault intermediate edge ' + (mid_id + 1) + ':</label>\n\
+            <button style="margin-bottom: 8px;" data_gem_id="' + id + '" data_gem_mid_id="'+ mid_id + '" \
+onclick="er_obj.complex_surface_middle_del(this);">Delete Fault</button>\n\
+            <div style="margin-left: auto;">\n\
+              <div name="middle-geometry-' + id + '-' + mid_id + '" style="margin-left: auto; width: 240px; height: 90px; overflow: hidden;"></div>\n\
+            </div>\n\
+          </div>\n';
+        $(er_obj.pfx + 'div[name="complexes"] div[name="complex-' + id + '"] div[name="middles"]').append(ctx);
+
+        var middle_table_id = er_obj.pfx + 'div[name="rupture"] > div[name="complex"] div[name="complex-' + id + '"] div[name="middles"] div[name="middle-geometry-' + id + '-' + mid_id + '"]';
+        $(middle_table_id).handsontable(er_obj.tbl_complex_params);
+        er_obj.complex_tbl[id].middles[mid_id] = $(middle_table_id).handsontable('getInstance');
+
+        er_obj.complex_tbl[id].middles_n++;
+    },
+
+    complex_surface_del: function (obj) {
+        var id = obj.getAttribute("data_gem_id");
+        var $item = $(er_obj.pfx + 'div[name="complexes"] div[name="complex-' + id + '"]');
+
+        for (var mid_id = 0 ; mid_id < this.complex_tbl[id].middles_n ; mid_id++) {
+            if (mid_id in this.complex_tbl[id].middles) {
+                var middle_table_id = er_obj.pfx + 'div[name="rupture"] > div[name="complex"] div[name="complex-' + id + '"] div[name="middles"] div[name="middle-geometry-' + id + '-' + mid_id + '"]';
+                $(middle_table_id).remove();
+                delete(this.complex_tbl[id].middles[mid_id]);
+            }
+        }
+        delete(this.complex_tbl[id]);
+        $item.remove();
+    },
+
+    complex_surface_add: function () {
+        var ct = er_obj.complex_tbl_cur;
+        var ctx = '\
+      <div name="complex-' + ct + '">\n\
+        <div class="menuItems" style="margin-top: 12px; margin-left: 100px;">\n\
+          <div style="display: inline-block; float: left;"><h4>Complex surface ' + (ct + 1) + '</h4></div><button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.complex_surface_del(this);">Delete Complex Surface</button>\n\
+        </div>\n\
+        <div class="menuItems complex_geometry">\n\
+          <label>Fault top edge:</label>\n\
+          <div style="margin-left: auto;">\n\
+            <div name="top-geometry-' + ct + '" style="margin-left: auto; width: 240px; height: 90px; overflow: hidden;"></div>\n\
+          </div>\n\
+        </div>\n\
+        <div name="middles"></div>\n\
+        <div class="menuItems" style="margin-top: 12px; text-align: center;">\n\
+          <button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.complex_surface_middle_add(this);">Add intermediate edge</button>\n\
+        </div>\n\
+        <div class="menuItems complex_geometry">\n\
+          <label>Fault bottom edge:</label>\n\
+          <div style="margin-left: auto;">\n\
+            <div name="bottom-geometry-' + ct + '" style="margin-left: auto; width: 240px; height: 90px; overflow: hidden;"></div>\n\
+          </div>\n\
+        </div>\n\
+</div>';
+        $(er_obj.pfx + 'div[name="complexes"]').append(ctx);
+
+        er_obj.complex_tbl[ct] = { top: null, bottom: null, middles: {}, middles_n: 0 };
+
+        var top_table_id = er_obj.pfx + 'div[name="rupture"] > div[name="complex"] div[name="top-geometry-' + ct + '"]';
+
+        $(top_table_id).handsontable(er_obj.tbl_complex_params);
+        er_obj.complex_tbl[ct].top = $(top_table_id).handsontable('getInstance');
+
+        var bottom_table_id = er_obj.pfx + 'div[name="rupture"] > div[name="complex"] div[name="bottom-geometry-' + ct + '"]';
+        $(bottom_table_id).handsontable(er_obj.tbl_complex_params);
+        er_obj.complex_tbl[ct].bottom = $(bottom_table_id).handsontable('getInstance');
+
+        er_obj.complex_tbl_cur++;
     }
 };
 
@@ -84,7 +194,6 @@ $(document).ready(function () {
 
     var header = ['Longitude', 'Latitude'];
     var table_id = er_obj.pfx + 'div[name="rupture"] > div[name="simple"] > div > div > div[name="geometry"]';
-    console.log($(table_id));
 
     $(table_id).handsontable({
         colHeaders: [ 'Longitude', 'Latitude'],
@@ -118,4 +227,8 @@ $(document).ready(function () {
     $(er_obj.pfx + 'div[name="rupture"] > div[name="planar"] button[name="planar_surface_add"]').click(
         er_obj.planar_surface_add);
     er_obj.planar_surface_add();
+
+    $(er_obj.pfx + 'div[name="rupture"] > div[name="complex"] button[name="complex_surface_add"]').click(
+        er_obj.complex_surface_add);
+    er_obj.complex_surface_add();
 });
