@@ -2,7 +2,7 @@
   <label>Magnitude (Mw) <span class="ui-icon ui-icon-help ipt_help" title='Moment magnitude (Mw) of the event.'></span>: </label>
   <input type="text" name="magnitude" value="6.0">
 </div>
-<div class="menuItems" name="width-of-mfd-bin">
+<div class="menuItems">
   <label>Rake (degrees) <span class="ui-icon ui-icon-help ipt_help" title= 'The rake is the direction (angle) in which a hanging wall block moves during a rupture, measured relative to fault strike on the plane of the fault.'></span>:</label>
   <input type="text" name="rake" placeholder="-180 ≤ float ≤ 180">
 </div>
@@ -13,13 +13,13 @@
   <label>Latitude (degrees):</label>
   <input type="text" name="hypo_lat" placeholder="-90 ≤ float ≤ 90">
 </div>
-<div class="menuItems" name="width-of-mfd-bin">
+<div class="menuItems">
   <label>Longitude (degrees):</label>
   <input type="text" name="hypo_lon" placeholder="-180 ≤ float ≤ 180">
 </div>
-<div class="menuItems" name="width-of-mfd-bin">
+<div class="menuItems">
   <label>Depth (km):</label>
-  <input type="text" name="hipo_depth" placeholder="float ≥ 0">
+  <input type="text" name="hypo_depth" placeholder="float ≥ 0">
 </div>
 
 <h3>Rupture type</h3>
@@ -27,13 +27,13 @@
   Select rupture type:<br>
   <div style="text-align: center;">
     <div class="chbox">
-      <input type="radio" name="rupture_type" value="simple" checked="checked"
+      <input type="radio" name="rupture_type" value="simple"
              >&nbsp;<span class="inlible">Simple Fault Rupture
         <span class="ui-icon ui-icon-help ipt_help" title='For this fault type, the geometry is defined by the trace of the fault rupture, the dip and the upper and lower seismogenic depths.'></span>
       </span>
     </div>
     <div class="chbox">
-      <input type="radio" name="rupture_type" value="planar"
+      <input type="radio" name="rupture_type" value="planar" checked="checked"
              >&nbsp;<span class="inlible">Single Planar Rupture OR Multi-Planar Rupture
         <span class="ui-icon ui-icon-help ipt_help" title='For this fault type, the geometry is defined as a collection of one or more rectangular planes, each defined by four corners.'></span>
       </span>
@@ -52,16 +52,54 @@
 </div>
 
 <div name="rupture">
-  <div name="simple">
-    SIMPLE
+
+  <!-- SIMPLE -->
+  <div name="simple" style="display: none;">
+    <h3>Simple Fault Rupture</h3><br>
+    <div class="alert alert-info ipt-info" role="alert">
+      Copy and paste values from a spreadsheet into the table below.</div>
+    <div class="ipt-info">
+      <div class="vfsForm">
+        <label>Simple Fault Geometry <span class="ui-icon ui-icon-help ipt_help" title='Up-dip projection of the fault to the Earth's surface'></span>:</label>
+      </div>
+      <div class="ipt-info" style="text-align: right;">
+        <div name="geometry" style="height: 100px; overflow: hidden;"></div>
+        <button name="new_row_add" class="btn" style="margin-right: 20px;">New Row</button>
+      </div>
+    </div>
+
+    <div class="menuItems">
+      <label>Dip (degrees) <span class="ui-icon ui-icon-help ipt_help" title='Up-dip projection of the fault to the Earth's surface'></span>:</label>
+      <input type="text" name="dip" value="90" placeholder="0 ≤ float ≤ 90">
+    </div>
+    <div class="menuItems">
+      <label>Upper seismogenic depth (km) <span class="ui-icon ui-icon-help ipt_help" title='Shallowest depth of the seismogenic rupture'>:</label>
+      <input type="text" name="upper_ses_dep" placeholder="float ≥ 0" value="0">
+    </div>
+    <div class="menuItems">
+      <label>Lower seismogenic depth (km) <span class="ui-icon ui-icon-help ipt_help" title='Deepest depth of the seismogenic rupture'>:</label>
+      <input type="text" name="lower_ses_dep" placeholder="float ≥ 0" value="15">
+    </div>
+
   </div>
-  <div name="planar" style="display: none;">
-    SINGLE OR MULTIPLE PLANAR
+
+
+  <!-- PLANAR -->
+  <div name="planar">
+    <h3>Single Planar Rupture OR Multi-Planar Rupture</h3>
+    <div name="planars">
+    </div>
+    <button name="planar_surface_add" class="btn" style="margin-right: 20px;">Add Planar Surface</button>
   </div>
+
+
   <div name="complex" style="display: none;">
-    COMPLEX
+    <h3>Complex Fault Rupture</h3>
   </div>
   <div name="arbitrary" style="display: none;">
-    ARBITRARY
+    <h3>Arbitrary Fault Rupture</h3>
   </div>
+
+
+
 </div>

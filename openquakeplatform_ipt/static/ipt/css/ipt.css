@@ -190,3 +190,8 @@ span.ipt_help {
     border: 1px solid #a0a0a0;
     background-color: #f7f7f9;
 }
+
+.planar_geometry .handsontable col.rowHeader {
+    width: 100px;
+    margin-left: 16px;
+}
