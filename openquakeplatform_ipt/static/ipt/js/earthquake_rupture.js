@@ -26,12 +26,20 @@ var er_obj = {
     planar_tbl: {},
     planar_tbl_cur: 0,
 
+    planar_surface_del: function (obj) {
+        var id = obj.getAttribute("data_gem_id");
+        var item = $(er_obj.pfx + 'div[name="planars"] div[name="planar-' + id + '"]');
+        delete(this.planar_tbl[id]);
+        item.remove();
+    },
+
     planar_surface_add: function () {
-        console.log("    planar_surface_add");
         var ct = er_obj.planar_tbl_cur;
         var ctx = '\
-      <dev name="planar-' + ct + '">\n\
-        <h4>Planar surface ' + (ct + 1) + '</h4>\n\
+      <div name="planar-' + ct + '">\n\
+        <div class="menuItems" style="margin-top: 12px;">\n\
+            <div style="display: inline-block; float: left;"><h4>Planar surface ' + (ct + 1) + '</h4></div><button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.planar_surface_del(this);">Delete Planar Surface</button>\n\
+        </div>\n\
         <div class="menuItems">\n\
          <label>Strike (degrees) <span class="ui-icon ui-icon-help ipt_help" title="The strike direction corresponds to the angle between the north and the direction you take so that when you walk along the fault trace the fault dips on your right."></span>:</label>\n\
           <input type="text" name="dip" value="90" placeholder="0 ≤ float ≤ 90">\n\
