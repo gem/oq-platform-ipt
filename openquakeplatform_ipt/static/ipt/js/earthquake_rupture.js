@@ -29,6 +29,8 @@ var er_obj = {
     complex_tbl: {},
     complex_tbl_cur: 0,
 
+    arbitrary_tbl: {},
+
     tbl_complex_params: {
             colHeaders: [ 'Longitude (°)', 'Latitude (°)', 'Depth (km)'],
             startCols: 3,
@@ -182,6 +184,50 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete Fault</button>\n\
         er_obj.complex_tbl[ct].bottom = $(bottom_table_id).handsontable('getInstance');
 
         er_obj.complex_tbl_cur++;
+    },
+
+    /***************
+     *             *
+     *  ARBITRARY  *
+     *             *
+     ***************/
+
+    arbitrary_geometry_populate: function() {
+        var mag, hypo_lat, hypo_lon, hypo_depth, strike, dip, rake
+        mag = $(er_obj.pfx + 'input[name="magnitude"]').val();
+        console.log('mag: ' + $(er_obj.pfx + 'input[name="magnitude"]').length);
+        hypo_lat = $(er_obj.pfx + 'input[name="hypo_lat"]').val();
+        hypo_lon = $(er_obj.pfx + 'input[name="hypo_lon"]').val();
+        hypo_depth = $(er_obj.pfx + 'input[name="hypo_depth"]').val();
+
+        strike = $(er_obj.pfx + 'div[name="arbitrary"] input[name="strike"]').val();
+        dip = $(er_obj.pfx + 'div[name="arbitrary"] input[name="dip"]').val();
+
+        rake = $(er_obj.pfx + 'input[name="rake"]').val();
+
+        pargs = { "mag": mag, "hypo_lat": hypo_lat, "hypo_lon": hypo_lon, "hypo_depth": hypo_depth,
+                  "strike": strike, "dip": dip, "rake": rake };
+        console.log(pargs);
+        $.post('sendback_er_rupture_surface',
+               { mag: mag, hypo_lat: hypo_lat, hypo_lon: hypo_lon, hypo_depth: hypo_depth,
+                 strike: strike, dip: dip, rake: rake })
+            .done(function(resp){
+                var data = [];
+                var rows = ["topLeft", "bottomLeft", "bottomRight", "topRight"];
+                var cols = ["lat", "lon", "depth"];
+                for (i in rows) {
+                    row = resp[rows[i]];
+                    data[i] = [];
+                    for (e in cols) {
+                        data[i][e] = row[cols[e]];
+                    }
+                }
+
+                er_obj.arbitrary_tbl.loadData(data);
+            })
+            .fail(function(resp){
+                console.log('POST.error');
+            });
     }
 };
 
@@ -231,4 +277,18 @@ $(document).ready(function () {
     $(er_obj.pfx + 'div[name="rupture"] > div[name="complex"] button[name="complex_surface_add"]').click(
         er_obj.complex_surface_add);
     er_obj.complex_surface_add();
+
+    /* arbitrary */
+    var table_id = er_obj.pfx + 'div[name="rupture"] > div[name="arbitrary"] div[name="geometry"]';
+
+    $(table_id).handsontable({
+        colHeaders: [ 'Longitude (°)', 'Latitude (°)', 'Depth (km)'],
+        rowHeaders: ["topLeft", "topRight", "bottomLeft", "bottomRight"],
+        startCols: 3,
+        startRows: 4,
+        readOnly: true,
+        className: "htRight"
+    });
+    er_obj.arbitrary_tbl = $(table_id).handsontable('getInstance');
+
 });

@@ -195,3 +195,8 @@ span.ipt_help {
     width: 100px;
     margin-left: 16px;
 }
+
+.arbitrary_geometry .handsontable col.rowHeader {
+    width: 100px;
+    margin-left: 16px;
+}

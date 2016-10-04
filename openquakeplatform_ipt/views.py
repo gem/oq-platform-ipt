@@ -32,6 +32,8 @@ from django.conf import settings
 from openquake.hazardlib import gsim
 from django import forms
 
+from build_rupture_plane import get_rupture_surface
+
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
                'fragility_model', 'fragility_cons',
@@ -153,6 +155,36 @@ def sendback_nrml(request):
             'attachment; filename="' + filename + '"')
         return resp
 
+def sendback_er_rupture_surface(request):
+    mag = request.POST.get('mag')
+    hypo_lat = request.POST.get('hypo_lat')
+    hypo_lon = request.POST.get('hypo_lon')
+    hypo_depth = request.POST.get('hypo_depth')
+    strike = request.POST.get('strike')
+    dip = request.POST.get('dip')
+    rake = request.POST.get('rake')
+
+    if (mag is None or hypo_lat is None or hypo_lon is None or
+        hypo_depth is None or strike is None or dip is None or rake is None):
+        ret = { 'ret': 1, 'ret_s': 'incomplete arguments' }
+    else:
+        mag = float(mag)
+        hypo_lat = float(hypo_lat)
+        hypo_lon = float(hypo_lon)
+        hypo_depth = float(hypo_depth)
+        strike = float(strike)
+        dip = float(dip)
+        rake = float(rake)
+
+        try:
+            ret = get_rupture_surface(mag, {"lon": hypo_lat, "lat": hypo_lon, "depth": hypo_depth},
+                                      strike, dip, rake)
+            ret['ret'] = 0
+            ret['ret_s'] = 'success'
+        except:
+            ret = { 'ret': 2, 'ret_s': 'exception raised' }
+
+    return HttpResponse(json.dumps(ret), content_type="application/json")
 
 class FileUpload(forms.Form):
     file_upload = forms.FileField(allow_empty_file=True)

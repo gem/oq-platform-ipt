@@ -27,13 +27,13 @@
   Select rupture type:<br>
   <div style="text-align: center;">
     <div class="chbox">
-      <input type="radio" name="rupture_type" value="simple"
+      <input type="radio" name="rupture_type" value="simple" checked="checked"
              >&nbsp;<span class="inlible">Simple Fault Rupture
         <span class="ui-icon ui-icon-help ipt_help" title='For this fault type, the geometry is defined by the trace of the fault rupture, the dip and the upper and lower seismogenic depths.'></span>
       </span>
     </div>
     <div class="chbox">
-      <input type="radio" name="rupture_type" value="planar" checked="checked"
+      <input type="radio" name="rupture_type" value="planar"
              >&nbsp;<span class="inlible">Single Planar Rupture OR Multi-Planar Rupture
         <span class="ui-icon ui-icon-help ipt_help" title='For this fault type, the geometry is defined as a collection of one or more rectangular planes, each defined by four corners.'></span>
       </span>
@@ -52,9 +52,8 @@
 </div>
 
 <div name="rupture">
-
   <!-- SIMPLE -->
-  <div name="simple" style="display: none;">
+  <div name="simple">
     <h3>Simple Fault Rupture</h3><br>
     <div class="alert alert-info ipt-info" role="alert">
       Copy and paste values from a spreadsheet into the table below.</div>
@@ -85,7 +84,7 @@
 
 
   <!-- PLANAR -->
-  <div name="planar">
+  <div name="planar" style="display: none;">
     <h3>Single Planar Rupture OR Multi-Planar Rupture</h3>
     <div name="planars">
     </div>
@@ -104,6 +103,22 @@
   <!-- ARBITRARY -->
   <div name="arbitrary" style="display: none;">
     <h3>Arbitrary Fault Rupture</h3>
+    <div class="menuItems">
+      <label>Strike (degrees) <span class="ui-icon ui-icon-help ipt_help" title="The strike direction corresponds to the angle between the north and the direction you take so that when you walk along the fault trace the fault dips on your right."></span>:</label>
+      <input type="text" name="strike" value="0" placeholder="0 ≤ float ≤ 360">
+    </div>
+    <div class="menuItems">
+      <label>Dip (degrees)  <span class="ui-icon ui-icon-help ipt_help" title="The dip is the steepest angle of descent of the fault plane relative to a horizontal plane; it is measured in degrees [0, 90].">:</label>
+      <input type="text" name="dip" value="90" placeholder="0 ≤ float ≤ 90">
+    </div>
+    <button name="arbitrary_populate" class="btn" type="button" style="margin-left: 150px;"
+            onclick="er_obj.arbitrary_geometry_populate();">Calculate Geometry</button>
+    <div class="menuItems arbitrary_geometry">
+      <label>Arbitrary Geometry:</label>
+      <div style="margin-left: auto;">
+        <div name="geometry" style="margin-left: auto; width: 500px; height: 300px; overflow: hidden;"></div>
+      </div>
+    </div>
   </div>
 
 
