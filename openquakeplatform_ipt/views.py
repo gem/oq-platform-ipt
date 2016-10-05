@@ -168,16 +168,16 @@ def sendback_er_rupture_surface(request):
         hypo_depth is None or strike is None or dip is None or rake is None):
         ret = { 'ret': 1, 'ret_s': 'incomplete arguments' }
     else:
-        mag = float(mag)
-        hypo_lat = float(hypo_lat)
-        hypo_lon = float(hypo_lon)
-        hypo_depth = float(hypo_depth)
-        strike = float(strike)
-        dip = float(dip)
-        rake = float(rake)
-
         try:
-            ret = get_rupture_surface(mag, {"lon": hypo_lat, "lat": hypo_lon, "depth": hypo_depth},
+            mag = float(mag)
+            hypo_lat = float(hypo_lat)
+            hypo_lon = float(hypo_lon)
+            hypo_depth = float(hypo_depth)
+            strike = float(strike)
+            dip = float(dip)
+            rake = float(rake)
+
+            ret = get_rupture_surface(mag, {"lon": hypo_lon, "lat": hypo_lat, "depth": hypo_depth},
                                       strike, dip, rake)
             ret['ret'] = 0
             ret['ret_s'] = 'success'
