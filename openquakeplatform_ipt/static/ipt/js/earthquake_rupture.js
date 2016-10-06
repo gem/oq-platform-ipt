@@ -250,7 +250,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
         var mag, rake, hypo_lat, hypo_lon, hypo_depth;
 
         mag = gem_ipt.check_val("Magnitude", $(this.pfx + 'input[name="magnitude"]').val(),
-                                'float-ge', 0);
+                                'float-gt', 0);
         rake = gem_ipt.check_val("Rake", $(this.pfx + 'input[name="rake"]').val(),
                                  'float-range-in-in', -180, 180);
         hypo_lat = gem_ipt.check_val("Latitude of hypocenter", $(this.pfx + 'input[name="hypo_lat"]').val(),
