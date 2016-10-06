@@ -156,6 +156,7 @@ var gem_ipt = {
     error_msg: function(msg) {
         $( "#dialog-message" ).html(msg.replace(/\n/g, "<br/>"));
         $( "#dialog-message" ).dialog({
+            dialogClass: 'gem-jqueryui-dialog',
             modal: true,
             width: '600px',
             buttons: {

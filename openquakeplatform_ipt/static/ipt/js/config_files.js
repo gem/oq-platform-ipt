@@ -562,6 +562,7 @@ $(document).ready(function () {
         $('<div></div>').appendTo('body')
             .html('<div><h6>Do you really want to delete all uploaded files and reset the page ?</h6></div>')
             .dialog({
+                dialogClass: 'gem-jqueryui-dialog',
                 modal: true,
                 title: 'Clean all uploaded files',
                 zIndex: 10000,

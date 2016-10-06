@@ -1,5 +1,9 @@
+.gem-jqueryui-dialog {
+    z-index: 1000;
+}
+
 #oq-body-content {
-width: 100%;
+    width: 100%;
  }
 
 .menuItems{
