@@ -29,15 +29,10 @@ function gem_tableHeightUpdate($box) {
     /* try { */
     var tbl = $box.handsontable('getInstance');
     tbl.render();
-    /*} catch (e) {
-      console.log($box);
-      debugger;
-      } */
-
-    /* console.log('gem_tableHeight');
-    /  console.log(tbl);
-       console.log($box);
-       console.log($(tbl.container).find('div.wtHolder').find('div.wtHider')); */
+    /* } catch (e) { */
+    /* console.log($box); */
+    /* debugger; */
+    /* } */
 
     var h_min = 100, h_max = 300;
     var h_prev = $box.height();
@@ -72,9 +67,9 @@ var gem_ipt = {
     },
 
     check_val: function (name, val, oper)  {
-        console.log("Name: " + name + "  Val: " + val + " Oper: " + oper);
+        // inspection if needed with: console.log("Name: " + name + "  Val: " + val + " Oper: " + oper);
         /* is empty ? */
-        if (val == "")
+        if (val === "")
             throw new this.check_exception("'" + name + "' field is empty");
 
         /* type check */
@@ -108,12 +103,14 @@ var gem_ipt = {
             var third = parseFloat(arguments[4]);
             if (!(second <= val && val <= third))
                 throw new this.check_exception("'" + name + "' field not in [" + second + ", " + third + "] range (" + val + ").");
+            return val;
         }
         else if (oper == "float-range-out-in") {
             var second = parseFloat(arguments[3]);
             var third = parseFloat(arguments[4]);
             if (!(second < val && val <= third))
                 throw new this.check_exception("'" + name + "' field not in (" + second + ", " + third + "] range (" + val + ").");
+            return val;
         }
         else if (oper == "tab-check") {
             var descr_cols = arguments[3], descr_rows = null;
@@ -122,7 +119,7 @@ var gem_ipt = {
             }
             for (var i = 0 ; i < (descr_rows == null ? val.length : descr_rows.length) ; i++) {
                 if (val[i].length != descr_cols.length)
-                    throw new this.check_exception("Wrong number of columns in '" + nome + "' at line " +
+                    throw new this.check_exception("Wrong number of columns in '" + name + "' at line " +
                                                    (i + 1) +". Expected " +
                                                    descr_cols.length + " received " + val[i].length);
                 for (e = 0 ; e < val[i].length ; e++) {
@@ -130,7 +127,7 @@ var gem_ipt = {
                         var args = [ descr_cols[e][0], val[i][e] ].concat(descr_cols[e].slice(1));
                         var ret = this.check_val.apply(this, args);
                     } catch(exc) {
-                        throw new this.check_exception("Error at row "
+                        throw new this.check_exception("Error in '" + name + "' at row "
                                                        + (descr_rows == null ? (i + 1) : "'" + descr_rows[i] + "'")
                                                        + " with message:\n" + exc.message);
                     }
@@ -146,6 +143,19 @@ var gem_ipt = {
         else {
             throw new this.check_exception("Operator '" + oper + "' not yet implemented.");
         }
+    },
+
+    error_msg: function(msg) {
+        $( "#dialog-message" ).html(msg.replace(/\n/g, "<br/>"));
+        $( "#dialog-message" ).dialog({
+            modal: true,
+            width: '600px',
+            buttons: {
+                Ok: function() {
+                    $(this).dialog( "close" );
+                }
+            }
+        });
     }
 }
 

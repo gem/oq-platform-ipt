@@ -29,7 +29,7 @@ var er_obj = {
     complex_tbl: {},
     complex_tbl_cur: 0,
 
-    arbitrary_tbl: {},
+    arbitrary_tbl: null,
 
     tbl_complex_params: {
             colHeaders: [ 'Longitude (°)', 'Latitude (°)', 'Depth (km)'],
@@ -194,30 +194,36 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
 
     arbitrary_geometry_populate: function(obj) {
         var thiz = this;
-        var mag, hypo_lat, hypo_lon, hypo_depth, strike, dip, rake
-        mag = $(this.pfx + 'input[name="magnitude"]').val();
-        console.log('mag: ' + $(this.pfx + 'input[name="magnitude"]').length);
-        hypo_lat = $(this.pfx + 'input[name="hypo_lat"]').val();
-        hypo_lon = $(this.pfx + 'input[name="hypo_lon"]').val();
-        hypo_depth = $(this.pfx + 'input[name="hypo_depth"]').val();
+        var mag, hypo_lat, hypo_lon, hypo_depth, rake, strike, dip;
+        var reset_data = [["", "", ""], ["", "", ""], ["", "", ""], ["", "", ""]];
+        try {
+            var header = this.validate_header();
+            mag = header.mag;
+            rake = header.rake;
+            hypo_lat = header.hypo_lat;
+            hypo_lon = header.hypo_lon;
+            hypo_depth = header.hypo_depth;
 
-        strike = $(this.pfx + 'div[name="arbitrary"] input[name="strike"]').val();
-        dip = $(this.pfx + 'div[name="arbitrary"] input[name="dip"]').val();
+            strike = gem_ipt.check_val(
+                "Strike", $(this.pfx + 'div[name="arbitrary"] input[name="strike"]').val(),
+                'float-range-in-in', 0, 360);
+            dip = gem_ipt.check_val(
+                "Dip", $(this.pfx + 'div[name="arbitrary"] input[name="dip"]').val(),
+                'float-range-out-in', 0, 90);
+        } catch(exc) {
+            thiz.arbitrary_tbl.loadData(reset_data);
+            gem_ipt.error_msg(exc.message);
+            return false;
+        }
 
-        rake = $(this.pfx + 'input[name="rake"]').val();
+        var pargs = { "mag": mag, "hypo_lat": hypo_lat, "hypo_lon": hypo_lon, "hypo_depth": hypo_depth,
+                      "strike": strike, "dip": dip, "rake": rake };
 
-        pargs = { "mag": mag, "hypo_lat": hypo_lat, "hypo_lon": hypo_lon, "hypo_depth": hypo_depth,
-                  "strike": strike, "dip": dip, "rake": rake };
-        console.log(pargs);
-        $.post('sendback_er_rupture_surface',
-               { mag: mag, hypo_lat: hypo_lat, hypo_lon: hypo_lon, hypo_depth: hypo_depth,
-                 strike: strike, dip: dip, rake: rake })
+        $.post('sendback_er_rupture_surface', pargs)
             .done(function(resp){
                 if (resp.ret == 0) {
-                    console.log("resp");
-                    console.log(thiz);
                     var data = [];
-                    var rows = ["topLeft", "bottomLeft", "bottomRight", "topRight"];
+                    var rows = ["topLeft", "topRight", "bottomLeft", "bottomRight"];
                     var cols = ["lat", "lon", "depth"];
                     for (i in rows) {
                         row = resp[rows[i]];
@@ -230,64 +236,73 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                     thiz.arbitrary_tbl.loadData(data);
                 }
                 else {
-                    alert('Geometry calculation failed with message:\n' + resp.ret_s);
+                    gem_ipt.error_msg('Geometry calculation failed with message:\n' + resp.ret_s);
+                    thiz.arbitrary_tbl.loadData(reset_data);
                 }
             })
             .fail(function(resp){
-                console.log('POST.error');
+                gem_ipt.error_msg('Geometry calculation call failed.\n');
+                thiz.arbitrary_tbl.loadData(reset_data);
             });
     },
 
-    convert2nrml: function(obj) {
-        var mag, hypo_lat, hypo_lon, hypo_depth, strike, dip, rake
+    validate_header: function() {
+        var mag, rake, hypo_lat, hypo_lon, hypo_depth;
 
-        try {
-            mag = gem_ipt.check_val("Magnitude", $(this.pfx + 'input[name="magnitude"]').val(),
-                                    'float-ge', 0);
-            rake = gem_ipt.check_val("Rake", $(this.pfx + 'input[name="rake"]').val(),
+        mag = gem_ipt.check_val("Magnitude", $(this.pfx + 'input[name="magnitude"]').val(),
+                                'float-ge', 0);
+        rake = gem_ipt.check_val("Rake", $(this.pfx + 'input[name="rake"]').val(),
+                                 'float-range-in-in', -180, 180);
+        hypo_lat = gem_ipt.check_val("Latitude of hypocenter", $(this.pfx + 'input[name="hypo_lat"]').val(),
+                                     'float-range-in-in', -90, 90);
+        hypo_lon = gem_ipt.check_val("Longitude of hypocenter", $(this.pfx + 'input[name="hypo_lon"]').val(),
                                      'float-range-in-in', -180, 180);
-            hypo_lat = gem_ipt.check_val("Latitude of hypocenter", $(this.pfx + 'input[name="hypo_lat"]').val(),
-                                         'float-range-in-in', -90, 90);
-            hypo_lon = gem_ipt.check_val("Longitude of hypocenter", $(this.pfx + 'input[name="hypo_lon"]').val(),
-                                         'float-range-in-in', -180, 180);
-            hypo_depth = gem_ipt.check_val("Depth of hypocenter", $(this.pfx + 'input[name="hypo_depth"]').val(),
-                                           'float-ge', 0);
+        hypo_depth = gem_ipt.check_val("Depth of hypocenter", $(this.pfx + 'input[name="hypo_depth"]').val(),
+                                       'float-ge', 0);
+
+        return ({"mag": mag, "rake": rake, "hypo_lat": hypo_lat, "hypo_lon": hypo_lon, "hypo_depth": hypo_depth});
+    },
+
+    convert2nrml: function(obj) {
+        var mag, hypo_lat, hypo_lon, hypo_depth, rake;
+        var strike, dip, upper_ses_dep, lower_ses_dep;
+        var planar = {};
+        try {
+            var header = this.validate_header();
+            mag = header.mag;
+            rake = header.rake;
+            hypo_lat = header.hypo_lat;
+            hypo_lon = header.hypo_lon;
+            hypo_depth = header.hypo_depth;
 
             rupture_type = $(this.pfx + ' input[type="radio"][name="rupture_type"]:checked').val();
             if (rupture_type == 'simple') {
                 var tbl_data = this.simple_tbl.getData();
-                gem_ipt.check_val("Simple fault geometry", tbl_data, "cols-check",
+                gem_ipt.check_val("Simple fault geometry", tbl_data, "tab-check",
                                   [["Longitude", "float-range-in-in", -180, 180],
                                    ["Latitude", "float-range-in-in", -90, 90]]);
-                var dip = gem_ipt.check_val("Dip", $(this.pfx + 'div[name="simple"] input[name="dip"]').val(),
+                dip = gem_ipt.check_val("Dip", $(this.pfx + 'div[name="simple"] input[name="dip"]').val(),
                                             'float-range-out-in', 0, 90);
-                var upper_ses_dep = gem_ipt.check_val(
+                upper_ses_dep = gem_ipt.check_val(
                     "Upper seismogenic depth", $(this.pfx + 'div[name="simple"] input[name="upper_ses_dep"]').val(),
                     'float-ge', 0);
-                var lower_ses_dep = gem_ipt.check_val(
+                lower_ses_dep = gem_ipt.check_val(
                     "Lower seismogenic depth", $(this.pfx + 'div[name="simple"] input[name="lower_ses_dep"]').val(),
                     'float-gt', upper_ses_dep );
             }
             else if (rupture_type == 'planar') {
-                console.log("herez: ");
-                console.log(this.planar_tbl);
                 for (var i = 0 ; i < this.planar_tbl_cur ; i++) {
                     if (!(i in this.planar_tbl))
                         continue;
                     try {
-                        console.log('herez2');
-                        console.log($(this.pfx + 'div[name="planar"] div[name="planars"] div[name="planar-' + i
-                                      + '"] input[name="strike"]').length);
-                        var strike = gem_ipt.check_val(
+                        planar[i].strike = gem_ipt.check_val(
                             "Strike", $(this.pfx + 'div[name="planar"] div[name="planars"] div[name="planar-' + i
-                                     + '"] input[name="strike"]').val(), 'float-range-in-in', 0, 360);
-                        var dip = gem_ipt.check_val(
+                                        + '"] input[name="strike"]').val(), 'float-range-in-in', 0, 360);
+                        planar[i].dip = gem_ipt.check_val(
                             "Dip", $(this.pfx + 'div[name="planar"] div[name="planars"] div[name="planar-' + i
                                      + '"] input[name="dip"]').val(), 'float-range-out-in', 0, 90);
 
                         var tbl_data = this.planar_tbl[i].getData();
-                        console.log('EREZ');
-                        console.log(tbl_data);
 
                         gem_ipt.check_val("Surface geometry", tbl_data, "tab-check",
                                           [["Longitude", "float-range-in-in", -180, 180],
@@ -301,15 +316,68 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                 }
             }
             else if (rupture_type == 'complex') {
+                for (var i = 0 ; i < this.complex_tbl_cur ; i++) {
+                    if (!(i in this.complex_tbl))
+                        continue;
+                    try {
+                        // obj initialization:
+                        //     er_obj.complex_tbl[ct] = { top: null, bottom: null, middles: {}, middles_n: 0 };
+                        var complex_obj = this.complex_tbl[i];
+
+                        var top_tbl_data = complex_obj.top.getData();
+
+                        gem_ipt.check_val("Fault top edge", top_tbl_data, "tab-check",
+                                          [["Longitude", "float-range-in-in", -180, 180],
+                                           ["Latitude", "float-range-in-in", -90, 90],
+                                           ["Depth", "float-ge", 0]]);
+
+                        for (var e = 0 ; e < complex_obj.middles_n ; e++) {
+                            if (!(e in complex_obj.middles))
+                                continue;
+
+                            var middle_tbl_data = complex_obj.middles[e].getData();
+                            gem_ipt.check_val("Fault intermediate edge " + (e + 1), middle_tbl_data, "tab-check",
+                                              [["Longitude", "float-range-in-in", -180, 180],
+                                               ["Latitude", "float-range-in-in", -90, 90],
+                                               ["Depth", "float-ge", 0]]);
+                        }
+
+                        var bottom_tbl_data = complex_obj.bottom.getData();
+                        gem_ipt.check_val("Fault bottom edge", bottom_tbl_data, "tab-check",
+                                          [["Longitude", "float-range-in-in", -180, 180],
+                                           ["Latitude", "float-range-in-in", -90, 90],
+                                           ["Depth", "float-ge", 0]]);
+
+
+                    } catch(exp) {
+                        throw new gem_ipt.check_exception("Error in 'Complex surface " + (i + 1) + "' with message:\n" +
+                                                       exp.message);
+                    }
+                }
             }
             else if (rupture_type == 'arbitrary') {
+                strike = gem_ipt.check_val(
+                    "Strike", $(this.pfx + 'div[name="arbitrary"] input[name="strike"]').val(),
+                    'float-range-in-in', 0, 360);
+                dip = gem_ipt.check_val(
+                    "Dip", $(this.pfx + 'div[name="arbitrary"] input[name="dip"]').val(),
+                    'float-range-out-in', 0, 90);
+
+                var tbl_data = this.arbitrary_tbl.getData();
+
+                gem_ipt.check_val("Surface geometry", tbl_data, "tab-check",
+                                  [["Longitude", "float-range-in-in", -180, 180],
+                                   ["Latitude", "float-range-in-in", -90, 90],
+                                   ["Depth", "float-ge", 0]],
+                                  ["topLeft", "topRight", "bottomLeft", "bottomRight"]);
             }
             else {
                 throw new gem_ipt.check_exception("Rupture type '" + rupture_type + "' not recognized.");
             }
 
-        } catch(e) {
-            alert(e.message);
+        } catch(exc) {
+            gem_ipt.error_msg(exc.message);
+            return false;
         }
     }
 };

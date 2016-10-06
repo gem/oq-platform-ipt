@@ -464,16 +464,7 @@ $(document).ready(function () {
         var ret = cf_obj[scope].getData();
 
         if (ret.ret != 0) {
-            $( "#dialog-message" ).html(ret.str.replace(/\n/g, "<br/>"));
-            $( "#dialog-message" ).dialog({
-                modal: true,
-                width: '600px',
-                buttons: {
-                    Ok: function() {
-                        $(this).dialog( "close" );
-                    }
-                }
-            });
+            gem_ipt.error_msg(ret.str);
 
             return;
         }
@@ -525,7 +516,6 @@ $(document).ready(function () {
                     $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
                     $form.append($new_input);
 
-                    console.log($form);
                     $form.submit();
                 }
             }
@@ -542,17 +532,14 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function(data) {
-                console.log('success');
                 if (data.ret == 0) {
                     var tabs = ['scen', 'e_b'];
                     for (var i = 0 ; i < tabs.length ; i++) {
                         tab = tabs[i];
-                        console.log('tab: ' + tab);
 
                         var $all_selects = $(cf_obj[tab].pfx + ' select[name="file_html"]');
 
                         for (var e = 0 ; e < $all_selects.length ; e++) {
-                            console.log('element ' + e);
                             $sel = $($all_selects[e]);
                             if ($sel.is("[multiple]")) {
                                 $sel.empty();
