@@ -295,6 +295,8 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                     if (!(i in this.planar_tbl))
                         continue;
                     try {
+                        planar[i] = {};
+
                         planar[i].strike = gem_ipt.check_val(
                             "Strike", $(this.pfx + 'div[name="planar"] div[name="planars"] div[name="planar-' + i
                                         + '"] input[name="strike"]').val(), 'float-range-in-in', 0, 360);
@@ -309,6 +311,22 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                                            ["Latitude", "float-range-in-in", -90, 90],
                                            ["Depth", "float-ge", 0]],
                                           ["topLeft", "topRight", "bottomLeft", "bottomRight"]);
+
+                        if (this.planar_tbl[i].getDataAtCell(0,2) != this.planar_tbl[i].getDataAtCell(1,2)) {
+                            throw new gem_ipt.check_exception("Surface geometries Top Left ("
+                                                              + this.planar_tbl[i].getDataAtCell(0,2)
+                                                              + ") and Top Right ("
+                                                              + this.planar_tbl[i].getDataAtCell(1,2)
+                                                              + ") differ.");
+                        }
+
+                        if (this.planar_tbl[i].getDataAtCell(2,2) != this.planar_tbl[i].getDataAtCell(3,2)) {
+                            throw new gem_ipt.check_exception("Surface geometries Bottom Left ("
+                                                              + this.planar_tbl[i].getDataAtCell(2,2)
+                                                              + ") and Bottom Right ("
+                                                              + this.planar_tbl[i].getDataAtCell(3,2)
+                                                              + ") differ.");
+                        }
                     } catch(exp) {
                         throw new gem_ipt.check_exception("Error in 'Planar surface " + (i + 1) + "' with message:\n" +
                                                        exp.message);

@@ -82,6 +82,14 @@ var gem_ipt = {
                 throw new this.check_exception("'" + name + "' field isn't an integer number (" + val + ").");
         }
 
+        if (oper == "float-eq") {
+            var second = parseFloat(arguments[3]);
+
+            val = parseFloat(val);
+            if (!(val == second))
+                throw new this.check_exception("'" + name + "' field not equal to " + second + " (" + val + ").");
+            return val;
+        }
         if (oper == "float-ge") {
             var second = parseFloat(arguments[3]);
 
@@ -90,7 +98,7 @@ var gem_ipt = {
                 throw new this.check_exception("'" + name + "' field is less than " + second + " (" + val + ").");
             return val;
         }
-        if (oper == "float-gt") {
+        else if (oper == "float-gt") {
             var second = parseFloat(arguments[3]);
 
             val = parseFloat(val);
