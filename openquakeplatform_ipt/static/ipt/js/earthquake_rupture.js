@@ -224,7 +224,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                 if (resp.ret == 0) {
                     var data = [];
                     var rows = ["topLeft", "topRight", "bottomLeft", "bottomRight"];
-                    var cols = ["lat", "lon", "depth"];
+                    var cols = ["lon", "lat", "depth"];
                     for (i in rows) {
                         row = resp[rows[i]];
                         data[i] = [];

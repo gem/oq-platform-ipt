@@ -70,7 +70,7 @@ var gem_ipt = {
         // inspection if needed with: console.log("Name: " + name + "  Val: " + val + " Oper: " + oper);
         /* is empty ? */
         if (val === "")
-            throw new this.check_exception("'" + name + "' field is empty");
+            throw new this.check_exception("'" + name + "' field is empty.");
 
         /* type check */
         if (oper.substr(0,6) == "float-") {
