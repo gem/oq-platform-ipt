@@ -537,6 +537,19 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
             }
             nrml += '    </complexFaultRupture>\n';
         }
+        else if (rupture_type == 'arbitrary') {
+            nrml += '    <singlePlaneRupture>\n';
+            nrml += this.header2nrml(mag, rake, hypo_lon, hypo_lat, hypo_depth);
+            var data = this.arbitrary_tbl.getData();
+            nrml += '\
+        <planarSurface strike="' + strike + '" dip="' + dip + '">\n\
+            <topLeft lon="'     + data[0][0] + '" lat="' + data[0][1] + '" depth="' + data[0][2] + '"/>\n\
+            <topRight lon="'    + data[1][0] + '" lat="' + data[1][1] + '" depth="' + data[1][2] + '"/>\n\
+            <bottomLeft lon="'  + data[2][0] + '" lat="' + data[2][1] + '" depth="' + data[2][2] + '"/>\n\
+            <bottomRight lon="' + data[3][0] + '" lat="' + data[3][1] + '" depth="' + data[3][2] + '"/>\n\
+        </planarSurface>\n';
+            nrml += '    </singlePlaneRupture>\n';
+        }
         nrml += '</nrml>\n';
         console.log(nrml);
         validateAndDisplayNRML(nrml, 'er', er_obj);
@@ -605,4 +618,9 @@ $(document).ready(function () {
 
     /* converter */
     $(er_obj.pfx + '#convertBtn').click(function(e) { er_obj.convert2nrml(e); });
+
+    $('.er_gid #downloadBtn').click(function() {
+    sendbackNRML(er_obj.nrml, 'er');
+});
+
 });
