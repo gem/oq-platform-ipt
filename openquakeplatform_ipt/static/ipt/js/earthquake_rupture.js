@@ -113,7 +113,7 @@ var er_obj = {
 
     complex_surface_middle_add: function (obj) {
         var id = obj.getAttribute("data_gem_id");
-        var mid_id = er_obj.complex_tbl[id].middles_n;
+        var mid_id = er_obj.complex_tbl[id].middles_cur;
 
         var ctx = '\
           <div class="menuItems" name="middle-' + mid_id + '">\n\
@@ -130,14 +130,14 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
         $(middle_table_id).handsontable(er_obj.tbl_complex_params);
         er_obj.complex_tbl[id].middles[mid_id] = $(middle_table_id).handsontable('getInstance');
 
-        er_obj.complex_tbl[id].middles_n++;
+        er_obj.complex_tbl[id].middles_cur++;
     },
 
     complex_surface_del: function (obj) {
         var id = obj.getAttribute("data_gem_id");
         var $item = $(er_obj.pfx + 'div[name="complexes"] div[name="complex-' + id + '"]');
 
-        for (var mid_id = 0 ; mid_id < this.complex_tbl[id].middles_n ; mid_id++) {
+        for (var mid_id = 0 ; mid_id < this.complex_tbl[id].middles_cur ; mid_id++) {
             if (mid_id in this.complex_tbl[id].middles) {
                 var middle_table_id = er_obj.pfx + 'div[name="rupture"] > div[name="complex"] div[name="complex-' + id + '"] div[name="middles"] div[name="middle-geometry-' + id + '-' + mid_id + '"]';
                 $(middle_table_id).remove();
@@ -153,7 +153,10 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
         var ctx = '\
       <div name="complex-' + ct + '">\n\
         <div class="menuItems" style="margin-top: 12px; margin-left: 100px;">\n\
-          <div style="display: inline-block; float: left;"><h4>Complex surface ' + (ct + 1) + '</h4></div><button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.complex_surface_del(this);">Delete Complex Surface</button>\n\
+            <div style="display: inline-block; float: left;"><h4>Complex surface ' + (ct + 1) + '</h4></div>';
+
+        ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '            <button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.complex_surface_del(this);">Delete Complex Surface</button>');
+        ctx += '\n\
         </div>\n\
         <div class="menuItems complex_geometry">\n\
           <label>Fault top edge:</label>\n\
@@ -174,7 +177,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
 </div>';
         $(er_obj.pfx + 'div[name="complexes"]').append(ctx);
 
-        er_obj.complex_tbl[ct] = { top: null, bottom: null, middles: {}, middles_n: 0 };
+        er_obj.complex_tbl[ct] = { top: null, bottom: null, middles: {}, middles_cur: 0 };
 
         var top_table_id = er_obj.pfx + 'div[name="rupture"] > div[name="complex"] div[name="top-geometry-' + ct + '"]';
 
@@ -265,6 +268,17 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
         return ({"mag": mag, "rake": rake, "hypo_lat": hypo_lat, "hypo_lon": hypo_lon, "hypo_depth": hypo_depth});
     },
 
+    header2nrml: function(mag, rake, hypo_lon, hypo_lat, hypo_depth) {
+        var nrml;
+
+        nrml = '\
+        <magnitude>' + mag + '</magnitude>\n\
+        <rake>' + rake + '</rake>\n\
+        <hypocenter lat="' + hypo_lat + '" lon="' + hypo_lon + '" depth="' + hypo_depth + '"/>\n';
+
+        return nrml;
+    },
+
     convert2nrml: function(obj) {
         var mag, hypo_lat, hypo_lon, hypo_depth, rake;
         var strike, dip, upper_ses_dep, lower_ses_dep;
@@ -344,7 +358,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                         continue;
                     try {
                         // obj initialization:
-                        //     er_obj.complex_tbl[ct] = { top: null, bottom: null, middles: {}, middles_n: 0 };
+                        //     er_obj.complex_tbl[ct] = { top: null, bottom: null, middles: {}, middles_cur: 0 };
                         var complex_obj = this.complex_tbl[i];
 
                         var top_tbl_data = complex_obj.top.getData();
@@ -354,7 +368,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                                            ["Latitude", "float-range-in-in", -90, 90],
                                            ["Depth", "float-ge", 0]]);
 
-                        for (var e = 0 ; e < complex_obj.middles_n ; e++) {
+                        for (var e = 0 ; e < complex_obj.middles_cur ; e++) {
                             if (!(e in complex_obj.middles))
                                 continue;
 
@@ -408,13 +422,10 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
         var nrml = '<?xml version="1.0" encoding="utf-8"?>\n\
 <nrml xmlns:gml="http://www.opengis.net/gml" xmlns="http://openquake.org/xmlns/nrml/0.4">';
 
-        console.log('QUIZ: ' + rupture_type);
         if (rupture_type == 'simple') {
+            nrml += '    <simpleFaultRupture>\n';
+            nrml += er_obj.header2nrml(mag, rake, hypo_lon, hypo_lat, hypo_depth);
             nrml += '\
-    <simpleFaultRupture>\n\
-        <magnitude>' + mag + '</magnitude>\n\
-        <rake>' + rake + '</rake>\n\
-        <hypocenter lat="' + hypo_lat + '" lon="' + hypo_lon + '" depth="' + hypo_depth + '"/>\n\
         <simpleFaultGeometry>\n\
             <gml:LineString>\n\
                 <gml:posList>\n';
@@ -443,10 +454,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
             else {
                 nrml += '    <multiplePlaneRupture>\n'
             }
-            nrml += '\
-        <magnitude>' + mag + '</magnitude>\n\
-        <rake>' + rake + '</rake>\n\
-        <hypocenter lat="' + hypo_lat + '" lon="' + hypo_lon + '" depth="' + hypo_depth + '"/>\n';
+            nrml += this.header2nrml(mag, rake, hypo_lon, hypo_lat, hypo_depth);
             for (var i = 0 ; i < this.planar_tbl_cur ; i++) {
                 var data = planar[i].tbl_data;
                 if (! (i in this.planar_tbl))
@@ -465,6 +473,69 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
             else {
                 nrml += '    </multiplePlaneRupture>\n'
             }
+        }
+        else if (rupture_type == 'complex') {
+            nrml += '    <complexFaultRupture>\n';
+            nrml += this.header2nrml(mag, rake, hypo_lon, hypo_lat, hypo_depth);
+            for (var i = 0 ; i < this.complex_tbl_cur ; i++) {
+                if (!(i in this.complex_tbl)) {
+                    continue;
+                }
+                complex_tbl = this.complex_tbl[i];
+                data_top =  complex_tbl.top.getData();
+                nrml += '\
+        <complexFaultGeometry>\n\
+            <faultTopEdge>\n\
+                <gml:LineString>\n\
+                    <gml:posList>\n';
+
+                var data_top = complex_tbl.top.getData();
+                for (var e = 0 ; e < data_top.length ; e++) {
+                    nrml += '\
+                        ' + data_top[e][0] + ' ' + data_top[e][1] + ' ' + data_top[e][2] + '\n';
+
+                }
+                nrml += '\
+                    </gml:posList>\n\
+                </gml:LineString>\n\
+            </faultTopEdge>\n';
+
+                for (var e = 0 ; e < complex_tbl.middles_cur ; e++) {
+                    if (! (e in complex_tbl.middles)) {
+                        continue;
+                    }
+                    var data_mid = complex_tbl.middles[e].getData();
+                    nrml += '\
+            <intermediateEdge>\n\
+                <gml:LineString>\n\
+                    <gml:posList>\n';
+                    for (var a = 0 ; a < data_mid.length ; a++) {
+                        nrml += '\
+                        ' + data_mid[a][0] + ' ' + data_mid[a][1] + ' ' + data_mid[a][2] + '\n';
+                    }
+                    nrml += '\
+                    </gml:posList>\n\
+                </gml:LineString>\n\
+            </intermediateEdge>\n';
+                }
+                nrml += '\
+            <faultBottomEdge>\n\
+                <gml:LineString>\n\
+                    <gml:posList>\n';
+
+                var data_bottom = complex_tbl.bottom.getData();
+                for (var e = 0 ; e < data_bottom.length ; e++) {
+                    nrml += '\
+                        ' + data_bottom[e][0] + ' ' + data_bottom[e][1] + ' ' + data_bottom[e][2] + '\n';
+
+                }
+                nrml += '\
+                    </gml:posList>\n\
+                </gml:LineString>\n\
+            </faultBottomEdge>\n\
+        </complexFaultGeometry>\n';
+            }
+            nrml += '    </complexFaultRupture>\n';
         }
         nrml += '</nrml>\n';
         console.log(nrml);
