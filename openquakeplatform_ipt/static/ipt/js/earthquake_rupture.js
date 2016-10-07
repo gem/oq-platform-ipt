@@ -60,7 +60,9 @@ var er_obj = {
         var ctx = '\
       <div name="planar-' + ct + '">\n\
         <div class="menuItems" style="margin-top: 12px;">\n\
-            <div style="display: inline-block; float: left;"><h4>Planar surface ' + (ct + 1) + '</h4></div><button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.planar_surface_del(this);">Delete Planar Surface</button>\n\
+<div style="display: inline-block; float: left;"><h4>Planar surface ' + (ct + 1) + '</h4></div>';
+        ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '<button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.planar_surface_del(this);">Delete Planar Surface</button>');
+        ctx += '\
         </div>\n\
         <div class="menuItems">\n\
          <label>Strike (degrees) <span class="ui-icon ui-icon-help ipt_help" title="The strike direction corresponds to the angle between the north and the direction you take so that when you walk along the fault trace the fault dips on your right."></span>:</label>\n\
