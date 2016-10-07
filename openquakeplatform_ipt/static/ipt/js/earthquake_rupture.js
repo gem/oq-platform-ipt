@@ -268,7 +268,10 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
     convert2nrml: function(obj) {
         var mag, hypo_lat, hypo_lon, hypo_depth, rake;
         var strike, dip, upper_ses_dep, lower_ses_dep;
+        var simple_tbl_data;
         var planar = {};
+
+        /* data validation */
         try {
             var header = this.validate_header();
             mag = header.mag;
@@ -279,8 +282,8 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
 
             rupture_type = $(this.pfx + ' input[type="radio"][name="rupture_type"]:checked').val();
             if (rupture_type == 'simple') {
-                var tbl_data = this.simple_tbl.getData();
-                gem_ipt.check_val("Simple fault geometry", tbl_data, "tab-check",
+                simple_tbl_data = this.simple_tbl.getData();
+                gem_ipt.check_val("Simple fault geometry", simple_tbl_data, "tab-check",
                                   [["Longitude", "float-range-in-in", -180, 180],
                                    ["Latitude", "float-range-in-in", -90, 90]]);
                 dip = gem_ipt.check_val("Dip", $(this.pfx + 'div[name="simple"] input[name="dip"]').val(),
@@ -306,9 +309,9 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                             "Dip", $(this.pfx + 'div[name="planar"] div[name="planars"] div[name="planar-' + i
                                      + '"] input[name="dip"]').val(), 'float-range-out-in', 0, 90);
 
-                        var tbl_data = this.planar_tbl[i].getData();
+                        planar[i].tbl_data = this.planar_tbl[i].getData();
 
-                        gem_ipt.check_val("Surface geometry", tbl_data, "tab-check",
+                        gem_ipt.check_val("Surface geometry", planar[i].tbl_data, "tab-check",
                                           [["Longitude", "float-range-in-in", -180, 180],
                                            ["Latitude", "float-range-in-in", -90, 90],
                                            ["Depth", "float-ge", 0]],
@@ -399,6 +402,73 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
             gem_ipt.error_msg(exc.message);
             return false;
         }
+
+        /* NRML generation */
+
+        var nrml = '<?xml version="1.0" encoding="utf-8"?>\n\
+<nrml xmlns:gml="http://www.opengis.net/gml" xmlns="http://openquake.org/xmlns/nrml/0.4">';
+
+        console.log('QUIZ: ' + rupture_type);
+        if (rupture_type == 'simple') {
+            nrml += '\
+    <simpleFaultRupture>\n\
+        <magnitude>' + mag + '</magnitude>\n\
+        <rake>' + rake + '</rake>\n\
+        <hypocenter lat="' + hypo_lat + '" lon="' + hypo_lon + '" depth="' + hypo_depth + '"/>\n\
+        <simpleFaultGeometry>\n\
+            <gml:LineString>\n\
+                <gml:posList>\n';
+            for (var i = 0 ; i < simple_tbl_data.length ; i++) {
+                nrml += '                    ' + simple_tbl_data[i][0] + ' ' + simple_tbl_data[i][1] + '\n';
+            }
+            nrml += '\
+                </gml:posList>\n\
+            </gml:LineString>\n\
+            <dip>' + dip + '</dip>\n\
+            <upperSeismoDepth>' + upper_ses_dep + '</upperSeismoDepth>\n\
+            <lowerSeismoDepth>' + lower_ses_dep + '</lowerSeismoDepth>\n\
+        </simpleFaultGeometry>\n\
+    </simpleFaultRupture>\n';
+        }
+        else if (rupture_type == 'planar') {
+            var plan_n = 0;
+            for (var i = 0 ; i < this.planar_tbl_cur ; i++) {
+                if (i in this.planar_tbl) {
+                    plan_n++;
+                }
+            }
+            if (plan_n == 1) {
+                nrml += '    <singlePlaneRupture>\n';
+            }
+            else {
+                nrml += '    <multiplePlaneRupture>\n'
+            }
+            nrml += '\
+        <magnitude>' + mag + '</magnitude>\n\
+        <rake>' + rake + '</rake>\n\
+        <hypocenter lat="' + hypo_lat + '" lon="' + hypo_lon + '" depth="' + hypo_depth + '"/>\n';
+            for (var i = 0 ; i < this.planar_tbl_cur ; i++) {
+                var data = planar[i].tbl_data;
+                if (! (i in this.planar_tbl))
+                    continue;
+                nrml += '\
+        <planarSurface strike="' + planar[i].strike + '" dip="' + planar[i].dip + '">\n\
+            <topLeft lon="'     + data[0][0] + '" lat="' + data[0][1] + '" depth="' + data[0][2] + '"/>\n\
+            <topRight lon="'    + data[1][0] + '" lat="' + data[1][1] + '" depth="' + data[1][2] + '"/>\n\
+            <bottomLeft lon="'  + data[2][0] + '" lat="' + data[2][1] + '" depth="' + data[2][2] + '"/>\n\
+            <bottomRight lon="' + data[3][0] + '" lat="' + data[3][1] + '" depth="' + data[3][2] + '"/>\n\
+        </planarSurface>\n';
+            }
+            if (plan_n == 1) {
+                nrml += '    </singlePlaneRupture>\n';
+            }
+            else {
+                nrml += '    </multiplePlaneRupture>\n'
+            }
+        }
+        nrml += '</nrml>\n';
+        console.log(nrml);
+        validateAndDisplayNRML(nrml, 'er', er_obj);
     }
 };
 
