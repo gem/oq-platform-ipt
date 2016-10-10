@@ -137,7 +137,7 @@ def sendback_nrml(request):
         return HttpResponseBadRequest(
             'Please provide the "xml_text" parameter')
     known_func_types = [
-        'exposure', 'fragility', 'vulnerability', 'site']
+        'exposure', 'fragility', 'vulnerability', 'site', 'earthquake_rupture' ]
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
