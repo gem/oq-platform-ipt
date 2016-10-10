@@ -36,7 +36,7 @@ imt_examples = {
         ]
     },
     'SiteConditions': {
-        'tab_id': 4,
+        'tab_id': 5,
         'exams': [
             {'exa_id': 1, 'xpath': "//textarea[@id='textareasc']",
              'sfx': 'xml' },
