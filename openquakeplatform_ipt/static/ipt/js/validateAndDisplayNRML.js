@@ -38,7 +38,7 @@ function sendbackNRML(nrml, sfx)
     $new_input = $('<input/>');
     $new_input.attr('type', 'hidden').attr({'name': 'func_type', 'value': funcType });
     $form.append($new_input);
-    $form.submit();
+    $form[0].submit();
 }
 
 

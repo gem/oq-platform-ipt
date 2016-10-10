@@ -384,8 +384,8 @@ $(document).ready(function () {
             stretchH: "all"
         });
         cf_obj[scope].expModel_coords = $(
-            cf_obj[scope].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable(
-                'getInstance');
+            cf_obj[scope].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'
+        ).handsontable('getInstance');
 
         setTimeout(function() {
             return gem_tableHeightUpdate(
@@ -702,8 +702,8 @@ $(document).ready(function () {
         stretchH: "all"
     });
     cf_obj['scen'].regGrid_coords = $(
-        cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]').handsontable(
-            'getInstance');
+        cf_obj['scen'].pfx + ' div[name="region-grid"] div[name="table"]'
+    ).handsontable('getInstance');
 
     setTimeout(function() {
         return gem_tableHeightUpdate(

@@ -16,8 +16,8 @@
 */
 
 var sc_obj = {
+    tbl_table: null,
     tbl: {},
-    tbl_idx: 0,
     nrml: "",
     header: [],
 
@@ -145,6 +145,9 @@ function sc_updateTable() {
         $('.sc_gid #table').handsontable('destroy');
     }
 
+    $('.sc_gid #table_file').val("");
+    sc_obj.tbl_file = null;
+
     // Default columns
     sc_obj.header = [ 'Longitude', 'Latitude', 'Vs30', 'Vs30 Type', 'Depth 1 km/s', 'Depth 2.5 km/s'];
 
@@ -237,6 +240,14 @@ function sc_updateTable() {
         return gem_tableHeightUpdate($('.sc_gid #table'));
     });
 
+    sc_obj.tbl.addHook('afterChange', function(changes, source) {
+        // when loadData is used, for performace reasons, changes are 'null'
+        if (changes != null || source != 'loadData') {
+            $('.sc_gid #table_file').val("");
+            sc_obj.tbl_file = null;
+        }
+    });
+
     $('.sc_gid #outputText').empty();
     $('.sc_gid #convertBtn').show();
 }
@@ -247,20 +258,24 @@ $('.sc_gid #downloadBtn').click(function() {
 
 $('.sc_gid #convertBtn').click(function() {
     // Get the values from the table
-    var tab_data = sc_obj.tbl.getData();
+    if ($('.sc_gid input#table_file')[0].files.length > 0) {
+        var tab_data = sc_obj.tbl_file;
+    }
+    else {
+        var tab_data = sc_obj.tbl.getData();
 
-    var pfx = '.sc_gid #table';
+        var pfx = '.sc_gid #table';
 
-    for (var i = 0; i < tab_data.length; i++) {
-        for (var j = 0; j < tab_data[i].length; j++) {
-            if (tab_data[i][j] === null || tab_data[i][j].toString().trim() == "") {
-                var error_msg = "empty cell detected at table coords (" + (i+1) + ", " + (j+1) + ")";
-                output_manager('sc', error_msg, null, null);
-                return;
+        for (var i = 0; i < tab_data.length; i++) {
+            for (var j = 0; j < tab_data[i].length; j++) {
+                if (tab_data[i][j] === null || tab_data[i][j].toString().trim() == "") {
+                    var error_msg = "empty cell detected at table coords (" + (i+1) + ", " + (j+1) + ")";
+                    output_manager('sc', error_msg, null, null);
+                    return;
+                }
             }
         }
     }
-
     var sites = '';
     // Check for null values
     for (var i = 0; i < tab_data.length; i++) {
@@ -285,6 +300,8 @@ $(document).ready(function () {
     // Manage the visibility of the perArea selection menu //
     /////////////////////////////////////////////////////////
     sc_updateTable();
+    $('.sc_gid input#table_file').on(
+        'change', function sc_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, sc_obj); });
     $('.sc_gid #new_row_add').click(function() {
         sc_obj.tbl.alter('insert_row');
     });
