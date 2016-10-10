@@ -27,46 +27,34 @@
   Select rupture type:<br>
   <div style="text-align: center;">
     <div class="chbox">
-      <input type="radio" name="rupture_type" value="simple" checked="checked"
+      <input type="radio" name="rupture_type" value="arbitrary" checked="checked"
+             >&nbsp;<span class="inlible">Arbitrary Fault Rupture</span>
+    </div>
+    <div class="chbox">
+      <input type="radio" name="rupture_type" value="simple"
              >&nbsp;<span class="inlible">Simple Fault Rupture
         <span class="ui-icon ui-icon-help ipt_help" title='For this fault type, the geometry is defined by the trace of the fault rupture, the dip and the upper and lower seismogenic depths.'></span>
       </span>
-    </div>
+    </div><br>
     <div class="chbox">
       <input type="radio" name="rupture_type" value="planar"
              >&nbsp;<span class="inlible">Single Planar Rupture OR Multi-Planar Rupture
         <span class="ui-icon ui-icon-help ipt_help" title='For this fault type, the geometry is defined as a collection of one or more rectangular planes, each defined by four corners.'></span>
       </span>
-    </div><br>
+    </div>
     <div class="chbox">
       <input type="radio" name="rupture_type" value="complex"
              >&nbsp;<span class="inlible">Complex Fault Rupture
         <span class="ui-icon ui-icon-help ipt_help" title='For this fault type, the geometry is defined by the upper, lower and (if applicable) intermediate edges of the fault rupture.'></span>
       </span>
     </div>
-    <div class="chbox">
-      <input type="radio" name="rupture_type" value="arbitrary"
-             >&nbsp;<span class="inlible">Arbitrary Fault Rupture</span>
-    </div>
   </div>
 </div>
 
 <div name="rupture">
   <!-- SIMPLE -->
-  <div name="simple">
+  <div name="simple" style="display: none;">
     <h3>Simple Fault Rupture</h3><br>
-    <div class="alert alert-info ipt-info" role="alert">
-      Copy and paste values from a spreadsheet into the table below.</div>
-    <div class="ipt-info">
-      <div class="vfsForm">
-        <label>Simple Fault Geometry <span class="ui-icon ui-icon-help ipt_help" title='Up-dip projection of the fault to the Earth's surface'></span>:</label>
-      </div>
-      <div class="ipt-info" style="text-align: right;">
-        <div name="geometry" style="height: 100px; overflow: hidden;"></div>
-        <button name="new_row_add" class="btn" style="margin-right: 20px;">New Row</button>
-      </div>
-    </div>
-
     <div class="menuItems">
       <label>Dip (degrees) <span class="ui-icon ui-icon-help ipt_help" title='Up-dip projection of the fault to the Earth's surface'></span>:</label>
       <input type="text" name="dip" value="90" placeholder="0 < float ≤ 90">
@@ -80,6 +68,17 @@
       <input type="text" name="lower_ses_dep" placeholder="float ≥ 0" value="15">
     </div>
 
+    <div class="alert alert-info ipt-info" role="alert">
+      Copy and paste values from a spreadsheet into the table below.</div>
+    <div class="ipt-info">
+      <div class="vfsForm">
+        <label>Simple Fault Geometry <span class="ui-icon ui-icon-help ipt_help" title='Up-dip projection of the fault to the Earth's surface'></span>:</label>
+      </div>
+      <div class="ipt-info" style="text-align: right;">
+        <div name="geometry" style="height: 100px; overflow: hidden;"></div>
+        <button name="new_row_add" class="btn" style="margin-right: 20px;">New Row</button>
+      </div>
+    </div>
   </div>
 
 
@@ -101,7 +100,7 @@
   </div>
 
   <!-- ARBITRARY -->
-  <div name="arbitrary" style="display: none;">
+  <div name="arbitrary">
     <h3>Arbitrary Fault Rupture</h3>
     <div class="menuItems">
       <label>Strike (degrees) <span class="ui-icon ui-icon-help ipt_help" title="The strike direction corresponds to the angle between the north and the direction you take so that when you walk along the fault trace the fault dips on your right."></span>:</label>
