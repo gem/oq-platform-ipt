@@ -30,6 +30,7 @@ function sendbackNRML(nrml, sfx)
     var funcType = sfx2name(sfx);
     var $form = $('.' + sfx + '_gid #downloadForm');
     $form.empty();
+    $form.append(csrf_token);
     $form.attr({'action': SENDBACK_URL});
     $new_input = $('<input/>');
     $new_input.attr('type', 'hidden').attr({'name': 'xml_text', 'value': nrml });
