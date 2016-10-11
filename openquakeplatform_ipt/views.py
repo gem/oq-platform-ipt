@@ -32,7 +32,7 @@ from django.conf import settings
 from openquake.hazardlib import gsim
 from django import forms
 
-from build_rupture_plane import get_rupture_surface
+from build_rupture_plane import get_rupture_surface_round
 
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
@@ -177,8 +177,8 @@ def sendback_er_rupture_surface(request):
             dip = float(dip)
             rake = float(rake)
 
-            ret = get_rupture_surface(mag, {"lon": hypo_lon, "lat": hypo_lat, "depth": hypo_depth},
-                                      strike, dip, rake)
+            ret = get_rupture_surface_round(mag, {"lon": hypo_lon, "lat": hypo_lat, "depth": hypo_depth},
+                                            strike, dip, rake)
             ret['ret'] = 0
             ret['ret_s'] = 'success'
         except:
