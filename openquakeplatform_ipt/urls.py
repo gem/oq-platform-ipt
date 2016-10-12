@@ -31,6 +31,7 @@ urlpatterns = patterns(
     url(r'^upload/(?P<target>[^?]*)', views.upload, name='upload'),
     url(r'^valid$', views.validate_nrml, name='validate_nrml'),
     url(r'^sendback$', views.sendback_nrml, name='sendback_nrml'),
+    url(r'^sendback_er_rupture_surface$', views.sendback_er_rupture_surface, name='sendback_er_rupture_surface'),
     url(r'^prepare/scenario$',
         views.scenario_prepare, name='scenario_prepare'),
     url(r'^prepare/event-based$',

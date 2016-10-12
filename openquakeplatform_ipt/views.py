@@ -32,6 +32,8 @@ from django.conf import settings
 from openquake.hazardlib import gsim
 from django import forms
 
+from build_rupture_plane import get_rupture_surface_round
+
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
                'fragility_model', 'fragility_cons',
@@ -135,7 +137,7 @@ def sendback_nrml(request):
         return HttpResponseBadRequest(
             'Please provide the "xml_text" parameter')
     known_func_types = [
-        'exposure', 'fragility', 'vulnerability', 'site']
+        'exposure', 'fragility', 'vulnerability', 'site', 'earthquake_rupture' ]
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
@@ -153,6 +155,36 @@ def sendback_nrml(request):
             'attachment; filename="' + filename + '"')
         return resp
 
+def sendback_er_rupture_surface(request):
+    mag = request.POST.get('mag')
+    hypo_lat = request.POST.get('hypo_lat')
+    hypo_lon = request.POST.get('hypo_lon')
+    hypo_depth = request.POST.get('hypo_depth')
+    strike = request.POST.get('strike')
+    dip = request.POST.get('dip')
+    rake = request.POST.get('rake')
+
+    if (mag is None or hypo_lat is None or hypo_lon is None or
+        hypo_depth is None or strike is None or dip is None or rake is None):
+        ret = { 'ret': 1, 'ret_s': 'incomplete arguments' }
+    else:
+        try:
+            mag = float(mag)
+            hypo_lat = float(hypo_lat)
+            hypo_lon = float(hypo_lon)
+            hypo_depth = float(hypo_depth)
+            strike = float(strike)
+            dip = float(dip)
+            rake = float(rake)
+
+            ret = get_rupture_surface_round(mag, {"lon": hypo_lon, "lat": hypo_lat, "depth": hypo_depth},
+                                            strike, dip, rake)
+            ret['ret'] = 0
+            ret['ret_s'] = 'success'
+        except Exception as exc:
+            ret = { 'ret': 2, 'ret_s': 'exception raised: %s' % exc }
+
+    return HttpResponse(json.dumps(ret), content_type="application/json")
 
 class FileUpload(forms.Form):
     file_upload = forms.FileField(allow_empty_file=True)

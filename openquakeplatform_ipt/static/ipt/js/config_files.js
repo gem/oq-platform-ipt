@@ -190,7 +190,7 @@ $(document).ready(function () {
                     for (var i = 0; i < obj.exposure_model_regcons_coords_data.length; i++) {
                         var lon = obj.exposure_model_regcons_coords_data[i][0];
                         var lat = obj.exposure_model_regcons_coords_data[i][1];
-                        if (lon === null || lat === null || !isFloat(lon) || !isFloat(lat) ||
+                        if (lon === null || lat === null || !gem_ipt.isFloat(lon) || !gem_ipt.isFloat(lat) ||
                             parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
                             parseFloat(lat) < -90.0  || parseFloat(lat) > 90.0) {
                             ret.str += "Entry #" + (i+1) + " of exposure model 'Region constraint'"
@@ -207,7 +207,7 @@ $(document).ready(function () {
                     obj.asset_hazard_distance = $(
                         cf_obj[scope].pfx + ' div[name="exposure-model"]'
                             + ' input[type="text"][name="asset_hazard_distance"]').val();
-                    if (!isFloat(obj.asset_hazard_distance)
+                    if (!gem_ipt.isFloat(obj.asset_hazard_distance)
                         || parseFloat(obj.asset_hazard_distance) < 0.0) {
                         ret.str += "'Asset hazard distance' field is negative float number ("
                             + obj.asset_hazard_distance + ").\n";
@@ -266,7 +266,7 @@ $(document).ready(function () {
             // site conditions -> uniform-param (get)
             obj.reference_vs30_value = $(cf_obj[scope].pfx + ' div[name="hazard-sitecond_uniform-param"]'
                                          + ' input[type="text"][name="reference_vs30_value"]').val();
-            if (!isFloat(obj.reference_vs30_value) || parseFloat(obj.reference_vs30_value) < 0.0) {
+            if (!gem_ipt.isFloat(obj.reference_vs30_value) || parseFloat(obj.reference_vs30_value) < 0.0) {
                 ret.str += "'Reference vs30 value' field isn't positive float number (" + obj.reference_vs30_value + ").\n";
             }
             obj.reference_vs30_type = $(cf_obj[scope].pfx + ' input[type="radio"]'
@@ -277,12 +277,12 @@ $(document).ready(function () {
 
             obj.reference_depth_to_2pt5km_per_sec = $(cf_obj[scope].pfx + ' div[name="hazard-sitecond_uniform-param"]'
                                                       + ' input[type="text"][name="reference_depth_to_2pt5km_per_sec"]').val();
-            if (!isFloat(obj.reference_depth_to_2pt5km_per_sec) || parseFloat(obj.reference_depth_to_2pt5km_per_sec) < 0.0) {
+            if (!gem_ipt.isFloat(obj.reference_depth_to_2pt5km_per_sec) || parseFloat(obj.reference_depth_to_2pt5km_per_sec) < 0.0) {
                 ret.str += "'Minimum depth at which vs30 >= 2.5' field isn't positive float number (" + obj.reference_depth_to_2pt5km_per_sec + ").\n";
             }
             obj.reference_depth_to_1pt0km_per_sec = $(cf_obj[scope].pfx + ' div[name="hazard-sitecond_uniform-param"]'
                                                       + ' input[type="text"][name="reference_depth_to_1pt0km_per_sec"]').val();
-            if (!isFloat(obj.reference_depth_to_1pt0km_per_sec) || parseFloat(obj.reference_depth_to_1pt0km_per_sec) < 0.0) {
+            if (!gem_ipt.isFloat(obj.reference_depth_to_1pt0km_per_sec) || parseFloat(obj.reference_depth_to_1pt0km_per_sec) < 0.0) {
                 ret.str += "'Minimum depth at which vs30 >= 1.0' field isn't positive float number (" + obj.reference_depth_to_1pt0km_per_sec + ").\n";
             }
         }
@@ -464,16 +464,7 @@ $(document).ready(function () {
         var ret = cf_obj[scope].getData();
 
         if (ret.ret != 0) {
-            $( "#dialog-message" ).html(ret.str.replace(/\n/g, "<br/>"));
-            $( "#dialog-message" ).dialog({
-                modal: true,
-                width: '600px',
-                buttons: {
-                    Ok: function() {
-                        $(this).dialog( "close" );
-                    }
-                }
-            });
+            gem_ipt.error_msg(ret.str);
 
             return;
         }
@@ -525,7 +516,6 @@ $(document).ready(function () {
                     $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
                     $form.append($new_input);
 
-                    console.log($form);
                     $form.submit();
                 }
             }
@@ -542,17 +532,14 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function(data) {
-                console.log('success');
                 if (data.ret == 0) {
                     var tabs = ['scen', 'e_b'];
                     for (var i = 0 ; i < tabs.length ; i++) {
                         tab = tabs[i];
-                        console.log('tab: ' + tab);
 
                         var $all_selects = $(cf_obj[tab].pfx + ' select[name="file_html"]');
 
                         for (var e = 0 ; e < $all_selects.length ; e++) {
-                            console.log('element ' + e);
                             $sel = $($all_selects[e]);
                             if ($sel.is("[multiple]")) {
                                 $sel.empty();
@@ -575,6 +562,7 @@ $(document).ready(function () {
         $('<div></div>').appendTo('body')
             .html('<div><h6>Do you really want to delete all uploaded files and reset the page ?</h6></div>')
             .dialog({
+                dialogClass: 'gem-jqueryui-dialog',
                 modal: true,
                 title: 'Clean all uploaded files',
                 zIndex: 10000,
@@ -972,7 +960,7 @@ $(document).ready(function () {
                 ret.str += "'Rupture file' field is empty.\n";
             }
             obj.rupture_mesh_spacing = $(cf_obj['scen'].pfx + ' input[name="rupture_mesh_spacing"]').val();
-            if (!isFloat(obj.rupture_mesh_spacing) || parseFloat(obj.rupture_mesh_spacing) <= 0.0) {
+            if (!gem_ipt.isFloat(obj.rupture_mesh_spacing) || parseFloat(obj.rupture_mesh_spacing) <= 0.0) {
                 ret.str += "'Rupture Mesh Spacing' field isn't greater than 0 float number (" + obj.rupture_mesh_spacing + ").\n";
             }
             uniqueness_add(files_list, 'rupture model file', obj.rupture_model_file);
@@ -987,7 +975,7 @@ $(document).ready(function () {
             if (obj.hazard_sites_choice == 'region-grid') {
                 // Hazard sites -> Region-grid (get)
                 obj.grid_spacing = $(cf_obj['scen'].pfx + ' input[name="grid_spacing"]').val();
-                if (!isFloat(obj.grid_spacing) || parseFloat(obj.grid_spacing) <= 0.0) {
+                if (!gem_ipt.isFloat(obj.grid_spacing) || parseFloat(obj.grid_spacing) <= 0.0) {
                     ret.str += "'Grid spacing' field isn't greater than 0 float number (" + obj.grid_spacing + ").\n";
                 }
 
@@ -995,7 +983,7 @@ $(document).ready(function () {
                 // Check for invalid value (get)
                 for (var i = 0; i < obj.reggrid_coords_data.length; i++) {
                     var lon = obj.reggrid_coords_data[i][0], lat = obj.reggrid_coords_data[i][1];
-                    if (lon === null || lat === null || !isFloat(lon) || !isFloat(lat) ||
+                    if (lon === null || lat === null || !gem_ipt.isFloat(lon) || !gem_ipt.isFloat(lat) ||
                         parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
                         parseFloat(lat) < -90.0  || parseFloat(lat) > 90.0) {
                         ret.str += "Entry #" + (i+1) + " of region grid 'Coordinates'"
@@ -1127,17 +1115,17 @@ $(document).ready(function () {
             }
 
             obj.truncation_level = $(cf_obj['scen'].pfx + ' input[name="truncation_level"]').val();
-            if (!isFloat(obj.truncation_level) || parseFloat(obj.truncation_level) < 0.0) {
+            if (!gem_ipt.isFloat(obj.truncation_level) || parseFloat(obj.truncation_level) < 0.0) {
                 ret.str += "'Level of truncation' field isn't positive float number (" + obj.truncation_level + ").\n";
             }
 
             obj.maximum_distance = $(cf_obj['scen'].pfx + ' input[name="maximum_distance"]').val();
-            if (!isFloat(obj.maximum_distance) || parseFloat(obj.maximum_distance) < 0.0) {
+            if (!gem_ipt.isFloat(obj.maximum_distance) || parseFloat(obj.maximum_distance) < 0.0) {
                 ret.str += "'Maximum source-to-site distance' field isn't positive float number (" + obj.maximum_distance + ").\n";
             }
 
             obj.number_of_ground_motion_fields = $(cf_obj['scen'].pfx + ' input[name="number_of_ground_motion_fields"]').val();
-            if (!isInt(obj.number_of_ground_motion_fields) || parseInt(obj.number_of_ground_motion_fields) <= 0) {
+            if (!gem_ipt.isInt(obj.number_of_ground_motion_fields) || parseInt(obj.number_of_ground_motion_fields) <= 0) {
                 ret.str += "'Number of ground motion fields' field isn't greater than 0 integer number (" + obj.number_of_ground_motion_fields + ").\n";
             }
         }
@@ -1505,7 +1493,7 @@ $(document).ready(function () {
 
             obj.width_of_mfd_bin = $(
                 pfx + ' input[type="text"][name="width_of_mfd_bin"]').val();
-            if (!isFloat(obj.width_of_mfd_bin) || parseFloat(obj.width_of_mfd_bin) < 0.0) {
+            if (!gem_ipt.isFloat(obj.width_of_mfd_bin) || parseFloat(obj.width_of_mfd_bin) < 0.0) {
                 ret.str += "'Bin width of the magnitude frequency distribution' field isn't a not negative float number (" + obj.width_of_mfd_bin + ").\n";
             }
 
@@ -1513,7 +1501,7 @@ $(document).ready(function () {
                 pfx + ' input[type="checkbox"][name="rupture_mesh_spacing_choice"]').is(':checked');
             if (obj.rupture_mesh_spacing_choice) {
                 obj.rupture_mesh_spacing = $(pfx + ' input[type="text"][name="rupture_mesh_spacing"]').val();
-                if (!isFloat(obj.rupture_mesh_spacing) || parseFloat(obj.rupture_mesh_spacing) < 0.0) {
+                if (!gem_ipt.isFloat(obj.rupture_mesh_spacing) || parseFloat(obj.rupture_mesh_spacing) < 0.0) {
                     ret.str += "'Rupture mesh spacing' field isn't a not negative float number (" + obj.rupture_mesh_spacing + ").\n";
                 }
             }
@@ -1522,7 +1510,7 @@ $(document).ready(function () {
                 pfx + ' input[type="checkbox"][name="area_source_discretization_choice"]').is(':checked');
             if (obj.area_source_discretization_choice) {
                 obj.area_source_discretization = $(pfx + ' input[type="text"][name="area_source_discretization"]').val();
-                if (!isFloat(obj.area_source_discretization) || parseFloat(obj.area_source_discretization) < 0.0) {
+                if (!gem_ipt.isFloat(obj.area_source_discretization) || parseFloat(obj.area_source_discretization) < 0.0) {
                     ret.str += "'Area source discretization' field isn't a not negative float number (" + obj.area_source_discretization + ").\n";
                 }
             }
@@ -1536,31 +1524,31 @@ $(document).ready(function () {
             var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-calculation"]';
 
             obj.truncation_level = $(pfx + ' input[type="text"][name="truncation_level"]').val();
-            if (!isFloat(obj.truncation_level) || parseFloat(obj.truncation_level) < 0.0) {
+            if (!gem_ipt.isFloat(obj.truncation_level) || parseFloat(obj.truncation_level) < 0.0) {
                 ret.str += "'Level of truncation' field is negative float number ("
                     + obj.width_of_mfd_bin + ").\n";
             }
 
             obj.maximum_distance = $(pfx + ' input[type="text"][name="maximum_distance"]').val();
-            if (!isFloat(obj.maximum_distance) || parseFloat(obj.maximum_distance) < 0.0) {
+            if (!gem_ipt.isFloat(obj.maximum_distance) || parseFloat(obj.maximum_distance) < 0.0) {
                 ret.str += "'Maximum source-to-site distance' field is negative float number ("
                     + obj.maximum_distance + ").\n";
             }
 
             obj.investigation_time = $(pfx + ' input[type="text"][name="investigation_time"]').val();
-            if (!isInt(obj.investigation_time) || parseInt(obj.investigation_time) <= 0.0) {
+            if (!gem_ipt.isInt(obj.investigation_time) || parseInt(obj.investigation_time) <= 0.0) {
                 ret.str += "'Hazard investigation time' field isn't positive number ("
                     + obj.investigation_time + ").\n";
             }
 
             obj.ses_per_logic_tree_path = $(pfx + ' input[type="text"][name="ses_per_logic_tree_path"]').val();
-            if (!isInt(obj.ses_per_logic_tree_path) || parseInt(obj.ses_per_logic_tree_path) <= 0.0) {
+            if (!gem_ipt.isInt(obj.ses_per_logic_tree_path) || parseInt(obj.ses_per_logic_tree_path) <= 0.0) {
                 ret.str += "'Stochastic event sets per logic tree path' field isn't positive number ("
                     + obj.ses_per_logic_tree_path + ").\n";
             }
 
             obj.number_of_logic_tree_samples = $(pfx + ' input[type="text"][name="number_of_logic_tree_samples"]').val();
-            if (!isInt(obj.number_of_logic_tree_samples) || parseInt(obj.number_of_logic_tree_samples) < 0.0) {
+            if (!gem_ipt.isInt(obj.number_of_logic_tree_samples) || parseInt(obj.number_of_logic_tree_samples) < 0.0) {
                 ret.str += "'Number of logic tree samples' field is negative number ("
                     + obj.number_of_logic_tree_samples + ").\n";
             }
@@ -1577,7 +1565,7 @@ $(document).ready(function () {
             var pfx_vuln = cf_obj['e_b'].pfx + ' div[name="vulnerability-model"]';
 
             obj.risk_investigation_time = $(pfx + ' input[type="text"][name="risk_investigation_time"]').val();
-            if (!isInt(obj.risk_investigation_time) || parseInt(obj.risk_investigation_time) <= 0.0) {
+            if (!gem_ipt.isInt(obj.risk_investigation_time) || parseInt(obj.risk_investigation_time) <= 0.0) {
                 ret.str += "'Risk investigation time' field isn't positive number ("
                     + obj.risk_investigation_time + ").\n";
             }
@@ -1586,7 +1574,7 @@ $(document).ready(function () {
                 cf_obj['e_b'].pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').is(':checked');
             if (obj.loss_curve_resolution_choice) {
                 obj.loss_curve_resolution = $(pfx + ' input[type="text"][name="loss_curve_resolution"]').val();
-                if (!isInt(obj.loss_curve_resolution) || parseInt(obj.loss_curve_resolution) <= 0.0) {
+                if (!gem_ipt.isInt(obj.loss_curve_resolution) || parseInt(obj.loss_curve_resolution) <= 0.0) {
                     ret.str += "'Loss curve resolution' field isn't positive number ("
                         + obj.risk_investigation_time + ").\n";
                 }
@@ -1607,7 +1595,7 @@ $(document).ready(function () {
                         var arr = obj['loss_ratios_' + losstype].split(',');
                         for (var k in arr) {
                             var cur = arr[k].trim(' ');
-                            if (!isFloat(cur) || cur < 0.0) {
+                            if (!gem_ipt.isFloat(cur) || cur < 0.0) {
                                 ret.str += "'" + descr[losstype] + " vulnerability model' field element #" + (parseInt(k)+1)
                                     + " is negative number (" + cur + ").\n";
                             }
@@ -1639,7 +1627,7 @@ $(document).ready(function () {
                     var arr = obj.quantile_hazard_curves.split(',');
                     for (var k in arr) {
                         var cur = arr[k].trim(' ');
-                        if (!isFloat(cur) || cur <= 0.0) {
+                        if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
                             ret.str += "'Quantile hazard curves' field element #" + (parseInt(k)+1)
                                 + " isn't positive number (" + cur + ").\n";
                         }
@@ -1655,7 +1643,7 @@ $(document).ready(function () {
                 var arr = obj.poes.split(',');
                 for (var k in arr) {
                     var cur = arr[k].trim(' ');
-                    if (!isFloat(cur) || cur <= 0.0) {
+                    if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
                         ret.str += "'Probability of exceedances' field element #" + (parseInt(k)+1)
                             + " isn't positive number (" + cur + ").\n";
                     }
@@ -1683,7 +1671,7 @@ $(document).ready(function () {
                 var arr = obj.quantile_loss_curves.split(',');
                 for (var k in arr) {
                     var cur = arr[k].trim(' ');
-                    if (!isFloat(cur) || cur <= 0.0) {
+                    if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
                         ret.str += "'Quantile loss curves' field element #" + (parseInt(k)+1)
                             + " isn't positive number (" + cur + ").\n";
                     }
@@ -1702,7 +1690,7 @@ $(document).ready(function () {
                     var arr = obj.conditional_loss_poes.split(',');
                     for (var k in arr) {
                         var cur = arr[k].trim(' ');
-                        if (!isFloat(cur) || cur <= 0.0) {
+                        if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
                             ret.str += "'Loss maps' field element #" + (parseInt(k)+1)
                                 + " isn't positive number (" + cur + ").\n";
                         }
