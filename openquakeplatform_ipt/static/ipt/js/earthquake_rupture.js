@@ -332,23 +332,23 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                                           ["topLeft", "topRight", "bottomLeft", "bottomRight"]);
 
                         if (this.planar_tbl[i].getDataAtCell(0,2) != this.planar_tbl[i].getDataAtCell(1,2)) {
-                            throw new gem_ipt.check_exception("Surface geometries Top Left ("
-                                                              + this.planar_tbl[i].getDataAtCell(0,2)
-                                                              + ") and Top Right ("
-                                                              + this.planar_tbl[i].getDataAtCell(1,2)
-                                                              + ") differ.");
+                            throw new gem_ipt.exception("Surface geometries Top Left ("
+                                                        + this.planar_tbl[i].getDataAtCell(0,2)
+                                                        + ") and Top Right ("
+                                                        + this.planar_tbl[i].getDataAtCell(1,2)
+                                                        + ") differ.");
                         }
 
                         if (this.planar_tbl[i].getDataAtCell(2,2) != this.planar_tbl[i].getDataAtCell(3,2)) {
-                            throw new gem_ipt.check_exception("Surface geometries Bottom Left ("
-                                                              + this.planar_tbl[i].getDataAtCell(2,2)
-                                                              + ") and Bottom Right ("
-                                                              + this.planar_tbl[i].getDataAtCell(3,2)
-                                                              + ") differ.");
+                            throw new gem_ipt.exception("Surface geometries Bottom Left ("
+                                                        + this.planar_tbl[i].getDataAtCell(2,2)
+                                                        + ") and Bottom Right ("
+                                                        + this.planar_tbl[i].getDataAtCell(3,2)
+                                                        + ") differ.");
                         }
                     } catch(exp) {
-                        throw new gem_ipt.check_exception("Error in 'Planar surface " + (i + 1) + "' with message:\n" +
-                                                       exp.message);
+                        throw new gem_ipt.exception("Error in 'Planar surface " + (i + 1) + "' with message:\n" +
+                                                    exp.message);
                     }
                 }
             }
@@ -387,8 +387,8 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
 
 
                     } catch(exp) {
-                        throw new gem_ipt.check_exception("Error in 'Complex surface " + (i + 1) + "' with message:\n" +
-                                                       exp.message);
+                        throw new gem_ipt.exception("Error in 'Complex surface " + (i + 1) + "' with message:\n" +
+                                                    exp.message);
                     }
                 }
             }
@@ -409,7 +409,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                                   ["topLeft", "topRight", "bottomLeft", "bottomRight"]);
             }
             else {
-                throw new gem_ipt.check_exception("Rupture type '" + rupture_type + "' not recognized.");
+                throw new gem_ipt.exception("Rupture type '" + rupture_type + "' not recognized.");
             }
 
         } catch(exc) {
