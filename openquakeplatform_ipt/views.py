@@ -181,8 +181,8 @@ def sendback_er_rupture_surface(request):
                                             strike, dip, rake)
             ret['ret'] = 0
             ret['ret_s'] = 'success'
-        except:
-            ret = { 'ret': 2, 'ret_s': 'exception raised' }
+        except Exception as exc:
+            ret = { 'ret': 2, 'ret_s': 'exception raised: %s' % exc }
 
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
