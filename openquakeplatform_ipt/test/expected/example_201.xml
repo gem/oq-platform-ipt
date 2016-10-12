@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nrml xmlns="http://openquake.org/xmlns/nrml/0.5">
+	<fragilityModel id="fragility_model_MUR" assetCategory="buildings" lossCategory="structural">
+		<description>Different fragility models to test MUR
+Based on Antioquia example</description>
+		<limitStates> slight moderate extensive collapse</limitStates>
+		<fragilityFunction id="MUR/H:1" format="continuous" shape="logncdf">
+			<imls imt="PGA" noDamageLimit="0.05" minIML="0.0" maxIML="1.5"/>
+			<params ls="slight" mean="1.30351" stddev="0.65425"/>
+			<params ls="moderate" mean="2.39949" stddev="1.65558"/>
+			<params ls="extensive" mean="2.98182" stddev="2.16212"/>
+			<params ls="collapse" mean="5.0809" stddev="4.73784"/>
+		</fragilityFunction>
+		<fragilityFunction id="MUR/H:2" format="continuous" shape="logncdf">
+			<imls imt="PGA" noDamageLimit="0.05" minIML="0.0" maxIML="1.5"/>
+			<params ls="slight" mean="0.45446" stddev="0.13365"/>
+			<params ls="moderate" mean="0.73629" stddev="0.2902"/>
+			<params ls="extensive" mean="1.0083" stddev="0.4132"/>
+			<params ls="collapse" mean="1.38991" stddev="0.64721"/>
+		</fragilityFunction>
+		<fragilityFunction id="MUR/H:3" format="continuous" shape="logncdf">
+			<imls imt="SA(0.1)" noDamageLimit="0.075" minIML="0.0" maxIML="2.0"/>
+			<params ls="slight" mean="0.32408" stddev="0.09496"/>
+			<params ls="moderate" mean="0.45016" stddev="0.15025"/>
+			<params ls="extensive" mean="0.59408" stddev="0.22361"/>
+			<params ls="collapse" mean="0.77838" stddev="0.24303"/>
+		</fragilityFunction>
+		<fragilityFunction id="MUR/H:4" format="discrete">
+			<imls imt="PGA" noDamageLimit="0.1">0.025 0.05 0.075 0.1 0.125 0.15 0.175 0.2 0.225 0.25 0.275 0.3 0.325 0.35 0.375 0.4 0.425 0.45 0.475 0.5 0.525 0.55 0.575 0.6</imls>
+			<poes ls="slight">0 0.0037 0.0595 0.2224 0.4413 0.6391 0.7828 0.8751 0.93 0.9614 0.9788 0.9884 0.9936 0.9965 0.9981 0.9989 0.9994 0.9997 0.9998 0.9999 0.9999 1 1 1</poes>
+			<poes ls="moderate">0 0 0.0003 0.008 0.0558 0.1779 0.3598 0.5518 0.7128 0.8283 0.9026 0.9469 0.9718 0.9854 0.9925 0.9962 0.9981 0.999 0.9995 0.9998 0.9999 0.9999 1 1</poes>
+			<poes ls="extensive">0 0 0 0 0.0004 0.0061 0.0361 0.1179 0.2594 0.4357 0.6085 0.75 0.8512 0.9164 0.9552 0.9769 0.9885 0.9944 0.9973 0.9987 0.9994 0.9997 0.9999 0.9999</poes>
+			<poes ls="collapse">0 0 0 0 0 0 0.0005 0.0059 0.0326 0.1072 0.2429 0.4208 0.6016 0.7521 0.8589 0.9256 0.9633 0.9829 0.9924 0.9967 0.9986 0.9995 0.9998 0.9999</poes>
+		</fragilityFunction>
+	</fragilityModel>
+</nrml>

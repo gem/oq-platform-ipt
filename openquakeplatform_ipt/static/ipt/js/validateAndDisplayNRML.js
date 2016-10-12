@@ -1,6 +1,6 @@
 function sfx2name(sfx)
 {
-    var map = { 'ex': 'exposure', 'ff': 'fragility', 'vf': 'vulnerability', 'sc': 'site' };
+    var map = { 'ex': 'exposure', 'ff': 'fragility', 'vf': 'vulnerability', 'sc': 'site', 'er': 'earthquake_rupture' };
 
     return map[sfx];
 }
@@ -30,6 +30,7 @@ function sendbackNRML(nrml, sfx)
     var funcType = sfx2name(sfx);
     var $form = $('.' + sfx + '_gid #downloadForm');
     $form.empty();
+    $form.append(csrf_token);
     $form.attr({'action': SENDBACK_URL});
     $new_input = $('<input/>');
     $new_input.attr('type', 'hidden').attr({'name': 'xml_text', 'value': nrml });
@@ -37,7 +38,7 @@ function sendbackNRML(nrml, sfx)
     $new_input = $('<input/>');
     $new_input.attr('type', 'hidden').attr({'name': 'func_type', 'value': funcType });
     $form.append($new_input);
-    $form.submit();
+    $form[0].submit();
 }
 
 
@@ -97,7 +98,7 @@ function output_manager(funcType, error_msg, error_line, nrml)
 }
 
 function validateAndDisplayNRML(nrml, funcType, retobj){
-    // funcType can be 'ex', 'ff', 'vf' or 'sc'
+    // funcType can be 'ex', 'ff', 'vf', 'sc' or 'er'
 
     // Call the engine server api to check if the NRML is valid
     $.post(VALIDATION_URL, {xml_text: nrml})

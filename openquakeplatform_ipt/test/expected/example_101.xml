@@ -1,0 +1,2841 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nrml xmlns="http://openquake.org/xmlns/nrml/0.4">
+	<exposureModel id="ex1" category="buildings" taxonomySource="GEM taxonomy">
+		<description>Example of exposure in Antioquia
+simplest structural cost per building
+single MUR taxonomy</description>
+		<conversions>
+			<costTypes>
+				<costType name="structural" type="per_asset" unit="USD"/>
+			</costTypes>
+		</conversions>
+		<assets>
+			<asset id="ant_1_S1" number="373"  taxonomy="MUR/H:1" >
+				<location lon="-75.34996065" lat="7.579068441" />
+				<costs>
+					<cost type="structural" value="24000"/>
+				</costs>
+			</asset>
+			<asset id="ant_2_S1" number="16612"  taxonomy="MUR/H:2" >
+				<location lon="-75.19756969" lat="7.9863881" />
+				<costs>
+					<cost type="structural" value="23999"/>
+				</costs>
+			</asset>
+			<asset id="ant_3_S1" number="6478"  taxonomy="MUR/H:3" >
+				<location lon="-74.80258151" lat="7.597408272" />
+				<costs>
+					<cost type="structural" value="24001"/>
+				</costs>
+			</asset>
+			<asset id="ant_4_S1" number="440"  taxonomy="MUR/H:4" >
+				<location lon="-74.78158059" lat="8.097242445" />
+				<costs>
+					<cost type="structural" value="23987"/>
+				</costs>
+			</asset>
+			<asset id="ant_5_S1" number="1467"  taxonomy="MUR/H:1" >
+				<location lon="-75.39988652" lat="7.582264699" />
+				<costs>
+					<cost type="structural" value="23992"/>
+				</costs>
+			</asset>
+			<asset id="ant_6_S1" number="2269"  taxonomy="MUR/H:2" >
+				<location lon="-74.86744407" lat="7.488982109" />
+				<costs>
+					<cost type="structural" value="23997"/>
+				</costs>
+			</asset>
+			<asset id="ant_7_S1" number="68"  taxonomy="MUR/H:3" >
+				<location lon="-74.75719241" lat="6.408779223" />
+				<costs>
+					<cost type="structural" value="35769"/>
+				</costs>
+			</asset>
+			<asset id="ant_8_S1" number="26"  taxonomy="MUR/H:4" >
+				<location lon="-74.78767036" lat="6.552321291" />
+				<costs>
+					<cost type="structural" value="36023"/>
+				</costs>
+			</asset>
+			<asset id="ant_9_S1" number="1866"  taxonomy="MUR/H:1" >
+				<location lon="-74.40437906" lat="6.490684539" />
+				<costs>
+					<cost type="structural" value="35999"/>
+				</costs>
+			</asset>
+			<asset id="ant_10_S1" number="1412"  taxonomy="MUR/H:2" >
+				<location lon="-74.58851846" lat="6.205706357" />
+				<costs>
+					<cost type="structural" value="36003"/>
+				</costs>
+			</asset>
+			<asset id="ant_11_S1" number="243"  taxonomy="MUR/H:3" >
+				<location lon="-74.64021766" lat="5.871998476" />
+				<costs>
+					<cost type="structural" value="35962"/>
+				</costs>
+			</asset>
+			<asset id="ant_12_S1" number="578"  taxonomy="MUR/H:4" >
+				<location lon="-73.91032486" lat="7.008792249" />
+				<costs>
+					<cost type="structural" value="35977"/>
+				</costs>
+			</asset>
+			<asset id="ant_13_S1" number="2129"  taxonomy="MUR/H:1" >
+				<location lon="-75.07678846" lat="6.909131594" />
+				<costs>
+					<cost type="structural" value="27995"/>
+				</costs>
+			</asset>
+			<asset id="ant_14_S1" number="305"  taxonomy="MUR/H:2" >
+				<location lon="-75.14772589" lat="7.073880698" />
+				<costs>
+					<cost type="structural" value="28007"/>
+				</costs>
+			</asset>
+			<asset id="ant_15_S1" number="281"  taxonomy="MUR/H:3" >
+				<location lon="-75.08733373" lat="6.538338843" />
+				<costs>
+					<cost type="structural" value="27969"/>
+				</costs>
+			</asset>
+			<asset id="ant_16_S1" number="690"  taxonomy="MUR/H:4" >
+				<location lon="-74.69678222" lat="7.028763555" />
+				<costs>
+					<cost type="structural" value="27997"/>
+				</costs>
+			</asset>
+			<asset id="ant_17_S1" number="866"  taxonomy="MUR/H:1" >
+				<location lon="-75.01889153" lat="6.484314114" />
+				<costs>
+					<cost type="structural" value="28015"/>
+				</costs>
+			</asset>
+			<asset id="ant_18_S1" number="200"  taxonomy="MUR/H:2" >
+				<location lon="-75.16366616" lat="6.4711877" />
+				<costs>
+					<cost type="structural" value="27946"/>
+				</costs>
+			</asset>
+			<asset id="ant_19_S1" number="2128"  taxonomy="MUR/H:3" >
+				<location lon="-74.70182684" lat="7.0792096" />
+				<costs>
+					<cost type="structural" value="28001"/>
+				</costs>
+			</asset>
+			<asset id="ant_20_S1" number="354"  taxonomy="MUR/H:4" >
+				<location lon="-74.7994758" lat="6.774729659" />
+				<costs>
+					<cost type="structural" value="27961"/>
+				</costs>
+			</asset>
+			<asset id="ant_21_S1" number="218"  taxonomy="MUR/H:1" >
+				<location lon="-74.84083778" lat="6.675842397" />
+				<costs>
+					<cost type="structural" value="28043"/>
+				</costs>
+			</asset>
+			<asset id="ant_22_S1" number="214"  taxonomy="MUR/H:2" >
+				<location lon="-75.00979286" lat="6.598883466" />
+				<costs>
+					<cost type="structural" value="27984"/>
+				</costs>
+			</asset>
+			<asset id="ant_23_S1" number="145"  taxonomy="MUR/H:3" >
+				<location lon="-75.33472853" lat="6.885560746" />
+				<costs>
+					<cost type="structural" value="32052"/>
+				</costs>
+			</asset>
+			<asset id="ant_24_S1" number="136"  taxonomy="MUR/H:4" >
+				<location lon="-75.66630757" lat="6.605453501" />
+				<costs>
+					<cost type="structural" value="31898"/>
+				</costs>
+			</asset>
+			<asset id="ant_25_S1" number="35"  taxonomy="MUR/H:1" >
+				<location lon="-75.55070874" lat="7.111380968" />
+				<costs>
+					<cost type="structural" value="31621"/>
+				</costs>
+			</asset>
+			<asset id="ant_26_S1" number="122"  taxonomy="MUR/H:2" >
+				<location lon="-75.29598277" lat="6.979498894" />
+				<costs>
+					<cost type="structural" value="32019"/>
+				</costs>
+			</asset>
+			<asset id="ant_27_S1" number="162"  taxonomy="MUR/H:3" >
+				<location lon="-75.28213465" lat="6.724325141" />
+				<costs>
+					<cost type="structural" value="32065"/>
+				</costs>
+			</asset>
+			<asset id="ant_28_S1" number="882"  taxonomy="MUR/H:4" >
+				<location lon="-75.39164509" lat="6.486199821" />
+				<costs>
+					<cost type="structural" value="31986"/>
+				</costs>
+			</asset>
+			<asset id="ant_29_S1" number="708"  taxonomy="MUR/H:1" >
+				<location lon="-75.51704382" lat="6.565589685" />
+				<costs>
+					<cost type="structural" value="31993"/>
+				</costs>
+			</asset>
+			<asset id="ant_30_S1" number="276"  taxonomy="MUR/H:2" >
+				<location lon="-75.21919011" lat="6.682346373" />
+				<costs>
+					<cost type="structural" value="31966"/>
+				</costs>
+			</asset>
+			<asset id="ant_31_S1" number="84"  taxonomy="MUR/H:3" >
+				<location lon="-75.24003018" lat="6.814651053" />
+				<costs>
+					<cost type="structural" value="32130"/>
+				</costs>
+			</asset>
+			<asset id="ant_32_S1" number="369"  taxonomy="MUR/H:4" >
+				<location lon="-75.76447803" lat="7.172023944" />
+				<costs>
+					<cost type="structural" value="32020"/>
+				</costs>
+			</asset>
+			<asset id="ant_33_S1" number="118"  taxonomy="MUR/H:1" >
+				<location lon="-75.67581581" lat="6.914101702" />
+				<costs>
+					<cost type="structural" value="31984"/>
+				</costs>
+			</asset>
+			<asset id="ant_34_S1" number="162"  taxonomy="MUR/H:2" >
+				<location lon="-75.68392212" lat="6.850079587" />
+				<costs>
+					<cost type="structural" value="32029"/>
+				</costs>
+			</asset>
+			<asset id="ant_35_S1" number="1150"  taxonomy="MUR/H:3" >
+				<location lon="-75.55659943" lat="6.46097832" />
+				<costs>
+					<cost type="structural" value="31999"/>
+				</costs>
+			</asset>
+			<asset id="ant_36_S1" number="629"  taxonomy="MUR/H:4" >
+				<location lon="-75.46168085" lat="6.647465277" />
+				<costs>
+					<cost type="structural" value="32011"/>
+				</costs>
+			</asset>
+			<asset id="ant_37_S1" number="74"  taxonomy="MUR/H:1" >
+				<location lon="-75.69170365" lat="7.011124552" />
+				<costs>
+					<cost type="structural" value="32208"/>
+				</costs>
+			</asset>
+			<asset id="ant_38_S1" number="208"  taxonomy="MUR/H:2" >
+				<location lon="-75.39042151" lat="7.292659044" />
+				<costs>
+					<cost type="structural" value="32044"/>
+				</costs>
+			</asset>
+			<asset id="ant_39_S1" number="2005"  taxonomy="MUR/H:3" >
+				<location lon="-75.41735069" lat="6.963350991" />
+				<costs>
+					<cost type="structural" value="31999"/>
+				</costs>
+			</asset>
+			<asset id="ant_40_S1" number="22"  taxonomy="MUR/H:4" >
+				<location lon="-76.06408947" lat="6.631772047" />
+				<costs>
+					<cost type="structural" value="36646"/>
+				</costs>
+			</asset>
+			<asset id="ant_41_S1" number="137"  taxonomy="MUR/H:1" >
+				<location lon="-75.85362046" lat="6.303126893" />
+				<costs>
+					<cost type="structural" value="35904"/>
+				</costs>
+			</asset>
+			<asset id="ant_42_S1" number="140"  taxonomy="MUR/H:2" >
+				<location lon="-75.79145078" lat="6.156602557" />
+				<costs>
+					<cost type="structural" value="35954"/>
+				</costs>
+			</asset>
+			<asset id="ant_43_S1" number="20"  taxonomy="MUR/H:3" >
+				<location lon="-75.9074232" lat="6.719137274" />
+				<costs>
+					<cost type="structural" value="36069"/>
+				</costs>
+			</asset>
+			<asset id="ant_44_S1" number="7"  taxonomy="MUR/H:4" >
+				<location lon="-75.98280066" lat="6.405700184" />
+				<costs>
+					<cost type="structural" value="33480"/>
+				</costs>
+			</asset>
+			<asset id="ant_45_S1" number="350"  taxonomy="MUR/H:1" >
+				<location lon="-76.02460294" lat="6.748147578" />
+				<costs>
+					<cost type="structural" value="35991"/>
+				</costs>
+			</asset>
+			<asset id="ant_46_S1" number="673"  taxonomy="MUR/H:2" >
+				<location lon="-76.26457704" lat="7.001310851" />
+				<costs>
+					<cost type="structural" value="35990"/>
+				</costs>
+			</asset>
+			<asset id="ant_47_S1" number="87"  taxonomy="MUR/H:3" >
+				<location lon="-75.76721983" lat="6.317152238" />
+				<costs>
+					<cost type="structural" value="35913"/>
+				</costs>
+			</asset>
+			<asset id="ant_48_S1" number="326"  taxonomy="MUR/H:4" >
+				<location lon="-76.12984327" lat="6.774013394" />
+				<costs>
+					<cost type="structural" value="35970"/>
+				</costs>
+			</asset>
+			<asset id="ant_49_S1" number="34"  taxonomy="MUR/H:1" >
+				<location lon="-75.95256663" lat="6.680737619" />
+				<costs>
+					<cost type="structural" value="35717"/>
+				</costs>
+			</asset>
+			<asset id="ant_50_S1" number="109"  taxonomy="MUR/H:2" >
+				<location lon="-75.73426069" lat="6.206532579" />
+				<costs>
+					<cost type="structural" value="36011"/>
+				</costs>
+			</asset>
+			<asset id="ant_51_S1" number="96"  taxonomy="MUR/H:3" >
+				<location lon="-75.81217609" lat="6.678358986" />
+				<costs>
+					<cost type="structural" value="35919"/>
+				</costs>
+			</asset>
+			<asset id="ant_52_S1" number="25"  taxonomy="MUR/H:4" >
+				<location lon="-75.76458442" lat="6.612813692" />
+				<costs>
+					<cost type="structural" value="36663"/>
+				</costs>
+			</asset>
+			<asset id="ant_53_S1" number="118"  taxonomy="MUR/H:1" >
+				<location lon="-75.90966678" lat="7.02243704" />
+				<costs>
+					<cost type="structural" value="36127"/>
+				</costs>
+			</asset>
+			<asset id="ant_54_S1" number="56"  taxonomy="MUR/H:2" >
+				<location lon="-75.81721676" lat="6.849526033" />
+				<costs>
+					<cost type="structural" value="35842"/>
+				</costs>
+			</asset>
+			<asset id="ant_55_S1" number="927"  taxonomy="MUR/H:3" >
+				<location lon="-75.72634209" lat="6.444278394" />
+				<costs>
+					<cost type="structural" value="36012"/>
+				</costs>
+			</asset>
+			<asset id="ant_56_S1" number="625"  taxonomy="MUR/H:4" >
+				<location lon="-75.82757435" lat="6.558547581" />
+				<costs>
+					<cost type="structural" value="35993"/>
+				</costs>
+			</asset>
+			<asset id="ant_57_S1" number="362"  taxonomy="MUR/H:1" >
+				<location lon="-75.74288447" lat="6.501620552" />
+				<costs>
+					<cost type="structural" value="35982"/>
+				</costs>
+			</asset>
+			<asset id="ant_58_S1" number="181"  taxonomy="MUR/H:2" >
+				<location lon="-76.17450278" lat="6.899338542" />
+				<costs>
+					<cost type="structural" value="35984"/>
+				</costs>
+			</asset>
+			<asset id="ant_59_S1" number="138"  taxonomy="MUR/H:3" >
+				<location lon="-75.42731305" lat="5.790109301" />
+				<costs>
+					<cost type="structural" value="40117"/>
+				</costs>
+			</asset>
+			<asset id="ant_60_S1" number="65"  taxonomy="MUR/H:4" >
+				<location lon="-75.14069422" lat="6.376939157" />
+				<costs>
+					<cost type="structural" value="39865"/>
+				</costs>
+			</asset>
+			<asset id="ant_61_S1" number="110"  taxonomy="MUR/H:1" >
+				<location lon="-75.14223394" lat="5.730862259" />
+				<costs>
+					<cost type="structural" value="39875"/>
+				</costs>
+			</asset>
+			<asset id="ant_62_S1" number="28"  taxonomy="MUR/H:2" >
+				<location lon="-75.18503075" lat="6.057431963" />
+				<costs>
+					<cost type="structural" value="39973"/>
+				</costs>
+			</asset>
+			<asset id="ant_63_S1" number="24"  taxonomy="MUR/H:3" >
+				<location lon="-75.25830103" lat="6.39440356" />
+				<costs>
+					<cost type="structural" value="40466"/>
+				</costs>
+			</asset>
+			<asset id="ant_64_S1" number="86"  taxonomy="MUR/H:4" >
+				<location lon="-75.33499746" lat="6.079887827" />
+				<costs>
+					<cost type="structural" value="40119"/>
+				</costs>
+			</asset>
+			<asset id="ant_65_S1" number="735"  taxonomy="MUR/H:1" >
+				<location lon="-75.24164168" lat="6.217696277" />
+				<costs>
+					<cost type="structural" value="39977"/>
+				</costs>
+			</asset>
+			<asset id="ant_66_S1" number="196"  taxonomy="MUR/H:2" >
+				<location lon="-75.26486314" lat="6.138539155" />
+				<costs>
+					<cost type="structural" value="39970"/>
+				</costs>
+			</asset>
+			<asset id="ant_67_S1" number="65"  taxonomy="MUR/H:3" >
+				<location lon="-75.18511692" lat="6.143682108" />
+				<costs>
+					<cost type="structural" value="39963"/>
+				</costs>
+			</asset>
+			<asset id="ant_68_S1" number="123"  taxonomy="MUR/H:4" >
+				<location lon="-75.4417112" lat="6.279414307" />
+				<costs>
+					<cost type="structural" value="39895"/>
+				</costs>
+			</asset>
+			<asset id="ant_69_S1" number="320"  taxonomy="MUR/H:1" >
+				<location lon="-75.15910335" lat="6.233150302" />
+				<costs>
+					<cost type="structural" value="40024"/>
+				</costs>
+			</asset>
+			<asset id="ant_70_S1" number="1754"  taxonomy="MUR/H:2" >
+				<location lon="-75.43042074" lat="6.029756499" />
+				<costs>
+					<cost type="structural" value="39992"/>
+				</costs>
+			</asset>
+			<asset id="ant_71_S1" number="181"  taxonomy="MUR/H:3" >
+				<location lon="-75.3615725" lat="5.974414811" />
+				<costs>
+					<cost type="structural" value="39925"/>
+				</costs>
+			</asset>
+			<asset id="ant_72_S1" number="250"  taxonomy="MUR/H:4" >
+				<location lon="-75.33729468" lat="6.17399325" />
+				<costs>
+					<cost type="structural" value="39929"/>
+				</costs>
+			</asset>
+			<asset id="ant_73_S1" number="208"  taxonomy="MUR/H:1" >
+				<location lon="-75.17756714" lat="5.609374111" />
+				<costs>
+					<cost type="structural" value="40073"/>
+				</costs>
+			</asset>
+			<asset id="ant_74_S1" number="552"  taxonomy="MUR/H:2" >
+				<location lon="-75.50282359" lat="6.058047827" />
+				<costs>
+					<cost type="structural" value="40013"/>
+				</costs>
+			</asset>
+			<asset id="ant_75_S1" number="2748"  taxonomy="MUR/H:3" >
+				<location lon="-75.37463621" lat="6.151845509" />
+				<costs>
+					<cost type="structural" value="39993"/>
+				</costs>
+			</asset>
+			<asset id="ant_76_S1" number="983"  taxonomy="MUR/H:4" >
+				<location lon="-74.99161718" lat="6.188620822" />
+				<costs>
+					<cost type="structural" value="39997"/>
+				</costs>
+			</asset>
+			<asset id="ant_77_S1" number="302"  taxonomy="MUR/H:1" >
+				<location lon="-75.10149682" lat="5.963838524" />
+				<costs>
+					<cost type="structural" value="39935"/>
+				</costs>
+			</asset>
+			<asset id="ant_78_S1" number="397"  taxonomy="MUR/H:2" >
+				<location lon="-74.99435072" lat="6.042687434" />
+				<costs>
+					<cost type="structural" value="39953"/>
+				</costs>
+			</asset>
+			<asset id="ant_79_S1" number="411"  taxonomy="MUR/H:3" >
+				<location lon="-75.02776253" lat="6.294612107" />
+				<costs>
+					<cost type="structural" value="39983"/>
+				</costs>
+			</asset>
+			<asset id="ant_80_S1" number="64"  taxonomy="MUR/H:4" >
+				<location lon="-75.33258321" lat="6.282308368" />
+				<costs>
+					<cost type="structural" value="40048"/>
+				</costs>
+			</asset>
+			<asset id="ant_81_S1" number="516"  taxonomy="MUR/H:1" >
+				<location lon="-75.31042808" lat="5.708647567" />
+				<costs>
+					<cost type="structural" value="39995"/>
+				</costs>
+			</asset>
+			<asset id="ant_82_S1" number="761"  taxonomy="MUR/H:2" >
+				<location lon="-75.70286819" lat="6.039589074" />
+				<costs>
+					<cost type="structural" value="39983"/>
+				</costs>
+			</asset>
+			<asset id="ant_83_S1" number="573"  taxonomy="MUR/H:3" >
+				<location lon="-75.87878655" lat="5.656627114" />
+				<costs>
+					<cost type="structural" value="40034"/>
+				</costs>
+			</asset>
+			<asset id="ant_84_S1" number="154"  taxonomy="MUR/H:4" >
+				<location lon="-75.7103983" lat="6.111607201" />
+				<costs>
+					<cost type="structural" value="40079"/>
+				</costs>
+			</asset>
+			<asset id="ant_85_S1" number="91"  taxonomy="MUR/H:1" >
+				<location lon="-75.97714657" lat="5.745788225" />
+				<costs>
+					<cost type="structural" value="40100"/>
+				</costs>
+			</asset>
+			<asset id="ant_86_S1" number="32"  taxonomy="MUR/H:2" >
+				<location lon="-75.9844486" lat="6.112423691" />
+				<costs>
+					<cost type="structural" value="40027"/>
+				</costs>
+			</asset>
+			<asset id="ant_87_S1" number="30"  taxonomy="MUR/H:3" >
+				<location lon="-75.64400054" lat="5.548292114" />
+				<costs>
+					<cost type="structural" value="40080"/>
+				</costs>
+			</asset>
+			<asset id="ant_88_S1" number="415"  taxonomy="MUR/H:4" >
+				<location lon="-76.02307158" lat="5.85092128" />
+				<costs>
+					<cost type="structural" value="39960"/>
+				</costs>
+			</asset>
+			<asset id="ant_89_S1" number="339"  taxonomy="MUR/H:1" >
+				<location lon="-75.90810963" lat="6.04616865" />
+				<costs>
+					<cost type="structural" value="40015"/>
+				</costs>
+			</asset>
+			<asset id="ant_90_S1" number="386"  taxonomy="MUR/H:2" >
+				<location lon="-75.67166376" lat="5.927233934" />
+				<costs>
+					<cost type="structural" value="40050"/>
+				</costs>
+			</asset>
+			<asset id="ant_91_S1" number="19"  taxonomy="MUR/H:3" >
+				<location lon="-75.90729807" lat="5.799250515" />
+				<costs>
+					<cost type="structural" value="40492"/>
+				</costs>
+			</asset>
+			<asset id="ant_92_S1" number="67"  taxonomy="MUR/H:4" >
+				<location lon="-75.8191575" lat="5.59850983" />
+				<costs>
+					<cost type="structural" value="39866"/>
+				</costs>
+			</asset>
+			<asset id="ant_93_S1" number="363"  taxonomy="MUR/H:1" >
+				<location lon="-75.78562656" lat="5.792037548" />
+				<costs>
+					<cost type="structural" value="40015"/>
+				</costs>
+			</asset>
+			<asset id="ant_94_S1" number="681"  taxonomy="MUR/H:2" >
+				<location lon="-75.60499332" lat="5.742473204" />
+				<costs>
+					<cost type="structural" value="39984"/>
+				</costs>
+			</asset>
+			<asset id="ant_95_S1" number="19"  taxonomy="MUR/H:3" >
+				<location lon="-75.52401902" lat="5.945446629" />
+				<costs>
+					<cost type="structural" value="40276"/>
+				</costs>
+			</asset>
+			<asset id="ant_96_S1" number="110"  taxonomy="MUR/H:4" >
+				<location lon="-75.84031573" lat="5.792231934" />
+				<costs>
+					<cost type="structural" value="39839"/>
+				</costs>
+			</asset>
+			<asset id="ant_97_S1" number="180"  taxonomy="MUR/H:1" >
+				<location lon="-75.97561719" lat="5.961434591" />
+				<costs>
+					<cost type="structural" value="40067"/>
+				</costs>
+			</asset>
+			<asset id="ant_98_S1" number="787"  taxonomy="MUR/H:2" >
+				<location lon="-75.56707469" lat="5.874552135" />
+				<costs>
+					<cost type="structural" value="39978"/>
+				</costs>
+			</asset>
+			<asset id="ant_99_S1" number="131"  taxonomy="MUR/H:3" >
+				<location lon="-75.71369712" lat="5.664346589" />
+				<costs>
+					<cost type="structural" value="39999"/>
+				</costs>
+			</asset>
+			<asset id="ant_100_S1" number="96"  taxonomy="MUR/H:4" >
+				<location lon="-75.82303205" lat="5.864774383" />
+				<costs>
+					<cost type="structural" value="39825"/>
+				</costs>
+			</asset>
+			<asset id="ant_101_S1" number="514"  taxonomy="MUR/H:1" >
+				<location lon="-75.79377368" lat="6.063533807" />
+				<costs>
+					<cost type="structural" value="40037"/>
+				</costs>
+			</asset>
+			<asset id="ant_102_S1" number="888"  taxonomy="MUR/H:2" >
+				<location lon="-76.13384935" lat="6.316557716" />
+				<costs>
+					<cost type="structural" value="40001"/>
+				</costs>
+			</asset>
+			<asset id="ant_103_S1" number="248"  taxonomy="MUR/H:3" >
+				<location lon="-75.62451064" lat="5.615958719" />
+				<costs>
+					<cost type="structural" value="40033"/>
+				</costs>
+			</asset>
+			<asset id="ant_104_S1" number="594"  taxonomy="MUR/H:4" >
+				<location lon="-75.73459908" lat="5.962753324" />
+				<costs>
+					<cost type="structural" value="40026"/>
+				</costs>
+			</asset>
+			<asset id="ant_105_S1" number="8056"  taxonomy="MUR/H:1" >
+				<location lon="-76.62528281" lat="7.881788902" />
+				<costs>
+					<cost type="structural" value="28000"/>
+				</costs>
+			</asset>
+			<asset id="ant_106_S1" number="1386"  taxonomy="MUR/H:2" >
+				<location lon="-76.42568851" lat="8.851438066" />
+				<costs>
+					<cost type="structural" value="28003"/>
+				</costs>
+			</asset>
+			<asset id="ant_107_S1" number="2705"  taxonomy="MUR/H:3" >
+				<location lon="-76.65513356" lat="7.756408211" />
+				<costs>
+					<cost type="structural" value="27996"/>
+				</costs>
+			</asset>
+			<asset id="ant_108_S1" number="9644"  taxonomy="MUR/H:4" >
+				<location lon="-76.68211416" lat="7.666366581" />
+				<costs>
+					<cost type="structural" value="28000"/>
+				</costs>
+			</asset>
+			<asset id="ant_110_S1" number="1671"  taxonomy="MUR/H:1" >
+				<location lon="-76.71501049" lat="7.371247262" />
+				<costs>
+					<cost type="structural" value="27995"/>
+				</costs>
+			</asset>
+			<asset id="ant_111_S1" number="1366"  taxonomy="MUR/H:2" >
+				<location lon="-76.78338107" lat="8.425069495" />
+				<costs>
+					<cost type="structural" value="28007"/>
+				</costs>
+			</asset>
+			<asset id="ant_112_S1" number="478"  taxonomy="MUR/H:3" >
+				<location lon="-76.52864048" lat="8.761617659" />
+				<costs>
+					<cost type="structural" value="28004"/>
+				</costs>
+			</asset>
+			<asset id="ant_113_S1" number="1489"  taxonomy="MUR/H:4" >
+				<location lon="-76.37890905" lat="8.276767766" />
+				<costs>
+					<cost type="structural" value="27991"/>
+				</costs>
+			</asset>
+			<asset id="ant_114_S1" number="4776"  taxonomy="MUR/H:1" >
+				<location lon="-76.72756566" lat="8.093960638" />
+				<costs>
+					<cost type="structural" value="28001"/>
+				</costs>
+			</asset>
+			<asset id="abu_1_S1" number="238"  taxonomy="MUR/H:2" >
+				<location lon="-75.33169511" lat="6.438166322" />
+				<costs>
+					<cost type="structural" value="32887"/>
+				</costs>
+			</asset>
+			<asset id="abu_2_S1" number="13109"  taxonomy="MUR/H:3" >
+				<location lon="-75.55976911" lat="6.337670248" />
+				<costs>
+					<cost type="structural" value="28544"/>
+				</costs>
+			</asset>
+			<asset id="abu_3_S1" number="242"  taxonomy="MUR/H:4" >
+				<location lon="-75.63556133" lat="6.08886907" />
+				<costs>
+					<cost type="structural" value="37122"/>
+				</costs>
+			</asset>
+			<asset id="abu_4_S1" number="239"  taxonomy="MUR/H:1" >
+				<location lon="-75.50811327" lat="6.346131516" />
+				<costs>
+					<cost type="structural" value="32432"/>
+				</costs>
+			</asset>
+			<asset id="abu_5_S1" number="341"  taxonomy="MUR/H:2" >
+				<location lon="-75.58513091" lat="6.170729039" />
+				<costs>
+					<cost type="structural" value="34587"/>
+				</costs>
+			</asset>
+			<asset id="abu_6_S1" number="19"  taxonomy="MUR/H:3" >
+				<location lon="-75.44793368" lat="6.378295257" />
+				<costs>
+					<cost type="structural" value="28151"/>
+				</costs>
+			</asset>
+			<asset id="abu_7_S1" number="1328"  taxonomy="MUR/H:4" >
+				<location lon="-75.60546756" lat="6.176094834" />
+				<costs>
+					<cost type="structural" value="34681"/>
+				</costs>
+			</asset>
+			<asset id="abu_8_S1" number="30"  taxonomy="MUR/H:1" >
+				<location lon="-75.63666763" lat="6.15910108" />
+				<costs>
+					<cost type="structural" value="32224"/>
+				</costs>
+			</asset>
+			<asset id="med_1_S1" number="281"  taxonomy="MUR/H:2" >
+				<location lon="-75.56212073" lat="6.31025859" />
+				<costs>
+					<cost type="structural" value="22598"/>
+				</costs>
+			</asset>
+			<asset id="med_2_S1" number="613"  taxonomy="MUR/H:3" >
+				<location lon="-75.58279322" lat="6.309770901" />
+				<costs>
+					<cost type="structural" value="16525"/>
+				</costs>
+			</asset>
+			<asset id="med_3_S1" number="515"  taxonomy="MUR/H:4" >
+				<location lon="-75.57826635" lat="6.309847392" />
+				<costs>
+					<cost type="structural" value="16513"/>
+				</costs>
+			</asset>
+			<asset id="med_4_S1" number="1162"  taxonomy="MUR/H:1" >
+				<location lon="-75.54745634" lat="6.299844073" />
+				<costs>
+					<cost type="structural" value="15926"/>
+				</costs>
+			</asset>
+			<asset id="med_5_S1" number="690"  taxonomy="MUR/H:2" >
+				<location lon="-75.54332843" lat="6.302181781" />
+				<costs>
+					<cost type="structural" value="14405"/>
+				</costs>
+			</asset>
+			<asset id="med_6_S1" number="212"  taxonomy="MUR/H:3" >
+				<location lon="-75.55937163" lat="6.30789472" />
+				<costs>
+					<cost type="structural" value="17718"/>
+				</costs>
+			</asset>
+			<asset id="med_7_S1" number="514"  taxonomy="MUR/H:4" >
+				<location lon="-75.57680562" lat="6.303686773" />
+				<costs>
+					<cost type="structural" value="31998"/>
+				</costs>
+			</asset>
+			<asset id="med_8_S1" number="429"  taxonomy="MUR/H:1" >
+				<location lon="-75.5443826" lat="6.250081776" />
+				<costs>
+					<cost type="structural" value="13980"/>
+				</costs>
+			</asset>
+			<asset id="med_9_S1" number="399"  taxonomy="MUR/H:2" >
+				<location lon="-75.54985797" lat="6.295395365" />
+				<costs>
+					<cost type="structural" value="15530"/>
+				</costs>
+			</asset>
+			<asset id="med_10_S1" number="456"  taxonomy="MUR/H:3" >
+				<location lon="-75.58266858" lat="6.303351922" />
+				<costs>
+					<cost type="structural" value="18824"/>
+				</costs>
+			</asset>
+			<asset id="med_11_S1" number="753"  taxonomy="MUR/H:4" >
+				<location lon="-75.54342312" lat="6.255967913" />
+				<costs>
+					<cost type="structural" value="13838"/>
+				</costs>
+			</asset>
+			<asset id="med_12_S1" number="219"  taxonomy="MUR/H:1" >
+				<location lon="-75.59825117" lat="6.281980596" />
+				<costs>
+					<cost type="structural" value="38761"/>
+				</costs>
+			</asset>
+			<asset id="med_13_S1" number="394"  taxonomy="MUR/H:2" >
+				<location lon="-75.60150578" lat="6.278552415" />
+				<costs>
+					<cost type="structural" value="28426"/>
+				</costs>
+			</asset>
+			<asset id="med_14_S1" number="494"  taxonomy="MUR/H:3" >
+				<location lon="-75.56300238" lat="6.277050687" />
+				<costs>
+					<cost type="structural" value="26713"/>
+				</costs>
+			</asset>
+			<asset id="med_15_S1" number="107"  taxonomy="MUR/H:4" >
+				<location lon="-75.60042178" lat="6.271836573" />
+				<costs>
+					<cost type="structural" value="66457"/>
+				</costs>
+			</asset>
+			<asset id="med_16_S1" number="617"  taxonomy="MUR/H:1" >
+				<location lon="-75.56415998" lat="6.269797022" />
+				<costs>
+					<cost type="structural" value="21841"/>
+				</costs>
+			</asset>
+			<asset id="med_17_S1" number="372"  taxonomy="MUR/H:2" >
+				<location lon="-75.56818007" lat="6.269306856" />
+				<costs>
+					<cost type="structural" value="32324"/>
+				</costs>
+			</asset>
+			<asset id="med_18_S1" number="412"  taxonomy="MUR/H:3" >
+				<location lon="-75.57254659" lat="6.258499319" />
+				<costs>
+					<cost type="structural" value="32308"/>
+				</costs>
+			</asset>
+			<asset id="med_19_S1" number="524"  taxonomy="MUR/H:4" >
+				<location lon="-75.57084264" lat="6.26273397" />
+				<costs>
+					<cost type="structural" value="33660"/>
+				</costs>
+			</asset>
+			<asset id="med_20_S1" number="574"  taxonomy="MUR/H:1" >
+				<location lon="-75.5766631" lat="6.257103188" />
+				<costs>
+					<cost type="structural" value="35631"/>
+				</costs>
+			</asset>
+			<asset id="med_21_S1" number="100"  taxonomy="MUR/H:2" >
+				<location lon="-75.5989438" lat="6.257012911" />
+				<costs>
+					<cost type="structural" value="129673"/>
+				</costs>
+			</asset>
+			<asset id="med_22_S1" number="435"  taxonomy="MUR/H:3" >
+				<location lon="-75.56993306" lat="6.252336793" />
+				<costs>
+					<cost type="structural" value="59907"/>
+				</costs>
+			</asset>
+			<asset id="med_23_S1" number="359"  taxonomy="MUR/H:4" >
+				<location lon="-75.58056843" lat="6.252801967" />
+				<costs>
+					<cost type="structural" value="60033"/>
+				</costs>
+			</asset>
+			<asset id="med_24_S1" number="142"  taxonomy="MUR/H:1" >
+				<location lon="-75.59435216" lat="6.25414373" />
+				<costs>
+					<cost type="structural" value="81581"/>
+				</costs>
+			</asset>
+			<asset id="med_26_S1" number="160"  taxonomy="MUR/H:2" >
+				<location lon="-75.58485611" lat="6.282586246" />
+				<costs>
+					<cost type="structural" value="57112"/>
+				</costs>
+			</asset>
+			<asset id="med_27_S1" number="300"  taxonomy="MUR/H:3" >
+				<location lon="-75.56816184" lat="6.283673763" />
+				<costs>
+					<cost type="structural" value="15956"/>
+				</costs>
+			</asset>
+			<asset id="med_28_S1" number="100"  taxonomy="MUR/H:4" >
+				<location lon="-75.58423541" lat="6.277900108" />
+				<costs>
+					<cost type="structural" value="58639"/>
+				</costs>
+			</asset>
+			<asset id="med_29_S1" number="594"  taxonomy="MUR/H:1" >
+				<location lon="-75.58023398" lat="6.277113351" />
+				<costs>
+					<cost type="structural" value="46369"/>
+				</costs>
+			</asset>
+			<asset id="med_30_S1" number="447"  taxonomy="MUR/H:2" >
+				<location lon="-75.56616184" lat="6.277947553" />
+				<costs>
+					<cost type="structural" value="16928"/>
+				</costs>
+			</asset>
+			<asset id="med_31_S1" number="551"  taxonomy="MUR/H:3" >
+				<location lon="-75.57024139" lat="6.281546839" />
+				<costs>
+					<cost type="structural" value="15357"/>
+				</costs>
+			</asset>
+			<asset id="med_32_S1" number="431"  taxonomy="MUR/H:4" >
+				<location lon="-75.57440994" lat="6.264343017" />
+				<costs>
+					<cost type="structural" value="32293"/>
+				</costs>
+			</asset>
+			<asset id="med_33_S1" number="203"  taxonomy="MUR/H:1" >
+				<location lon="-75.58355051" lat="6.260194413" />
+				<costs>
+					<cost type="structural" value="58001"/>
+				</costs>
+			</asset>
+			<asset id="med_34_S1" number="170"  taxonomy="MUR/H:2" >
+				<location lon="-75.59756881" lat="6.269749595" />
+				<costs>
+					<cost type="structural" value="98100"/>
+				</costs>
+			</asset>
+			<asset id="med_35_S1" number="191"  taxonomy="MUR/H:3" >
+				<location lon="-75.57442131" lat="6.280899514" />
+				<costs>
+					<cost type="structural" value="13819"/>
+				</costs>
+			</asset>
+			<asset id="med_36_S1" number="243"  taxonomy="MUR/H:4" >
+				<location lon="-75.57966958" lat="6.265379883" />
+				<costs>
+					<cost type="structural" value="13808"/>
+				</costs>
+			</asset>
+			<asset id="med_37_S1" number="322"  taxonomy="MUR/H:1" >
+				<location lon="-75.59253275" lat="6.264556029" />
+				<costs>
+					<cost type="structural" value="59927"/>
+				</costs>
+			</asset>
+			<asset id="med_38_S1" number="211"  taxonomy="MUR/H:2" >
+				<location lon="-75.5852328" lat="6.27011457" />
+				<costs>
+					<cost type="structural" value="31720"/>
+				</costs>
+			</asset>
+			<asset id="med_39_S1" number="89"  taxonomy="MUR/H:3" >
+				<location lon="-75.59133251" lat="6.274774505" />
+				<costs>
+					<cost type="structural" value="13852"/>
+				</costs>
+			</asset>
+			<asset id="med_40_S1" number="61"  taxonomy="MUR/H:4" >
+				<location lon="-75.56707015" lat="6.273337617" />
+				<costs>
+					<cost type="structural" value="32546"/>
+				</costs>
+			</asset>
+			<asset id="med_41_S1" number="117"  taxonomy="MUR/H:1" >
+				<location lon="-75.57271281" lat="6.270289638" />
+				<costs>
+					<cost type="structural" value="32340"/>
+				</costs>
+			</asset>
+			<asset id="med_42_S1" number="43"  taxonomy="MUR/H:2" >
+				<location lon="-75.57144776" lat="6.275059154" />
+				<costs>
+					<cost type="structural" value="32060"/>
+				</costs>
+			</asset>
+			<asset id="med_43_S1" number="86"  taxonomy="MUR/H:3" >
+				<location lon="-75.568625" lat="6.265709244" />
+				<costs>
+					<cost type="structural" value="32299"/>
+				</costs>
+			</asset>
+			<asset id="med_44_S1" number="249"  taxonomy="MUR/H:4" >
+				<location lon="-75.57044385" lat="6.313205846" />
+				<costs>
+					<cost type="structural" value="32109"/>
+				</costs>
+			</asset>
+			<asset id="med_45_S1" number="216"  taxonomy="MUR/H:1" >
+				<location lon="-75.56527613" lat="6.311176733" />
+				<costs>
+					<cost type="structural" value="27739"/>
+				</costs>
+			</asset>
+			<asset id="med_46_S1" number="342"  taxonomy="MUR/H:2" >
+				<location lon="-75.58026664" lat="6.295584016" />
+				<costs>
+					<cost type="structural" value="31076"/>
+				</costs>
+			</asset>
+			<asset id="med_47_S1" number="500"  taxonomy="MUR/H:3" >
+				<location lon="-75.56279203" lat="6.295925018" />
+				<costs>
+					<cost type="structural" value="15823"/>
+				</costs>
+			</asset>
+			<asset id="med_48_S1" number="277"  taxonomy="MUR/H:4" >
+				<location lon="-75.5583552" lat="6.294272071" />
+				<costs>
+					<cost type="structural" value="16694"/>
+				</costs>
+			</asset>
+			<asset id="med_49_S1" number="220"  taxonomy="MUR/H:1" >
+				<location lon="-75.56246486" lat="6.293376768" />
+				<costs>
+					<cost type="structural" value="16335"/>
+				</costs>
+			</asset>
+			<asset id="med_50_S1" number="140"  taxonomy="MUR/H:2" >
+				<location lon="-75.54523427" lat="6.294073167" />
+				<costs>
+					<cost type="structural" value="14472"/>
+				</costs>
+			</asset>
+			<asset id="med_51_S1" number="468"  taxonomy="MUR/H:3" >
+				<location lon="-75.5531947" lat="6.292957555" />
+				<costs>
+					<cost type="structural" value="16258"/>
+				</costs>
+			</asset>
+			<asset id="med_52_S1" number="733"  taxonomy="MUR/H:4" >
+				<location lon="-75.56407595" lat="6.289642576" />
+				<costs>
+					<cost type="structural" value="24118"/>
+				</costs>
+			</asset>
+			<asset id="med_53_S1" number="456"  taxonomy="MUR/H:1" >
+				<location lon="-75.55897445" lat="6.288640971" />
+				<costs>
+					<cost type="structural" value="29468"/>
+				</costs>
+			</asset>
+			<asset id="med_54_S1" number="170"  taxonomy="MUR/H:2" >
+				<location lon="-75.59296173" lat="6.28535531" />
+				<costs>
+					<cost type="structural" value="22995"/>
+				</costs>
+			</asset>
+			<asset id="med_55_S1" number="469"  taxonomy="MUR/H:3" >
+				<location lon="-75.55932113" lat="6.304131681" />
+				<costs>
+					<cost type="structural" value="16908"/>
+				</costs>
+			</asset>
+			<asset id="med_56_S1" number="264"  taxonomy="MUR/H:4" >
+				<location lon="-75.57997126" lat="6.283385701" />
+				<costs>
+					<cost type="structural" value="27565"/>
+				</costs>
+			</asset>
+			<asset id="med_57_S1" number="480"  taxonomy="MUR/H:1" >
+				<location lon="-75.56422729" lat="6.28351283" />
+				<costs>
+					<cost type="structural" value="29628"/>
+				</costs>
+			</asset>
+			<asset id="med_58_S1" number="155"  taxonomy="MUR/H:2" >
+				<location lon="-75.59432419" lat="6.282367645" />
+				<costs>
+					<cost type="structural" value="30035"/>
+				</costs>
+			</asset>
+			<asset id="med_59_S1" number="103"  taxonomy="MUR/H:3" >
+				<location lon="-75.55814049" lat="6.281798559" />
+				<costs>
+					<cost type="structural" value="29464"/>
+				</costs>
+			</asset>
+			<asset id="med_60_S1" number="874"  taxonomy="MUR/H:4" >
+				<location lon="-75.55040427" lat="6.303188823" />
+				<costs>
+					<cost type="structural" value="15628"/>
+				</costs>
+			</asset>
+			<asset id="med_61_S1" number="82"  taxonomy="MUR/H:1" >
+				<location lon="-75.69374708" lat="6.345899257" />
+				<costs>
+					<cost type="structural" value="27902"/>
+				</costs>
+			</asset>
+			<asset id="med_62_S1" number="306"  taxonomy="MUR/H:2" >
+				<location lon="-75.57254833" lat="6.300440629" />
+				<costs>
+					<cost type="structural" value="31836"/>
+				</costs>
+			</asset>
+			<asset id="med_63_S1" number="114"  taxonomy="MUR/H:3" >
+				<location lon="-75.5678929" lat="6.298679711" />
+				<costs>
+					<cost type="structural" value="25053"/>
+				</costs>
+			</asset>
+			<asset id="med_64_S1" number="341"  taxonomy="MUR/H:4" >
+				<location lon="-75.58395959" lat="6.297319258" />
+				<costs>
+					<cost type="structural" value="21241"/>
+				</costs>
+			</asset>
+			<asset id="med_65_S1" number="49"  taxonomy="MUR/H:1" >
+				<location lon="-75.68145176" lat="6.351588357" />
+				<costs>
+					<cost type="structural" value="32356"/>
+				</costs>
+			</asset>
+			<asset id="med_66_S1" number="368"  taxonomy="MUR/H:2" >
+				<location lon="-75.65238608" lat="6.280484164" />
+				<costs>
+					<cost type="structural" value="32765"/>
+				</costs>
+			</asset>
+			<asset id="med_67_S1" number="59"  taxonomy="MUR/H:3" >
+				<location lon="-75.70534452" lat="6.370015624" />
+				<costs>
+					<cost type="structural" value="16539"/>
+				</costs>
+			</asset>
+			<asset id="med_68_S1" number="127"  taxonomy="MUR/H:4" >
+				<location lon="-75.67094402" lat="6.279997271" />
+				<costs>
+					<cost type="structural" value="16521"/>
+				</costs>
+			</asset>
+			<asset id="med_69_S1" number="47"  taxonomy="MUR/H:1" >
+				<location lon="-75.66250024" lat="6.298879939" />
+				<costs>
+					<cost type="structural" value="32320"/>
+				</costs>
+			</asset>
+			<asset id="med_70_S1" number="54"  taxonomy="MUR/H:2" >
+				<location lon="-75.65596465" lat="6.294213349" />
+				<costs>
+					<cost type="structural" value="31649"/>
+				</costs>
+			</asset>
+			<asset id="med_71_S1" number="79"  taxonomy="MUR/H:3" >
+				<location lon="-75.61231861" lat="6.266390362" />
+				<costs>
+					<cost type="structural" value="31009"/>
+				</costs>
+			</asset>
+			<asset id="med_72_S1" number="201"  taxonomy="MUR/H:4" >
+				<location lon="-75.60896969" lat="6.263573587" />
+				<costs>
+					<cost type="structural" value="37485"/>
+				</costs>
+			</asset>
+			<asset id="med_73_S1" number="357"  taxonomy="MUR/H:1" >
+				<location lon="-75.60479281" lat="6.259030988" />
+				<costs>
+					<cost type="structural" value="60462"/>
+				</costs>
+			</asset>
+			<asset id="med_74_S1" number="296"  taxonomy="MUR/H:2" >
+				<location lon="-75.61278555" lat="6.25074796" />
+				<costs>
+					<cost type="structural" value="44986"/>
+				</costs>
+			</asset>
+			<asset id="med_75_S1" number="409"  taxonomy="MUR/H:3" >
+				<location lon="-75.56544475" lat="6.24652101" />
+				<costs>
+					<cost type="structural" value="54008"/>
+				</costs>
+			</asset>
+			<asset id="med_76_S1" number="524"  taxonomy="MUR/H:4" >
+				<location lon="-75.55935014" lat="6.243505244" />
+				<costs>
+					<cost type="structural" value="32291"/>
+				</costs>
+			</asset>
+			<asset id="med_77_S1" number="421"  taxonomy="MUR/H:1" >
+				<location lon="-75.53331062" lat="6.24032152" />
+				<costs>
+					<cost type="structural" value="13813"/>
+				</costs>
+			</asset>
+			<asset id="med_78_S1" number="230"  taxonomy="MUR/H:2" >
+				<location lon="-75.61302572" lat="6.238536622" />
+				<costs>
+					<cost type="structural" value="45135"/>
+				</costs>
+			</asset>
+			<asset id="med_79_S1" number="218"  taxonomy="MUR/H:3" >
+				<location lon="-75.58268628" lat="6.238719131" />
+				<costs>
+					<cost type="structural" value="36626"/>
+				</costs>
+			</asset>
+			<asset id="med_80_S1" number="317"  taxonomy="MUR/H:4" >
+				<location lon="-75.5362915" lat="6.238717642" />
+				<costs>
+					<cost type="structural" value="16440"/>
+				</costs>
+			</asset>
+			<asset id="med_81_S1" number="452"  taxonomy="MUR/H:1" >
+				<location lon="-75.58842615" lat="6.238318134" />
+				<costs>
+					<cost type="structural" value="55165"/>
+				</costs>
+			</asset>
+			<asset id="med_82_S1" number="179"  taxonomy="MUR/H:2" >
+				<location lon="-75.59420407" lat="6.238109449" />
+				<costs>
+					<cost type="structural" value="120665"/>
+				</costs>
+			</asset>
+			<asset id="med_83_S1" number="16"  taxonomy="MUR/H:3" >
+				<location lon="-75.60728639" lat="6.23844285" />
+				<costs>
+					<cost type="structural" value="122853"/>
+				</costs>
+			</asset>
+			<asset id="med_84_S1" number="269"  taxonomy="MUR/H:4" >
+				<location lon="-75.59664462" lat="6.232932161" />
+				<costs>
+					<cost type="structural" value="42844"/>
+				</costs>
+			</asset>
+			<asset id="med_85_S1" number="495"  taxonomy="MUR/H:1" >
+				<location lon="-75.55407045" lat="6.306126131" />
+				<costs>
+					<cost type="structural" value="15444"/>
+				</costs>
+			</asset>
+			<asset id="med_86_S1" number="538"  taxonomy="MUR/H:2" >
+				<location lon="-75.56060584" lat="6.268820847" />
+				<costs>
+					<cost type="structural" value="30773"/>
+				</costs>
+			</asset>
+			<asset id="med_87_S1" number="399"  taxonomy="MUR/H:3" >
+				<location lon="-75.54375688" lat="6.267638389" />
+				<costs>
+					<cost type="structural" value="14079"/>
+				</costs>
+			</asset>
+			<asset id="med_88_S1" number="74"  taxonomy="MUR/H:4" >
+				<location lon="-75.60969514" lat="6.267979789" />
+				<costs>
+					<cost type="structural" value="29799"/>
+				</costs>
+			</asset>
+			<asset id="med_89_S1" number="67"  taxonomy="MUR/H:1" >
+				<location lon="-75.60209092" lat="6.265348329" />
+				<costs>
+					<cost type="structural" value="160332"/>
+				</costs>
+			</asset>
+			<asset id="med_90_S1" number="797"  taxonomy="MUR/H:2" >
+				<location lon="-75.57612786" lat="6.230141205" />
+				<costs>
+					<cost type="structural" value="34017"/>
+				</costs>
+			</asset>
+			<asset id="med_91_S1" number="578"  taxonomy="MUR/H:3" >
+				<location lon="-75.59896361" lat="6.228889596" />
+				<costs>
+					<cost type="structural" value="34853"/>
+				</costs>
+			</asset>
+			<asset id="med_92_S1" number="43"  taxonomy="MUR/H:4" >
+				<location lon="-75.57065656" lat="6.222211489" />
+				<costs>
+					<cost type="structural" value="128846"/>
+				</costs>
+			</asset>
+			<asset id="med_93_S1" number="6"  taxonomy="MUR/H:1" >
+				<location lon="-75.56217064" lat="6.222130491" />
+				<costs>
+					<cost type="structural" value="167557"/>
+				</costs>
+			</asset>
+			<asset id="med_94_S1" number="126"  taxonomy="MUR/H:2" >
+				<location lon="-75.6066108" lat="6.221250838" />
+				<costs>
+					<cost type="structural" value="34995"/>
+				</costs>
+			</asset>
+			<asset id="med_95_S1" number="110"  taxonomy="MUR/H:3" >
+				<location lon="-75.5988367" lat="6.21835205" />
+				<costs>
+					<cost type="structural" value="57013"/>
+				</costs>
+			</asset>
+			<asset id="med_96_S1" number="59"  taxonomy="MUR/H:4" >
+				<location lon="-75.6031737" lat="6.21141144" />
+				<costs>
+					<cost type="structural" value="127487"/>
+				</costs>
+			</asset>
+			<asset id="med_97_S1" number="48"  taxonomy="MUR/H:1" >
+				<location lon="-75.56535673" lat="6.213895325" />
+				<costs>
+					<cost type="structural" value="142024"/>
+				</costs>
+			</asset>
+			<asset id="med_98_S1" number="186"  taxonomy="MUR/H:2" >
+				<location lon="-75.57663242" lat="6.216151328" />
+				<costs>
+					<cost type="structural" value="63304"/>
+				</costs>
+			</asset>
+			<asset id="med_99_S1" number="14"  taxonomy="MUR/H:3" >
+				<location lon="-75.56061713" lat="6.213641699" />
+				<costs>
+					<cost type="structural" value="128794"/>
+				</costs>
+			</asset>
+			<asset id="med_100_S1" number="21"  taxonomy="MUR/H:4" >
+				<location lon="-75.56998187" lat="6.215397408" />
+				<costs>
+					<cost type="structural" value="130579"/>
+				</costs>
+			</asset>
+			<asset id="med_101_S1" number="171"  taxonomy="MUR/H:1" >
+				<location lon="-75.57107232" lat="6.212066403" />
+				<costs>
+					<cost type="structural" value="80060"/>
+				</costs>
+			</asset>
+			<asset id="med_102_S1" number="98"  taxonomy="MUR/H:2" >
+				<location lon="-75.57211299" lat="6.2026232" />
+				<costs>
+					<cost type="structural" value="53868"/>
+				</costs>
+			</asset>
+			<asset id="med_103_S1" number="28"  taxonomy="MUR/H:3" >
+				<location lon="-75.57366868" lat="6.198365514" />
+				<costs>
+					<cost type="structural" value="127353"/>
+				</costs>
+			</asset>
+			<asset id="med_104_S1" number="32"  taxonomy="MUR/H:4" >
+				<location lon="-75.57559067" lat="6.193248994" />
+				<costs>
+					<cost type="structural" value="130412"/>
+				</costs>
+			</asset>
+			<asset id="med_105_S1" number="58"  taxonomy="MUR/H:1" >
+				<location lon="-75.56399691" lat="6.191489571" />
+				<costs>
+					<cost type="structural" value="127962"/>
+				</costs>
+			</asset>
+			<asset id="med_106_S1" number="69"  taxonomy="MUR/H:2" >
+				<location lon="-75.56755016" lat="6.184189897" />
+				<costs>
+					<cost type="structural" value="130605"/>
+				</costs>
+			</asset>
+			<asset id="med_107_S1" number="152"  taxonomy="MUR/H:3" >
+				<location lon="-75.56300725" lat="6.302563319" />
+				<costs>
+					<cost type="structural" value="16297"/>
+				</costs>
+			</asset>
+			<asset id="med_108_S1" number="349"  taxonomy="MUR/H:4" >
+				<location lon="-75.54946359" lat="6.290509373" />
+				<costs>
+					<cost type="structural" value="15985"/>
+				</costs>
+			</asset>
+			<asset id="med_109_S1" number="330"  taxonomy="MUR/H:1" >
+				<location lon="-75.55351176" lat="6.289162405" />
+				<costs>
+					<cost type="structural" value="16452"/>
+				</costs>
+			</asset>
+			<asset id="med_110_S1" number="210"  taxonomy="MUR/H:2" >
+				<location lon="-75.60906779" lat="6.280393982" />
+				<costs>
+					<cost type="structural" value="25702"/>
+				</costs>
+			</asset>
+			<asset id="med_111_S1" number="215"  taxonomy="MUR/H:3" >
+				<location lon="-75.55553069" lat="6.27101927" />
+				<costs>
+					<cost type="structural" value="21619"/>
+				</costs>
+			</asset>
+			<asset id="med_112_S1" number="361"  taxonomy="MUR/H:4" >
+				<location lon="-75.55703506" lat="6.267588313" />
+				<costs>
+					<cost type="structural" value="31361"/>
+				</costs>
+			</asset>
+			<asset id="med_113_S1" number="235"  taxonomy="MUR/H:1" >
+				<location lon="-75.61195313" lat="6.255484675" />
+				<costs>
+					<cost type="structural" value="42991"/>
+				</costs>
+			</asset>
+			<asset id="med_114_S1" number="364"  taxonomy="MUR/H:2" >
+				<location lon="-75.6079481" lat="6.254356598" />
+				<costs>
+					<cost type="structural" value="57072"/>
+				</costs>
+			</asset>
+			<asset id="med_115_S1" number="151"  taxonomy="MUR/H:3" >
+				<location lon="-75.60231022" lat="6.254875787" />
+				<costs>
+					<cost type="structural" value="76140"/>
+				</costs>
+			</asset>
+			<asset id="med_116_S1" number="192"  taxonomy="MUR/H:4" >
+				<location lon="-75.60345421" lat="6.250191227" />
+				<costs>
+					<cost type="structural" value="117060"/>
+				</costs>
+			</asset>
+			<asset id="med_117_S1" number="128"  taxonomy="MUR/H:1" >
+				<location lon="-75.59406967" lat="6.249147354" />
+				<costs>
+					<cost type="structural" value="102580"/>
+				</costs>
+			</asset>
+			<asset id="med_118_S1" number="500"  taxonomy="MUR/H:2" >
+				<location lon="-75.558067" lat="6.298312127" />
+				<costs>
+					<cost type="structural" value="16253"/>
+				</costs>
+			</asset>
+			<asset id="med_119_S1" number="165"  taxonomy="MUR/H:3" >
+				<location lon="-75.57262867" lat="6.287201399" />
+				<costs>
+					<cost type="structural" value="16497"/>
+				</costs>
+			</asset>
+			<asset id="med_120_S1" number="245"  taxonomy="MUR/H:4" >
+				<location lon="-75.56132791" lat="6.298856814" />
+				<costs>
+					<cost type="structural" value="16197"/>
+				</costs>
+			</asset>
+			<asset id="med_121_S1" number="146"  taxonomy="MUR/H:1" >
+				<location lon="-75.56987511" lat="6.294153633" />
+				<costs>
+					<cost type="structural" value="31818"/>
+				</costs>
+			</asset>
+			<asset id="med_122_S1" number="56"  taxonomy="MUR/H:2" >
+				<location lon="-75.57724514" lat="6.281568707" />
+				<costs>
+					<cost type="structural" value="32462"/>
+				</costs>
+			</asset>
+			<asset id="med_123_S1" number="265"  taxonomy="MUR/H:3" >
+				<location lon="-75.56765674" lat="6.290066168" />
+				<costs>
+					<cost type="structural" value="19507"/>
+				</costs>
+			</asset>
+			<asset id="med_124_S1" number="60"  taxonomy="MUR/H:4" >
+				<location lon="-75.58752713" lat="6.278356232" />
+				<costs>
+					<cost type="structural" value="117108"/>
+				</costs>
+			</asset>
+			<asset id="med_125_S1" number="595"  taxonomy="MUR/H:1" >
+				<location lon="-75.58380506" lat="6.23405691" />
+				<costs>
+					<cost type="structural" value="40581"/>
+				</costs>
+			</asset>
+			<asset id="med_126_S1" number="1054"  taxonomy="MUR/H:2" >
+				<location lon="-75.58553236" lat="6.224196949" />
+				<costs>
+					<cost type="structural" value="59966"/>
+				</costs>
+			</asset>
+			<asset id="med_127_S1" number="183"  taxonomy="MUR/H:3" >
+				<location lon="-75.60661606" lat="6.225897055" />
+				<costs>
+					<cost type="structural" value="60079"/>
+				</costs>
+			</asset>
+			<asset id="med_128_S1" number="156"  taxonomy="MUR/H:4" >
+				<location lon="-75.59886945" lat="6.223359609" />
+				<costs>
+					<cost type="structural" value="35740"/>
+				</costs>
+			</asset>
+			<asset id="med_129_S1" number="45"  taxonomy="MUR/H:1" >
+				<location lon="-75.5686949" lat="6.20704175" />
+				<costs>
+					<cost type="structural" value="129122"/>
+				</costs>
+			</asset>
+			<asset id="med_130_S1" number="688"  taxonomy="MUR/H:2" >
+				<location lon="-75.59630194" lat="6.202684558" />
+				<costs>
+					<cost type="structural" value="27881"/>
+				</costs>
+			</asset>
+			<asset id="med_131_S1" number="246"  taxonomy="MUR/H:3" >
+				<location lon="-75.56597825" lat="6.30267732" />
+				<costs>
+					<cost type="structural" value="32238"/>
+				</costs>
+			</asset>
+			<asset id="med_132_S1" number="1446"  taxonomy="MUR/H:4" >
+				<location lon="-75.57648839" lat="6.237200546" />
+				<costs>
+					<cost type="structural" value="32298"/>
+				</costs>
+			</asset>
+			<asset id="med_133_S1" number="84"  taxonomy="MUR/H:1" >
+				<location lon="-75.59734338" lat="6.208586969" />
+				<costs>
+					<cost type="structural" value="60243"/>
+				</costs>
+			</asset>
+			<asset id="med_134_S1" number="663"  taxonomy="MUR/H:2" >
+				<location lon="-75.56216959" lat="6.250569973" />
+				<costs>
+					<cost type="structural" value="54765"/>
+				</costs>
+			</asset>
+			<asset id="med_135_S1" number="308"  taxonomy="MUR/H:3" >
+				<location lon="-75.57945199" lat="6.287214538" />
+				<costs>
+					<cost type="structural" value="28086"/>
+				</costs>
+			</asset>
+			<asset id="med_136_S1" number="1519"  taxonomy="MUR/H:4" >
+				<location lon="-75.5858988" lat="6.215668056" />
+				<costs>
+					<cost type="structural" value="60190"/>
+				</costs>
+			</asset>
+			<asset id="med_137_S1" number="850"  taxonomy="MUR/H:1" >
+				<location lon="-75.57688227" lat="6.22271543" />
+				<costs>
+					<cost type="structural" value="68203"/>
+				</costs>
+			</asset>
+			<asset id="med_138_S1" number="105"  taxonomy="MUR/H:2" >
+				<location lon="-75.67787134" lat="6.335762223" />
+				<costs>
+					<cost type="structural" value="16578"/>
+				</costs>
+			</asset>
+			<asset id="med_139_S1" number="614"  taxonomy="MUR/H:3" >
+				<location lon="-75.5717437" lat="6.247034106" />
+				<costs>
+					<cost type="structural" value="30508"/>
+				</costs>
+			</asset>
+			<asset id="med_140_S1" number="483"  taxonomy="MUR/H:4" >
+				<location lon="-75.57621561" lat="6.244117568" />
+				<costs>
+					<cost type="structural" value="31218"/>
+				</costs>
+			</asset>
+			<asset id="med_141_S1" number="377"  taxonomy="MUR/H:1" >
+				<location lon="-75.56917928" lat="6.243608777" />
+				<costs>
+					<cost type="structural" value="28863"/>
+				</costs>
+			</asset>
+			<asset id="med_142_S1" number="90"  taxonomy="MUR/H:2" >
+				<location lon="-75.60015681" lat="6.240091922" />
+				<costs>
+					<cost type="structural" value="127524"/>
+				</costs>
+			</asset>
+			<asset id="med_143_S1" number="74"  taxonomy="MUR/H:3" >
+				<location lon="-75.60280433" lat="6.237670307" />
+				<costs>
+					<cost type="structural" value="86763"/>
+				</costs>
+			</asset>
+			<asset id="med_144_S1" number="139"  taxonomy="MUR/H:4" >
+				<location lon="-75.5929129" lat="6.277231588" />
+				<costs>
+					<cost type="structural" value="32384"/>
+				</costs>
+			</asset>
+			<asset id="med_145_S1" number="4"  taxonomy="MUR/H:1" >
+				<location lon="-75.51591561" lat="6.281890339" />
+				<costs>
+					<cost type="structural" value="64995"/>
+				</costs>
+			</asset>
+			<asset id="med_146_S1" number="1"  taxonomy="MUR/H:2" >
+				<location lon="-75.5165139" lat="6.276330449" />
+				<costs>
+					<cost type="structural" value="66235"/>
+				</costs>
+			</asset>
+			<asset id="med_147_S1" number="20"  taxonomy="MUR/H:3" >
+				<location lon="-75.65154465" lat="6.304616772" />
+				<costs>
+					<cost type="structural" value="31568"/>
+				</costs>
+			</asset>
+			<asset id="med_148_S1" number="93"  taxonomy="MUR/H:4" >
+				<location lon="-75.60253607" lat="6.306171585" />
+				<costs>
+					<cost type="structural" value="32213"/>
+				</costs>
+			</asset>
+			<asset id="med_149_S1" number="12"  taxonomy="MUR/H:1" >
+				<location lon="-75.6309744" lat="6.28332893" />
+				<costs>
+					<cost type="structural" value="60890"/>
+				</costs>
+			</asset>
+			<asset id="med_150_S1" number="5"  taxonomy="MUR/H:2" >
+				<location lon="-75.61286187" lat="6.296607721" />
+				<costs>
+					<cost type="structural" value="32717"/>
+				</costs>
+			</asset>
+			<asset id="med_151_S1" number="3"  taxonomy="MUR/H:3" >
+				<location lon="-75.63215067" lat="6.266296557" />
+				<costs>
+					<cost type="structural" value="28577"/>
+				</costs>
+			</asset>
+			<asset id="med_152_S1" number="351"  taxonomy="MUR/H:4" >
+				<location lon="-75.60320237" lat="6.275337686" />
+				<costs>
+					<cost type="structural" value="16600"/>
+				</costs>
+			</asset>
+			<asset id="med_153_S1" number="274"  taxonomy="MUR/H:1" >
+				<location lon="-75.60840357" lat="6.27704769" />
+				<costs>
+					<cost type="structural" value="15754"/>
+				</costs>
+			</asset>
+			<asset id="med_154_S1" number="661"  taxonomy="MUR/H:2" >
+				<location lon="-75.61728247" lat="6.269332189" />
+				<costs>
+					<cost type="structural" value="17745"/>
+				</costs>
+			</asset>
+			<asset id="med_155_S1" number="56"  taxonomy="MUR/H:3" >
+				<location lon="-75.49598483" lat="6.20417652" />
+				<costs>
+					<cost type="structural" value="16556"/>
+				</costs>
+			</asset>
+			<asset id="med_156_S1" number="22"  taxonomy="MUR/H:4" >
+				<location lon="-75.5583073" lat="6.182905216" />
+				<costs>
+					<cost type="structural" value="127521"/>
+				</costs>
+			</asset>
+			<asset id="med_157_S1" number="28"  taxonomy="MUR/H:1" >
+				<location lon="-75.62722167" lat="6.224380652" />
+				<costs>
+					<cost type="structural" value="32929"/>
+				</costs>
+			</asset>
+			<asset id="med_159_S1" number="362"  taxonomy="MUR/H:2" >
+				<location lon="-75.55941405" lat="6.284265206" />
+				<costs>
+					<cost type="structural" value="23808"/>
+				</costs>
+			</asset>
+			<asset id="med_161_S1" number="365"  taxonomy="MUR/H:3" >
+				<location lon="-75.56186046" lat="6.240649624" />
+				<costs>
+					<cost type="structural" value="32264"/>
+				</costs>
+			</asset>
+			<asset id="med_162_S1" number="449"  taxonomy="MUR/H:4" >
+				<location lon="-75.54885115" lat="6.272271751" />
+				<costs>
+					<cost type="structural" value="16879"/>
+				</costs>
+			</asset>
+			<asset id="med_163_S1" number="284"  taxonomy="MUR/H:1" >
+				<location lon="-75.5652719" lat="6.239872417" />
+				<costs>
+					<cost type="structural" value="32309"/>
+				</costs>
+			</asset>
+			<asset id="med_164_S1" number="969"  taxonomy="MUR/H:2" >
+				<location lon="-75.54205426" lat="6.273319752" />
+				<costs>
+					<cost type="structural" value="14233"/>
+				</costs>
+			</asset>
+			<asset id="med_165_S1" number="163"  taxonomy="MUR/H:3" >
+				<location lon="-75.56657275" lat="6.231831547" />
+				<costs>
+					<cost type="structural" value="57265"/>
+				</costs>
+			</asset>
+			<asset id="med_166_S1" number="607"  taxonomy="MUR/H:4" >
+				<location lon="-75.58833018" lat="6.298262917" />
+				<costs>
+					<cost type="structural" value="14980"/>
+				</costs>
+			</asset>
+			<asset id="med_167_S1" number="362"  taxonomy="MUR/H:1" >
+				<location lon="-75.57214795" lat="6.236413702" />
+				<costs>
+					<cost type="structural" value="63479"/>
+				</costs>
+			</asset>
+			<asset id="med_168_S1" number="268"  taxonomy="MUR/H:2" >
+				<location lon="-75.55174148" lat="6.243120739" />
+				<costs>
+					<cost type="structural" value="32043"/>
+				</costs>
+			</asset>
+			<asset id="med_169_S1" number="112"  taxonomy="MUR/H:3" >
+				<location lon="-75.67160273" lat="6.185004816" />
+				<costs>
+					<cost type="structural" value="21039"/>
+				</costs>
+			</asset>
+			<asset id="med_170_S1" number="615"  taxonomy="MUR/H:4" >
+				<location lon="-75.53664518" lat="6.235664719" />
+				<costs>
+					<cost type="structural" value="15340"/>
+				</costs>
+			</asset>
+			<asset id="med_171_S1" number="287"  taxonomy="MUR/H:1" >
+				<location lon="-75.68258853" lat="6.186823939" />
+				<costs>
+					<cost type="structural" value="16509"/>
+				</costs>
+			</asset>
+			<asset id="med_172_S1" number="448"  taxonomy="MUR/H:2" >
+				<location lon="-75.53120886" lat="6.236706481" />
+				<costs>
+					<cost type="structural" value="13822"/>
+				</costs>
+			</asset>
+			<asset id="med_173_S1" number="294"  taxonomy="MUR/H:3" >
+				<location lon="-75.5563166" lat="6.309667785" />
+				<costs>
+					<cost type="structural" value="14830"/>
+				</costs>
+			</asset>
+			<asset id="med_174_S1" number="429"  taxonomy="MUR/H:4" >
+				<location lon="-75.55960629" lat="6.246786547" />
+				<costs>
+					<cost type="structural" value="32283"/>
+				</costs>
+			</asset>
+			<asset id="med_175_S1" number="305"  taxonomy="MUR/H:1" >
+				<location lon="-75.54679928" lat="6.290762367" />
+				<costs>
+					<cost type="structural" value="13894"/>
+				</costs>
+			</asset>
+			<asset id="med_176_S1" number="182"  taxonomy="MUR/H:2" >
+				<location lon="-75.54520618" lat="6.29070513" />
+				<costs>
+					<cost type="structural" value="13856"/>
+				</costs>
+			</asset>
+			<asset id="med_177_S1" number="594"  taxonomy="MUR/H:3" >
+				<location lon="-75.55153752" lat="6.286580187" />
+				<costs>
+					<cost type="structural" value="18532"/>
+				</costs>
+			</asset>
+			<asset id="med_178_S1" number="1055"  taxonomy="MUR/H:4" >
+				<location lon="-75.54211506" lat="6.291585851" />
+				<costs>
+					<cost type="structural" value="13846"/>
+				</costs>
+			</asset>
+			<asset id="med_179_S1" number="511"  taxonomy="MUR/H:1" >
+				<location lon="-75.55945911" lat="6.276247477" />
+				<costs>
+					<cost type="structural" value="30345"/>
+				</costs>
+			</asset>
+			<asset id="med_180_S1" number="559"  taxonomy="MUR/H:2" >
+				<location lon="-75.55549931" lat="6.27580806" />
+				<costs>
+					<cost type="structural" value="27276"/>
+				</costs>
+			</asset>
+			<asset id="med_181_S1" number="605"  taxonomy="MUR/H:3" >
+				<location lon="-75.54345886" lat="6.297024147" />
+				<costs>
+					<cost type="structural" value="14062"/>
+				</costs>
+			</asset>
+			<asset id="med_182_S1" number="201"  taxonomy="MUR/H:4" >
+				<location lon="-75.5456654" lat="6.286029216" />
+				<costs>
+					<cost type="structural" value="15117"/>
+				</costs>
+			</asset>
+			<asset id="med_183_S1" number="158"  taxonomy="MUR/H:1" >
+				<location lon="-75.55701297" lat="6.306325541" />
+				<costs>
+					<cost type="structural" value="15859"/>
+				</costs>
+			</asset>
+			<asset id="med_184_S1" number="468"  taxonomy="MUR/H:2" >
+				<location lon="-75.55126472" lat="6.275724591" />
+				<costs>
+					<cost type="structural" value="16814"/>
+				</costs>
+			</asset>
+			<asset id="med_185_S1" number="163"  taxonomy="MUR/H:3" >
+				<location lon="-75.54760758" lat="6.236699382" />
+				<costs>
+					<cost type="structural" value="34008"/>
+				</costs>
+			</asset>
+			<asset id="med_186_S1" number="223"  taxonomy="MUR/H:4" >
+				<location lon="-75.55336406" lat="6.239938986" />
+				<costs>
+					<cost type="structural" value="44228"/>
+				</costs>
+			</asset>
+			<asset id="med_187_S1" number="431"  taxonomy="MUR/H:1" >
+				<location lon="-75.55939457" lat="6.258013298" />
+				<costs>
+					<cost type="structural" value="41951"/>
+				</costs>
+			</asset>
+			<asset id="med_188_S1" number="65"  taxonomy="MUR/H:2" >
+				<location lon="-75.58465631" lat="6.286360412" />
+				<costs>
+					<cost type="structural" value="28603"/>
+				</costs>
+			</asset>
+			<asset id="med_189_S1" number="598"  taxonomy="MUR/H:3" >
+				<location lon="-75.58596801" lat="6.291563487" />
+				<costs>
+					<cost type="structural" value="17494"/>
+				</costs>
+			</asset>
+			<asset id="med_190_S1" number="195"  taxonomy="MUR/H:4" >
+				<location lon="-75.58676157" lat="6.30606381" />
+				<costs>
+					<cost type="structural" value="14291"/>
+				</costs>
+			</asset>
+			<asset id="med_191_S1" number="257"  taxonomy="MUR/H:1" >
+				<location lon="-75.58668598" lat="6.309539115" />
+				<costs>
+					<cost type="structural" value="14155"/>
+				</costs>
+			</asset>
+			<asset id="med_192_S1" number="232"  taxonomy="MUR/H:2" >
+				<location lon="-75.58872922" lat="6.310525726" />
+				<costs>
+					<cost type="structural" value="14175"/>
+				</costs>
+			</asset>
+			<asset id="med_193_S1" number="394"  taxonomy="MUR/H:3" >
+				<location lon="-75.59036015" lat="6.288127212" />
+				<costs>
+					<cost type="structural" value="22529"/>
+				</costs>
+			</asset>
+			<asset id="med_194_S1" number="431"  taxonomy="MUR/H:4" >
+				<location lon="-75.56037367" lat="6.301397623" />
+				<costs>
+					<cost type="structural" value="14904"/>
+				</costs>
+			</asset>
+			<asset id="med_195_S1" number="644"  taxonomy="MUR/H:1" >
+				<location lon="-75.54413115" lat="6.278324343" />
+				<costs>
+					<cost type="structural" value="15076"/>
+				</costs>
+			</asset>
+			<asset id="med_196_S1" number="56"  taxonomy="MUR/H:2" >
+				<location lon="-75.58872201" lat="6.265353807" />
+				<costs>
+					<cost type="structural" value="15919"/>
+				</costs>
+			</asset>
+			<asset id="med_197_S1" number="17"  taxonomy="MUR/H:3" >
+				<location lon="-75.56520079" lat="6.220261981" />
+				<costs>
+					<cost type="structural" value="125623"/>
+				</costs>
+			</asset>
+			<asset id="med_198_S1" number="101"  taxonomy="MUR/H:4" >
+				<location lon="-75.56846298" lat="6.307108309" />
+				<costs>
+					<cost type="structural" value="88204"/>
+				</costs>
+			</asset>
+			<asset id="med_199_S1" number="26"  taxonomy="MUR/H:1" >
+				<location lon="-75.6033764" lat="6.290651298" />
+				<costs>
+					<cost type="structural" value="32553"/>
+				</costs>
+			</asset>
+			<asset id="med_200_S1" number="347"  taxonomy="MUR/H:2" >
+				<location lon="-75.58887321" lat="6.302902849" />
+				<costs>
+					<cost type="structural" value="14178"/>
+				</costs>
+			</asset>
+			<asset id="med_201_S1" number="242"  taxonomy="MUR/H:3" >
+				<location lon="-75.59285651" lat="6.272060043" />
+				<costs>
+					<cost type="structural" value="57301"/>
+				</costs>
+			</asset>
+			<asset id="med_202_S1" number="599"  taxonomy="MUR/H:4" >
+				<location lon="-75.56096556" lat="6.233813326" />
+				<costs>
+					<cost type="structural" value="26450"/>
+				</costs>
+			</asset>
+			<asset id="med_203_S1" number="814"  taxonomy="MUR/H:1" >
+				<location lon="-75.55170938" lat="6.281793618" />
+				<costs>
+					<cost type="structural" value="17212"/>
+				</costs>
+			</asset>
+			<asset id="med_204_S1" number="460"  taxonomy="MUR/H:2" >
+				<location lon="-75.5737615" lat="6.309956491" />
+				<costs>
+					<cost type="structural" value="25348"/>
+				</costs>
+			</asset>
+			<asset id="med_205_S1" number="136"  taxonomy="MUR/H:3" >
+				<location lon="-75.61483999" lat="6.208107464" />
+				<costs>
+					<cost type="structural" value="20666"/>
+				</costs>
+			</asset>
+			<asset id="med_206_S1" number="139"  taxonomy="MUR/H:4" >
+				<location lon="-75.63813018" lat="6.223050412" />
+				<costs>
+					<cost type="structural" value="17989"/>
+				</costs>
+			</asset>
+			<asset id="med_207_S1" number="6"  taxonomy="MUR/H:1" >
+				<location lon="-75.61932893" lat="6.240044446" />
+				<costs>
+					<cost type="structural" value="13032"/>
+				</costs>
+			</asset>
+			<asset id="med_208_S1" number="292"  taxonomy="MUR/H:2" >
+				<location lon="-75.54200185" lat="6.232802117" />
+				<costs>
+					<cost type="structural" value="17657"/>
+				</costs>
+			</asset>
+			<asset id="med_209_S1" number="144"  taxonomy="MUR/H:3" >
+				<location lon="-75.53230558" lat="6.23143407" />
+				<costs>
+					<cost type="structural" value="14976"/>
+				</costs>
+			</asset>
+			<asset id="med_210_S1" number="368"  taxonomy="MUR/H:4" >
+				<location lon="-75.55332997" lat="6.260588349" />
+				<costs>
+					<cost type="structural" value="32118"/>
+				</costs>
+			</asset>
+			<asset id="med_211_S1" number="514"  taxonomy="MUR/H:1" >
+				<location lon="-75.54583545" lat="6.243896021" />
+				<costs>
+					<cost type="structural" value="15997"/>
+				</costs>
+			</asset>
+			<asset id="med_212_S1" number="183"  taxonomy="MUR/H:2" >
+				<location lon="-75.53229512" lat="6.232748803" />
+				<costs>
+					<cost type="structural" value="15078"/>
+				</costs>
+			</asset>
+			<asset id="med_213_S1" number="19"  taxonomy="MUR/H:3" >
+				<location lon="-75.55187132" lat="6.219404052" />
+				<costs>
+					<cost type="structural" value="131232"/>
+				</costs>
+			</asset>
+			<asset id="med_214_S1" number="732"  taxonomy="MUR/H:4" >
+				<location lon="-75.54722954" lat="6.267371784" />
+				<costs>
+					<cost type="structural" value="15684"/>
+				</costs>
+			</asset>
+			<asset id="med_215_S1" number="591"  taxonomy="MUR/H:1" >
+				<location lon="-75.55274345" lat="6.267157959" />
+				<costs>
+					<cost type="structural" value="21483"/>
+				</costs>
+			</asset>
+			<asset id="med_216_S1" number="122"  taxonomy="MUR/H:2" >
+				<location lon="-75.54766807" lat="6.262805752" />
+				<costs>
+					<cost type="structural" value="20601"/>
+				</costs>
+			</asset>
+			<asset id="med_217_S1" number="241"  taxonomy="MUR/H:3" >
+				<location lon="-75.54674614" lat="6.281096621" />
+				<costs>
+					<cost type="structural" value="13937"/>
+				</costs>
+			</asset>
+			<asset id="med_218_S1" number="435"  taxonomy="MUR/H:4" >
+				<location lon="-75.5440646" lat="6.284532986" />
+				<costs>
+					<cost type="structural" value="15472"/>
+				</costs>
+			</asset>
+			<asset id="med_219_S1" number="281"  taxonomy="MUR/H:1" >
+				<location lon="-75.55904791" lat="6.262344441" />
+				<costs>
+					<cost type="structural" value="30283"/>
+				</costs>
+			</asset>
+			<asset id="med_220_S1" number="886"  taxonomy="MUR/H:2" >
+				<location lon="-75.56505174" lat="6.262578417" />
+				<costs>
+					<cost type="structural" value="59783"/>
+				</costs>
+			</asset>
+			<asset id="med_221_S1" number="40"  taxonomy="MUR/H:3" >
+				<location lon="-75.50628837" lat="6.28070195" />
+				<costs>
+					<cost type="structural" value="16608"/>
+				</costs>
+			</asset>
+			<asset id="med_222_S1" number="80"  taxonomy="MUR/H:4" >
+				<location lon="-75.60889092" lat="6.248926434" />
+				<costs>
+					<cost type="structural" value="160512"/>
+				</costs>
+			</asset>
+			<asset id="med_223_S1" number="331"  taxonomy="MUR/H:1" >
+				<location lon="-75.56710925" lat="6.256371053" />
+				<costs>
+					<cost type="structural" value="59876"/>
+				</costs>
+			</asset>
+			<asset id="med_224_S1" number="28"  taxonomy="MUR/H:2" >
+				<location lon="-75.61165066" lat="6.272488795" />
+				<costs>
+					<cost type="structural" value="32625"/>
+				</costs>
+			</asset>
+			<asset id="med_225_S1" number="32"  taxonomy="MUR/H:3" >
+				<location lon="-75.57705295" lat="6.246900734" />
+				<costs>
+					<cost type="structural" value="59982"/>
+				</costs>
+			</asset>
+			<asset id="med_226_S1" number="120"  taxonomy="MUR/H:4" >
+				<location lon="-75.58061649" lat="6.246760516" />
+				<costs>
+					<cost type="structural" value="59987"/>
+				</costs>
+			</asset>
+			<asset id="med_227_S1" number="129"  taxonomy="MUR/H:1" >
+				<location lon="-75.60882919" lat="6.243407807" />
+				<costs>
+					<cost type="structural" value="159356"/>
+				</costs>
+			</asset>
+			<asset id="med_228_S1" number="396"  taxonomy="MUR/H:2" >
+				<location lon="-75.57688124" lat="6.251012476" />
+				<costs>
+					<cost type="structural" value="32264"/>
+				</costs>
+			</asset>
+			<asset id="med_229_S1" number="69"  taxonomy="MUR/H:3" >
+				<location lon="-75.59762347" lat="6.262696402" />
+				<costs>
+					<cost type="structural" value="160282"/>
+				</costs>
+			</asset>
+			<asset id="med_230_S1" number="93"  taxonomy="MUR/H:4" >
+				<location lon="-75.59355955" lat="6.259255561" />
+				<costs>
+					<cost type="structural" value="160372"/>
+				</costs>
+			</asset>
+			<asset id="med_231_S1" number="83"  taxonomy="MUR/H:1" >
+				<location lon="-75.60429825" lat="6.24394418" />
+				<costs>
+					<cost type="structural" value="159144"/>
+				</costs>
+			</asset>
+			<asset id="med_232_S1" number="125"  taxonomy="MUR/H:2" >
+				<location lon="-75.60552797" lat="6.269306344" />
+				<costs>
+					<cost type="structural" value="82981"/>
+				</costs>
+			</asset>
+			<asset id="med_233_S1" number="482"  taxonomy="MUR/H:3" >
+				<location lon="-75.55461601" lat="6.247559162" />
+				<costs>
+					<cost type="structural" value="32148"/>
+				</costs>
+			</asset>
+			<asset id="med_234_S1" number="129"  taxonomy="MUR/H:4" >
+				<location lon="-75.61923174" lat="6.305811469" />
+				<costs>
+					<cost type="structural" value="59755"/>
+				</costs>
+			</asset>
+			<asset id="med_235_S1" number="567"  taxonomy="MUR/H:1" >
+				<location lon="-75.55407242" lat="6.25190982" />
+				<costs>
+					<cost type="structural" value="27356"/>
+				</costs>
+			</asset>
+			<asset id="med_236_S1" number="229"  taxonomy="MUR/H:2" >
+				<location lon="-75.62396779" lat="6.270680873" />
+				<costs>
+					<cost type="structural" value="28891"/>
+				</costs>
+			</asset>
+			<asset id="med_237_S1" number="802"  taxonomy="MUR/H:3" >
+				<location lon="-75.54815737" lat="6.253495324" />
+				<costs>
+					<cost type="structural" value="15462"/>
+				</costs>
+			</asset>
+			<asset id="med_238_S1" number="546"  taxonomy="MUR/H:4" >
+				<location lon="-75.5488699" lat="6.247217035" />
+				<costs>
+					<cost type="structural" value="19859"/>
+				</costs>
+			</asset>
+			<asset id="med_239_S1" number="224"  taxonomy="MUR/H:1" >
+				<location lon="-75.63996128" lat="6.311100964" />
+				<costs>
+					<cost type="structural" value="59922"/>
+				</costs>
+			</asset>
+			<asset id="med_241_S1" number="35"  taxonomy="MUR/H:2" >
+				<location lon="-75.64146408" lat="6.235173092" />
+				<costs>
+					<cost type="structural" value="16444"/>
+				</costs>
+			</asset>
+			<asset id="med_242_S1" number="442"  taxonomy="MUR/H:3" >
+				<location lon="-75.64936384" lat="6.290117122" />
+				<costs>
+					<cost type="structural" value="29074"/>
+				</costs>
+			</asset>
+			<asset id="med_243_S1" number="158"  taxonomy="MUR/H:4" >
+				<location lon="-75.65180378" lat="6.298835857" />
+				<costs>
+					<cost type="structural" value="32195"/>
+				</costs>
+			</asset>
+			<asset id="med_244_S1" number="219"  taxonomy="MUR/H:1" >
+				<location lon="-75.6369314" lat="6.250793444" />
+				<costs>
+					<cost type="structural" value="32809"/>
+				</costs>
+			</asset>
+			<asset id="med_245_S1" number="148"  taxonomy="MUR/H:2" >
+				<location lon="-75.5686949" lat="6.20704175" />
+				<costs>
+					<cost type="structural" value="40793"/>
+				</costs>
+			</asset>
+			<asset id="med_247_S1" number="341"  taxonomy="MUR/H:3" >
+				<location lon="-75.68141297" lat="6.249905967" />
+				<costs>
+					<cost type="structural" value="16545"/>
+				</costs>
+			</asset>
+			<asset id="med_248_S1" number="198"  taxonomy="MUR/H:4" >
+				<location lon="-75.69650117" lat="6.230753575" />
+				<costs>
+					<cost type="structural" value="60000"/>
+				</costs>
+			</asset>
+			<asset id="med_249_S1" number="54"  taxonomy="MUR/H:1" >
+				<location lon="-75.6546341" lat="6.172290993" />
+				<costs>
+					<cost type="structural" value="51448"/>
+				</costs>
+			</asset>
+			<asset id="med_250_S1" number="225"  taxonomy="MUR/H:2" >
+				<location lon="-75.62977779" lat="6.227527221" />
+				<costs>
+					<cost type="structural" value="22734"/>
+				</costs>
+			</asset>
+			<asset id="med_251_S1" number="29"  taxonomy="MUR/H:3" >
+				<location lon="-75.64725708" lat="6.303104701" />
+				<costs>
+					<cost type="structural" value="60525"/>
+				</costs>
+			</asset>
+			<asset id="med_252_S1" number="475"  taxonomy="MUR/H:4" >
+				<location lon="-75.61363701" lat="6.224654394" />
+				<costs>
+					<cost type="structural" value="21573"/>
+				</costs>
+			</asset>
+			<asset id="med_254_S1" number="69"  taxonomy="MUR/H:1" >
+				<location lon="-75.61782144" lat="6.223079801" />
+				<costs>
+					<cost type="structural" value="16602"/>
+				</costs>
+			</asset>
+			<asset id="med_256_S1" number="105"  taxonomy="MUR/H:2" >
+				<location lon="-75.63401922" lat="6.289011028" />
+				<costs>
+					<cost type="structural" value="32157"/>
+				</costs>
+			</asset>
+			<asset id="med_257_S1" number="607"  taxonomy="MUR/H:3" >
+				<location lon="-75.59722299" lat="6.289540032" />
+				<costs>
+					<cost type="structural" value="19062"/>
+				</costs>
+			</asset>
+			<asset id="med_258_S1" number="551"  taxonomy="MUR/H:4" >
+				<location lon="-75.59460028" lat="6.294821185" />
+				<costs>
+					<cost type="structural" value="18891"/>
+				</costs>
+			</asset>
+			<asset id="med_259_S1" number="371"  taxonomy="MUR/H:1" >
+				<location lon="-75.59767533" lat="6.301983809" />
+				<costs>
+					<cost type="structural" value="32081"/>
+				</costs>
+			</asset>
+			<asset id="med_260_S1" number="762"  taxonomy="MUR/H:2" >
+				<location lon="-75.64750119" lat="6.201050392" />
+				<costs>
+					<cost type="structural" value="16528"/>
+				</costs>
+			</asset>
+			<asset id="med_261_S1" number="407"  taxonomy="MUR/H:3" >
+				<location lon="-75.54848306" lat="6.231646292" />
+				<costs>
+					<cost type="structural" value="22097"/>
+				</costs>
+			</asset>
+			<asset id="med_262_S1" number="173"  taxonomy="MUR/H:4" >
+				<location lon="-75.61673473" lat="6.250754637" />
+				<costs>
+					<cost type="structural" value="59936"/>
+				</costs>
+			</asset>
+			<asset id="med_263_S1" number="3095"  taxonomy="MUR/H:1" >
+				<location lon="-75.64490701" lat="6.182855502" />
+				<costs>
+					<cost type="structural" value="20059"/>
+				</costs>
+			</asset>
+			<asset id="med_264_S1" number="58"  taxonomy="MUR/H:2" >
+				<location lon="-75.47855975" lat="6.241053567" />
+				<costs>
+					<cost type="structural" value="16411"/>
+				</costs>
+			</asset>
+			<asset id="med_265_S1" number="881"  taxonomy="MUR/H:3" >
+				<location lon="-75.63329722" lat="6.272020689" />
+				<costs>
+					<cost type="structural" value="26272"/>
+				</costs>
+			</asset>
+			<asset id="med_266_S1" number="294"  taxonomy="MUR/H:4" >
+				<location lon="-75.65837014" lat="6.179871464" />
+				<costs>
+					<cost type="structural" value="27543"/>
+				</costs>
+			</asset>
+			<asset id="med_267_S1" number="142"  taxonomy="MUR/H:1" >
+				<location lon="-75.65180378" lat="6.298835857" />
+				<costs>
+					<cost type="structural" value="16568"/>
+				</costs>
+			</asset>
+			<asset id="med_268_S1" number="470"  taxonomy="MUR/H:2" >
+				<location lon="-75.67253664" lat="6.20061228" />
+				<costs>
+					<cost type="structural" value="16508"/>
+				</costs>
+			</asset>
+			<asset id="med_269_S1" number="87"  taxonomy="MUR/H:3" >
+				<location lon="-75.61286187" lat="6.296607721" />
+				<costs>
+					<cost type="structural" value="29046"/>
+				</costs>
+			</asset>
+			<asset id="med_270_S1" number="6"  taxonomy="MUR/H:4" >
+				<location lon="-75.54430181" lat="6.183123244" />
+				<costs>
+					<cost type="structural" value="129822"/>
+				</costs>
+			</asset>
+			<asset id="med_271_S1" number="269"  taxonomy="MUR/H:1" >
+				<location lon="-75.6755906" lat="6.20923571" />
+				<costs>
+					<cost type="structural" value="16505"/>
+				</costs>
+			</asset>
+			<asset id="med_272_S1" number="289"  taxonomy="MUR/H:2" >
+				<location lon="-75.49814749" lat="6.199742014" />
+				<costs>
+					<cost type="structural" value="16526"/>
+				</costs>
+			</asset>
+			<asset id="med_273_S1" number="104"  taxonomy="MUR/H:3" >
+				<location lon="-75.50434824" lat="6.229774787" />
+				<costs>
+					<cost type="structural" value="16578"/>
+				</costs>
+			</asset>
+			<asset id="med_274_S1" number="839"  taxonomy="MUR/H:4" >
+				<location lon="-75.53025367" lat="6.259586168" />
+				<costs>
+					<cost type="structural" value="15449"/>
+				</costs>
+			</asset>
+			<asset id="med_275_S1" number="278"  taxonomy="MUR/H:1" >
+				<location lon="-75.50295807" lat="6.210398136" />
+				<costs>
+					<cost type="structural" value="16547"/>
+				</costs>
+			</asset>
+			<asset id="med_276_S1" number="200"  taxonomy="MUR/H:2" >
+				<location lon="-75.6844858" lat="6.305017053" />
+				<costs>
+					<cost type="structural" value="16544"/>
+				</costs>
+			</asset>
+			<asset id="med_277_S1" number="52"  taxonomy="MUR/H:3" >
+				<location lon="-75.65154465" lat="6.304616772" />
+				<costs>
+					<cost type="structural" value="60445"/>
+				</costs>
+			</asset>
+			<asset id="med_278_S1" number="94"  taxonomy="MUR/H:4" >
+				<location lon="-75.59886945" lat="6.223359609" />
+				<costs>
+					<cost type="structural" value="16559"/>
+				</costs>
+			</asset>
+			<asset id="med_279_S1" number="198"  taxonomy="MUR/H:1" >
+				<location lon="-75.48842619" lat="6.247280853" />
+				<costs>
+					<cost type="structural" value="16527"/>
+				</costs>
+			</asset>
+			<asset id="med_280_S1" number="2"  taxonomy="MUR/H:2" >
+				<location lon="-75.61058898" lat="6.217193405" />
+				<costs>
+					<cost type="structural" value="127736"/>
+				</costs>
+			</asset>
+			<asset id="med_281_S1" number="43"  taxonomy="MUR/H:3" >
+				<location lon="-75.65961611" lat="6.319067214" />
+				<costs>
+					<cost type="structural" value="131855"/>
+				</costs>
+			</asset>
+			<asset id="med_282_S1" number="18"  taxonomy="MUR/H:4" >
+				<location lon="-75.66630155" lat="6.300594732" />
+				<costs>
+					<cost type="structural" value="32182"/>
+				</costs>
+			</asset>
+			<asset id="med_283_S1" number="57"  taxonomy="MUR/H:1" >
+				<location lon="-75.6659787" lat="6.306913408" />
+				<costs>
+					<cost type="structural" value="60129"/>
+				</costs>
+			</asset>
+			<asset id="med_284_S1" number="428"  taxonomy="MUR/H:2" >
+				<location lon="-75.54090592" lat="6.241379323" />
+				<costs>
+					<cost type="structural" value="15950"/>
+				</costs>
+			</asset>
+			<asset id="med_285_S1" number="250"  taxonomy="MUR/H:3" >
+				<location lon="-75.56162948" lat="6.255366821" />
+				<costs>
+					<cost type="structural" value="56625"/>
+				</costs>
+			</asset>
+			<asset id="med_286_S1" number="46"  taxonomy="MUR/H:4" >
+				<location lon="-75.70556306" lat="6.295475657" />
+				<costs>
+					<cost type="structural" value="16646"/>
+				</costs>
+			</asset>
+			<asset id="med_287_S1" number="85"  taxonomy="MUR/H:1" >
+				<location lon="-75.55095033" lat="6.25720839" />
+				<costs>
+					<cost type="structural" value="21048"/>
+				</costs>
+			</asset>
+			<asset id="med_288_S1" number="254"  taxonomy="MUR/H:2" >
+				<location lon="-75.55811907" lat="6.238388085" />
+				<costs>
+					<cost type="structural" value="32307"/>
+				</costs>
+			</asset>
+			<asset id="med_289_S1" number="120"  taxonomy="MUR/H:3" >
+				<location lon="-75.57702547" lat="6.288746629" />
+				<costs>
+					<cost type="structural" value="27412"/>
+				</costs>
+			</asset>
+			<asset id="med_290_S1" number="159"  taxonomy="MUR/H:4" >
+				<location lon="-75.55501574" lat="6.234248592" />
+				<costs>
+					<cost type="structural" value="32242"/>
+				</costs>
+			</asset>
+			<asset id="med_291_S1" number="529"  taxonomy="MUR/H:1" >
+				<location lon="-75.57558973" lat="6.293715267" />
+				<costs>
+					<cost type="structural" value="29636"/>
+				</costs>
+			</asset>
+			<asset id="med_292_S1" number="98"  taxonomy="MUR/H:2" >
+				<location lon="-75.69337262" lat="6.369232098" />
+				<costs>
+					<cost type="structural" value="16550"/>
+				</costs>
+			</asset>
+			<asset id="med_293_S1" number="154"  taxonomy="MUR/H:3" >
+				<location lon="-75.59894126" lat="6.245985262" />
+				<costs>
+					<cost type="structural" value="154450"/>
+				</costs>
+			</asset>
+			<asset id="med_294_S1" number="23"  taxonomy="MUR/H:4" >
+				<location lon="-75.59287691" lat="6.245025556" />
+				<costs>
+					<cost type="structural" value="162764"/>
+				</costs>
+			</asset>
+			<asset id="med_295_S1" number="67"  taxonomy="MUR/H:1" >
+				<location lon="-75.58633108" lat="6.257436672" />
+				<costs>
+					<cost type="structural" value="146491"/>
+				</costs>
+			</asset>
+			<asset id="med_296_S1" number="435"  taxonomy="MUR/H:2" >
+				<location lon="-75.6659787" lat="6.306913408" />
+				<costs>
+					<cost type="structural" value="61393"/>
+				</costs>
+			</asset>
+			<asset id="med_297_S1" number="253"  taxonomy="MUR/H:3" >
+				<location lon="-75.62328175" lat="6.245415989" />
+				<costs>
+					<cost type="structural" value="18052"/>
+				</costs>
+			</asset>
+			<asset id="med_298_S1" number="206"  taxonomy="MUR/H:4" >
+				<location lon="-75.62089228" lat="6.251016931" />
+				<costs>
+					<cost type="structural" value="56362"/>
+				</costs>
+			</asset>
+			<asset id="med_299_S1" number="73"  taxonomy="MUR/H:1" >
+				<location lon="-75.70595294" lat="6.34410464" />
+				<costs>
+					<cost type="structural" value="16598"/>
+				</costs>
+			</asset>
+			<asset id="med_301_S1" number="150"  taxonomy="MUR/H:2" >
+				<location lon="-75.70285932" lat="6.352963482" />
+				<costs>
+					<cost type="structural" value="16577"/>
+				</costs>
+			</asset>
+			<asset id="med_302_S1" number="112"  taxonomy="MUR/H:3" >
+				<location lon="-75.68196602" lat="6.362521633" />
+				<costs>
+					<cost type="structural" value="16534"/>
+				</costs>
+			</asset>
+			<asset id="med_303_S1" number="628"  taxonomy="MUR/H:4" >
+				<location lon="-75.6349254" lat="6.2805798" />
+				<costs>
+					<cost type="structural" value="27965"/>
+				</costs>
+			</asset>
+			<asset id="med_304_S1" number="328"  taxonomy="MUR/H:1" >
+				<location lon="-75.62898776" lat="6.291016933" />
+				<costs>
+					<cost type="structural" value="57345"/>
+				</costs>
+			</asset>
+			<asset id="med_305_S1" number="33"  taxonomy="MUR/H:2" >
+				<location lon="-75.71095207" lat="6.349196836" />
+				<costs>
+					<cost type="structural" value="16663"/>
+				</costs>
+			</asset>
+			<asset id="med_306_S1" number="72"  taxonomy="MUR/H:3" >
+				<location lon="-75.61491045" lat="6.246933641" />
+				<costs>
+					<cost type="structural" value="155475"/>
+				</costs>
+			</asset>
+			<asset id="med_307_S1" number="49"  taxonomy="MUR/H:4" >
+				<location lon="-75.57869905" lat="6.20884683" />
+				<costs>
+					<cost type="structural" value="129361"/>
+				</costs>
+			</asset>
+			<asset id="med_308_S1" number="1235"  taxonomy="MUR/H:1" >
+				<location lon="-75.58869543" lat="6.201803776" />
+				<costs>
+					<cost type="structural" value="56183"/>
+				</costs>
+			</asset>
+			<asset id="med_309_S1" number="85"  taxonomy="MUR/H:2" >
+				<location lon="-75.60573586" lat="6.231776192" />
+				<costs>
+					<cost type="structural" value="105502"/>
+				</costs>
+			</asset>
+			<asset id="med_310_S1" number="60"  taxonomy="MUR/H:3" >
+				<location lon="-75.58069512" lat="6.201555048" />
+				<costs>
+					<cost type="structural" value="136079"/>
+				</costs>
+			</asset>
+			<asset id="med_311_S1" number="134"  taxonomy="MUR/H:4" >
+				<location lon="-75.63246135" lat="6.26131986" />
+				<costs>
+					<cost type="structural" value="17619"/>
+				</costs>
+			</asset>
+			<asset id="med_312_S1" number="1379"  taxonomy="MUR/H:1" >
+				<location lon="-75.58659248" lat="6.230435299" />
+				<costs>
+					<cost type="structural" value="32438"/>
+				</costs>
+			</asset>
+			<asset id="med_313_S1" number="82"  taxonomy="MUR/H:2" >
+				<location lon="-75.57674531" lat="6.212736239" />
+				<costs>
+					<cost type="structural" value="99991"/>
+				</costs>
+			</asset>
+			<asset id="med_314_S1" number="457"  taxonomy="MUR/H:3" >
+				<location lon="-75.59325918" lat="6.222076956" />
+				<costs>
+					<cost type="structural" value="60013"/>
+				</costs>
+			</asset>
+			<asset id="med_315_S1" number="1144"  taxonomy="MUR/H:4" >
+				<location lon="-75.58807599" lat="6.208955506" />
+				<costs>
+					<cost type="structural" value="33743"/>
+				</costs>
+			</asset>
+			<asset id="med_316_S1" number="28"  taxonomy="MUR/H:1" >
+				<location lon="-75.55531022" lat="6.214653385" />
+				<costs>
+					<cost type="structural" value="126903"/>
+				</costs>
+			</asset>
+			<asset id="med_317_S1" number="53"  taxonomy="MUR/H:2" >
+				<location lon="-75.5770796" lat="6.186507029" />
+				<costs>
+					<cost type="structural" value="128426"/>
+				</costs>
+			</asset>
+			<asset id="med_318_S1" number="616"  taxonomy="MUR/H:3" >
+				<location lon="-75.60635143" lat="6.213216128" />
+				<costs>
+					<cost type="structural" value="22349"/>
+				</costs>
+			</asset>
+			<asset id="med_319_S1" number="107"  taxonomy="MUR/H:4" >
+				<location lon="-75.65516152" lat="6.268036844" />
+				<costs>
+					<cost type="structural" value="52036"/>
+				</costs>
+			</asset>
+			<asset id="med_320_S1" number="332"  taxonomy="MUR/H:1" >
+				<location lon="-75.6167917" lat="6.287115622" />
+				<costs>
+					<cost type="structural" value="46940"/>
+				</costs>
+			</asset>
+			<asset id="med_321_S1" number="489"  taxonomy="MUR/H:2" >
+				<location lon="-75.61740784" lat="6.235562627" />
+				<costs>
+					<cost type="structural" value="16924"/>
+				</costs>
+			</asset>
+			<asset id="med_322_S1" number="178"  taxonomy="MUR/H:3" >
+				<location lon="-75.61116414" lat="6.233209891" />
+				<costs>
+					<cost type="structural" value="33995"/>
+				</costs>
+			</asset>
+			<asset id="med_323_S1" number="45"  taxonomy="MUR/H:4" >
+				<location lon="-75.58300944" lat="6.193170859" />
+				<costs>
+					<cost type="structural" value="127702"/>
+				</costs>
+			</asset>
+			<asset id="med_324_S1" number="400"  taxonomy="MUR/H:1" >
+				<location lon="-75.60335426" lat="6.234828247" />
+				<costs>
+					<cost type="structural" value="56886"/>
+				</costs>
+			</asset>
+			<asset id="med_326_S1" number="324"  taxonomy="MUR/H:2" >
+				<location lon="-75.60596496" lat="6.28373754" />
+				<costs>
+					<cost type="structural" value="28297"/>
+				</costs>
+			</asset>
+			<asset id="med_327_S1" number="558"  taxonomy="MUR/H:3" >
+				<location lon="-75.64706382" lat="6.243203075" />
+				<costs>
+					<cost type="structural" value="56185"/>
+				</costs>
+			</asset>
+			<asset id="med_328_S1" number="770"  taxonomy="MUR/H:4" >
+				<location lon="-75.61742119" lat="6.275196673" />
+				<costs>
+					<cost type="structural" value="15411"/>
+				</costs>
+			</asset>
+			<asset id="med_329_S1" number="822"  taxonomy="MUR/H:1" >
+				<location lon="-75.62704274" lat="6.251847474" />
+				<costs>
+					<cost type="structural" value="14112"/>
+				</costs>
+			</asset>
+			<asset id="med_330_S1" number="241"  taxonomy="MUR/H:2" >
+				<location lon="-75.63055023" lat="6.249720641" />
+				<costs>
+					<cost type="structural" value="17466"/>
+				</costs>
+			</asset>
+			<asset id="med_331_S1" number="537"  taxonomy="MUR/H:3" >
+				<location lon="-75.61889527" lat="6.278541021" />
+				<costs>
+					<cost type="structural" value="17659"/>
+				</costs>
+			</asset>
+			<asset id="med_332_S1" number="818"  taxonomy="MUR/H:4" >
+				<location lon="-75.54333468" lat="6.239312413" />
+				<costs>
+					<cost type="structural" value="16191"/>
+				</costs>
+			</asset>
+			<asset id="med_333_S1" number="245"  taxonomy="MUR/H:1" >
+				<location lon="-75.63461674" lat="6.236444137" />
+				<costs>
+					<cost type="structural" value="18088"/>
+				</costs>
+			</asset>
+			<asset id="med_334_S1" number="150"  taxonomy="MUR/H:2" >
+				<location lon="-75.62109245" lat="6.262910567" />
+				<costs>
+					<cost type="structural" value="19523"/>
+				</costs>
+			</asset>
+			<asset id="med_335_S1" number="720"  taxonomy="MUR/H:3" >
+				<location lon="-75.63149254" lat="6.253130132" />
+				<costs>
+					<cost type="structural" value="13899"/>
+				</costs>
+			</asset>
+			<asset id="med_336_S1" number="330"  taxonomy="MUR/H:4" >
+				<location lon="-75.62437286" lat="6.254916617" />
+				<costs>
+					<cost type="structural" value="17967"/>
+				</costs>
+			</asset>
+			<asset id="med_337_S1" number="303"  taxonomy="MUR/H:1" >
+				<location lon="-75.61440513" lat="6.263585728" />
+				<costs>
+					<cost type="structural" value="31469"/>
+				</costs>
+			</asset>
+			<asset id="med_338_S1" number="189"  taxonomy="MUR/H:2" >
+				<location lon="-75.60997796" lat="6.260141686" />
+				<costs>
+					<cost type="structural" value="36246"/>
+				</costs>
+			</asset>
+			<asset id="med_339_S1" number="179"  taxonomy="MUR/H:3" >
+				<location lon="-75.62093341" lat="6.258794949" />
+				<costs>
+					<cost type="structural" value="32250"/>
+				</costs>
+			</asset>
+			<asset id="med_340_S1" number="237"  taxonomy="MUR/H:4" >
+				<location lon="-75.61537604" lat="6.256388451" />
+				<costs>
+					<cost type="structural" value="55806"/>
+				</costs>
+			</asset>
+			<asset id="med_341_S1" number="89"  taxonomy="MUR/H:1" >
+				<location lon="-75.56242238" lat="6.199013936" />
+				<costs>
+					<cost type="structural" value="89315"/>
+				</costs>
+			</asset>
+			<asset id="med_342_S1" number="190"  taxonomy="MUR/H:2" >
+				<location lon="-75.50607674" lat="6.214067262" />
+				<costs>
+					<cost type="structural" value="16493"/>
+				</costs>
+			</asset>
+			<asset id="med_343_S1" number="592"  taxonomy="MUR/H:3" >
+				<location lon="-75.63072918" lat="6.257457074" />
+				<costs>
+					<cost type="structural" value="16232"/>
+				</costs>
+			</asset>
+			<asset id="med_344_S1" number="471"  taxonomy="MUR/H:4" >
+				<location lon="-75.62394593" lat="6.262051413" />
+				<costs>
+					<cost type="structural" value="18459"/>
+				</costs>
+			</asset>
+			<asset id="med_345_S1" number="105"  taxonomy="MUR/H:1" >
+				<location lon="-75.61766939" lat="6.260793077" />
+				<costs>
+					<cost type="structural" value="46616"/>
+				</costs>
+			</asset>
+			<asset id="med_346_S1" number="80"  taxonomy="MUR/H:2" >
+				<location lon="-75.52102032" lat="6.202607708" />
+				<costs>
+					<cost type="structural" value="59988"/>
+				</costs>
+			</asset>
+			<asset id="med_347_S1" number="117"  taxonomy="MUR/H:3" >
+				<location lon="-75.60711002" lat="6.206971201" />
+				<costs>
+					<cost type="structural" value="37527"/>
+				</costs>
+			</asset>
+			<asset id="med_348_S1" number="84"  taxonomy="MUR/H:4" >
+				<location lon="-75.56917928" lat="6.243608777" />
+				<costs>
+					<cost type="structural" value="127881"/>
+				</costs>
+			</asset>
+			<asset id="med_350_S1" number="67"  taxonomy="MUR/H:1" >
+				<location lon="-75.55922946" lat="6.205797449" />
+				<costs>
+					<cost type="structural" value="129349"/>
+				</costs>
+			</asset>
+			<asset id="med_351_S1" number="117"  taxonomy="MUR/H:2" >
+				<location lon="-75.58605279" lat="6.245310965" />
+				<costs>
+					<cost type="structural" value="159815"/>
+				</costs>
+			</asset>
+			<asset id="med_352_S1" number="205"  taxonomy="MUR/H:3" >
+				<location lon="-75.58906575" lat="6.249120508" />
+				<costs>
+					<cost type="structural" value="55141"/>
+				</costs>
+			</asset>
+			<asset id="med_353_S1" number="548"  taxonomy="MUR/H:4" >
+				<location lon="-75.61363701" lat="6.224654394" />
+				<costs>
+					<cost type="structural" value="54612"/>
+				</costs>
+			</asset>
+			<asset id="med_354_S1" number="301"  taxonomy="MUR/H:1" >
+				<location lon="-75.52259013" lat="6.283814712" />
+				<costs>
+					<cost type="structural" value="30307"/>
+				</costs>
+			</asset>
+			<asset id="med_355_S1" number="134"  taxonomy="MUR/H:2" >
+				<location lon="-75.49346504" lat="6.238538381" />
+				<costs>
+					<cost type="structural" value="16535"/>
+				</costs>
+			</asset>
+			<asset id="med_356_S1" number="520"  taxonomy="MUR/H:3" >
+				<location lon="-75.52138014" lat="6.229726873" />
+				<costs>
+					<cost type="structural" value="16509"/>
+				</costs>
+			</asset>
+			<asset id="med_357_S1" number="392"  taxonomy="MUR/H:4" >
+				<location lon="-75.52538068" lat="6.207876101" />
+				<costs>
+					<cost type="structural" value="16538"/>
+				</costs>
+			</asset>
+			<asset id="med_358_S1" number="204"  taxonomy="MUR/H:1" >
+				<location lon="-75.4989044" lat="6.230997227" />
+				<costs>
+					<cost type="structural" value="16491"/>
+				</costs>
+			</asset>
+			<asset id="med_359_S1" number="46"  taxonomy="MUR/H:2" >
+				<location lon="-75.50128167" lat="6.241766803" />
+				<costs>
+					<cost type="structural" value="16367"/>
+				</costs>
+			</asset>
+			<asset id="med_35a_S1" number="711"  taxonomy="MUR/H:3" >
+				<location lon="-75.57674113" lat="6.273158193" />
+				<costs>
+					<cost type="structural" value="32160"/>
+				</costs>
+			</asset>
+		</assets>
+	</exposureModel>
+</nrml>

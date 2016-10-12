@@ -9,8 +9,6 @@ $(document).ready(function () {
         var table = $('.vf_gid [name="tableDiv1"]').handsontable('getInstance');
         $('.vf_gid .table1_id [name="id"]').val('MUR/H:1');
         $('.vf_gid .table1_id [name="imt"]').val('PGA');
-        $('.vf_gid .table1_id [name="imls"]').val('0.025 0.05 0.075 0.1 0.125 0.15 0.175 0.2 0.225 0.25 0.275 0.3 0.325 0.35 0.375 0.4 0.425 0.45 0.475 0.5 0.525 0.55 0.575 0.6');
-        $('.vf_gid .table1_id [name="imls"]').trigger('change');
 
         var data = [
         [ 0.025, 0.001, 1.499993 ] ,
@@ -49,8 +47,6 @@ $(document).ready(function () {
         var table = $('.vf_gid [name="tableDiv2"]').handsontable('getInstance');
         $('.vf_gid .table2_id [name="id"]').val('MUR/H:2');
         $('.vf_gid .table2_id [name="imt"]').val('PGA');
-        $('.vf_gid .table2_id [name="imls"]').val('0.025 0.05 0.075 0.1 0.125 0.15 0.175 0.2 0.225 0.25 0.275 0.3 0.325 0.35 0.375 0.4 0.425 0.45 0.475 0.5 0.525 0.55 0.575 0.6');
-        $('.vf_gid .table2_id [name="imls"]').trigger('change');
 
         var data = [
         [ 0.025, 0.000621, 0 ] ,
@@ -89,8 +85,6 @@ $(document).ready(function () {
         var table = $('.vf_gid [name="tableDiv3"]').handsontable('getInstance');
         $('.vf_gid .table3_id [name="id"]').val('MUR/H:3');
         $('.vf_gid .table3_id [name="imt"]').val('SA(0.1)');
-        $('.vf_gid .table3_id [name="imls"]').val('0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1 1.05 1.1 1.15 1.2');
-        $('.vf_gid .table3_id [name="imls"]').trigger('change');
 
         var data = [
         [ 0.05, 0.005, 0 ] ,

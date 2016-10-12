@@ -40,7 +40,7 @@ function ff_sh2long(funcType)
 
 var activeTablesObj = {};
 
-function ff_updateTable (funcType) {
+function ff_addTable (funcType) {
     var table;
     var format_name = ff_sh2long(funcType);
 
@@ -89,7 +89,7 @@ function ff_updateTable (funcType) {
     $('.ff_gid #tables').append(
         '<div id="table'+ff_obj.tbl_idx+'" class="tables_gid table'+ff_obj.tbl_idx+'_id' +
             ' ffsTableDiv panel panel-default" data-gem-func-type="'+ funcType + '">' +
-          '<strong class="ffsTitle">' + format_name.toUpperCase() + '</strong><button name="destroy_table" class="destroyTable btn-danger btn">Remove Function</button><br>' +
+          '<strong class="ffsTitle">' + format_name.toUpperCase() + '</strong><button type="button" name="destroy_table" class="destroyTable btn-danger btn">Remove Function</button><br>' +
             '<div class="ffsForm" >' +
                 '<label> Id: </label>' +
                 '<input name="id" class="ffsTable" type="text"><br>' +
@@ -105,7 +105,7 @@ function ff_updateTable (funcType) {
               (funcType == 'discr' ? ' style="width: 100%; height: 100px; overflow: hidden;"' : '') +
               ' class="theTable"></div><br>' +
             (funcType == 'discr' ?
-              '<button id="new_row_add" style="clear: right; float: right; margin-top: 4px;" class="btn">Add Row</button><br>' :
+              '<button id="new_row_add" type="button" style="clear: right; float: right; margin-top: 4px;" class="btn">Add Row</button><br>' :
              '') +
            '</div>' +
          '</div>'
@@ -171,15 +171,15 @@ function ff_updateTable (funcType) {
         var $box = $('.ff_gid [name="tableDiv'+ff_obj.tbl_idx+'"]');
 
         setTimeout(function() {
-            return gem_tableHeightUpdate(tbl, $box);
+            return gem_tableHeightUpdate($box);
         }, 0);
 
         tbl.addHook('afterCreateRow', function() {
-            return gem_tableHeightUpdate(tbl, $box);
+            return gem_tableHeightUpdate($box);
         });
 
         tbl.addHook('afterRemoveRow', function() {
-            return gem_tableHeightUpdate(tbl, $box);
+            return gem_tableHeightUpdate($box);
         });
     }
 
@@ -343,7 +343,7 @@ $('.ff_gid #convertBtn').click(function() {
                 limitStatesXML +
                 fragilityFunction +
             '\t</fragilityModel>\n' +
-        '</nrml>';
+        '</nrml>\n';
 
     validateAndDisplayNRML(nrml, 'ff', ff_obj);
 });
@@ -355,13 +355,13 @@ $(document).ready(function (){
 
     $('.ff_gid #addDiscrFunc').click(function() {
         var funcType = 'discr';
-        ff_updateTable(funcType);
+        ff_addTable(funcType);
         $('.ff_gid #outputDiv').hide();
     });
 
     $('.ff_gid #addContFunc').click(function() {
         var funcType = 'cont';
-        ff_updateTable(funcType);
+        ff_addTable(funcType);
         $('.ff_gid #outputDiv').hide();
     });
 

@@ -54,8 +54,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
             <li><a href="#tabs-1">Exposure</a></li>
             <li><a href="#tabs-2">Fragility</a></li>
             <li><a href="#tabs-3">Vulnerability</a></li>
-            <li><a href="#tabs-4">Site Conditions</a></li>
-            <li><a href="#tabs-5">Configuration file</a></li>
+            <li><a href="#tabs-4">Earthquake Rupture</a></li>
+            <li><a href="#tabs-5">Site Conditions</a></li>
+            <li><a href="#tabs-6">Configuration file</a></li>
           </ul>
           <!-- EXPOSURE -->
           <div id="tabs-1" class="ex_gid">
@@ -69,18 +70,23 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
           <div id="tabs-3" class="vf_gid">
           {% include "ipt/tabs/vulnerability.html" %}
           </div>
+          <!-- EARTHQUAKE RUPTURE -->
+          <div id="tabs-4" class="er_gid">
+          {% include "ipt/tabs/earthquake_rupture.html" %}
+          </div>
           <!-- SITE CONDITIONS -->
-          <div id="tabs-4" class="sc_gid">
+          <div id="tabs-5" class="sc_gid">
           {% include "ipt/tabs/site_conds.html" %}
           </div>
           <!-- CONFIGURATION FILE -->
-          <div id="tabs-5" class="cf_gid">
+          <div id="tabs-6" class="cf_gid">
           {% include "ipt/tabs/config_files.html" %}
           </div>
         </div>
       </div>
     </div>
   </div>
+  <div id="dialog-message" title="Error" style="display: none; width: 600px;"></div>
 {% endblock body %}
 
 {% block extra_script %}
@@ -92,7 +98,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
         if(help != null) { help.href+='/explore/'; }
         var tab_id_s = "{{ request.GET.tab_id }}", tab_id;
         tab_id = parseInt(tab_id_s) - 1;
-        if (tab_id < 0 || tab_id > 4) {
+        if (tab_id < 0 || tab_id > 5) {
             tab_id = 0;
         }
         $( "#tabs" ).tabs({active: tab_id });
@@ -110,6 +116,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     <script src="{{ STATIC_URL }}ipt/js/exposure.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/fragility.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/vulnerability.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/earthquake_rupture.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/site_conds.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/config_files.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/selectTextareaLine.js"></script>
