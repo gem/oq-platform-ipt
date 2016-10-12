@@ -168,14 +168,6 @@ var gem_ipt = {
     }
 }
 
-function isInt(n){
-    return !isNaN(n) && n % 1 === 0;
-}
-
-function isFloat(n) {
-    return  !/^\s*$/.test(n) && !isNaN(n);
-}
-
 var ipt_table_file_mgmt = function(evt, that) {
     if (evt.target.files.length == 0)
         return;
