@@ -198,6 +198,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
      ***************/
 
     arbitrary_geometry_populate: function(obj) {
+        // 'thiz' is used in $.post's callbacks below
         var thiz = this;
         var mag, hypo_lat, hypo_lon, hypo_depth, rake, strike, dip;
         var reset_data = [["", "", ""], ["", "", ""], ["", "", ""], ["", "", ""]];
