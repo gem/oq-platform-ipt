@@ -915,7 +915,7 @@ def download(request):
         absfile = os.path.join(tempfile.gettempdir(), zipname)
         if not os.path.isfile(absfile):
             return HttpResponseBadRequest('Zipfile not found.')
-        with open(absfile, 'r') as content_file:
+        with open(absfile, 'rb') as content_file:
             content = content_file.read()
 
         resp = HttpResponse(content=content,
