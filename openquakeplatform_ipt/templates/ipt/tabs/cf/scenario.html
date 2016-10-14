@@ -356,7 +356,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
       <tr><td style="text-align: left;">
           <label>Level of truncation <span class="ui-icon ui-icon-help ipt_help" title='The level of truncation of the Gaussian distribution of the logarithm of ground-motion used in the calculation of hazard.'></span>:</label>
         </td><td style="text-align: right;">
-          <input type="text" name="truncation_level" value="0.0">
+          <input type="text" name="truncation_level" value="3.0">
       </td></tr>
       <tr><td style="text-align: left;">
           <label>Maximum source-to-site distance (km) <span class="ui-icon ui-icon-help ipt_help" title='The distance within which sources will contribute to the computation of the hazard.'></span>:</label>
@@ -377,4 +377,3 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 
   <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button><form style="display: inline-block;" name="downloadForm" method="post">{% csrf_token %}</form>
 </div>
-
