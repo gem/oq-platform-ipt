@@ -2,6 +2,7 @@ $(document).ready(function () {
     $('.ff_gid #functionId').val('111vv1');
     $('.ff_gid #assetCategory').val('buildings');
     $('.ff_gid #functionDescription').val('the description');
+    // $('.ff_gid #limitStates').val('slight, moderate, extensive, complete');
 
     // create first prob mass func
     $('.ff_gid #addDiscrFunc').trigger('click');
