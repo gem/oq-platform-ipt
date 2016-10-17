@@ -2,18 +2,20 @@
 <nrml xmlns="http://openquake.org/xmlns/nrml/0.5">
 	<fragilityModel id="111vv1" assetCategory="buildings" lossCategory="structural">
 		<description>the description</description>
-		<limitStates> slight moderate collapse</limitStates>
+		<limitStates> slight moderate collapse complete</limitStates>
 		<fragilityFunction id="111" format="discrete">
 			<imls imt="PGA" noDamageLimit="0.8">0 1</imls>
 			<poes ls="slight">0.1 1.1</poes>
 			<poes ls="moderate">0.2 1.2</poes>
 			<poes ls="collapse">0.3 1.3</poes>
+			<poes ls="complete">0.4 1.4</poes>
 		</fragilityFunction>
 		<fragilityFunction id="222" format="continuous" shape="logncdf">
 			<imls imt="PGA" noDamageLimit="0.9" minIML="0.2" maxIML="0.95"/>
 			<params ls="slight" mean="0.1" stddev="0.2"/>
 			<params ls="moderate" mean="1.1" stddev="1.2"/>
 			<params ls="collapse" mean="2.1" stddev="2.2"/>
+			<params ls="complete" mean="3.1" stddev="3.2"/>
 		</fragilityFunction>
 	</fragilityModel>
 </nrml>
