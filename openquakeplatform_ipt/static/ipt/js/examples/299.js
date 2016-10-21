@@ -2,6 +2,7 @@ $(document).ready(function () {
     $('.ff_gid #functionId').val('111vv1');
     $('.ff_gid #assetCategory').val('buildings');
     $('.ff_gid #functionDescription').val('the description');
+    // $('.ff_gid #limitStates').val('slight, moderate, extensive, complete');
 
     // create first prob mass func
     $('.ff_gid #addDiscrFunc').trigger('click');
@@ -31,7 +32,7 @@ $(document).ready(function () {
         $('.ff_gid .table2_id [name="max-impls"]').val('0.95');
 
         var data = table.getData(0, 0, table.countRows() - 1, table.countCols() - 1);
-        for (var e = 0 ; e < 3 ; e++) {
+        for (var e = 0 ; e < 4 ; e++) {
             for (var i = 1 ; i < 3 ; i++) {
                 data[e][i] = i / 10.0 + e;
             }
