@@ -18,6 +18,9 @@ class IptTest(unittest.TestCase):
             "' ex_gid ')]//button[@id='convertBtn' and @type='button'"
             " and normalize-space(text())='Convert to NRML']")
 
+        # required to avoiding wrong click on overlapping "About" link
+        convert_btn.location_once_scrolled_into_view
+
         convert_btn.click()
 
         pla.xpath_finduniq(
