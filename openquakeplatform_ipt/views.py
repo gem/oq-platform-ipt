@@ -214,7 +214,8 @@ class FilePathFieldByUser(forms.ChoiceField):
 
         normalized_path = os.path.normpath(os.path.join(
             self.basepath, self.userid, self.namespace, self.subdir))
-        allowed_path = os.path.join(self.basepath, self.userid, self.namespace)
+        allowed_path = os.path.normpath(os.path.join(self.basepath,
+                                        self.userid, self.namespace))
         if not normalized_path.startswith(allowed_path):
             raise LookupError('Unauthorized path: "%s"' % normalized_path)
 
@@ -260,8 +261,7 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
     if (dirnam not in ALLOWED_DIR):
         raise KeyError("dirnam (%s) not in allowed list" % dirnam)
 
-    user_allowed_path = os.path.join(
-        settings.FILE_PATH_FIELD_DIRECTORY, userid, namespace)
+    user_allowed_path = get_full_path('', userid, namespace)
     normalized_path = get_full_path(dirnam, userid, namespace)
     if not normalized_path.startswith(user_allowed_path):
         raise LookupError('Unauthorized path: "%s"' % normalized_path)
@@ -457,8 +457,7 @@ def upload(request, **kwargs):
                     else:
                         userid = str(request.user.id)
                     namespace = request.resolver_match.namespace
-                    user_dir = os.path.join(
-                        settings.FILE_PATH_FIELD_DIRECTORY, userid, namespace)
+                    user_dir = get_full_path('', userid, namespace)
                     bname = os.path.join(user_dir, target)
                     # check if the directory exists (or create it)
                     if not os.path.exists(bname):
@@ -932,8 +931,7 @@ def clean_all(request):
         else:
             userid = str(request.user.id)
         namespace = request.resolver_match.namespace
-        user_allowed_path = os.path.join(
-            settings.FILE_PATH_FIELD_DIRECTORY, userid, namespace)
+        user_allowed_path = get_full_path('', userid, namespace)
         for ipt_dir in ALLOWED_DIR:
             normalized_path = get_full_path(ipt_dir, userid, namespace)
             if not normalized_path.startswith(user_allowed_path):
