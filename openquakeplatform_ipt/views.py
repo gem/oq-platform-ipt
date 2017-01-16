@@ -268,7 +268,6 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
 
     class FileHtml(forms.Form):
         file_html = FilePathFieldByUser(
-            basepath=settings.FILE_PATH_FIELD_DIRECTORY,
             userid=userid,
             subdir=dirnam,
             namespace=namespace,
@@ -486,7 +485,6 @@ def upload(request, **kwargs):
 
                     class FileHtml(forms.Form):
                         file_html = FilePathFieldByUser(
-                            basepath=settings.FILE_PATH_FIELD_DIRECTORY,
                             userid=userid,
                             subdir=suffix,
                             namespace=namespace,
