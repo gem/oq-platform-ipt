@@ -22,7 +22,7 @@ import tempfile
 import shutil
 from email.Utils import formatdate
 
-from lxml import etree
+from xml.parsers.expat import ExpatError
 from django.shortcuts import render
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
@@ -91,7 +91,7 @@ def validate_nrml(request):
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
-    except etree.ParseError as exc:
+    except ExpatError as exc:
         return _make_response(error_msg=exc.message.message,
                               error_line=exc.message.lineno,
                               valid=False)
@@ -268,7 +268,6 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
 
     class FileHtml(forms.Form):
         file_html = FilePathFieldByUser(
-            basepath=settings.FILE_PATH_FIELD_DIRECTORY,
             userid=userid,
             subdir=dirnam,
             namespace=namespace,
@@ -486,7 +485,6 @@ def upload(request, **kwargs):
 
                     class FileHtml(forms.Form):
                         file_html = FilePathFieldByUser(
-                            basepath=settings.FILE_PATH_FIELD_DIRECTORY,
                             userid=userid,
                             subdir=suffix,
                             namespace=namespace,
