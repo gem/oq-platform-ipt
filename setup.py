@@ -18,15 +18,18 @@ setup(
     url='http://github.com/gem/oq-platform-ipt',
     author='GEM Foundation',
     author_email='devops@openquake.org',
+    install_requires=[
+        'django >=1.5, <1.11',
+        'openquake.engine',
+        'openquake.hazardlib',
+    ],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
-        'Framework :: Django :: 1.6',
         'Intended Audience :: Scientists',
-        'License :: OSI Approved :: AGPL3',  # example license
+        'License :: OSI Approved :: AGPL3',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        # Replace these appropriately if you are stuck on Python 2.
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Topic :: Internet :: WWW/HTTP',
