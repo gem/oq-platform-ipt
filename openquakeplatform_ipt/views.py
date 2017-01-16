@@ -191,11 +191,11 @@ class FileUpload(forms.Form):
 
 
 class FilePathFieldByUser(forms.ChoiceField):
-    def __init__(self, basepath, userid, subdir, namespace, match=None,
+    def __init__(self, userid, subdir, namespace, match=None,
                  recursive=False, allow_files=True,
                  allow_folders=False, required=True, widget=None, label=None,
                  initial=None, help_text=None, *args, **kwargs):
-        self.basepath, self.match, self.recursive = basepath, match, recursive
+        self.match, self.recursive = match, recursive
         self.subdir = subdir
         self.userid = str(userid)
         self.namespace = namespace
@@ -212,10 +212,9 @@ class FilePathFieldByUser(forms.ChoiceField):
         if self.match is not None:
             self.match_re = re.compile(self.match)
 
-        normalized_path = os.path.normpath(os.path.join(
-            self.basepath, self.userid, self.namespace, self.subdir))
-        allowed_path = os.path.join(self.basepath, self.userid, self.namespace)
-        if not normalized_path.startswith(allowed_path):
+        normalized_path = get_full_path(self.userid, self.namespace, self.subdir)
+        user_allowed_path = get_full_path(self.userid, self.namespace)
+        if not normalized_path.startswith(user_allowed_path):
             raise LookupError('Unauthorized path: "%s"' % normalized_path)
 
         if recursive:
@@ -260,9 +259,8 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
     if (dirnam not in ALLOWED_DIR):
         raise KeyError("dirnam (%s) not in allowed list" % dirnam)
 
-    user_allowed_path = os.path.join(
-        settings.FILE_PATH_FIELD_DIRECTORY, userid, namespace)
-    normalized_path = get_full_path(dirnam, userid, namespace)
+    normalized_path = get_full_path(userid, namespace, dirnam)
+    user_allowed_path = get_full_path(userid, namespace)
     if not normalized_path.startswith(user_allowed_path):
         raise LookupError('Unauthorized path: "%s"' % normalized_path)
     if not os.path.isdir(normalized_path):
@@ -457,8 +455,7 @@ def upload(request, **kwargs):
                     else:
                         userid = str(request.user.id)
                     namespace = request.resolver_match.namespace
-                    user_dir = os.path.join(
-                        settings.FILE_PATH_FIELD_DIRECTORY, userid, namespace)
+                    user_dir = get_full_path(userid, namespace)
                     bname = os.path.join(user_dir, target)
                     # check if the directory exists (or create it)
                     if not os.path.exists(bname):
@@ -523,7 +520,7 @@ def upload(request, **kwargs):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-def get_full_path(subdir_and_filename, userid, namespace):
+def get_full_path(userid, namespace, subdir_and_filename = ""):
     return os.path.normpath(os.path.join(settings.FILE_PATH_FIELD_DIRECTORY,
                             userid,
                             namespace,
@@ -535,7 +532,7 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace):
     #           ################
 
     jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
-    z.write(get_full_path(data['exposure_model'], userid, namespace),
+    z.write(get_full_path(userid, namespace, data['exposure_model']),
             os.path.basename(data['exposure_model']))
     if is_regcons:
         if data['exposure_model_regcons_choice'] is True:
@@ -567,8 +564,8 @@ def vulnerability_model_prep_sect(data, z, userid, namespace):
         if data['vm_loss_%s_choice' % losslist] is True:
             jobini += "%s_vulnerability_file = %s\n" % (
                 descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
-            z.write(get_full_path(data['vm_loss_%s' % losslist],
-                                  userid, namespace),
+            z.write(get_full_path(userid, namespace,
+                                  data['vm_loss_%s' % losslist]),
                     os.path.basename(data['vm_loss_%s' % losslist]))
 
     jobini += "insured_losses = %s\n" % (
@@ -587,7 +584,7 @@ def site_conditions_prep_sect(data, z, userid, namespace):
     if data['site_conditions_choice'] == 'from-file':
         jobini += ("site_model_file = %s\n" %
                    os.path.basename(data['site_model_file']))
-        z.write(get_full_path(data['site_model_file'], userid, namespace),
+        z.write(get_full_path(userid, namespace, data['site_model_file']),
                 os.path.basename(data['site_model_file']))
     elif data['site_conditions_choice'] == 'uniform-param':
         jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
@@ -644,7 +641,7 @@ def scenario_prepare(request, **kwargs):
 
         jobini += ("rupture_model_file = %s\n" %
                    os.path.basename(data['rupture_model_file']))
-        z.write(get_full_path(data['rupture_model_file'], userid, namespace),
+        z.write(get_full_path(userid, namespace, data['rupture_model_file']),
                 os.path.basename(data['rupture_model_file']))
 
         jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
@@ -666,7 +663,7 @@ def scenario_prepare(request, **kwargs):
             jobini += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
             jobini += "sites = %s\n" % os.path.basename(data['list_of_sites'])
-            z.write(get_full_path(data['list_of_sites'], userid, namespace),
+            z.write(get_full_path(userid, namespace, data['list_of_sites']),
                     os.path.basename(data['list_of_sites']))
         elif data['hazard_sites_choice'] == 'exposure-model':
             pass
@@ -701,15 +698,15 @@ def scenario_prepare(request, **kwargs):
                 jobini += "%s_fragility_file = %s\n" % (
                     descr[losslist],
                     os.path.basename(data['fm_loss_' + losslist]))
-                z.write(get_full_path(data['fm_loss_' + losslist],
-                                      userid, namespace),
+                z.write(get_full_path(userid, namespace,
+                                      data['fm_loss_' + losslist]),
                         os.path.basename(data['fm_loss_' + losslist]))
                 if with_cons is True:
                     jobini += "%s_consequence_file = %s\n" % (
                         descr[losslist],
                         os.path.basename(data['fm_loss_%s_cons' % losslist]))
-                    z.write(get_full_path(data['fm_loss_%s_cons' % losslist],
-                                          userid, namespace),
+                    z.write(get_full_path(userid, namespace,
+                                          data['fm_loss_%s_cons' % losslist]),
                             os.path.basename(
                                 data['fm_loss_%s_cons' % losslist]))
     elif data['risk'] == 'losses':
@@ -727,8 +724,8 @@ def scenario_prepare(request, **kwargs):
         elif data['gmpe_choice'] == 'from-file':
             jobini += ("gsim_logic_tree_file = %s\n" %
                        os.path.basename(data['gsim_logic_tree_file']))
-            z.write(get_full_path(data['gsim_logic_tree_file'],
-                                  userid, namespace),
+            z.write(get_full_path(userid, namespace,
+                                  data['gsim_logic_tree_file']),
                     os.path.basename(data['gsim_logic_tree_file']))
 
         if data['risk'] is None:
@@ -807,17 +804,17 @@ def event_based_prepare(request, **kwargs):
     # Hazard model
     jobini += "source_model_logic_tree_file = %s\n" % os.path.basename(
         data['source_model_logic_tree_file'])
-    z.write(get_full_path(data['source_model_logic_tree_file'],
-                          userid, namespace),
+    z.write(get_full_path(userid, namespace,
+                          data['source_model_logic_tree_file']),
             os.path.basename(data['source_model_logic_tree_file']))
 
     for source_model_name in data['source_model_file']:
-        z.write(get_full_path(source_model_name, userid, namespace),
+        z.write(get_full_path(userid, namespace, source_model_name),
                 os.path.basename(source_model_name))
 
     jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(
         data['gsim_logic_tree_file'])
-    z.write(get_full_path(data['gsim_logic_tree_file'], userid, namespace),
+    z.write(get_full_path(userid, namespace, data['gsim_logic_tree_file']),
             os.path.basename(data['gsim_logic_tree_file']))
 
     jobini += "\n[Hazard model]\n"
@@ -932,10 +929,9 @@ def clean_all(request):
         else:
             userid = str(request.user.id)
         namespace = request.resolver_match.namespace
-        user_allowed_path = os.path.join(
-            settings.FILE_PATH_FIELD_DIRECTORY, userid, namespace)
+        user_allowed_path = get_full_path(userid, namespace)
         for ipt_dir in ALLOWED_DIR:
-            normalized_path = get_full_path(ipt_dir, userid, namespace)
+            normalized_path = get_full_path(userid, namespace, ipt_dir)
             if not normalized_path.startswith(user_allowed_path):
                 raise LookupError('Unauthorized path: "%s"' % normalized_path)
             if not os.path.isdir(normalized_path):
