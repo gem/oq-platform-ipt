@@ -23,7 +23,7 @@ import shutil
 from email.Utils import formatdate
 
 from lxml import etree
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
                          )
@@ -366,7 +366,8 @@ def view(request, **kwargs):
         'source_model_file', userid, namespace, is_multiple=True)
     source_model_file_upload = FileUpload()
 
-    return render_to_response(
+    return render(
+        request,
         "ipt/ipt.html",
         dict(
             g_gmpe=gmpe,
@@ -420,8 +421,7 @@ def view(request, **kwargs):
 
             source_model_file_html=source_model_file_html,
             source_model_file_upload=source_model_file_upload
-        ),
-        context_instance=RequestContext(request))
+        ))
 
 
 def upload(request, **kwargs):
