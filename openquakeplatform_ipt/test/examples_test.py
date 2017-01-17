@@ -62,7 +62,7 @@ def make_function(func_name, exp_path, tab_id, example):
     def generated(self):
         pla.get('/ipt/?tab_id=%d&example_id=%d' % (tab_id, example['exa_id']))
         for xpath in example['xpath']:
-            ret_tag = pla.xpath_finduniq(example['xpath'], times=20)
+            ret_tag = pla.xpath_finduniq(xpath, times=20)
 
         exp_filename = os.path.join(exp_path,
                                 "example_%d.%s" % (tab_id * 100 + example['exa_id'],
