@@ -63,7 +63,7 @@ JSON = 'application/json'
 
 def _do_validate_nrml(xml_text):
     from openquake.baselib.general import writetmp
-    from openquake.commonlib import nrml
+    from openquake.hazardlib import nrml
     xml_file = writetmp(xml_text, suffix='.xml')
     nrml.parse(xml_file)
 
