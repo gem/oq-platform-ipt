@@ -1,18 +1,20 @@
-
-# Copyright (c) 2012-2015, GEM Foundation.
+# -*- coding: utf-8 -*-
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
 #
-# This program is free software: you can redistribute it and/or modify
+# Copyright (C) 2016-2017 GEM Foundation
+#
+# OpenQuake is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License as published
 # by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# OpenQuake is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with OpenQuake. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import re
@@ -27,7 +29,6 @@ from django.shortcuts import render
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
                          )
-from django.template import RequestContext
 from django.conf import settings
 from openquake.hazardlib import gsim
 from django import forms
@@ -140,7 +141,7 @@ def sendback_nrml(request):
         return HttpResponseBadRequest(
             'Please provide the "xml_text" parameter')
     known_func_types = [
-        'exposure', 'fragility', 'vulnerability', 'site', 'earthquake_rupture' ]
+        'exposure', 'fragility', 'vulnerability', 'site', 'earthquake_rupture']
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
@@ -158,6 +159,7 @@ def sendback_nrml(request):
             'attachment; filename="' + filename + '"')
         return resp
 
+
 def sendback_er_rupture_surface(request):
     mag = request.POST.get('mag')
     hypo_lat = request.POST.get('hypo_lat')
@@ -169,7 +171,7 @@ def sendback_er_rupture_surface(request):
 
     if (mag is None or hypo_lat is None or hypo_lon is None or
         hypo_depth is None or strike is None or dip is None or rake is None):
-        ret = { 'ret': 1, 'ret_s': 'incomplete arguments' }
+        ret = {'ret': 1, 'ret_s': 'incomplete arguments'}
     else:
         try:
             mag = float(mag)
@@ -180,14 +182,17 @@ def sendback_er_rupture_surface(request):
             dip = float(dip)
             rake = float(rake)
 
-            ret = get_rupture_surface_round(mag, {"lon": hypo_lon, "lat": hypo_lat, "depth": hypo_depth},
+            ret = get_rupture_surface_round(mag, {"lon": hypo_lon,
+                                                  "lat": hypo_lat,
+                                                  "depth": hypo_depth},
                                             strike, dip, rake)
             ret['ret'] = 0
             ret['ret_s'] = 'success'
         except Exception as exc:
-            ret = { 'ret': 2, 'ret_s': 'exception raised: %s' % exc }
+            ret = {'ret': 2, 'ret_s': 'exception raised: %s' % exc}
 
     return HttpResponse(json.dumps(ret), content_type="application/json")
+
 
 class FileUpload(forms.Form):
     file_upload = forms.FileField(allow_empty_file=True)
@@ -215,7 +220,8 @@ class FilePathFieldByUser(forms.ChoiceField):
         if self.match is not None:
             self.match_re = re.compile(self.match)
 
-        normalized_path = get_full_path(self.userid, self.namespace, self.subdir)
+        normalized_path = get_full_path(self.userid, self.namespace,
+                                        self.subdir)
         user_allowed_path = get_full_path(self.userid, self.namespace)
         if not normalized_path.startswith(user_allowed_path):
             raise LookupError('Unauthorized path: "%s"' % normalized_path)
@@ -521,7 +527,7 @@ def upload(request, **kwargs):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-def get_full_path(userid, namespace, subdir_and_filename = ""):
+def get_full_path(userid, namespace, subdir_and_filename=""):
     return os.path.normpath(os.path.join(settings.FILE_PATH_FIELD_DIRECTORY,
                             userid,
                             namespace,
