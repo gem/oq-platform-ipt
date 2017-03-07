@@ -24,15 +24,16 @@ import tempfile
 import shutil
 from email.Utils import formatdate
 
-from xml.parsers.expat import ExpatError
 from django.shortcuts import render
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
                          )
 from django.conf import settings
-from openquake.hazardlib import gsim
 from django import forms
 
+from openquakeplatform.settings import WEBUIURL
+import requests
+from requests import HTTPError
 from build_rupture_plane import get_rupture_surface_round
 
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'exposure_model',
@@ -63,14 +64,17 @@ JSON = 'application/json'
 
 
 def _do_validate_nrml(xml_text):
-    from openquake.baselib.general import writetmp
-    from openquake.risklib import read_nrml
-    from openquake.hazardlib import nrml
+    data = dict(xml_text=xml_text)
+    ret = requests.post('%s/v1/valid/' % WEBUIURL, data)
 
-    read_nrml.update_validators()
-    xml_file = writetmp(xml_text, suffix='.xml')
-    nrml.parse(xml_file)
+    if ret['valid'] != 200:
+        raise HTTPError({'message': "URL '%s' unreachable"})
+    ret_dict = json.loads(ret.text)
 
+    if not ret_dict['valid']:
+        raise ValueError({ 'message': ret_dict.get('error_msg', ''),
+                           'lineno': ret_dict.get('error_line', -1)
+        })
 
 def validate_nrml(request):
     """
@@ -95,9 +99,9 @@ def validate_nrml(request):
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
-    except ExpatError as exc:
-        return _make_response(error_msg=exc.message.message,
-                              error_line=exc.message.lineno,
+    except (HTTPError, ValueError) as exc:
+        return _make_response(error_msg=exc.message,
+                              error_line=exc.lineno,
                               valid=False)
     except Exception as exc:
         # get the exception message
