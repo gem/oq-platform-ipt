@@ -65,16 +65,16 @@ JSON = 'application/json'
 
 def _do_validate_nrml(xml_text):
     data = dict(xml_text=xml_text)
-    ret = requests.post('%s/v1/valid/' % WEBUIURL, data)
+    ret = requests.post('%sv1/valid/' % WEBUIURL, data)
 
-    if ret['valid'] != 200:
-        raise HTTPError({'message': "URL '%s' unreachable"})
-    ret_dict = json.loads(ret.text)
+    if ret.status_code != 200:
+        raise HTTPError({'message': "URL '%s' unreachable", 'lineno': -1})
+
+    ret_dict = json.loads(ret.content)
 
     if not ret_dict['valid']:
         raise ValueError({ 'message': ret_dict.get('error_msg', ''),
-                           'lineno': ret_dict.get('error_line', -1)
-        })
+                           'lineno': ret_dict.get('error_line', -1)})
 
 def validate_nrml(request):
     """
@@ -99,9 +99,10 @@ def validate_nrml(request):
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
-    except (HTTPError, ValueError) as exc:
-        return _make_response(error_msg=exc.message,
-                              error_line=exc.lineno,
+    except (HTTPError, ValueError) as e:
+        exc = e.args[0]
+        return _make_response(error_msg=exc['message'],
+                              error_line=exc['lineno'],
                               valid=False)
     except Exception as exc:
         # get the exception message
@@ -292,6 +293,16 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
 
     return fh
 
+def _get_available_gsims():
+
+    ret = requests.get('%sv1/available_gsims' % WEBUIURL)
+
+    if ret.status_code != 200:
+        raise HTTPError({'message': "URL '%s' unreachable" % WEBUIURL})
+
+    ret_list = json.loads(ret.content)
+
+    return [gsim.encode('utf8') for gsim in ret_list]
 
 def view(request, **kwargs):
     if getattr(settings, 'STANDALONE', False):
@@ -299,7 +310,7 @@ def view(request, **kwargs):
     else:
         userid = str(request.user.id)
     namespace = request.resolver_match.namespace
-    gmpe = list(gsim.get_available_gsims())
+    gmpe = _get_available_gsims()
 
     rupture_file_html = filehtml_create(
         'rupture_file', userid, namespace)
