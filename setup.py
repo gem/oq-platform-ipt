@@ -20,8 +20,6 @@ setup(
     author_email='devops@openquake.org',
     install_requires=[
         'django >=1.5, <1.11',
-        'openquake.engine',
-        'openquake.hazardlib',
     ],
     classifiers=[
         'Environment :: Web Environment',

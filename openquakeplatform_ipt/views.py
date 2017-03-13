@@ -24,15 +24,16 @@ import tempfile
 import shutil
 from email.Utils import formatdate
 
-from xml.parsers.expat import ExpatError
 from django.shortcuts import render
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
                          )
 from django.conf import settings
-from openquake.hazardlib import gsim
 from django import forms
 
+from openquakeplatform.settings import WEBUIURL
+import requests
+from requests import HTTPError
 from build_rupture_plane import get_rupture_surface_round
 
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'exposure_model',
@@ -63,14 +64,17 @@ JSON = 'application/json'
 
 
 def _do_validate_nrml(xml_text):
-    from openquake.baselib.general import writetmp
-    from openquake.risklib import read_nrml
-    from openquake.hazardlib import nrml
+    data = dict(xml_text=xml_text)
+    ret = requests.post('%sv1/valid/' % WEBUIURL, data)
 
-    read_nrml.update_validators()
-    xml_file = writetmp(xml_text, suffix='.xml')
-    nrml.parse(xml_file)
+    if ret.status_code != 200:
+        raise HTTPError({'message': "URL '%s' unreachable", 'lineno': -1})
 
+    ret_dict = json.loads(ret.content)
+
+    if not ret_dict['valid']:
+        raise ValueError({ 'message': ret_dict.get('error_msg', ''),
+                           'lineno': ret_dict.get('error_line', -1)})
 
 def validate_nrml(request):
     """
@@ -95,9 +99,10 @@ def validate_nrml(request):
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
-    except ExpatError as exc:
-        return _make_response(error_msg=exc.message.message,
-                              error_line=exc.message.lineno,
+    except (HTTPError, ValueError) as e:
+        exc = e.args[0]
+        return _make_response(error_msg=exc['message'],
+                              error_line=exc['lineno'],
                               valid=False)
     except Exception as exc:
         # get the exception message
@@ -288,6 +293,16 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
 
     return fh
 
+def _get_available_gsims():
+
+    ret = requests.get('%sv1/available_gsims' % WEBUIURL)
+
+    if ret.status_code != 200:
+        raise HTTPError({'message': "URL '%s' unreachable" % WEBUIURL})
+
+    ret_list = json.loads(ret.content)
+
+    return [gsim.encode('utf8') for gsim in ret_list]
 
 def view(request, **kwargs):
     if getattr(settings, 'STANDALONE', False):
@@ -295,7 +310,7 @@ def view(request, **kwargs):
     else:
         userid = str(request.user.id)
     namespace = request.resolver_match.namespace
-    gmpe = list(gsim.get_available_gsims())
+    gmpe = _get_available_gsims()
 
     rupture_file_html = filehtml_create(
         'rupture_file', userid, namespace)
