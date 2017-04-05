@@ -12,10 +12,8 @@ imt_examples = {
             {'exa_id': 1, 'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg'][@style='display: none;']",
                                     "//textarea[@id='textareaex']"],
              'sfx': 'xml' },
-            time.sleep
             {'exa_id': 98, 'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg']"],
              'sfx': 'txt' },
-            time.sleep
             {'exa_id': 99, 'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg'][@style='display: none;']",
                                      "//textarea[@id='textareaex']"],
              'sfx': 'xml' }
