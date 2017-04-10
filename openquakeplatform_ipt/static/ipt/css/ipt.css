@@ -81,8 +81,9 @@ clear: left;
     font-size: 18px;
 }
 
-textarea {
+input, textarea, .uneditable-input {
     height: 30px;
+    width: 220px;
 }
 
 .destroyTable {
