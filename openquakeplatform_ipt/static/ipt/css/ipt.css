@@ -83,6 +83,7 @@ clear: left;
 
 textarea {
     height: 30px;
+    width: 220px;
 }
 
 .destroyTable {
