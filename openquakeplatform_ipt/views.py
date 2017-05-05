@@ -36,7 +36,7 @@ import requests
 from requests import HTTPError
 from build_rupture_plane import get_rupture_surface_round
 
-ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'exposure_model',
+ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
                'fragility_model', 'fragility_cons',
                'vulnerability_model', 'gsim_logic_tree_file',
@@ -320,6 +320,10 @@ def view(request, **kwargs):
         'list_of_sites', userid, namespace, match=".*\.csv")
     list_of_sites_upload = FileUpload()
 
+    gmf_file_html = filehtml_create(
+        'gmf_file', userid, namespace)
+    gmf_file_upload = FileUpload()
+
     exposure_model_html = filehtml_create(
         'exposure_model', userid, namespace)
     exposure_model_upload = FileUpload()
@@ -398,6 +402,8 @@ def view(request, **kwargs):
             rupture_file_upload=rupture_file_upload,
             list_of_sites_html=list_of_sites_html,
             list_of_sites_upload=list_of_sites_upload,
+            gmf_file_html=gmf_file_html,
+            gmf_file_upload=gmf_file_upload,
             exposure_model_html=exposure_model_html,
             exposure_model_upload=exposure_model_upload,
             site_model_html=site_model_html,
@@ -466,13 +472,17 @@ def upload(request, **kwargs):
             class FileUpload(forms.Form):
                 file_upload = forms.FileField(allow_empty_file=True)
             form = FileUpload(request.POST, request.FILES)
+            exten2 = None
             if target in ['list_of_sites']:
                 exten = "csv"
             else:
                 exten = "xml"
+            if target in ['gmf_file']:
+                exten2 = 'csv'
 
             if form.is_valid():
-                if request.FILES['file_upload'].name.endswith('.' + exten):
+                if (request.FILES['file_upload'].name.endswith('.' + exten) or
+                    (exten2 is not None and request.FILES['file_upload'].name.endswith('.' + exten2))):
                     if getattr(settings, 'STANDALONE', False):
                         userid = ''
                     else:
@@ -505,7 +515,9 @@ def upload(request, **kwargs):
                     f.close()
 
                     suffix = target
-                    match = ".*\." + exten
+                    match = ".*\." + exten + "$"
+                    if exten2 is not None:
+                        match += "|.*\." + exten2 + "$"
 
                     class FileHtml(forms.Form):
                         file_html = FilePathFieldByUser(
@@ -656,6 +668,14 @@ def scenario_prepare(request, **kwargs):
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
     jobini += "random_seed = 113\n"
+
+    if (data['hazard'] is None and data['risk'] is not None and
+        data['gmf_file'] is not None):
+        jobini += "\n[hazard]\n"
+        jobini += ("gmfs_file = %s\n" %
+                   os.path.basename(data['gmf_file']))
+        z.write(get_full_path(userid, namespace, data['gmf_file']),
+                os.path.basename(data['gmf_file']))
 
     if data['hazard'] == 'hazard':
         jobini += "\n[Rupture information]\n"

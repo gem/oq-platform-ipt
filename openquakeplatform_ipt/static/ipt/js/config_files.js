@@ -633,6 +633,22 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
 
+        // GMF file upload (ui)
+        $target = $(cf_obj['scen'].pfx + ' div[name="gmf-file"]');
+        if (hazard == null && risk != null) {
+            $target.css('display', '');
+
+            $subtarget = $(cf_obj['scen'].pfx + ' div[name="gmf-file"] div[name="gmf-file-html"]');
+
+            if ($(cf_obj['scen'].pfx + ' div[name="gmf-file"] input[name="use_gmf_file"]').is(':checked'))
+                $subtarget.css('display', '');
+            else
+                $subtarget.css('display', 'none');
+        }
+        else {
+            $target.css('display', 'none');
+        }
+
         // Exposure model (ui)
         exposure_model_sect_manager(
             'scen', ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null),
@@ -729,6 +745,14 @@ $(document).ready(function () {
 
     $(cf_obj['scen'].pfx + ' div[name="list-of-sites-new"]' +
       ' form[name="list-of-sites"]').submit(scenario_fileNew_upload);
+
+    // GMF file upload (init)
+    $(cf_obj['scen'].pfx + ' div[name="gmf-file"] input[name="use_gmf_file"]').click(scenario_manager);
+
+    $(cf_obj['scen'].pfx + ' div[name="gmf-file"] button[name="gmf-file-new"]').click(scenario_fileNew_cb);
+
+    $(cf_obj['scen'].pfx + ' div[name="gmf-file-new"]' +
+      ' form[name="gmf-file"]').submit(scenario_fileNew_upload);
 
     // Exposure model (init)
     exposure_model_init('scen', scenario_fileNew_cb, scenario_fileNew_upload, scenario_manager);
@@ -873,6 +897,9 @@ $(document).ready(function () {
             reggrid_coords_data: null,
             list_of_sites: null,
 
+            // ground motion field
+            gmf_file: null,
+
             // exposure model
             exposure_model: null,
             exposure_model_regcons_choice: false,
@@ -1011,6 +1038,12 @@ $(document).ready(function () {
             else {
                 ret.str += "Unknown 'Hazard sites' choice (' + obj.hazard_sites_choice + ').\n";
             }
+        }
+
+        // Ground Motion Field file
+        if (obj.hazard == null && obj.risk != null &&
+            $(cf_obj['scen'].pfx + ' div[name="gmf-file"] input[name="use_gmf_file"]').is(':checked')) {
+            obj.gmf_file = $(cf_obj['scen'].pfx + ' div[name="gmf-file"] div[name="gmf-file-html"] select[name="file_html"]').val();
         }
 
         // Exposure model (get)
