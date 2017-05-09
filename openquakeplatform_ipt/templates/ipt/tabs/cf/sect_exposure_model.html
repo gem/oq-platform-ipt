@@ -2,14 +2,13 @@
 
 <div class="menuItems" name="exposure-model-html" data_gem_group="exposure-model">
   <label>Exposure <span class="ui-icon ui-icon-help ipt_help" title='File that contains the exposure model.'></span>:</label>
-  {{ exposure_model_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="exposure-model-new">New</button>
+  {{ exposure_model_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="exposure-model-new">Upload</button>
 </div>
 <div class="menuItems" name="exposure-model-new" style="display: none;">
   <div name="msg"><br></div>
   <form action="upload/exposure_model" method="post" id="file-upload-form" name="exposure-model" enctype="multipart/form-data">
     {% csrf_token %}
     {{ exposure_model_upload.file_upload }}
-    <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
   </form>
 </div>
 <div name="exposure-model-risk">

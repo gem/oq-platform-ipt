@@ -858,16 +858,22 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]').click(scenario_manager);
     $(cf_obj['scen'].pfx + ' input[name="risk-type"][value="damage"]').prop('checked', true);
 
-    /* generic callback to show upload div (init) */
-    function scenario_fileNew_cb(e) {
-        $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
-    }
-
     /* form widgets and previous remote list select element must follow precise
        naming schema with '<name>-html' and '<name>-new', see config_files.html */
     function scenario_fileNew_upload(event)
     {
-        return generic_fileNew_upload('scen', this, event);
+        form = $(event.target).parent('form').get(0);
+        return generic_fileNew_upload('scen', form, event);
+    }
+
+
+    /* generic callback to show upload div (init) */
+    function scenario_fileNew_cb(e) {
+        $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+        if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
+        }
     }
 
     /* hazard sites callbacks */
@@ -1187,7 +1193,8 @@ $(document).ready(function () {
 
     function event_based_fileNew_upload(event)
     {
-        return generic_fileNew_upload('e_b', this, event);
+        form = $(event.target).parent('form').get(0);
+        return generic_fileNew_upload('e_b', form, event);
     }
 
     function event_based_manager()
@@ -1306,6 +1313,10 @@ $(document).ready(function () {
     /* generic callback to show upload div */
     function event_based_fileNew_cb(e) {
         $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+        if ($(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(event_based_fileNew_upload);
+        }
     }
 
     // Exposure model (init)

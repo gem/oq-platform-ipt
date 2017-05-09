@@ -200,7 +200,8 @@ def sendback_er_rupture_surface(request):
 
 
 class FileUpload(forms.Form):
-    file_upload = forms.FileField(allow_empty_file=True)
+    file_upload = forms.FileField(allow_empty_file=True,
+                                  widget=forms.ClearableFileInput(attrs={'class' : 'hide_file_upload'}))
 
 
 class FilePathFieldByUser(forms.ChoiceField):
