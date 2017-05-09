@@ -38,7 +38,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
     <form action="upload/rupture_file" method="post" id="file-upload-form" name="rupture-file" enctype="multipart/form-data">
       {% csrf_token %}
       {{ rupture_file_upload.file_upload }}
-      <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+      <button type="submit" class="btn btn-primary" id="upload-btn">Upload</button>
     </form>
   </div>
 
