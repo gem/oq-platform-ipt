@@ -214,8 +214,6 @@ function ex_updateTable() {
     var headerLength = ex_obj.header.length;
 
     // Create the table
-    var container = document.getElementById('table');
-
     ///////////////////////////////
     /// Exposure Table Settings ///
     ///////////////////////////////

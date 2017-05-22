@@ -213,8 +213,6 @@ function sc_updateTable() {
     var headerLength = sc_obj.header.length;
 
     // Create the table
-    var container = document.getElementById('table');
-
     ///////////////////////////////
     /// Exposure Table Settings ///
     ///////////////////////////////
