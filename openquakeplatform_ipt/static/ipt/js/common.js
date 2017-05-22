@@ -194,6 +194,7 @@ var ipt_table_file_mgmt = function(evt, that) {
                 }
 
                 for (var e = 0 ; e < cols.length ; e++) {
+                    cols[e] = cols[e].trim();
                     that.tbl_file[i].push(cols[e]);
                 }
             }

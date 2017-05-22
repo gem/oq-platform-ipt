@@ -48,6 +48,7 @@ function ff_addTable (funcType) {
     ff_obj.limitStates = $('.ff_gid #limitStates').val().split(',');
     var limitStatesHeader = [];
     for (var i = 0; i < ff_obj.limitStates.length; i++) {
+        ff_obj.limitStates[i] = ff_obj.limitStates[i].trim();
         limitStatesHeader.push(ff_obj.limitStates[i]);
     }
 
