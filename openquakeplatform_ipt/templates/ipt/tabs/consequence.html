@@ -1,0 +1,60 @@
+    <div class="alert alert-info" role="alert">
+      <div style="text-align: center;">
+        <div class="chbox">
+          <input type="radio" name="co__new_or_generate" value="new" checked="checked"
+                 >&nbsp;<span class="inlible">New consequence model</span>
+        </div>
+        <div class="chbox">
+          <input type="radio" name="co__new_or_generate" value="generate"
+                 >&nbsp;<span class="inlible">Generate consequence model</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSEQUENCE MODEL -->
+    <h3>Consequence model</h3>
+    <br>
+    <div class="menuItems">
+      <label>Asset Category<!-- <span class="ui-icon ui-icon-help ipt_help" title="TODO"></span> -->:</label>
+      <input type="text" name="asset-cat" value="buildings">
+    </div>
+
+    <div class="menuItems">
+      <label>Loss Category<!-- <span class="ui-icon ui-icon-help ipt_help" title="TODO""></span -->:</label>
+      <select id="lossCategory">
+        <option value="structural" selected="selected">Structural</option>
+        <option value="non-structural">Non-structural</option>
+        <option value="contents">Contents</option>
+        <option value="business">Business</option>
+        <option value="interruption">Interruption</option>
+        <option value="occupants">Occupants</option>
+      </select><br>
+    </div>
+
+    <div class="menuItems">
+      <label>Description<!-- <span class="ui-icon ui-icon-help ipt_help" title="TODO"></span> -->:</label>
+      <input type="text" style="width: 66%;" name="descr" value="" placeholder="free description">
+    </div>
+
+    <div class="menuItems">
+      <label>Damage States<!-- <span class="ui-icon ui-icon-help ipt_help" title="TODO"></span> -->:</label>
+      <input type="text" style="width: 66%;" name="damage-states" value="slight, moderate, extensive, collapse" placeholder="comma separated strings">
+    </div>
+    
+    <div class="menuItems">
+      <label>Probabilistic distribution<!-- <span class="ui-icon ui-icon-help ipt_help" title="TODO""></span -->:</label>
+          <select id="prob_distrib">
+            <option value="lognormal" selected="selected">Lognormal</option>
+            <option value="beta">Beta</option>
+          </select><br>
+    </div>
+
+<div class="menuItems">
+  <label>Consequence data<!-- <span class="ui-icon ui-icon-help ipt_help" title="TODO"></span> -->:</label>
+  <div><input type="file" id="table_file" accept="text/csv,application/csv,csv"></div>
+  <div id="table" style="height: 100px; overflow: hidden;"></div>
+  <button id="new_row_add" type="button" class="btn">New Row</button><br>
+  <br>
+
+  TABLE HERE with columns "Distribution", "DamageState1_mean", "DamageState1_stddev", "DamageState2_mean", "DamageState2_stddev"
+</div>
