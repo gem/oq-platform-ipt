@@ -797,9 +797,9 @@ def scenario_prepare(request, **kwargs):
         jobini += ("number_of_ground_motion_fields = %s\n" %
                    data['number_of_ground_motion_fields'])
 
-    print jobini
+    print jobini.encode('utf-8')
 
-    z.writestr('job.ini', jobini)
+    z.writestr('job.ini', jobini.encode('utf-8'))
     z.close()
 
     ret['ret'] = 0
@@ -935,9 +935,9 @@ def event_based_prepare(request, **kwargs):
         jobini += ("conditional_loss_poes = %s\n" %
                    data['conditional_loss_poes'])
 
-    print jobini
+    print jobini.encode('utf-8')
 
-    z.writestr('job.ini', jobini)
+    z.writestr('job.ini', jobini.encode('utf-8'))
     z.close()
 
     ret['ret'] = 0
