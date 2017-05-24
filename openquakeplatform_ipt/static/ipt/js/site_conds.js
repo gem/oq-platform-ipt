@@ -260,10 +260,6 @@ $('.sc_gid #convertBtn').click(function() {
     // Get the values from the table
     if ($('.sc_gid input#table_file')[0].files.length > 0) {
         tab_data = sc_obj.tbl_file;
-
-        if (table_with_headers(tab_data, 0, -180, 180)) {
-            tab_data = tab_data.slice(1);
-        }
     }
     else {
         tab_data = sc_obj.tbl.getData();
@@ -305,7 +301,7 @@ $(document).ready(function () {
     /////////////////////////////////////////////////////////
     sc_updateTable();
     $('.sc_gid input#table_file').on(
-        'change', function sc_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, sc_obj); });
+        'change', function sc_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, sc_obj, 0, -180, 180); });
     $('.sc_gid #new_row_add').click(function() {
         sc_obj.tbl.alter('insert_row');
     });

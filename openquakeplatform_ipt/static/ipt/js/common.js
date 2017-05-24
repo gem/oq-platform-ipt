@@ -49,10 +49,10 @@ function not_empty_rows_get(data)
 {
     for (var i = data.length - 1 ; i >= 0 ; i--) {
         for (var e = 0 ; e < data[i].length ; e++) {
-            if (data[i][e] == null || data[i][e].toString().trim() == "")
+            if (data[i][e] === null || data[i][e].toString().trim() == "")
                 continue;
 
-            if (data[i][e].trim() != "") {
+            if (data[i][e].toString().trim() != "") {
                 return (i + 1);
             }
         }
@@ -203,7 +203,7 @@ var gem_ipt = {
     }
 }
 
-var ipt_table_file_mgmt = function(evt, that) {
+var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
     if (evt.target.files.length == 0)
         return;
 
@@ -229,18 +229,31 @@ var ipt_table_file_mgmt = function(evt, that) {
                 }
 
                 for (var e = 0 ; e < cols.length ; e++) {
-                    cols[e] = cols[e].trim();
+                    cols[e] = cols[e].toString().trim();
                     that.tbl_file[i].push(cols[e]);
                 }
             }
-            that.tbl.alter('remove_row', 3, 10000000);
+
+            if (table_with_headers(that.tbl_file, field_idx, min_val, max_val)) {
+                that.tbl_file = that.tbl_file.slice(1);
+            }
+
+            that.tbl.alter('remove_row', 1, 10000000);
             var data = [];
-            for (var i = 0 ; i < 3 ; i++) {
-                data.push([]);
+            for (var i = 0 ; i < (4 < that.tbl_file.length ? 4 : that.tbl_file.length)  ; i++) {
+                if (i > 0)
+                    that.tbl.alter('insert_row');
+                data.push(that.tbl_file[i]);
+            }
+
+            if (4 < that.tbl_file.length) {
+                that.tbl.alter('insert_row');
+                var points = data.push([]);
                 for (var e = 0 ; e < cols_n ; e++) {
-                    data[i].push("");
+                    data[4][e] = "...";
                 }
             }
+
             that.tbl.loadData(data);
         }
         reader.onerror = function (evt) {

@@ -48,7 +48,7 @@ function ff_addTable (funcType) {
     ff_obj.limitStates = $('.ff_gid #limitStates').val().split(',');
     var limitStatesHeader = [];
     for (var i = 0; i < ff_obj.limitStates.length; i++) {
-        ff_obj.limitStates[i] = ff_obj.limitStates[i].trim();
+        ff_obj.limitStates[i] = ff_obj.limitStates[i].toString().trim();
         limitStatesHeader.push(ff_obj.limitStates[i]);
     }
 
@@ -255,12 +255,10 @@ $('.ff_gid #convertBtn').click(function() {
     var functionDescription = $('.ff_gid #functionDescription').val();
 
     // Opening limit state tag
-    var limitStatesXML = '\t\t<limitStates> ';
+    var limitStatesXML = '\t\t<limitStates>';
 
-    for (var i = 0; i < ff_obj.limitStates.length; i++) {
-        // Dynamic limit state tag(s)
-        limitStatesXML += ff_obj.limitStates[i];
-    }
+    // Dynamic limit state tag(s)
+    limitStatesXML += ff_obj.limitStates.join(' ');
 
     // Closing limit state tag
     limitStatesXML += '</limitStates>\n';

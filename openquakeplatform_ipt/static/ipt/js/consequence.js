@@ -38,7 +38,7 @@ function co_updateTable() {
     co_obj.damage_states = [];
     co_obj.damage_states = $(co_obj.pfx + "input[name='damage-states']").val().split(',');
     for (var i = 0 ; i < co_obj.damage_states.length ; i++) {
-        co_obj.damage_states[i] = co_obj.damage_states[i].trim();
+        co_obj.damage_states[i] = co_obj.damage_states[i].toString().trim();
         co_obj.header.push(co_obj.damage_states[i] + "<br>mean");
         co_obj.header.push(co_obj.damage_states[i] + "<br>std dev");
     }
@@ -91,10 +91,6 @@ $(co_obj.pfx + '#convertBtn').click(function() {
     var data = null
     if ($(co_obj.pfx + 'input#table_file')[0].files.length > 0) {
         data = co_obj.tbl_file;
-
-        if (table_with_headers(data, 1, null, null)) {
-            data = data.slice(1);
-        }
     }
     else {
         // Get the values from the table
@@ -154,7 +150,7 @@ $(co_obj.pfx + '#convertBtn').click(function() {
 $(document).ready(function () {
 
     $(co_obj.pfx + 'input#table_file').on(
-        'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, co_obj); });
+        'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, co_obj, 1, null, null); });
 
     co_updateTable();
     $(co_obj.pfx + '#new_row_add').click(function() {

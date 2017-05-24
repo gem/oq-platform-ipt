@@ -3,7 +3,7 @@
 	<fragilityModel id="fragility_model_MUR" assetCategory="buildings" lossCategory="structural">
 		<description>Different fragility models to test MUR
 Based on Antioquia example</description>
-		<limitStates> slight moderate extensive collapse</limitStates>
+		<limitStates>slight moderate extensive collapse</limitStates>
 		<fragilityFunction id="MUR/H:1" format="continuous" shape="logncdf">
 			<imls imt="PGA" noDamageLimit="0.05" minIML="0.0" maxIML="1.5"/>
 			<params ls="slight" mean="1.30351" stddev="0.65425"/>

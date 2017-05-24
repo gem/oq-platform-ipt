@@ -259,10 +259,6 @@ $('.ex_gid #convertBtn').click(function() {
 
     if ($('.ex_gid input#table_file')[0].files.length > 0) {
         data = ex_obj.tbl_file;
-
-        if (table_with_headers(data, 1, -180, 180)) {
-            data = data.slice(1);
-        }
     }
     else {
         // Get the values from the table
@@ -499,7 +495,7 @@ $(document).ready(function () {
     $('.ex_gid #perArea').hide();
 
     $('.ex_gid input#table_file').on(
-        'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, ex_obj); });
+        'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, ex_obj, 1, -180, 180); });
 
     $('.ex_gid #retrofittingSelect').hide();
     $('.ex_gid #limitDiv').hide();
