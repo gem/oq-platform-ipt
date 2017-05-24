@@ -24,7 +24,26 @@ function uniqueness_check(files_list)
     return "";
 }
 
+function table_with_headers(arr, field_idx, min_val, max_val)
+{
+    var spy = arr[0][field_idx];
 
+    if (spy.match(/[^.\d]/)) {
+        return true;
+    }
+
+    if (min_val !== null) {
+        if (parseFloat(spy) < min_val)
+            return true;
+    }
+
+    if (max_val !== null) {
+        if (parseFloat(spy) > max_val)
+            return true;
+    }
+
+    return false;
+}
 function gem_tableHeightUpdate($box) {
     /* try { */
     var tbl = $box.handsontable('getInstance');

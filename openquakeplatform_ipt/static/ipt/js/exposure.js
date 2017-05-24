@@ -255,12 +255,18 @@ $('.ex_gid #downloadBtn').click(function() {
 });
 
 $('.ex_gid #convertBtn').click(function() {
+    var data = null;
+
     if ($('.ex_gid input#table_file')[0].files.length > 0) {
-        var data = ex_obj.tbl_file;
+        data = ex_obj.tbl_file;
+
+        if (table_with_headers(data, 1, -180, 180)) {
+            data = data.slice(1);
+        }
     }
     else {
         // Get the values from the table
-        var data = ex_obj.tbl.getData();
+        data = ex_obj.tbl.getData();
         // Check for null values
         for (var i = 0; i < data.length; i++) {
             for (var j = 0; j < data[i].length; j++) {

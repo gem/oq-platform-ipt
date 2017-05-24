@@ -91,6 +91,10 @@ $(co_obj.pfx + '#convertBtn').click(function() {
     var data = null
     if ($(co_obj.pfx + 'input#table_file')[0].files.length > 0) {
         data = co_obj.tbl_file;
+
+        if (table_with_headers(data, 1, null, null)) {
+            data = data.slice(1);
+        }
     }
     else {
         // Get the values from the table

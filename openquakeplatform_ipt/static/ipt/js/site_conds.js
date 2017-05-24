@@ -16,7 +16,7 @@
 */
 
 var sc_obj = {
-    tbl_table: null,
+    tbl_file: null,
     tbl: {},
     nrml: "",
     header: [],
@@ -255,22 +255,26 @@ $('.sc_gid #downloadBtn').click(function() {
 });
 
 $('.sc_gid #convertBtn').click(function() {
+    var tab_data = null;
+
     // Get the values from the table
     if ($('.sc_gid input#table_file')[0].files.length > 0) {
-        var tab_data = sc_obj.tbl_file;
+        tab_data = sc_obj.tbl_file;
+
+        if (table_with_headers(tab_data, 0, -180, 180)) {
+            tab_data = tab_data.slice(1);
+        }
     }
     else {
-        var tab_data = sc_obj.tbl.getData();
+        tab_data = sc_obj.tbl.getData();
+    }
 
-        var pfx = '.sc_gid #table';
-
-        for (var i = 0; i < tab_data.length; i++) {
-            for (var j = 0; j < tab_data[i].length; j++) {
-                if (tab_data[i][j] === null || tab_data[i][j].toString().trim() == "") {
-                    var error_msg = "empty cell detected at table coords (" + (i+1) + ", " + (j+1) + ")";
-                    output_manager('sc', error_msg, null, null);
-                    return;
-                }
+    for (var i = 0; i < tab_data.length; i++) {
+        for (var j = 0; j < tab_data[i].length; j++) {
+            if (tab_data[i][j] === null || tab_data[i][j].toString().trim() == "") {
+                var error_msg = "empty cell detected at table coords (" + (i+1) + ", " + (j+1) + ")";
+                output_manager('sc', error_msg, null, null);
+                return;
             }
         }
     }
