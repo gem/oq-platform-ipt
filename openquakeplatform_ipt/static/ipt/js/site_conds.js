@@ -269,7 +269,9 @@ $('.sc_gid #convertBtn').click(function() {
         tab_data = sc_obj.tbl.getData();
     }
 
-    for (var i = 0; i < tab_data.length; i++) {
+    var not_empty_rows = not_empty_rows_get(tab_data);
+
+    for (var i = 0; i < not_empty_rows ; i++) {
         for (var j = 0; j < tab_data[i].length; j++) {
             if (tab_data[i][j] === null || tab_data[i][j].toString().trim() == "") {
                 var error_msg = "empty cell detected at table coords (" + (i+1) + ", " + (j+1) + ")";
@@ -280,7 +282,7 @@ $('.sc_gid #convertBtn').click(function() {
     }
     var sites = '';
     // Check for null values
-    for (var i = 0; i < tab_data.length; i++) {
+    for (var i = 0; i < not_empty_rows ; i++) {
         sites += '\t<site lon="' + tab_data[i][0] + '" lat="' + tab_data[i][1] + '" vs30="' + tab_data[i][2] +
              '" vs30Type="' + tab_data[i][3] + '" z1pt0="' + tab_data[i][4] + '" z2pt5="' + tab_data[i][5] +'"/>\n';
     }

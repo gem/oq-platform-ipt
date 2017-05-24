@@ -44,6 +44,22 @@ function table_with_headers(arr, field_idx, min_val, max_val)
 
     return false;
 }
+
+function not_empty_rows_get(data)
+{
+    for (var i = data.length - 1 ; i >= 0 ; i--) {
+        for (var e = 0 ; e < data[i].length ; e++) {
+            if (data[i][e] == null || data[i][e].toString().trim() == "")
+                continue;
+
+            if (data[i][e].trim() != "") {
+                return (i + 1);
+            }
+        }
+    }
+    return data.length;
+}
+
 function gem_tableHeightUpdate($box) {
     /* try { */
     var tbl = $box.handsontable('getInstance');

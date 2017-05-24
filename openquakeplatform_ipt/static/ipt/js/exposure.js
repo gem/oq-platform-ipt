@@ -267,14 +267,17 @@ $('.ex_gid #convertBtn').click(function() {
     else {
         // Get the values from the table
         data = ex_obj.tbl.getData();
-        // Check for null values
-        for (var i = 0; i < data.length; i++) {
-            for (var j = 0; j < data[i].length; j++) {
-                var s = data[i][j] + " ";
-                if (data[i][j] === null || data[i][j].toString().trim() == "") {
-                    output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
-                    return;
-                }
+    }
+
+    var not_empty_rows = not_empty_rows_get(data);
+
+    // Check for null values
+    for (var i = 0; i < not_empty_rows ; i++) {
+        for (var j = 0; j < data[i].length; j++) {
+            var s = data[i][j] + " ";
+            if (data[i][j] === null || data[i][j].toString().trim() == "") {
+                output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
+                return;
             }
         }
     }
@@ -369,7 +372,7 @@ $('.ex_gid #convertBtn').click(function() {
     var retrofittingSelect = $('.ex_gid #retrofittingSelect input:checked').val();
 
     // Create the asset
-    for (var i = 0; i < data.length; i++) {
+    for (var i = 0; i < not_empty_rows ; i++) {
         var costTypes = '\t\t\t<costTypes>\n';
         var costs ='\t\t\t\t<costs>\n';
         var occupancies = "";

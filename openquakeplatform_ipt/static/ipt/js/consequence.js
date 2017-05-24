@@ -101,8 +101,10 @@ $(co_obj.pfx + '#convertBtn').click(function() {
         data = co_obj.tbl.getData();
     }
 
+    var not_empty_rows = not_empty_rows_get(data);
+
     // Check for null values
-    for (var i = 0; i < data.length; i++) {
+    for (var i = 0; i < not_empty_rows; i++) {
         for (var j = 0; j < data[i].length; j++) {
             var s = data[i][j] + " ";
             if (data[i][j] === null || data[i][j].toString().trim() == "" || parseInt(data[i][j]) < 0.0) {
@@ -128,7 +130,7 @@ $(co_obj.pfx + '#convertBtn').click(function() {
 */
     // Create consequences
     var cons_func = ""
-    for (var i = 0 ; i < data.length ; i++) {
+    for (var i = 0 ; i < not_empty_rows ; i++) {
         cons_func += '\t\t<consequenceFunction id="' + data[i][0] + '" dist="' + prob_dist + '">\n';
         for (var e = 1 ; e < data[i].length ; e+=2) {
             cons_func += '\t\t\t<params ls="' + co_obj.damage_states[(e - 1) / 2] + '" mean="' + parseFloat(data[i][e]) + '" stddev="' + parseFloat(data[i][e+1])+ '"/>\n'
