@@ -16,7 +16,7 @@
     <br>
     <div class="menuItems">
       <label>Asset Category<!-- <span class="ui-icon ui-icon-help ipt_help" title="TODO"></span> -->:</label>
-      <input type="text" name="asset-cat" value="buildings">
+      <input type="text" name="asset-cat" value="" placeholder="buildings">
     </div>
 
     <div class="menuItems">
@@ -44,17 +44,26 @@
     <div class="menuItems">
       <label>Probabilistic distribution<!-- <span class="ui-icon ui-icon-help ipt_help" title="TODO""></span -->:</label>
           <select id="prob_distrib">
-            <option value="lognormal" selected="selected">Lognormal</option>
-            <option value="beta">Beta</option>
+            <option value="LN" selected="selected">Lognormal</option>
+            <option value="BT">Beta</option>
           </select><br>
     </div>
 
-<div class="menuItems">
-  <label>Consequence data<!-- <span class="ui-icon ui-icon-help ipt_help" title="TODO"></span> -->:</label>
-  <div><input type="file" id="table_file" accept="text/csv,application/csv,csv"></div>
-  <div id="table" style="height: 100px; overflow: hidden;"></div>
-  <button id="new_row_add" type="button" class="btn">New Row</button><br>
-  <br>
+    <div class="menuItems">
+      <label>Consequence data<!-- <span class="ui-icon ui-icon-help ipt_help" title="TODO"></span> -->:</label>
+      <br>
+      <div><input type="file" id="table_file" accept="text/csv,application/csv,csv"></div>
+      <div id="table" style="height: 100px; overflow: hidden;"></div>
+      <button id="new_row_add" type="button" class="btn">New Row</button><br>
+    </div>
 
-  TABLE HERE with columns "Distribution", "DamageState1_mean", "DamageState1_stddev", "DamageState2_mean", "DamageState2_stddev"
-</div>
+    <div>
+      <button id="convertBtn" type="button" style="display:none;" class="btn btn-primary">Convert to NRML</button>
+    </div>
+    <br>
+    <div id="outputDiv">
+      <div id="infoMsg" class="alert alert-info" role="alert">3. Download the NRML file for use in the OpenQuake Engine.</div>
+      <div id="validationErrorMsg" class="alert alert-warning" role="alert" style="display: none;">Error message</div>
+      <div id="downloadLink" style="display: none;"><button id="downloadBtn" type="button" class="btn">Download</button><form id="downloadForm" method="post" enctype="multipart/form-data"></form></div>
+      <div id="outputText" style="width:600px; margin: auto;"></div>
+    </div>

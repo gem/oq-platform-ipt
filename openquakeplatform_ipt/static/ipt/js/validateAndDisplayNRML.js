@@ -1,6 +1,6 @@
 function sfx2name(sfx)
 {
-    var map = { 'ex': 'exposure', 'ff': 'fragility', 'vf': 'vulnerability', 'sc': 'site', 'er': 'earthquake_rupture' };
+    var map = { 'ex': 'exposure', 'ff': 'fragility', 'co': 'consequence', 'vf': 'vulnerability', 'sc': 'site', 'er': 'earthquake_rupture' };
 
     return map[sfx];
 }
