@@ -204,9 +204,13 @@ var gem_ipt = {
 }
 
 var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
-    if (evt.target.files.length == 0)
+    if (evt.target.files.length == 0) {
+        that.tbl_file = null;
+        target.value = "";
         return;
+    }
 
+    var target = evt.target;
     var file = evt.target.files[0];
 
     if (file) {
@@ -225,7 +229,9 @@ var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
                 if (cols.length != cols_n) {
                     // row haven't correct number of columns
                     alert("row #" + (i+1) + " haven't correct number of columns, received: " + cols.length + " expected: " + cols_n + "\n[" + rows[i] + "]");
-                    continue;
+                    that.tbl_file = null;
+                    target.value = "";
+                    return;
                 }
 
                 for (var e = 0 ; e < cols.length ; e++) {
@@ -258,6 +264,8 @@ var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
         }
         reader.onerror = function (evt) {
             alert('import file failed');
+            that.tbl_file = null;
+            target.value = "";
         }
     }
     else {
