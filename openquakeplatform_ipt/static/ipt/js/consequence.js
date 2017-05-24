@@ -112,7 +112,7 @@ $(co_obj.pfx + '#convertBtn').click(function() {
         }
     }
 
-    var description = $(co_obj.pfx + "input[name='descr']").val();
+    var description = $(co_obj.pfx + "textarea[name='descr']").val();
     var asset = $(co_obj.pfx + "input[name='asset-cat']").val();
     var loss_cat = $(co_obj.pfx + "select#lossCategory").val();
     // damage states use co_obj attribute
