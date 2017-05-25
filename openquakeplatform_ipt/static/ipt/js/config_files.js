@@ -683,12 +683,7 @@ $(document).ready(function () {
             else {
                 $(cf_obj['scen'].pfx + ' div[name="hazard-imt_specify-imt"]').css('display', 'none');
             }
-            // GMPE sub choice
-            var gmpe_choice = $(cf_obj['scen'].pfx + ' input[type="radio"]'
-                                + '[name="hazard_gmpe"]:checked').val();
-
-            $(cf_obj['scen'].pfx + ' div[name^="hazard-gmpe_"]').css('display', 'none');
-            $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_' + gmpe_choice + '"]').css('display', '');
+            $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"]').css('display', '');
         }
         else
             $target.css('display', 'none');
@@ -824,16 +819,6 @@ $(document).ready(function () {
       ' form[name="gmpe"]').submit(scenario_fileNew_upload);
 
     // Calculation parameters: gsim_logic_tree_file (init)
-    $(cf_obj['scen'].pfx + ' button[name="gsim-logic-tree-file-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="gsim-logic-tree-file-new"]' +
-      ' form[name="gsim-logic-tree-file"]').submit(scenario_fileNew_upload);
-
-    // Calculation parameters: hazard gmpe callbacks (init)
-    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"]').click(scenario_manager);
-    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]'
-     ).prop('checked', true);  // .triggerHandler('click');
-
     $(cf_obj['scen'].pfx + ' select[name="gmpe"]').searchableOptionList(
         {data: g_gmpe_options,
          showSelectionBelowList: true,
@@ -963,7 +948,6 @@ $(document).ready(function () {
             asset_correlation: null,
 
             // calculation parameters
-            gmpe_choice: null,
             intensity_measure_types: null,
             gsim_logic_tree_file: null,
 
@@ -1104,30 +1088,12 @@ $(document).ready(function () {
 
         // Calculation parameters (get)
         if (obj.hazard == 'hazard') {
-            obj.gmpe_choice = $(cf_obj['scen'].pfx + ' input[type="radio"]'
-                                + '[name="hazard_gmpe"]:checked').val();
-
-            if (obj.gmpe_choice == 'specify-gmpe') {
-                obj.gsim = $(cf_obj['scen'].pfx + ' input[type="radio"][name="gmpe"]:checked').map(function(_, el) {
-                    return $(el).val();
-                }).get();
-
-                if (obj.gsim.length < 1) {
-                    ret.str += "Unique GMPE not selected.\n";
-                }
-            }
-            else if (obj.gmpe_choice == 'from-file') {
-                // calculation parameters -> from file (get)
-                obj.gsim_logic_tree_file = $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_from-file"]'
-                                          + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
-                if (obj.gsim_logic_tree_file == '') {
-                    ret.str += "'GMPE logic tree file' field is empty.\n";
-                }
-                uniqueness_add(files_list, 'GMPE logic tree', obj.gsim_logic_tree_file);
-                ret.str += uniqueness_check(files_list);
-            }
-            else {
-                ret.str += "Unknown 'GMPE' choice (" + obj.gmpe_choice + ").\n";
+            obj.gsim =  $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"]'
+                        + ' input[type="checkbox"][name="gmpe"]:checked').map(function(_, el) {
+                            return $(el).val();
+                        }).get();
+            if (obj.gsim.length < 1) {
+                ret.str += "At least one GMPE must be selected.\n";
             }
 
             if (obj.risk == null) {
@@ -1526,14 +1492,6 @@ $(document).ready(function () {
                 ret.str += uniqueness_check(files_list);
                 }
             }
-
-            obj.gsim_logic_tree_file = $(
-                pfx + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
-            if (obj.gsim_logic_tree_file == '') {
-                ret.str += "'GMPE logic tree file' field is empty.\n";
-            }
-            uniqueness_add(files_list, 'gmpe logic tree', obj.gsim_logic_tree_file);
-            ret.str += uniqueness_check(files_list);
 
             obj.width_of_mfd_bin = $(
                 pfx + ' input[type="text"][name="width_of_mfd_bin"]').val();

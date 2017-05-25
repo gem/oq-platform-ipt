@@ -291,41 +291,12 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 <div style="min-height: 200px;" name="calculation-parameters"> <!-- calculation parameters -->
   <h3>Calculation parameters</h3>
   <br>
-  <div class="alert alert-info ipt-info" role="alert">
-    Select a method to specify Ground Motion Prediction Equations (GMPE):<br>
-    <div style="text-align: center;">
-      <form style="margin: 0px;">
-        <div class="chbox">
-          <input type="radio" name="hazard_gmpe" value="specify-gmpe">
-          <span class="inlible">Unique GMPE</span>
-        </div>
-        <div class="chbox">
-          <input type="radio" name="hazard_gmpe" value="from-file">
-          <span class="inlible">GMPE logic tree file</span>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <div class="menuItems" name="hazard-gmpe_specify-gmpe" style="overflow: auto; min-height: 80px;">
-    <label>Unique GMPE <span class="ui-icon ui-icon-help ipt_help" title='Name of the ground motion prediction equation to be used in the generation of the ground-motion fields.'></span>
+    <label>GMPE <span class="ui-icon ui-icon-help ipt_help" title='Name of the ground motion prediction equation to be used in the generation of the ground-motion fields.'></span>
 :</label><br>
-    <select name="gmpe" style="text-align: left; width: 500px; margin-left: auto;">
+    <select name="gmpe" multiple="multiple" style="text-align: left; width: 500px; margin-left: auto;">
     </select>
-  </div>
-
-  <div class="menuItems" name="hazard-gmpe_from-file">
-    <div name="gsim-logic-tree-file-html" data_gem_group="gsim">
-      <label>Use GMPE logic tree file <span class="ui-icon ui-icon-help ipt_help" title='File that contains a list of ground motion prediction equations to be used in the generation of the ground-motion fields.'></span>:</label>
-      {{ gsim_logic_tree_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="gsim-logic-tree-file-new">Upload</button>
-    </div>
-    <div class="menuItems" name="gsim-logic-tree-file-new" style="margin-right: 0px; display: none;">
-      <div name="msg"><br></div>
-      <form action="upload/gsim_logic_tree_file" method="post" id="file-upload-form" name="gsim-logic-tree-file" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ gsim_logic_tree_file_upload.file_upload }}
-      </form>
-    </div>
   </div>
 
   <div class="menuItems" name="hazard-imt_specify-imt">

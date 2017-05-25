@@ -762,14 +762,37 @@ def scenario_prepare(request, **kwargs):
         jobini += "\n[Calculation parameters]\n"
         #            ########################
 
-        if data['gmpe_choice'] == 'specify-gmpe':
-            jobini += "gsim = %s\n" % data['gsim'][0]
-        elif data['gmpe_choice'] == 'from-file':
-            jobini += ("gsim_logic_tree_file = %s\n" %
-                       os.path.basename(data['gsim_logic_tree_file']))
-            z.write(get_full_path(userid, namespace,
-                                  data['gsim_logic_tree_file']),
-                    os.path.basename(data['gsim_logic_tree_file']))
+        gsim_n = len(data['gsim'])
+        gsim_w = [ 0 ] * gsim_n
+        for i in range(0, (gsim_n - 1)):
+            gsim_w[i] = "%1.3f" % (1.0 / float(gsim_n))
+
+        gsim_w[gsim_n - 1] = 1.0 - (float(gsim_w[0]) * (gsim_n - 1))
+
+        jobini += "gsim_logic_tree_file = gmpe.xml\n"
+
+        gmpe = "<?xml version='1.0' encoding='utf-8'?>\n\
+<nrml xmlns:gml='http://www.opengis.net/gml'\n\
+      xmlns='http://openquake.org/xmlns/nrml/0.5'>\n\
+\n\
+<logicTree logicTreeID='lt1'>\n\
+  <logicTreeBranchingLevel branchingLevelID='bl1'>\n\
+    <logicTreeBranchSet uncertaintyType='gmpeModel'\n\
+                        branchSetID='bs1' \n\
+                        applyToTectonicRegionType='Active Shallow Crust'>\n"
+
+        for i in range(0, gsim_n):
+            gmpe += "      <logicTreeBranch branchID='b%d'>\n\
+        <uncertaintyModel>%s</uncertaintyModel>\n\
+        <uncertaintyWeight>%s</uncertaintyWeight>\n\
+      </logicTreeBranch>\n" % (i, data['gsim'][i], gsim_w[i])
+
+        gmpe += "    </logicTreeBranchSet>\n\
+  </logicTreeBranchingLevel>\n\
+</logicTree>\n\
+</nrml>\n"
+
+        z.writestr('gmpe.xml', gmpe.encode('utf-8'))
 
         if data['risk'] is None:
             jobini += "intensity_measure_types = "
