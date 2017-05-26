@@ -17,14 +17,13 @@
   <div class="menuItems">
     <div name="source-model-logic-tree-file-html">
       <label>Source model logic tree file <span class="ui-icon ui-icon-help ipt_help" title='File that contains a list of source models.'></span>:</label>
-      {{ source_model_logic_tree_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="source-model-logic-tree-file-new">New</button>
+      {{ source_model_logic_tree_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="source-model-logic-tree-file-new">Upload</button>
     </div>
     <div class="menuItems" name="source-model-logic-tree-file-new" style="margin-right: 0px; display: none;">
       <div name="msg"><br></div>
       <form action="upload/source_model_logic_tree_file" method="post" id="file-upload-form" name="source-model-logic-tree-file" enctype="multipart/form-data">
         {% csrf_token %}
         {{ source_model_logic_tree_file_upload.file_upload }}
-        <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
       </form>
     </div>
   </div>
@@ -32,14 +31,13 @@
   <div class="menuItems">
     <div name="source-model-file-html">
       <label>Source model files <span class="ui-icon ui-icon-help ipt_help" title='Selection of source model files that contain a list of the sources used characterised the seismicity in a region.'></span>:</label>
-      {{ source_model_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="source-model-file-new">New</button>
+      {{ source_model_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="source-model-file-new">Upload</button>
     </div>
     <div class="menuItems" name="source-model-file-new" style="margin-right: 0px; display: none;">
       <div name="msg"><br></div>
       <form action="upload/source_model_file" method="post" id="file-upload-form" name="source-model-file" enctype="multipart/form-data">
         {% csrf_token %}
         {{ source_model_file_upload.file_upload }}
-        <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
       </form>
     </div>
   </div>
@@ -47,14 +45,13 @@
   <div class="menuItems">
     <div name="gsim-logic-tree-file-html" data_gem_group="gsim">
       <label>GMPE logic tree file <span class="ui-icon ui-icon-help ipt_help" title='File that contains a list of ground-motion prediction equations for each tectonic region used to characterise the sources in the PSHA model.'></span>:</label>
-      {{ gsim_logic_tree_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="gsim-logic-tree-file-new">New</button>
+      {{ gsim_logic_tree_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="gsim-logic-tree-file-new">Upload</button>
     </div>
     <div class="menuItems" name="gsim-logic-tree-file-new" style="margin-right: 0px; display: none;">
       <div name="msg"><br></div>
       <form action="upload/gsim_logic_tree_file" method="post" id="file-upload-form" name="gsim-logic-tree-file" enctype="multipart/form-data">
         {% csrf_token %}
         {{ gsim_logic_tree_file_upload.file_upload }}
-        <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
       </form>
     </div>
   </div>

@@ -3,9 +3,9 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' input[type="checkbox"][name="hazard"]').prop('checked', true).triggerHandler('click');
     $(cf_obj['scen'].pfx + ' input[type="checkbox"][name="risk"]').prop('checked', true).triggerHandler('click');
     $(cf_obj['scen'].pfx + ' div[name="rupture-file-html"] select[name="file_html"]').val('data/rupture_file/rupture_new.xml');
-    
+
     var data = [ [ "40", "40" ], ["30", "30"], ["20", "20" ] ];
-    
+
     var table = $(cf_obj['scen'].pfx + ' div[name="table"]').handsontable('getInstance');
     table.loadData(data);
 
@@ -20,7 +20,7 @@ $(document).ready(function () {
 
     $(cf_obj['scen'].pfx + ' div[name="fragility-model"] div[name="fm-loss-'
                             + "structural" + '"] select[name="file_html"]').val('data/fragility_model/pippo.xml');
-    
+
     $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] input[type="text"]').focus();
     setTimeout(function () {
         // waiting for gmpe list population

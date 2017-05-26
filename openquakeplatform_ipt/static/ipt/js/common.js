@@ -24,6 +24,41 @@ function uniqueness_check(files_list)
     return "";
 }
 
+function table_with_headers(arr, field_idx, min_val, max_val)
+{
+    var spy = arr[0][field_idx];
+
+    if (spy.match(/[^.\d]/)) {
+        return true;
+    }
+
+    if (min_val !== null) {
+        if (parseFloat(spy) < min_val)
+            return true;
+    }
+
+    if (max_val !== null) {
+        if (parseFloat(spy) > max_val)
+            return true;
+    }
+
+    return false;
+}
+
+function not_empty_rows_get(data)
+{
+    for (var i = data.length - 1 ; i >= 0 ; i--) {
+        for (var e = 0 ; e < data[i].length ; e++) {
+            if (data[i][e] === null || data[i][e].toString().trim() == "")
+                continue;
+
+            if (data[i][e].toString().trim() != "") {
+                return (i + 1);
+            }
+        }
+    }
+    return data.length;
+}
 
 function gem_tableHeightUpdate($box) {
     /* try { */
@@ -50,6 +85,71 @@ function gem_tableHeightUpdate($box) {
 
 function gem_capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function csvsplit(s, sep)
+{
+    var st = 0, ct = 0, cur = "";
+    var ret = [];
+
+    for (var i = 0 ; i < s.length ; i++) {
+        if (st == 0) {
+            if (s[i] == '"') {
+                st = 1;
+                continue;
+            }
+            if (s[i] == sep) {
+                ret.push(cur);
+                cur = "";
+                ct += 1;
+            }
+            else
+                cur += s[i];
+        }
+        if (st == 1) {
+            if (s[i] == '"') {
+                if (i < (s.length - 1) && s[i+1] == '"') {
+                    i += 1;
+                    cur += '"';
+                }
+                else {
+                    st = 0;
+                }
+            }
+            else {
+                cur += s[i];
+            }
+        }
+    }
+    if (cur != "") {
+        ret.push(cur);
+    }
+    return ret;
+}
+
+function separator_identify(s)
+{
+    var st = 0;
+    var seps = ";	,";
+
+    for (var i = 0 ; i < s.length ; i++) {
+        if (st == 0) {
+            if (s[i] == '"') {
+                st = 1;
+                continue;
+            }
+            var idx = seps.indexOf(s[i]);
+            if (idx != -1)
+                return (seps[idx]);
+        }
+        else if(st == 1) {
+            if (s[i] == '"') {
+                st = 0;
+            }
+        }
+    }
+    // fallback to comma
+    return ",";
 }
 
 var gem_ipt = {
@@ -168,10 +268,14 @@ var gem_ipt = {
     }
 }
 
-var ipt_table_file_mgmt = function(evt, that) {
-    if (evt.target.files.length == 0)
+var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
+    if (evt.target.files.length == 0) {
+        that.tbl_file = null;
+        target.value = "";
         return;
+    }
 
+    var target = evt.target;
     var file = evt.target.files[0];
 
     if (file) {
@@ -181,34 +285,56 @@ var ipt_table_file_mgmt = function(evt, that) {
         reader.onload = function (evt) {
             that.tbl_file = [];
             var rows = evt.target.result.split('\n');
+            var separator = null;
             for (var i = 0 ; i < rows.length ; i++) {
                 if (rows[i] == "") {
                     continue;
                 }
                 that.tbl_file.push([]);
-                var cols = rows[i].split(',');
+                if (separator == null) {
+                    separator = separator_identify(rows[i]);
+                }
+                var cols = csvsplit(rows[i], separator);
                 if (cols.length != cols_n) {
                     // row haven't correct number of columns
                     alert("row #" + (i+1) + " haven't correct number of columns, received: " + cols.length + " expected: " + cols_n + "\n[" + rows[i] + "]");
-                    continue;
+                    that.tbl_file = null;
+                    target.value = "";
+                    return;
                 }
 
                 for (var e = 0 ; e < cols.length ; e++) {
+                    cols[e] = cols[e].toString().trim();
                     that.tbl_file[i].push(cols[e]);
                 }
             }
-            that.tbl.alter('remove_row', 3, 10000000);
+
+            if (table_with_headers(that.tbl_file, field_idx, min_val, max_val)) {
+                that.tbl_file = that.tbl_file.slice(1);
+            }
+
+            that.tbl.alter('remove_row', 1, 10000000);
             var data = [];
-            for (var i = 0 ; i < 3 ; i++) {
-                data.push([]);
+            for (var i = 0 ; i < (4 < that.tbl_file.length ? 4 : that.tbl_file.length)  ; i++) {
+                if (i > 0)
+                    that.tbl.alter('insert_row');
+                data.push(that.tbl_file[i]);
+            }
+
+            if (4 < that.tbl_file.length) {
+                that.tbl.alter('insert_row');
+                var points = data.push([]);
                 for (var e = 0 ; e < cols_n ; e++) {
-                    data[i].push("");
+                    data[4][e] = "...";
                 }
             }
+
             that.tbl.loadData(data);
         }
         reader.onerror = function (evt) {
             alert('import file failed');
+            that.tbl_file = null;
+            target.value = "";
         }
     }
     else {

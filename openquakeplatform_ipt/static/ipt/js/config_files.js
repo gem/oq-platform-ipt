@@ -633,6 +633,22 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
 
+        // GMF file upload (ui)
+        $target = $(cf_obj['scen'].pfx + ' div[name="gmf-file"]');
+        if (hazard == null && risk != null) {
+            $target.css('display', '');
+
+            $subtarget = $(cf_obj['scen'].pfx + ' div[name="gmf-file"] div[name="gmf-file-html"]');
+
+            if ($(cf_obj['scen'].pfx + ' div[name="gmf-file"] input[name="use_gmf_file"]').is(':checked'))
+                $subtarget.css('display', '');
+            else
+                $subtarget.css('display', 'none');
+        }
+        else {
+            $target.css('display', 'none');
+        }
+
         // Exposure model (ui)
         exposure_model_sect_manager(
             'scen', ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null),
@@ -667,12 +683,7 @@ $(document).ready(function () {
             else {
                 $(cf_obj['scen'].pfx + ' div[name="hazard-imt_specify-imt"]').css('display', 'none');
             }
-            // GMPE sub choice
-            var gmpe_choice = $(cf_obj['scen'].pfx + ' input[type="radio"]'
-                                + '[name="hazard_gmpe"]:checked').val();
-
-            $(cf_obj['scen'].pfx + ' div[name^="hazard-gmpe_"]').css('display', 'none');
-            $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_' + gmpe_choice + '"]').css('display', '');
+            $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"]').css('display', '');
         }
         else
             $target.css('display', 'none');
@@ -729,6 +740,14 @@ $(document).ready(function () {
 
     $(cf_obj['scen'].pfx + ' div[name="list-of-sites-new"]' +
       ' form[name="list-of-sites"]').submit(scenario_fileNew_upload);
+
+    // GMF file upload (init)
+    $(cf_obj['scen'].pfx + ' div[name="gmf-file"] input[name="use_gmf_file"]').click(scenario_manager);
+
+    $(cf_obj['scen'].pfx + ' div[name="gmf-file"] button[name="gmf-file-new"]').click(scenario_fileNew_cb);
+
+    $(cf_obj['scen'].pfx + ' div[name="gmf-file-new"]' +
+      ' form[name="gmf-file"]').submit(scenario_fileNew_upload);
 
     // Exposure model (init)
     exposure_model_init('scen', scenario_fileNew_cb, scenario_fileNew_upload, scenario_manager);
@@ -800,16 +819,6 @@ $(document).ready(function () {
       ' form[name="gmpe"]').submit(scenario_fileNew_upload);
 
     // Calculation parameters: gsim_logic_tree_file (init)
-    $(cf_obj['scen'].pfx + ' button[name="gsim-logic-tree-file-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="gsim-logic-tree-file-new"]' +
-      ' form[name="gsim-logic-tree-file"]').submit(scenario_fileNew_upload);
-
-    // Calculation parameters: hazard gmpe callbacks (init)
-    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"]').click(scenario_manager);
-    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]'
-     ).prop('checked', true);  // .triggerHandler('click');
-
     $(cf_obj['scen'].pfx + ' select[name="gmpe"]').searchableOptionList(
         {data: g_gmpe_options,
          showSelectionBelowList: true,
@@ -834,16 +843,22 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]').click(scenario_manager);
     $(cf_obj['scen'].pfx + ' input[name="risk-type"][value="damage"]').prop('checked', true);
 
-    /* generic callback to show upload div (init) */
-    function scenario_fileNew_cb(e) {
-        $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
-    }
-
     /* form widgets and previous remote list select element must follow precise
        naming schema with '<name>-html' and '<name>-new', see config_files.html */
     function scenario_fileNew_upload(event)
     {
-        return generic_fileNew_upload('scen', this, event);
+        form = $(event.target).parent('form').get(0);
+        return generic_fileNew_upload('scen', form, event);
+    }
+
+
+    /* generic callback to show upload div (init) */
+    function scenario_fileNew_cb(e) {
+        $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+        if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
+        }
     }
 
     /* hazard sites callbacks */
@@ -872,6 +887,9 @@ $(document).ready(function () {
             grid_spacing: null,
             reggrid_coords_data: null,
             list_of_sites: null,
+
+            // ground motion field
+            gmf_file: null,
 
             // exposure model
             exposure_model: null,
@@ -930,7 +948,6 @@ $(document).ready(function () {
             asset_correlation: null,
 
             // calculation parameters
-            gmpe_choice: null,
             intensity_measure_types: null,
             gsim_logic_tree_file: null,
 
@@ -1013,6 +1030,12 @@ $(document).ready(function () {
             }
         }
 
+        // Ground Motion Field file
+        if (obj.hazard == null && obj.risk != null &&
+            $(cf_obj['scen'].pfx + ' div[name="gmf-file"] input[name="use_gmf_file"]').is(':checked')) {
+            obj.gmf_file = $(cf_obj['scen'].pfx + ' div[name="gmf-file"] div[name="gmf-file-html"] select[name="file_html"]').val();
+        }
+
         // Exposure model (get)
         exposure_model_getData(
             'scen', ret, files_list, obj,
@@ -1065,30 +1088,12 @@ $(document).ready(function () {
 
         // Calculation parameters (get)
         if (obj.hazard == 'hazard') {
-            obj.gmpe_choice = $(cf_obj['scen'].pfx + ' input[type="radio"]'
-                                + '[name="hazard_gmpe"]:checked').val();
-
-            if (obj.gmpe_choice == 'specify-gmpe') {
-                obj.gsim = $(cf_obj['scen'].pfx + ' input[type="radio"][name="gmpe"]:checked').map(function(_, el) {
-                    return $(el).val();
-                }).get();
-
-                if (obj.gsim.length < 1) {
-                    ret.str += "Unique GMPE not selected.\n";
-                }
-            }
-            else if (obj.gmpe_choice == 'from-file') {
-                // calculation parameters -> from file (get)
-                obj.gsim_logic_tree_file = $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_from-file"]'
-                                          + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
-                if (obj.gsim_logic_tree_file == '') {
-                    ret.str += "'GMPE logic tree file' field is empty.\n";
-                }
-                uniqueness_add(files_list, 'GMPE logic tree', obj.gsim_logic_tree_file);
-                ret.str += uniqueness_check(files_list);
-            }
-            else {
-                ret.str += "Unknown 'GMPE' choice (" + obj.gmpe_choice + ").\n";
+            obj.gsim =  $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"]'
+                        + ' input[type="checkbox"][name="gmpe"]:checked').map(function(_, el) {
+                            return $(el).val();
+                        }).get();
+            if (obj.gsim.length < 1) {
+                ret.str += "At least one GMPE must be selected.\n";
             }
 
             if (obj.risk == null) {
@@ -1154,7 +1159,8 @@ $(document).ready(function () {
 
     function event_based_fileNew_upload(event)
     {
-        return generic_fileNew_upload('e_b', this, event);
+        form = $(event.target).parent('form').get(0);
+        return generic_fileNew_upload('e_b', form, event);
     }
 
     function event_based_manager()
@@ -1273,6 +1279,10 @@ $(document).ready(function () {
     /* generic callback to show upload div */
     function event_based_fileNew_cb(e) {
         $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+        if ($(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(event_based_fileNew_upload);
+        }
     }
 
     // Exposure model (init)
@@ -1482,14 +1492,6 @@ $(document).ready(function () {
                 ret.str += uniqueness_check(files_list);
                 }
             }
-
-            obj.gsim_logic_tree_file = $(
-                pfx + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
-            if (obj.gsim_logic_tree_file == '') {
-                ret.str += "'GMPE logic tree file' field is empty.\n";
-            }
-            uniqueness_add(files_list, 'gmpe logic tree', obj.gsim_logic_tree_file);
-            ret.str += uniqueness_check(files_list);
 
             obj.width_of_mfd_bin = $(
                 pfx + ' input[type="text"][name="width_of_mfd_bin"]').val();

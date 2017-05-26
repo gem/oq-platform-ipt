@@ -17,7 +17,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 
 {% extends "site_base.html" %}
 {% load i18n %}
-{% load url from future %}
 
 {% block title %} Input Preparation Toolkit - {{ block.super }} {% endblock title %}
 
@@ -53,10 +52,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
           <ul>
             <li><a href="#tabs-1">Exposure</a></li>
             <li><a href="#tabs-2">Fragility</a></li>
-            <li><a href="#tabs-3">Vulnerability</a></li>
-            <li><a href="#tabs-4">Earthquake Rupture</a></li>
-            <li><a href="#tabs-5">Site Conditions</a></li>
-            <li><a href="#tabs-6">Configuration File</a></li>
+            <li><a href="#tabs-3">Consequence</a></li>
+            <li><a href="#tabs-4">Vulnerability</a></li>
+            <li><a href="#tabs-5">Earthquake Rupture</a></li>
+            <li><a href="#tabs-6">Site Conditions</a></li>
+            <li><a href="#tabs-7">Configuration File</a></li>
           </ul>
           <!-- EXPOSURE -->
           <div id="tabs-1" class="ex_gid">
@@ -66,20 +66,24 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
           <div id="tabs-2" class="ff_gid">
           {% include "ipt/tabs/fragility.html" %}
           </div>
+          <!-- CONSEQUENCE -->
+          <div id="tabs-3" class="co_gid">
+          {% include "ipt/tabs/consequence.html" %}
+          </div>
           <!-- VULNERABILITY -->
-          <div id="tabs-3" class="vf_gid">
+          <div id="tabs-4" class="vf_gid">
           {% include "ipt/tabs/vulnerability.html" %}
           </div>
           <!-- EARTHQUAKE RUPTURE -->
-          <div id="tabs-4" class="er_gid">
+          <div id="tabs-5" class="er_gid">
           {% include "ipt/tabs/earthquake_rupture.html" %}
           </div>
           <!-- SITE CONDITIONS -->
-          <div id="tabs-5" class="sc_gid">
+          <div id="tabs-6" class="sc_gid">
           {% include "ipt/tabs/site_conds.html" %}
           </div>
           <!-- CONFIGURATION FILE -->
-          <div id="tabs-6" class="cf_gid">
+          <div id="tabs-7" class="cf_gid">
           {% include "ipt/tabs/config_files.html" %}
           </div>
         </div>
@@ -98,7 +102,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
         if(help != null) { help.href+='/explore/'; }
         var tab_id_s = "{{ request.GET.tab_id }}", tab_id;
         tab_id = parseInt(tab_id_s) - 1;
-        if (tab_id < 0 || tab_id > 5) {
+        if (tab_id < 0 || tab_id > 8) {
             tab_id = 0;
         }
         $( "#tabs" ).tabs({active: tab_id });
@@ -115,6 +119,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     <script src="{{ STATIC_URL }}ipt/js/common.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/exposure.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/fragility.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/consequence.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/vulnerability.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/earthquake_rupture.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/site_conds.js"></script>
@@ -122,7 +127,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     <script src="{{ STATIC_URL }}ipt/js/selectTextareaLine.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/selectAllTextareaText.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/validateAndDisplayNRML.js"></script>
-{% if request.GET.example_id|add:"0" > 0 and request.GET.example_id|add:"0" < 100 and request.GET.tab_id|add:"0" > 0 and request.GET.tab_id|add:"0" < 6 %}
+{% if request.GET.example_id|add:"0" > 0 and request.GET.example_id|add:"0" < 100 and request.GET.tab_id|add:"0" > 0 and request.GET.tab_id|add:"0" < 7 %}
 <script src="{{ STATIC_URL }}ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}.js"></script>
 {% else %}
     <!-- not example found -->

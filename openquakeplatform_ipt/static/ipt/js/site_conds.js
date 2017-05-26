@@ -16,7 +16,7 @@
 */
 
 var sc_obj = {
-    tbl_table: null,
+    tbl_file: null,
     tbl: {},
     nrml: "",
     header: [],
@@ -213,8 +213,6 @@ function sc_updateTable() {
     var headerLength = sc_obj.header.length;
 
     // Create the table
-    var container = document.getElementById('table');
-
     ///////////////////////////////
     /// Exposure Table Settings ///
     ///////////////////////////////
@@ -257,28 +255,30 @@ $('.sc_gid #downloadBtn').click(function() {
 });
 
 $('.sc_gid #convertBtn').click(function() {
+    var tab_data = null;
+
     // Get the values from the table
     if ($('.sc_gid input#table_file')[0].files.length > 0) {
-        var tab_data = sc_obj.tbl_file;
+        tab_data = sc_obj.tbl_file;
     }
     else {
-        var tab_data = sc_obj.tbl.getData();
+        tab_data = sc_obj.tbl.getData();
+    }
 
-        var pfx = '.sc_gid #table';
+    var not_empty_rows = not_empty_rows_get(tab_data);
 
-        for (var i = 0; i < tab_data.length; i++) {
-            for (var j = 0; j < tab_data[i].length; j++) {
-                if (tab_data[i][j] === null || tab_data[i][j].toString().trim() == "") {
-                    var error_msg = "empty cell detected at table coords (" + (i+1) + ", " + (j+1) + ")";
-                    output_manager('sc', error_msg, null, null);
-                    return;
-                }
+    for (var i = 0; i < not_empty_rows ; i++) {
+        for (var j = 0; j < tab_data[i].length; j++) {
+            if (tab_data[i][j] === null || tab_data[i][j].toString().trim() == "") {
+                var error_msg = "empty cell detected at table coords (" + (i+1) + ", " + (j+1) + ")";
+                output_manager('sc', error_msg, null, null);
+                return;
             }
         }
     }
     var sites = '';
     // Check for null values
-    for (var i = 0; i < tab_data.length; i++) {
+    for (var i = 0; i < not_empty_rows ; i++) {
         sites += '\t<site lon="' + tab_data[i][0] + '" lat="' + tab_data[i][1] + '" vs30="' + tab_data[i][2] +
              '" vs30Type="' + tab_data[i][3] + '" z1pt0="' + tab_data[i][4] + '" z2pt5="' + tab_data[i][5] +'"/>\n';
     }
@@ -301,7 +301,7 @@ $(document).ready(function () {
     /////////////////////////////////////////////////////////
     sc_updateTable();
     $('.sc_gid input#table_file').on(
-        'change', function sc_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, sc_obj); });
+        'change', function sc_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, sc_obj, 0, -180, 180); });
     $('.sc_gid #new_row_add').click(function() {
         sc_obj.tbl.alter('insert_row');
     });

@@ -1,18 +1,20 @@
-
-# Copyright (c) 2012-2015, GEM Foundation.
+# -*- coding: utf-8 -*-
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
 #
-# This program is free software: you can redistribute it and/or modify
+# Copyright (C) 2016-2017 GEM Foundation
+#
+# OpenQuake is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License as published
 # by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# OpenQuake is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with OpenQuake. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import re
@@ -22,19 +24,19 @@ import tempfile
 import shutil
 from email.Utils import formatdate
 
-from lxml import etree
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
                          )
-from django.template import RequestContext
 from django.conf import settings
-from openquake.hazardlib import gsim
 from django import forms
 
+from openquakeplatform.settings import WEBUIURL
+import requests
+from requests import HTTPError
 from build_rupture_plane import get_rupture_surface_round
 
-ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'exposure_model',
+ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
                'fragility_model', 'fragility_cons',
                'vulnerability_model', 'gsim_logic_tree_file',
@@ -62,11 +64,17 @@ JSON = 'application/json'
 
 
 def _do_validate_nrml(xml_text):
-    from openquake.baselib.general import writetmp
-    from openquake.commonlib import nrml
-    xml_file = writetmp(xml_text, suffix='.xml')
-    nrml.parse(xml_file)
+    data = dict(xml_text=xml_text)
+    ret = requests.post('%sv1/valid/' % WEBUIURL, data)
 
+    if ret.status_code != 200:
+        raise HTTPError({'message': "URL '%s' unreachable", 'lineno': -1})
+
+    ret_dict = json.loads(ret.content)
+
+    if not ret_dict['valid']:
+        raise ValueError({ 'message': ret_dict.get('error_msg', ''),
+                           'lineno': ret_dict.get('error_line', -1)})
 
 def validate_nrml(request):
     """
@@ -91,9 +99,10 @@ def validate_nrml(request):
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
-    except etree.ParseError as exc:
-        return _make_response(error_msg=exc.message.message,
-                              error_line=exc.message.lineno,
+    except (HTTPError, ValueError) as e:
+        exc = e.args[0]
+        return _make_response(error_msg=exc['message'],
+                              error_line=exc['lineno'],
                               valid=False)
     except Exception as exc:
         # get the exception message
@@ -137,7 +146,7 @@ def sendback_nrml(request):
         return HttpResponseBadRequest(
             'Please provide the "xml_text" parameter')
     known_func_types = [
-        'exposure', 'fragility', 'vulnerability', 'site', 'earthquake_rupture' ]
+        'exposure', 'fragility', 'consequence', 'vulnerability', 'site', 'earthquake_rupture']
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
@@ -155,6 +164,7 @@ def sendback_nrml(request):
             'attachment; filename="' + filename + '"')
         return resp
 
+
 def sendback_er_rupture_surface(request):
     mag = request.POST.get('mag')
     hypo_lat = request.POST.get('hypo_lat')
@@ -166,7 +176,7 @@ def sendback_er_rupture_surface(request):
 
     if (mag is None or hypo_lat is None or hypo_lon is None or
         hypo_depth is None or strike is None or dip is None or rake is None):
-        ret = { 'ret': 1, 'ret_s': 'incomplete arguments' }
+        ret = {'ret': 1, 'ret_s': 'incomplete arguments'}
     else:
         try:
             mag = float(mag)
@@ -177,25 +187,29 @@ def sendback_er_rupture_surface(request):
             dip = float(dip)
             rake = float(rake)
 
-            ret = get_rupture_surface_round(mag, {"lon": hypo_lon, "lat": hypo_lat, "depth": hypo_depth},
+            ret = get_rupture_surface_round(mag, {"lon": hypo_lon,
+                                                  "lat": hypo_lat,
+                                                  "depth": hypo_depth},
                                             strike, dip, rake)
             ret['ret'] = 0
             ret['ret_s'] = 'success'
         except Exception as exc:
-            ret = { 'ret': 2, 'ret_s': 'exception raised: %s' % exc }
+            ret = {'ret': 2, 'ret_s': 'exception raised: %s' % exc}
 
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
+
 class FileUpload(forms.Form):
-    file_upload = forms.FileField(allow_empty_file=True)
+    file_upload = forms.FileField(allow_empty_file=True,
+                                  widget=forms.ClearableFileInput(attrs={'class' : 'hide_file_upload'}))
 
 
 class FilePathFieldByUser(forms.ChoiceField):
-    def __init__(self, basepath, userid, subdir, namespace, match=None,
+    def __init__(self, userid, subdir, namespace, match=None,
                  recursive=False, allow_files=True,
                  allow_folders=False, required=True, widget=None, label=None,
                  initial=None, help_text=None, *args, **kwargs):
-        self.basepath, self.match, self.recursive = basepath, match, recursive
+        self.match, self.recursive = match, recursive
         self.subdir = subdir
         self.userid = str(userid)
         self.namespace = namespace
@@ -212,10 +226,10 @@ class FilePathFieldByUser(forms.ChoiceField):
         if self.match is not None:
             self.match_re = re.compile(self.match)
 
-        normalized_path = os.path.normpath(os.path.join(
-            self.basepath, self.userid, self.namespace, self.subdir))
-        allowed_path = os.path.join(self.basepath, self.userid, self.namespace)
-        if not normalized_path.startswith(allowed_path):
+        normalized_path = get_full_path(self.userid, self.namespace,
+                                        self.subdir)
+        user_allowed_path = get_full_path(self.userid, self.namespace)
+        if not normalized_path.startswith(user_allowed_path):
             raise LookupError('Unauthorized path: "%s"' % normalized_path)
 
         if recursive:
@@ -260,9 +274,8 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
     if (dirnam not in ALLOWED_DIR):
         raise KeyError("dirnam (%s) not in allowed list" % dirnam)
 
-    user_allowed_path = os.path.join(
-        settings.FILE_PATH_FIELD_DIRECTORY, userid, namespace)
-    normalized_path = get_full_path(dirnam, userid, namespace)
+    normalized_path = get_full_path(userid, namespace, dirnam)
+    user_allowed_path = get_full_path(userid, namespace)
     if not normalized_path.startswith(user_allowed_path):
         raise LookupError('Unauthorized path: "%s"' % normalized_path)
     if not os.path.isdir(normalized_path):
@@ -270,7 +283,6 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
 
     class FileHtml(forms.Form):
         file_html = FilePathFieldByUser(
-            basepath=settings.FILE_PATH_FIELD_DIRECTORY,
             userid=userid,
             subdir=dirnam,
             namespace=namespace,
@@ -282,6 +294,16 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
 
     return fh
 
+def _get_available_gsims():
+
+    ret = requests.get('%sv1/available_gsims' % WEBUIURL)
+
+    if ret.status_code != 200:
+        raise HTTPError({'message': "URL '%s' unreachable" % WEBUIURL})
+
+    ret_list = json.loads(ret.content)
+
+    return [gsim.encode('utf8') for gsim in ret_list]
 
 def view(request, **kwargs):
     if getattr(settings, 'STANDALONE', False):
@@ -289,7 +311,7 @@ def view(request, **kwargs):
     else:
         userid = str(request.user.id)
     namespace = request.resolver_match.namespace
-    gmpe = list(gsim.get_available_gsims())
+    gmpe = _get_available_gsims()
 
     rupture_file_html = filehtml_create(
         'rupture_file', userid, namespace)
@@ -298,6 +320,10 @@ def view(request, **kwargs):
     list_of_sites_html = filehtml_create(
         'list_of_sites', userid, namespace, match=".*\.csv")
     list_of_sites_upload = FileUpload()
+
+    gmf_file_html = filehtml_create(
+        'gmf_file', userid, namespace)
+    gmf_file_upload = FileUpload()
 
     exposure_model_html = filehtml_create(
         'exposure_model', userid, namespace)
@@ -368,7 +394,8 @@ def view(request, **kwargs):
         'source_model_file', userid, namespace, is_multiple=True)
     source_model_file_upload = FileUpload()
 
-    return render_to_response(
+    return render(
+        request,
         "ipt/ipt.html",
         dict(
             g_gmpe=gmpe,
@@ -376,6 +403,8 @@ def view(request, **kwargs):
             rupture_file_upload=rupture_file_upload,
             list_of_sites_html=list_of_sites_html,
             list_of_sites_upload=list_of_sites_upload,
+            gmf_file_html=gmf_file_html,
+            gmf_file_upload=gmf_file_upload,
             exposure_model_html=exposure_model_html,
             exposure_model_upload=exposure_model_upload,
             site_model_html=site_model_html,
@@ -422,8 +451,7 @@ def view(request, **kwargs):
 
             source_model_file_html=source_model_file_html,
             source_model_file_upload=source_model_file_upload
-        ),
-        context_instance=RequestContext(request))
+        ))
 
 
 def upload(request, **kwargs):
@@ -445,20 +473,23 @@ def upload(request, **kwargs):
             class FileUpload(forms.Form):
                 file_upload = forms.FileField(allow_empty_file=True)
             form = FileUpload(request.POST, request.FILES)
+            exten2 = None
             if target in ['list_of_sites']:
                 exten = "csv"
             else:
                 exten = "xml"
+            if target in ['gmf_file']:
+                exten2 = 'csv'
 
             if form.is_valid():
-                if request.FILES['file_upload'].name.endswith('.' + exten):
+                if (request.FILES['file_upload'].name.endswith('.' + exten) or
+                    (exten2 is not None and request.FILES['file_upload'].name.endswith('.' + exten2))):
                     if getattr(settings, 'STANDALONE', False):
                         userid = ''
                     else:
                         userid = str(request.user.id)
                     namespace = request.resolver_match.namespace
-                    user_dir = os.path.join(
-                        settings.FILE_PATH_FIELD_DIRECTORY, userid, namespace)
+                    user_dir = get_full_path(userid, namespace)
                     bname = os.path.join(user_dir, target)
                     # check if the directory exists (or create it)
                     if not os.path.exists(bname):
@@ -485,11 +516,12 @@ def upload(request, **kwargs):
                     f.close()
 
                     suffix = target
-                    match = ".*\." + exten
+                    match = ".*\." + exten + "$"
+                    if exten2 is not None:
+                        match += "|.*\." + exten2 + "$"
 
                     class FileHtml(forms.Form):
                         file_html = FilePathFieldByUser(
-                            basepath=settings.FILE_PATH_FIELD_DIRECTORY,
                             userid=userid,
                             subdir=suffix,
                             namespace=namespace,
@@ -523,7 +555,7 @@ def upload(request, **kwargs):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-def get_full_path(subdir_and_filename, userid, namespace):
+def get_full_path(userid, namespace, subdir_and_filename=""):
     return os.path.normpath(os.path.join(settings.FILE_PATH_FIELD_DIRECTORY,
                             userid,
                             namespace,
@@ -535,7 +567,7 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace):
     #           ################
 
     jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
-    z.write(get_full_path(data['exposure_model'], userid, namespace),
+    z.write(get_full_path(userid, namespace, data['exposure_model']),
             os.path.basename(data['exposure_model']))
     if is_regcons:
         if data['exposure_model_regcons_choice'] is True:
@@ -567,8 +599,8 @@ def vulnerability_model_prep_sect(data, z, userid, namespace):
         if data['vm_loss_%s_choice' % losslist] is True:
             jobini += "%s_vulnerability_file = %s\n" % (
                 descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
-            z.write(get_full_path(data['vm_loss_%s' % losslist],
-                                  userid, namespace),
+            z.write(get_full_path(userid, namespace,
+                                  data['vm_loss_%s' % losslist]),
                     os.path.basename(data['vm_loss_%s' % losslist]))
 
     jobini += "insured_losses = %s\n" % (
@@ -587,7 +619,7 @@ def site_conditions_prep_sect(data, z, userid, namespace):
     if data['site_conditions_choice'] == 'from-file':
         jobini += ("site_model_file = %s\n" %
                    os.path.basename(data['site_model_file']))
-        z.write(get_full_path(data['site_model_file'], userid, namespace),
+        z.write(get_full_path(userid, namespace, data['site_model_file']),
                 os.path.basename(data['site_model_file']))
     elif data['site_conditions_choice'] == 'uniform-param':
         jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
@@ -638,13 +670,21 @@ def scenario_prepare(request, **kwargs):
 
     jobini += "random_seed = 113\n"
 
+    if (data['hazard'] is None and data['risk'] is not None and
+        data['gmf_file'] is not None):
+        jobini += "\n[hazard]\n"
+        jobini += ("gmfs_file = %s\n" %
+                   os.path.basename(data['gmf_file']))
+        z.write(get_full_path(userid, namespace, data['gmf_file']),
+                os.path.basename(data['gmf_file']))
+
     if data['hazard'] == 'hazard':
         jobini += "\n[Rupture information]\n"
         #            #####################
 
         jobini += ("rupture_model_file = %s\n" %
                    os.path.basename(data['rupture_model_file']))
-        z.write(get_full_path(data['rupture_model_file'], userid, namespace),
+        z.write(get_full_path(userid, namespace, data['rupture_model_file']),
                 os.path.basename(data['rupture_model_file']))
 
         jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
@@ -666,7 +706,7 @@ def scenario_prepare(request, **kwargs):
             jobini += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
             jobini += "sites = %s\n" % os.path.basename(data['list_of_sites'])
-            z.write(get_full_path(data['list_of_sites'], userid, namespace),
+            z.write(get_full_path(userid, namespace, data['list_of_sites']),
                     os.path.basename(data['list_of_sites']))
         elif data['hazard_sites_choice'] == 'exposure-model':
             pass
@@ -701,15 +741,15 @@ def scenario_prepare(request, **kwargs):
                 jobini += "%s_fragility_file = %s\n" % (
                     descr[losslist],
                     os.path.basename(data['fm_loss_' + losslist]))
-                z.write(get_full_path(data['fm_loss_' + losslist],
-                                      userid, namespace),
+                z.write(get_full_path(userid, namespace,
+                                      data['fm_loss_' + losslist]),
                         os.path.basename(data['fm_loss_' + losslist]))
                 if with_cons is True:
                     jobini += "%s_consequence_file = %s\n" % (
                         descr[losslist],
                         os.path.basename(data['fm_loss_%s_cons' % losslist]))
-                    z.write(get_full_path(data['fm_loss_%s_cons' % losslist],
-                                          userid, namespace),
+                    z.write(get_full_path(userid, namespace,
+                                          data['fm_loss_%s_cons' % losslist]),
                             os.path.basename(
                                 data['fm_loss_%s_cons' % losslist]))
     elif data['risk'] == 'losses':
@@ -722,14 +762,37 @@ def scenario_prepare(request, **kwargs):
         jobini += "\n[Calculation parameters]\n"
         #            ########################
 
-        if data['gmpe_choice'] == 'specify-gmpe':
-            jobini += "gsim = %s\n" % data['gsim'][0]
-        elif data['gmpe_choice'] == 'from-file':
-            jobini += ("gsim_logic_tree_file = %s\n" %
-                       os.path.basename(data['gsim_logic_tree_file']))
-            z.write(get_full_path(data['gsim_logic_tree_file'],
-                                  userid, namespace),
-                    os.path.basename(data['gsim_logic_tree_file']))
+        gsim_n = len(data['gsim'])
+        gsim_w = [ 0 ] * gsim_n
+        for i in range(0, (gsim_n - 1)):
+            gsim_w[i] = "%1.3f" % (1.0 / float(gsim_n))
+
+        gsim_w[gsim_n - 1] = 1.0 - (float(gsim_w[0]) * (gsim_n - 1))
+
+        jobini += "gsim_logic_tree_file = gmpe.xml\n"
+
+        gmpe = "<?xml version='1.0' encoding='utf-8'?>\n\
+<nrml xmlns:gml='http://www.opengis.net/gml'\n\
+      xmlns='http://openquake.org/xmlns/nrml/0.5'>\n\
+\n\
+<logicTree logicTreeID='lt1'>\n\
+  <logicTreeBranchingLevel branchingLevelID='bl1'>\n\
+    <logicTreeBranchSet uncertaintyType='gmpeModel'\n\
+                        branchSetID='bs1' \n\
+                        applyToTectonicRegionType='Active Shallow Crust'>\n"
+
+        for i in range(0, gsim_n):
+            gmpe += "      <logicTreeBranch branchID='b%d'>\n\
+        <uncertaintyModel>%s</uncertaintyModel>\n\
+        <uncertaintyWeight>%s</uncertaintyWeight>\n\
+      </logicTreeBranch>\n" % (i, data['gsim'][i], gsim_w[i])
+
+        gmpe += "    </logicTreeBranchSet>\n\
+  </logicTreeBranchingLevel>\n\
+</logicTree>\n\
+</nrml>\n"
+
+        z.writestr('gmpe.xml', gmpe.encode('utf-8'))
 
         if data['risk'] is None:
             jobini += "intensity_measure_types = "
@@ -757,9 +820,9 @@ def scenario_prepare(request, **kwargs):
         jobini += ("number_of_ground_motion_fields = %s\n" %
                    data['number_of_ground_motion_fields'])
 
-    print jobini
+    print jobini.encode('utf-8')
 
-    z.writestr('job.ini', jobini)
+    z.writestr('job.ini', jobini.encode('utf-8'))
     z.close()
 
     ret['ret'] = 0
@@ -807,17 +870,17 @@ def event_based_prepare(request, **kwargs):
     # Hazard model
     jobini += "source_model_logic_tree_file = %s\n" % os.path.basename(
         data['source_model_logic_tree_file'])
-    z.write(get_full_path(data['source_model_logic_tree_file'],
-                          userid, namespace),
+    z.write(get_full_path(userid, namespace,
+                          data['source_model_logic_tree_file']),
             os.path.basename(data['source_model_logic_tree_file']))
 
     for source_model_name in data['source_model_file']:
-        z.write(get_full_path(source_model_name, userid, namespace),
+        z.write(get_full_path(userid, namespace, source_model_name),
                 os.path.basename(source_model_name))
 
     jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(
         data['gsim_logic_tree_file'])
-    z.write(get_full_path(data['gsim_logic_tree_file'], userid, namespace),
+    z.write(get_full_path(userid, namespace, data['gsim_logic_tree_file']),
             os.path.basename(data['gsim_logic_tree_file']))
 
     jobini += "\n[Hazard model]\n"
@@ -895,9 +958,9 @@ def event_based_prepare(request, **kwargs):
         jobini += ("conditional_loss_poes = %s\n" %
                    data['conditional_loss_poes'])
 
-    print jobini
+    print jobini.encode('utf-8')
 
-    z.writestr('job.ini', jobini)
+    z.writestr('job.ini', jobini.encode('utf-8'))
     z.close()
 
     ret['ret'] = 0
@@ -932,10 +995,9 @@ def clean_all(request):
         else:
             userid = str(request.user.id)
         namespace = request.resolver_match.namespace
-        user_allowed_path = os.path.join(
-            settings.FILE_PATH_FIELD_DIRECTORY, userid, namespace)
+        user_allowed_path = get_full_path(userid, namespace)
         for ipt_dir in ALLOWED_DIR:
-            normalized_path = get_full_path(ipt_dir, userid, namespace)
+            normalized_path = get_full_path(userid, namespace, ipt_dir)
             if not normalized_path.startswith(user_allowed_path):
                 raise LookupError('Unauthorized path: "%s"' % normalized_path)
             if not os.path.isdir(normalized_path):

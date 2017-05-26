@@ -204,3 +204,7 @@ span.ipt_help {
     width: 100px;
     margin-left: 16px;
 }
+
+input.hide_file_upload {
+    visibility: hidden;
+}
