@@ -87,6 +87,71 @@ function gem_capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+function csvsplit(s, sep)
+{
+    var st = 0, ct = 0, cur = "";
+    var ret = [];
+
+    for (var i = 0 ; i < s.length ; i++) {
+        if (st == 0) {
+            if (s[i] == '"') {
+                st = 1;
+                continue;
+            }
+            if (s[i] == sep) {
+                ret.push(cur);
+                cur = "";
+                ct += 1;
+            }
+            else
+                cur += s[i];
+        }
+        if (st == 1) {
+            if (s[i] == '"') {
+                if (i < (s.length - 1) && s[i+1] == '"') {
+                    i += 1;
+                    cur += '"';
+                }
+                else {
+                    st = 0;
+                }
+            }
+            else {
+                cur += s[i];
+            }
+        }
+    }
+    if (cur != "") {
+        ret.push(cur);
+    }
+    return ret;
+}
+
+function separator_identify(s)
+{
+    var st = 0;
+    var seps = ";	,";
+
+    for (var i = 0 ; i < s.length ; i++) {
+        if (st == 0) {
+            if (s[i] == '"') {
+                st = 1;
+                continue;
+            }
+            var idx = seps.indexOf(s[i]);
+            if (idx != -1)
+                return (seps[idx]);
+        }
+        else if(st == 1) {
+            if (s[i] == '"') {
+                st = 0;
+            }
+        }
+    }
+    // fallback to comma
+    return ",";
+}
+
 var gem_ipt = {
     exception: function(message) {
         this.message = message;
@@ -220,12 +285,16 @@ var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
         reader.onload = function (evt) {
             that.tbl_file = [];
             var rows = evt.target.result.split('\n');
+            var separator = null;
             for (var i = 0 ; i < rows.length ; i++) {
                 if (rows[i] == "") {
                     continue;
                 }
                 that.tbl_file.push([]);
-                var cols = rows[i].split(',');
+                if (separator == null) {
+                    separator = separator_identify(rows[i]);
+                }
+                var cols = csvsplit(rows[i], separator);
                 if (cols.length != cols_n) {
                     // row haven't correct number of columns
                     alert("row #" + (i+1) + " haven't correct number of columns, received: " + cols.length + " expected: " + cols_n + "\n[" + rows[i] + "]");
