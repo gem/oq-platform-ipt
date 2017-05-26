@@ -31,7 +31,7 @@ imt_examples = {
         ]
     },
     'Vulnerability': {
-        'tab_id': 3,
+        'tab_id': 4,
         'exams': [
             {'exa_id': 1, 'xpath': ["//div[@id='tabs-3']//div[@id='validationErrorMsg'][@style='display: none;']",
                                     "//textarea[@id='textareavf']"],
@@ -42,7 +42,7 @@ imt_examples = {
         ]
     },
     'SiteConditions': {
-        'tab_id': 5,
+        'tab_id': 6,
         'exams': [
             {'exa_id': 1, 'xpath': ["//div[@id='tabs-5']//div[@id='validationErrorMsg'][@style='display: none;']",
                                     "//textarea[@id='textareasc']"],

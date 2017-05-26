@@ -214,8 +214,6 @@ function ex_updateTable() {
     var headerLength = ex_obj.header.length;
 
     // Create the table
-    var container = document.getElementById('table');
-
     ///////////////////////////////
     /// Exposure Table Settings ///
     ///////////////////////////////
@@ -257,20 +255,25 @@ $('.ex_gid #downloadBtn').click(function() {
 });
 
 $('.ex_gid #convertBtn').click(function() {
+    var data = null;
+
     if ($('.ex_gid input#table_file')[0].files.length > 0) {
-        var data = ex_obj.tbl_file;
+        data = ex_obj.tbl_file;
     }
     else {
         // Get the values from the table
-        var data = ex_obj.tbl.getData();
-        // Check for null values
-        for (var i = 0; i < data.length; i++) {
-            for (var j = 0; j < data[i].length; j++) {
-                var s = data[i][j] + " ";
-                if (data[i][j] === null || data[i][j].toString().trim() == "") {
-                    output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
-                    return;
-                }
+        data = ex_obj.tbl.getData();
+    }
+
+    var not_empty_rows = not_empty_rows_get(data);
+
+    // Check for null values
+    for (var i = 0; i < not_empty_rows ; i++) {
+        for (var j = 0; j < data[i].length; j++) {
+            var s = data[i][j] + " ";
+            if (data[i][j] === null || data[i][j].toString().trim() == "") {
+                output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
+                return;
             }
         }
     }
@@ -365,7 +368,7 @@ $('.ex_gid #convertBtn').click(function() {
     var retrofittingSelect = $('.ex_gid #retrofittingSelect input:checked').val();
 
     // Create the asset
-    for (var i = 0; i < data.length; i++) {
+    for (var i = 0; i < not_empty_rows ; i++) {
         var costTypes = '\t\t\t<costTypes>\n';
         var costs ='\t\t\t\t<costs>\n';
         var occupancies = "";
@@ -492,7 +495,7 @@ $(document).ready(function () {
     $('.ex_gid #perArea').hide();
 
     $('.ex_gid input#table_file').on(
-        'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, ex_obj); });
+        'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, ex_obj, 1, -180, 180); });
 
     $('.ex_gid #retrofittingSelect').hide();
     $('.ex_gid #limitDiv').hide();

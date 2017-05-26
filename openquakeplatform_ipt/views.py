@@ -146,7 +146,7 @@ def sendback_nrml(request):
         return HttpResponseBadRequest(
             'Please provide the "xml_text" parameter')
     known_func_types = [
-        'exposure', 'fragility', 'vulnerability', 'site', 'earthquake_rupture']
+        'exposure', 'fragility', 'consequence', 'vulnerability', 'site', 'earthquake_rupture']
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
@@ -200,7 +200,8 @@ def sendback_er_rupture_surface(request):
 
 
 class FileUpload(forms.Form):
-    file_upload = forms.FileField(allow_empty_file=True)
+    file_upload = forms.FileField(allow_empty_file=True,
+                                  widget=forms.ClearableFileInput(attrs={'class' : 'hide_file_upload'}))
 
 
 class FilePathFieldByUser(forms.ChoiceField):
@@ -761,14 +762,37 @@ def scenario_prepare(request, **kwargs):
         jobini += "\n[Calculation parameters]\n"
         #            ########################
 
-        if data['gmpe_choice'] == 'specify-gmpe':
-            jobini += "gsim = %s\n" % data['gsim'][0]
-        elif data['gmpe_choice'] == 'from-file':
-            jobini += ("gsim_logic_tree_file = %s\n" %
-                       os.path.basename(data['gsim_logic_tree_file']))
-            z.write(get_full_path(userid, namespace,
-                                  data['gsim_logic_tree_file']),
-                    os.path.basename(data['gsim_logic_tree_file']))
+        gsim_n = len(data['gsim'])
+        gsim_w = [ 0 ] * gsim_n
+        for i in range(0, (gsim_n - 1)):
+            gsim_w[i] = "%1.3f" % (1.0 / float(gsim_n))
+
+        gsim_w[gsim_n - 1] = 1.0 - (float(gsim_w[0]) * (gsim_n - 1))
+
+        jobini += "gsim_logic_tree_file = gmpe.xml\n"
+
+        gmpe = "<?xml version='1.0' encoding='utf-8'?>\n\
+<nrml xmlns:gml='http://www.opengis.net/gml'\n\
+      xmlns='http://openquake.org/xmlns/nrml/0.5'>\n\
+\n\
+<logicTree logicTreeID='lt1'>\n\
+  <logicTreeBranchingLevel branchingLevelID='bl1'>\n\
+    <logicTreeBranchSet uncertaintyType='gmpeModel'\n\
+                        branchSetID='bs1' \n\
+                        applyToTectonicRegionType='Active Shallow Crust'>\n"
+
+        for i in range(0, gsim_n):
+            gmpe += "      <logicTreeBranch branchID='b%d'>\n\
+        <uncertaintyModel>%s</uncertaintyModel>\n\
+        <uncertaintyWeight>%s</uncertaintyWeight>\n\
+      </logicTreeBranch>\n" % (i, data['gsim'][i], gsim_w[i])
+
+        gmpe += "    </logicTreeBranchSet>\n\
+  </logicTreeBranchingLevel>\n\
+</logicTree>\n\
+</nrml>\n"
+
+        z.writestr('gmpe.xml', gmpe.encode('utf-8'))
 
         if data['risk'] is None:
             jobini += "intensity_measure_types = "
@@ -796,9 +820,9 @@ def scenario_prepare(request, **kwargs):
         jobini += ("number_of_ground_motion_fields = %s\n" %
                    data['number_of_ground_motion_fields'])
 
-    print jobini
+    print jobini.encode('utf-8')
 
-    z.writestr('job.ini', jobini)
+    z.writestr('job.ini', jobini.encode('utf-8'))
     z.close()
 
     ret['ret'] = 0
@@ -934,9 +958,9 @@ def event_based_prepare(request, **kwargs):
         jobini += ("conditional_loss_poes = %s\n" %
                    data['conditional_loss_poes'])
 
-    print jobini
+    print jobini.encode('utf-8')
 
-    z.writestr('job.ini', jobini)
+    z.writestr('job.ini', jobini.encode('utf-8'))
     z.close()
 
     ret['ret'] = 0
