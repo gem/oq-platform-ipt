@@ -1493,6 +1493,14 @@ $(document).ready(function () {
                 }
             }
 
+            obj.gsim_logic_tree_file = $(
+                pfx + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
+            if (obj.gsim_logic_tree_file == '') {
+                ret.str += "'GMPE logic tree file' field is empty.\n";
+            }
+            uniqueness_add(files_list, 'gmpe logic tree', obj.gsim_logic_tree_file);
+            ret.str += uniqueness_check(files_list);
+
             obj.width_of_mfd_bin = $(
                 pfx + ' input[type="text"][name="width_of_mfd_bin"]').val();
             if (!gem_ipt.isFloat(obj.width_of_mfd_bin) || parseFloat(obj.width_of_mfd_bin) < 0.0) {
