@@ -516,8 +516,8 @@ def upload(request, **kwargs):
                         ret['ret_msg'] = 'Not authorized to write the file.'
                         return HttpResponse(json.dumps(ret),
                                             content_type="application/json")
-                    f = file(full_path, "w")
-                    f.write(request.FILES['file_upload'].read())
+                    f = open(full_path, "w")
+                    f.write(request.FILES['file_upload'].read().decode())
                     f.close()
 
                     suffix = target
@@ -651,7 +651,7 @@ def scenario_prepare(request, **kwargs):
 
     namespace = request.resolver_match.namespace
 
-    data = json.loads(request.POST.get('data').decode())
+    data = json.loads(request.POST.get('data'))
 
     (fd, fname) = tempfile.mkstemp(
         suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
@@ -851,7 +851,7 @@ def event_based_prepare(request, **kwargs):
 
     namespace = request.resolver_match.namespace
 
-    data = json.loads(request.POST.get('data').decode())
+    data = json.loads(request.POST.get('data'))
 
     (fd, fname) = tempfile.mkstemp(
         suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
