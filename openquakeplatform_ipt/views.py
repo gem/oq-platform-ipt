@@ -19,10 +19,11 @@
 import os
 import re
 import json
+import codecs
 import zipfile
 import tempfile
 import shutil
-from email.Utils import formatdate
+from email.utils import formatdate
 
 from django.shortcuts import render
 from django.http import (HttpResponse,
@@ -34,13 +35,15 @@ from django import forms
 from openquakeplatform.settings import WEBUIURL
 import requests
 from requests import HTTPError
-from build_rupture_plane import get_rupture_surface_round
+from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
 
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
                'fragility_model', 'fragility_cons',
                'vulnerability_model', 'gsim_logic_tree_file',
                'source_model_logic_tree_file', 'source_model_file']
+
+reader = codecs.getreader("utf-8")
 
 
 def _get_error_line(exc_msg):
@@ -70,11 +73,12 @@ def _do_validate_nrml(xml_text):
     if ret.status_code != 200:
         raise HTTPError({'message': "URL '%s' unreachable", 'lineno': -1})
 
-    ret_dict = json.loads(ret.content)
+    ret_dict = json.loads(ret.content.decode())
 
     if not ret_dict['valid']:
-        raise ValueError({ 'message': ret_dict.get('error_msg', ''),
-                           'lineno': ret_dict.get('error_line', -1)})
+        raise ValueError({'message': ret_dict.get('error_msg', ''),
+                          'lineno': ret_dict.get('error_line', -1)})
+
 
 def validate_nrml(request):
     """
@@ -175,7 +179,8 @@ def sendback_er_rupture_surface(request):
     rake = request.POST.get('rake')
 
     if (mag is None or hypo_lat is None or hypo_lon is None or
-        hypo_depth is None or strike is None or dip is None or rake is None):
+            hypo_depth is None or strike is None or dip is None
+            or rake is None):
         ret = {'ret': 1, 'ret_s': 'incomplete arguments'}
     else:
         try:
@@ -294,6 +299,7 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
 
     return fh
 
+
 def _get_available_gsims():
 
     ret = requests.get('%sv1/available_gsims' % WEBUIURL)
@@ -301,9 +307,10 @@ def _get_available_gsims():
     if ret.status_code != 200:
         raise HTTPError({'message': "URL '%s' unreachable" % WEBUIURL})
 
-    ret_list = json.loads(ret.content)
+    ret_list = json.loads(ret.content.decode())
 
-    return [gsim.encode('utf8') for gsim in ret_list]
+    return [gsim for gsim in ret_list]
+
 
 def view(request, **kwargs):
     if getattr(settings, 'STANDALONE', False):
@@ -483,7 +490,7 @@ def upload(request, **kwargs):
 
             if form.is_valid():
                 if (request.FILES['file_upload'].name.endswith('.' + exten) or
-                    (exten2 is not None and request.FILES['file_upload'].name.endswith('.' + exten2))):
+                        (exten2 is not None and request.FILES['file_upload'].name.endswith('.' + exten2))):
                     if getattr(settings, 'STANDALONE', False):
                         userid = ''
                     else:
@@ -646,7 +653,7 @@ def scenario_prepare(request, **kwargs):
 
     namespace = request.resolver_match.namespace
 
-    data = json.loads(request.POST.get('data'))
+    data = json.loads(request.POST.get('data').decode())
 
     (fd, fname) = tempfile.mkstemp(
         suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
@@ -671,7 +678,7 @@ def scenario_prepare(request, **kwargs):
     jobini += "random_seed = 113\n"
 
     if (data['hazard'] is None and data['risk'] is not None and
-        data['gmf_file'] is not None):
+            data['gmf_file'] is not None):
         jobini += "\n[hazard]\n"
         jobini += ("gmfs_file = %s\n" %
                    os.path.basename(data['gmf_file']))
@@ -763,7 +770,7 @@ def scenario_prepare(request, **kwargs):
         #            ########################
 
         gsim_n = len(data['gsim'])
-        gsim_w = [ 0 ] * gsim_n
+        gsim_w = [0] * gsim_n
         for i in range(0, (gsim_n - 1)):
             gsim_w[i] = "%1.3f" % (1.0 / float(gsim_n))
 
@@ -820,7 +827,7 @@ def scenario_prepare(request, **kwargs):
         jobini += ("number_of_ground_motion_fields = %s\n" %
                    data['number_of_ground_motion_fields'])
 
-    print jobini.encode('utf-8')
+    print(jobini.encode('utf-8'))
 
     z.writestr('job.ini', jobini.encode('utf-8'))
     z.close()
@@ -846,7 +853,7 @@ def event_based_prepare(request, **kwargs):
 
     namespace = request.resolver_match.namespace
 
-    data = json.loads(request.POST.get('data'))
+    data = json.loads(request.POST.get('data').decode())
 
     (fd, fname) = tempfile.mkstemp(
         suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
@@ -958,7 +965,7 @@ def event_based_prepare(request, **kwargs):
         jobini += ("conditional_loss_poes = %s\n" %
                    data['conditional_loss_poes'])
 
-    print jobini.encode('utf-8')
+    print(jobini.encode('utf-8'))
 
     z.writestr('job.ini', jobini.encode('utf-8'))
     z.close()
