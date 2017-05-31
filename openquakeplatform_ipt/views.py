@@ -43,8 +43,6 @@ ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
                'vulnerability_model', 'gsim_logic_tree_file',
                'source_model_logic_tree_file', 'source_model_file']
 
-reader = codecs.getreader("utf-8")
-
 
 def _get_error_line(exc_msg):
     # check if the exc_msg contains a line number indication
