@@ -284,7 +284,7 @@ var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
         reader.readAsText(file, "UTF-8");
         reader.onload = function (evt) {
             that.tbl_file = [];
-            var rows = evt.target.result.split('\n');
+            var rows = evt.target.result.replace(/\r\n*/g, '\n').split('\n');
             var separator = null;
             for (var i = 0 ; i < rows.length ; i++) {
                 if (rows[i] == "") {
