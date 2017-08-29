@@ -95,7 +95,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 
 {% block extra_script %}
     {{block.super}}
-    {% include 'search_scripts.html' %}
     <script>
         help = document.getElementById("help_url");
         csrf_token = "{% csrf_token %}";
