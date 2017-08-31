@@ -48,6 +48,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 
         <div id="absoluteSpinner" class="loading">Loading&#8230;</div>
 
+        {% if oq_irmt_qgis_version %}
+            (embedded in QGIS)
+        {% else %}
+            (running in a browser)
+        {% endif %}
+
         <div id="tabs">
           <ul>
             <li><a href="#tabs-1">Exposure</a></li>

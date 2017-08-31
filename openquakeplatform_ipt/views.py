@@ -310,6 +310,10 @@ def view(request, **kwargs):
         userid = ''
     else:
         userid = str(request.user.id)
+    if 'HTTP_GEM__OQ_IRMT_QGIS__IPT' in request.META:
+        oq_irmt_qgis_version = request.META['HTTP_GEM__OQ_IRMT_QGIS__IPT']
+    else:
+        oq_irmt_qgis_version = None
     namespace = request.resolver_match.namespace
     gmpe = _get_available_gsims()
 
@@ -450,7 +454,8 @@ def view(request, **kwargs):
             source_model_logic_tree_file_upload=source_model_logic_tree_file_upload,
 
             source_model_file_html=source_model_file_html,
-            source_model_file_upload=source_model_file_upload
+            source_model_file_upload=source_model_file_upload,
+            oq_irmt_qgis_version=oq_irmt_qgis_version,
         ))
 
 
