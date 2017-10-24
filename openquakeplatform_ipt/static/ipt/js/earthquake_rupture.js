@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2016, GEM Foundation.
+   Copyright (c) 2016-2017, GEM Foundation.
 
       This program is free software: you can redistribute it and/or modify
       it under the terms of the GNU Affero General Public License as
@@ -453,7 +453,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                 nrml += '    <singlePlaneRupture>\n';
             }
             else {
-                nrml += '    <multiplePlaneRupture>\n'
+                nrml += '    <multiPlanesRupture>\n'
             }
             nrml += this.header2nrml(mag, rake, hypo_lon, hypo_lat, hypo_depth);
             for (var i = 0 ; i < this.planar_tbl_cur ; i++) {
@@ -472,7 +472,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                 nrml += '    </singlePlaneRupture>\n';
             }
             else {
-                nrml += '    </multiplePlaneRupture>\n'
+                nrml += '    </multiPlanesRupture>\n'
             }
         }
         else if (rupture_type == 'complex') {
