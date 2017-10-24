@@ -41,6 +41,11 @@ $(document).ready(function () {
     $('.ex_gid #occupantsCheckBoxes [value="night"]').prop('checked', true);
     $('.ex_gid #occupantsCheckBoxes [value="night"]').trigger('change');
 
+    // add three tags
+    $('.ex_gid #tags').tagsinput('add', 'first');
+    $('.ex_gid #tags').tagsinput('add', 'second');
+    $('.ex_gid #tags').tagsinput('add', 'third');
+
     var table = $('.ex_gid #table').handsontable('getInstance');
 
     var data = [];
@@ -50,7 +55,13 @@ $(document).ready(function () {
         data[e] = [];
         // for each column add a calculated value
         for (var i = 0 ; i < table.countCols() ; i++) {
-            data[e][i] = parseFloat(e) + parseFloat(i) / 100.0;
+            // add a special case to skip population of a tag cell
+            if (e == 1 && i == 15)
+                continue;
+
+            var cell_val = "" + (parseFloat(e) + parseFloat(i) / 100.0);
+            // trim 2 digits after dot.
+            data[e][i] = cell_val.match(/^[0-9]+\.?[0-9]?[0-9]?/)[0];
         }
     }
     table.loadData(data);
