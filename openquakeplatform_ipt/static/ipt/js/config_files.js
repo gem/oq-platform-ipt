@@ -1192,31 +1192,8 @@ $(document).ready(function () {
         // nothing
 
         // Risk calculation (UI)
-        {
-            var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
-            var pfx_vuln = cf_obj['e_b'].pfx + ' div[name="vulnerability-model"]';
+        // nothing
 
-            var $target = $(pfx + ' div[name="loss-ratios"]');
-            if ($(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked')) {
-                $target.css('display', '');
-            }
-            else {
-                $target.css('display', 'none');
-            }
-
-            var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
-            for (var lossidx in losslist) {
-                var losstype = losslist[lossidx];
-
-                $target = $(pfx + ' div[name="loss-ratios-' + losstype + '"]');
-                if($(pfx_vuln + ' input[type="checkbox"][name="losstype"][value="' + losstype + '"]').is(':checked')) {
-                    $target.css('display', '');
-                }
-                else {
-                    $target.css('display', 'none');
-                }
-            }
-        }
         // Hazard outputs (UI)
         {
             var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-outputs"]';
@@ -1321,11 +1298,7 @@ $(document).ready(function () {
     // no init
 
     // Risk calculation (init)
-    {
-        var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
-
-        $(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').click(event_based_manager);
-    }
+    // no init
 
     // Hazard outputs (init)
     {
@@ -1567,30 +1540,6 @@ $(document).ready(function () {
             if (!gem_ipt.isInt(obj.risk_investigation_time) || parseInt(obj.risk_investigation_time) <= 0.0) {
                 ret.str += "'Risk investigation time' field isn't positive number ("
                     + obj.risk_investigation_time + ").\n";
-            }
-
-            obj.loss_ratios_choice = $(
-                cf_obj['e_b'].pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked');
-            if (obj.loss_ratios_choice) {
-                var descr = { structural: 'structural', nonstructural: 'nonstructural',
-                              contents: 'contents', businter: 'business interruption',
-                              occupants: 'occupants' };
-                var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
-                for (var lossidx in losslist) {
-                    var losstype = losslist[lossidx];
-
-                    if(obj['vm_loss_' + losstype + '_choice']) {
-                        obj['loss_ratios_' + losstype] = $(pfx + ' input[type="text"][name="loss_ratios_' + losstype + '"]').val();
-                        var arr = obj['loss_ratios_' + losstype].split(',');
-                        for (var k in arr) {
-                            var cur = arr[k].trim(' ');
-                            if (!gem_ipt.isFloat(cur) || cur < 0.0) {
-                                ret.str += "'" + descr[losstype] + " vulnerability model' field element #" + (parseInt(k)+1)
-                                    + " is negative number (" + cur + ").\n";
-                            }
-                        }
-                    }
-                }
             }
         }
 
