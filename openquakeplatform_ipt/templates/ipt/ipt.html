@@ -97,23 +97,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 {% block extra_script %}
     {{block.super}}
     <script>
-        help = document.getElementById("help_url");
-        csrf_token = "{% csrf_token %}";
-        if(help != null) { help.href+='/explore/'; }
-        var tab_id_s = "{{ request.GET.tab_id }}", tab_id;
-        tab_id = parseInt(tab_id_s) - 1;
-        if (tab_id < 0 || tab_id > 8) {
-            tab_id = 0;
-        }
-        $( "#tabs" ).tabs({active: tab_id });
-        var VALIDATION_URL = 'valid';
-        var SENDBACK_URL = 'sendback';
-        var g_gmpe = {{ g_gmpe|safe }};
-        var g_gmpe_options = [];
-
-        for (var i = 0 ; i < g_gmpe.length ; i++) {
-            g_gmpe_options[i] = { type: "option", value: g_gmpe[i], label: g_gmpe[i] };
-        }
+{% include "ipt/ipt.js" %}
     </script>
     <script src="{{ STATIC_URL }}js/handsontable.full.min.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/bootstrap-tagsinput.min.js"></script>
