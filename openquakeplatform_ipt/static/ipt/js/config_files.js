@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2015-2016, GEM Foundation.
+   Copyright (c) 2015-2017, GEM Foundation.
 
       This program is free software: you can redistribute it and/or modify
       it under the terms of the GNU Affero General Public License as
@@ -590,8 +590,8 @@ $(document).ready(function () {
      */
 
     function scenario_manager() {
-        var hazard = null; // null or hazard
-        var risk = null;   // null, damage or loss
+        var hazard = null; // null or 'hazard'
+        var risk = null;   // null, 'damage' or 'loss'
         var hazard_sites_choice = null; // null, region-grid, list-of-sites, exposure-model, site-cond-model
 
         if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
@@ -1196,14 +1196,6 @@ $(document).ready(function () {
             var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
             var pfx_vuln = cf_obj['e_b'].pfx + ' div[name="vulnerability-model"]';
 
-            var $target = $(pfx + ' div[name="loss-curve-resolution"]');
-            if ($(pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').is(':checked')) {
-                $target.css('display', '');
-            }
-            else {
-                $target.css('display', 'none');
-            }
-
             var $target = $(pfx + ' div[name="loss-ratios"]');
             if ($(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked')) {
                 $target.css('display', '');
@@ -1332,7 +1324,6 @@ $(document).ready(function () {
     {
         var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
 
-        $(pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').click(event_based_manager);
         $(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').click(event_based_manager);
     }
 
@@ -1427,8 +1418,6 @@ $(document).ready(function () {
 
             // risk calculations
             risk_investigation_time: null,
-            loss_curve_resolution_choice: false,
-            loss_curve_resolution: null,
             loss_ratios_choice: false,
             loss_ratios_structural: null,
             loss_ratios_nonstructural: null,
@@ -1578,16 +1567,6 @@ $(document).ready(function () {
             if (!gem_ipt.isInt(obj.risk_investigation_time) || parseInt(obj.risk_investigation_time) <= 0.0) {
                 ret.str += "'Risk investigation time' field isn't positive number ("
                     + obj.risk_investigation_time + ").\n";
-            }
-
-            obj.loss_curve_resolution_choice = $(
-                cf_obj['e_b'].pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').is(':checked');
-            if (obj.loss_curve_resolution_choice) {
-                obj.loss_curve_resolution = $(pfx + ' input[type="text"][name="loss_curve_resolution"]').val();
-                if (!gem_ipt.isInt(obj.loss_curve_resolution) || parseInt(obj.loss_curve_resolution) <= 0.0) {
-                    ret.str += "'Loss curve resolution' field isn't positive number ("
-                        + obj.risk_investigation_time + ").\n";
-                }
             }
 
             obj.loss_ratios_choice = $(
