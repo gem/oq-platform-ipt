@@ -38,7 +38,7 @@ from openquakeplatform.settings import WEBUIURL
 import requests
 from requests import HTTPError
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
-from openquake.baselib.python3compat import unicode, encode, decode
+from openquakeplatform_ipt.python3compat import unicode, encode, decode
 
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
