@@ -28,6 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     <link href="{{ STATIC_URL }}css/jQuery-UI-Bootstrap-0.2.5.css" rel="stylesheet"/>
     <link rel="stylesheet" href="{{ STATIC_URL }}css/absolute_center_spinner.css" />
     <link href="{{ STATIC_URL }}css/sol.css" rel="stylesheet"/>
+    <link href="{{ STATIC_URL }}ipt/css/bootstrap-tagsinput.css" rel="stylesheet"/>
 {% endblock extra_head %}
 
 
@@ -115,6 +116,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
         }
     </script>
     <script src="{{ STATIC_URL }}js/handsontable.full.min.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/bootstrap-tagsinput.min.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/common.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/exposure.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/fragility.js"></script>
@@ -127,9 +129,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     <script src="{{ STATIC_URL }}ipt/js/selectAllTextareaText.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/validateAndDisplayNRML.js"></script>
 {% if request.GET.example_id|add:"0" > 0 and request.GET.example_id|add:"0" < 100 and request.GET.tab_id|add:"0" > 0 and request.GET.tab_id|add:"0" < 8 %}
-<script src="{{ STATIC_URL }}ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}.js"></script>
 {% else %}
     <!-- Example not found, tab_id: [1-7][{{ request.GET.tab_id|default:"nothing" }}] example_id [0-99]: [{{ request.GET.example_id|default:"nothing" }}]  -->
 {% endif %}
-    <script src="{{ STATIC_URL }}js/sol.js"</script>
+    <script src="{{ STATIC_URL }}js/sol.js"></script>
 {% endblock extra_script %}

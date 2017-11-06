@@ -21,6 +21,7 @@ var ex_obj = {
     tbl_idx: 0,
     nrml: "",
     header: [],
+    headerbase_len: 0,
 
     // perAreaRefCount is used to keep track of any time perArea is selected
     perAreaRefCount: {
@@ -140,6 +141,36 @@ function checkForValueInHeader(header, argument) {
     return inx;
 }
 
+function ex_updateTableTags(delta) {
+    var tags = $('.ex_gid #tags').tagsinput('items');
+    var tbl = $('.ex_gid #table').handsontable('getInstance');
+    var cols_cur = tbl.countCols();
+    var cols_headers = tbl.getColHeader();
+
+    for (var i = ex_obj.headerbase_len, ti = 0 ; i < cols_cur ; i++, ti++) {
+        if (cols_headers[i] != "tag_" + tags[ti]) {
+            if (delta > 0)
+                gem_ipt.error_msg("WARNING: tag [" + tags[ti] + "] not found");
+            break;
+        }
+    }
+    if (delta > 0) {
+        ex_obj.tbl.alter('insert_col', i);
+        cols_headers.push("tag_" + tags[ti]);
+        ex_obj.tbl.updateSettings({'colHeaders': false});
+        ex_obj.tbl.updateSettings({'colHeaders': cols_headers});
+    }
+    else {
+        if (i == cols_cur) {
+            gem_ipt.error_msg("WARNING: tag column to delete not found");
+        }
+        else {
+            ex_obj.tbl.alter('remove_col', i);
+            return true;
+        }
+    }
+}
+
 function ex_updateTable() {
     $('.ex_gid #table_file').val("");
     ex_obj.tbl_file = null;
@@ -211,6 +242,14 @@ function ex_updateTable() {
         $(this).blur();
     });
 
+    ex_obj.headerbase_len = ex_obj.header.length;
+
+    // manage tags
+    var tags = $('.ex_gid #tags').tagsinput('items');
+    for (i = 0 ; i < tags.length ; i++) {
+        ex_obj.header.push("tag_" + tags[i]);
+    }
+
     var headerLength = ex_obj.header.length;
 
     // Create the table
@@ -223,7 +262,8 @@ function ex_updateTable() {
         contextMenu: true,
         startRows: 3,
         startCols: headerLength,
-        maxCols: headerLength,
+        maxCols: headerLength + 50,
+        stretchH: 'all',
         className: "htRight"
     });
     ex_obj.tbl = $('.ex_gid #table').handsontable('getInstance');
@@ -269,7 +309,9 @@ $('.ex_gid #convertBtn').click(function() {
 
     // Check for null values
     for (var i = 0; i < not_empty_rows ; i++) {
-        for (var j = 0; j < data[i].length; j++) {
+        // tags columns can be empty
+        var no_tags_col = (data[i].length < ex_obj.headerbase_len ? data[i].length : ex_obj.headerbase_len);
+        for (var j = 0; j < no_tags_col ; j++) {
             var s = data[i][j] + " ";
             if (data[i][j] === null || data[i][j].toString().trim() == "") {
                 output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
@@ -303,6 +345,10 @@ $('.ex_gid #convertBtn').click(function() {
     var retrofitting = '';
     var limit = '';
     var assetId = 'id';
+
+    // list of tags
+    var asset_tags;
+    var tags = $('.ex_gid #tags').tagsinput('items');
 
     // Get the the index for each header element
     var latitudeInx = checkHeaderMatch(latitude);
@@ -456,14 +502,33 @@ $('.ex_gid #convertBtn').click(function() {
             occupancies = '\t\t\t\t<occupancies>\n' + occupancies + '\t\t\t\t</occupancies>\n';
         }
 
+        asset_tags = "";
+        for (var t_id = 0, e = ex_obj.headerbase_len ; e < ex_obj.headerbase_len + tags.length ; e++, t_id++) {
+            if (data[i][e] !== null && data[i][e].length != 0) {
+                asset_tags += (asset_tags == "" ? "" : " ") + tags[t_id] + "=\"" + data[i][e] + "\"";
+            }
+        }
+        if (asset_tags.length != 0) {
+            asset_tags = "\t\t\t\t<tags " + asset_tags + " />\n";
+        }
+
         asset +=
             '\t\t\t<asset id="'+id+'" '+number+' '+area+' '+taxonomy+' >\n' +
                 '\t\t\t\t<location '+longitude+' '+latitude+' />\n' +
                 costs +
                 occupancies +
+                asset_tags +
             '\t\t\t</asset>\n';
     }
 
+    var tagNames = "";
+    if (tags.length > 0) {
+        tagNames = "\t\t<tagNames>";
+        for (var i = 0 ; i < tags.length ; i++) {
+            tagNames += (i == 0 ? "" : " ") + tags[i];
+        }
+        tagNames += "</tagNames>\n";
+    }
     // Create a NRML element
     var nrml =
         '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -478,6 +543,7 @@ $('.ex_gid #convertBtn').click(function() {
                     insuranceLimit +
                     deductible +
                 '\t\t</conversions>\n' +
+                tagNames +
                 '\t\t<assets>\n' +
                     asset +
                 '\t\t</assets>\n' +
@@ -486,6 +552,22 @@ $('.ex_gid #convertBtn').click(function() {
 
     validateAndDisplayNRML(nrml, 'ex', ex_obj);
 });
+
+function exposure_tags_cb(event)
+{
+    if (event.type == 'beforeItemAdd') {
+        if (event.item.search(/^[a-zA-Z_]\w*$/g) == -1) {
+            event.cancel = true;
+            gem_ipt.error_msg('Tag name not valid, must start with a letter or "_", followed optionally by letters and/or digits and/or "_".\n');
+        }
+    }
+    else if (event.type == "itemAdded")
+        return ex_updateTableTags(+1);
+    else if (event.type == "itemRemoved")
+        return ex_updateTableTags(-1);
+    else
+        return false;
+}
 
 // tab initialization
 $(document).ready(function () {
@@ -510,4 +592,8 @@ $(document).ready(function () {
     });
     $('.ex_gid #outputDiv').hide();
     $('#absoluteSpinner').hide();
+    // tag events 'itemAddedOnInit', 'beforeItemAdd' and 'beforeItemRemove' are not still managed
+    $('.ex_gid #tags').on('beforeItemAdd', exposure_tags_cb);
+    $('.ex_gid #tags').on('itemAdded', exposure_tags_cb);
+    $('.ex_gid #tags').on('itemRemoved', exposure_tags_cb);
 });
