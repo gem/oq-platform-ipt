@@ -22,11 +22,13 @@ import json
 import zipfile
 import tempfile
 import shutil
+import requests
+
 try:
     from email.utils import formatdate
 except ImportError:  # Python 2
     from email.Utils import formatdate
-
+from requests import HTTPError
 from django.shortcuts import render
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
@@ -35,10 +37,8 @@ from django.conf import settings
 from django import forms
 
 from openquakeplatform.settings import WEBUIURL
-import requests
-from requests import HTTPError
+from openquakeplatform.python3compat import unicode, encode, decode
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
-from openquakeplatform_ipt.python3compat import unicode, encode, decode
 
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
