@@ -9,23 +9,29 @@ imt_examples = {
     'Exposure': {
         'tab_id': 1,
         'exams': [
-            {'exa_id': 1, 'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg'][@style='display: none;']",
-                                    "//textarea[@id='textareaex']"],
+            {'exa_id': 1, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textareaex']"],
              'sfx': 'xml' },
-            {'exa_id': 98, 'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg']"],
+            {'exa_id': 98, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg']"],
              'sfx': 'txt' },
-            {'exa_id': 99, 'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg'][@style='display: none;']",
-                                     "//textarea[@id='textareaex']"],
+            {'exa_id': 99, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textareaex']"],
              'sfx': 'xml' }
         ]
     },
     'Fragility': {
         'tab_id': 2,
         'exams': [
-            {'exa_id': 1, 'xpath': ["//div[@id='tabs-2']//div[@id='validationErrorMsg'][@style='display: none;']",
-                                    "//textarea[@id='textareaff']"],
+            {'exa_id': 1, 'subtab_id': 0,
+             'xpath': [
+                "//div[@id='tabs-2']//div[@id='validationErrorMsg'][@style='display: none;']",
+                "//textarea[@id='textareaff']"],
              'sfx': 'xml' },
-            {'exa_id': 99, 'xpath': ["//div[@id='tabs-2']//div[@id='validationErrorMsg'][@style='display: none;']",
+            {'exa_id': 99, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-2']//div[@id='validationErrorMsg'][@style='display: none;']",
                                      "//textarea[@id='textareaff']"],
              'sfx': 'xml' }
         ]
@@ -33,22 +39,35 @@ imt_examples = {
     'Vulnerability': {
         'tab_id': 4,
         'exams': [
-            {'exa_id': 1, 'xpath': ["//div[@id='tabs-3']//div[@id='validationErrorMsg'][@style='display: none;']",
-                                    "//textarea[@id='textareavf']"],
+            {'exa_id': 1, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-3']//div[@id='validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textareavf']"],
              'sfx': 'xml' },
-            {'exa_id': 99, 'xpath': ["//div[@id='tabs-3']//div[@id='validationErrorMsg'][@style='display: none;']",
-                                     "//textarea[@id='textareavf']"],
+            {'exa_id': 99, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-3']//div[@id='validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textareavf']"],
              'sfx': 'xml' }
         ]
     },
     'SiteConditions': {
         'tab_id': 6,
         'exams': [
-            {'exa_id': 1, 'xpath': ["//div[@id='tabs-5']//div[@id='validationErrorMsg'][@style='display: none;']",
-                                    "//textarea[@id='textareasc']"],
+            {'exa_id': 1, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-5']//div[@id='validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textareasc']"],
              'sfx': 'xml' },
-            {'exa_id': 99, 'xpath': ["//div[@id='tabs-5']//div[@id='validationErrorMsg'][@style='display: none;']",
-                                     "//textarea[@id='textareasc']"],
+            {'exa_id': 99, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-5']//div[@id='validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textareasc']"],
+             'sfx': 'xml' }
+        ]
+    }
+    'ConfigurationFile': {
+        'tab_id': 7,
+        'exams': [
+            {'exa_id': 99, 'subtab_id': 3,
+             'xpath': ["//div[@id='tabs-6']//div[@id='validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textareasc']"],
              'sfx': 'xml' }
         ]
     }
@@ -58,15 +77,17 @@ imt_examples = {
 class IptExamplesTest(unittest.TestCase):
     pass
 
-def make_function(func_name, exp_path, tab_id, example):
+
+def make_function(func_name, exp_path, tab_id, subtab_id, example):
     def generated(self):
         pla.get('/ipt/?tab_id=%d&example_id=%d' % (tab_id, example['exa_id']))
         for xpath in example['xpath']:
             ret_tag = pla.xpath_finduniq(xpath, times=20)
 
-        exp_filename = os.path.join(exp_path,
-                                "example_%d.%s" % (tab_id * 100 + example['exa_id'],
-                                example['sfx']))
+        exp_filename = os.path.join(
+            exp_path, "example_%d%s" % (
+                tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
+                exampleexample['sfx']))
         with codecs.open(exp_filename, 'r', 'utf-8') as exp_file:
             expected = exp_file.read()
 
@@ -84,8 +105,9 @@ def generator():
     for name, examples in imt_examples.iteritems():
         for example in examples['exams']:
             func_name = "%s_%d_test" % (name, example['exa_id'])
-            test_func = make_function(func_name, exp_path,
-                                      examples['tab_id'], example)
+            test_func = make_function(
+                func_name, exp_path, examples['tab_id'],
+                examples['subtab_id'], example)
 
             setattr(IptExamplesTest, func_name, test_func)
 
