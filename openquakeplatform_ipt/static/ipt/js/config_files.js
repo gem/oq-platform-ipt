@@ -511,7 +511,7 @@ $(document).ready(function () {
                         dest_name = "Scenario" + plus_hazard + plus_risk;
                     }
                     else if (scope == 'e_b') {
-                        dest_name = "EventBasedRisk";
+                        dest_name = "EventBased";
                     }
                     $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
                     $form.append($new_input);
@@ -1401,7 +1401,6 @@ $(document).ready(function () {
             // hazard outputs
             ground_motion_fields: null,
             hazard_curves_from_gmfs: null,
-            mean_hazard_curves: null,
             quantile_hazard_curves_choice: false,
             quantile_hazard_curves: null,
             hazard_maps: null,
@@ -1554,8 +1553,6 @@ $(document).ready(function () {
                                         ).is(':checked');
 
             if (obj.hazard_curves_from_gmfs) {
-                obj.mean_hazard_curves = $(pfx + ' input[type="checkbox"][name="mean_hazard_curves"]'
-                                          ).is(':checked');
                 obj.quantile_hazard_curves_choice = $(
                     pfx + ' input[type="checkbox"][name="quantile_hazard_curves_choice"]').is(':checked');
                 if (obj.quantile_hazard_curves_choice) {

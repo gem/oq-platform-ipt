@@ -915,52 +915,45 @@ def event_based_prepare(request, **kwargs):
     #            ##################
     jobini += ("risk_investigation_time = %s\n" %
                data['risk_investigation_time'])
-    if data['loss_curve_resolution_choice'] is True:
-        jobini += ("loss_curve_resolution = %s\n" %
-                   data['loss_curve_resolution'])
-    if data['loss_ratios_choice'] is True:
-        jobini += "loss_ratios = { "
-        descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
-                 'contents': 'contents', 'businter': 'business_interruption',
-                 'occupants': 'occupants'}
-        is_first = True
-        for losslist in ['structural', 'nonstructural', 'contents', 'businter',
-                         'occupants']:
-            if data['vm_loss_%s_choice' % losslist] is True:
-                jobini += "%s\"%s\": [ %s ]" % (
-                    ("" if is_first else ", "),
-                    descr[losslist], data['loss_ratios_' + losslist])
-                is_first = False
-        jobini += "}\n"
 
-    jobini += "\n[Hazard outputs]\n"
-    #            ################
-    jobini += "ground_motion_fields = %s\n" % data['ground_motion_fields']
-    jobini += ("hazard_curves_from_gmfs = %s\n" %
-               data['hazard_curves_from_gmfs'])
+    jobini_hazard = jobini
+    jobini_hazard += "\n[Hazard outputs]\n"
+    #                   ################
+    jobini_hazard += ("ground_motion_fields = %s\n" %
+                      data['ground_motion_fields'])
+    jobini_hazard += ("hazard_curves_from_gmfs = %s\n" %
+                      data['hazard_curves_from_gmfs'])
     if data['hazard_curves_from_gmfs']:
-        jobini += "mean_hazard_curves = %s\n" % data['mean_hazard_curves']
+        jobini_hazard += "mean_hazard_curves = %s\n" % False
         if data['quantile_hazard_curves_choice']:
-            jobini += ("quantile_hazard_curves = %s\n" %
-                       data['quantile_hazard_curves'])
-    jobini += "hazard_maps = %s\n" % data['hazard_maps']
+            jobini_hazard += ("quantile_hazard_curves = %s\n" %
+                              data['quantile_hazard_curves'])
+    jobini_hazard += "hazard_maps = %s\n" % data['hazard_maps']
     if data['hazard_maps']:
-        jobini += "poes = %s\n" % data['poes']
-    jobini += "uniform_hazard_spectra = %s\n" % data['uniform_hazard_spectra']
+        jobini_hazard += "poes = %s\n" % data['poes']
+    jobini_hazard += ("uniform_hazard_spectra = %s\n" %
+                      data['uniform_hazard_spectra'])
 
-    jobini += "\n[Risk outputs]\n"
-    #            ##############
-    jobini += "avg_losses = %s\n" % data['avg_losses']
-    jobini += "asset_loss_table = %s\n" % data['asset_loss_table']
+    jobini_risk = jobini
+    jobini_risk += "\n[Risk outputs]\n"
+    #                 ##############
+    jobini_risk += "avg_losses = %s\n" % data['avg_losses']
+    jobini_risk += "asset_loss_table = %s\n" % data['asset_loss_table']
     if data['quantile_loss_curves_choice']:
-        jobini += "quantile_loss_curves = %s\n" % data['quantile_loss_curves']
+        jobini_risk += ("quantile_loss_curves = %s\n" %
+                        data['quantile_loss_curves'])
     if data['conditional_loss_poes_choice']:
-        jobini += ("conditional_loss_poes = %s\n" %
-                   data['conditional_loss_poes'])
+        jobini_risk += ("conditional_loss_poes = %s\n" %
+                        data['conditional_loss_poes'])
 
-    print jobini.encode('utf-8')
+    z.writestr('job.ini', jobini_risk.encode('utf-8'))
 
-    z.writestr('job.ini', jobini.encode('utf-8'))
+    if (data['ground_motion_fields'] is True or
+            data['hazard_curves_from_gmfs'] is True or
+            data['hazard_maps'] is True or
+            data['uniform_hazard_spectra'] is True):
+        z.writestr('job_hazard.ini', jobini_hazard.encode('utf-8'))
+
     z.close()
 
     ret['ret'] = 0
