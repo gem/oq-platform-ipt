@@ -406,7 +406,7 @@ def view(request, **kwargs):
         request,
         "ipt/ipt.html",
         dict(
-            g_gmpe=gmpe,
+            g_gmpe=[str(x) for x in gmpe],
             rupture_file_html=rupture_file_html,
             rupture_file_upload=rupture_file_upload,
             list_of_sites_html=list_of_sites_html,
