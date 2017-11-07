@@ -61,7 +61,7 @@ imt_examples = {
                        "//textarea[@id='textareasc']"],
              'sfx': 'xml' }
         ]
-    }
+    },
     'ConfigurationFile': {
         'tab_id': 7,
         'exams': [
