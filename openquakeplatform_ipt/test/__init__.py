@@ -1,2 +1,2 @@
-from ipt_test import IptTest
-from examples_test import IptExamplesTest
+from openquakeplatform_ipt.test.ipt_test import IptTest
+from openquakeplatform_ipt.test.examples_test import IptExamplesTest
