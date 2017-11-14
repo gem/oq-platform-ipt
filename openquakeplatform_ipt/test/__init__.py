@@ -1,9 +1,9 @@
-from openquake.moon import Moon
+# from openquake.moon import Moon
 from .ipt_test import IptTest
 from .examples_test import IptExamplesTest, IptUploadTest
 
 
-__all__ = ["IptTest", "IptExamplesTest" "IptUploadTest"]
+# __all__ = ["IptTest", "IptExamplesTest" "IptUploadTest"]
 
 # pla = Moon()
 # pla.primary_set()
