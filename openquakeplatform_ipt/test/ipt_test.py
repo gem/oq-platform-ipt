@@ -2,7 +2,7 @@
 import unittest
 
 # from openquakeplatform.test import pla
-from . import pla
+from .platform import pla
 
 
 class IptTest(unittest.TestCase):

@@ -1,10 +1,6 @@
-from openquake.moon import Moon
+from platform import pla
 from .ipt_test import IptTest
 from .examples_test import IptExamplesTest, IptUploadTest
-
-
-pla = Moon()
-pla.primary_set()
 
 def setup_package():
     print("setup_package: ipt")
