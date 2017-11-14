@@ -146,8 +146,8 @@ def setup_module(module):
         print("new: %s  old: %s" % (file_path, file_path_old))
         os.rename(file_path,
                   file_path_old)
-        _FILE_PATH_FIELD_DIRECTORY = file_path
         _FILE_PATH_FIELD_DIRECTORY_OLD = file_path_old
+    _FILE_PATH_FIELD_DIRECTORY = file_path
 
 
 def teardown_module(module):
@@ -228,7 +228,9 @@ class IptExamplesTest(unittest.TestCase):
 
         #
         # populate uploaded file with template
-        shutil.rmtree(_FILE_PATH_FIELD_DIRECTORY)
+        if _FILE_PATH_FIELD_DIRECTORY:
+            if os.path.isdir(_FILE_PATH_FIELD_DIRECTORY):
+                shutil.rmtree(_FILE_PATH_FIELD_DIRECTORY)
         _copy_anything(os.path.join(
             os.path.dirname(__file__), 'data'), _FILE_PATH_FIELD_DIRECTORY)
 
