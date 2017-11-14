@@ -22,8 +22,13 @@ import json
 import zipfile
 import tempfile
 import shutil
-from email.Utils import formatdate
+import requests
 
+try:
+    from email.utils import formatdate
+except ImportError:  # Python 2
+    from email.Utils import formatdate
+from requests import HTTPError
 from django.shortcuts import render
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
@@ -32,9 +37,8 @@ from django.conf import settings
 from django import forms
 
 from openquakeplatform.settings import WEBUIURL
-import requests
-from requests import HTTPError
-from build_rupture_plane import get_rupture_surface_round
+from openquakeplatform.python3compat import unicode, encode, decode
+from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
 
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
@@ -70,7 +74,7 @@ def _do_validate_nrml(xml_text):
     if ret.status_code != 200:
         raise HTTPError({'message': "URL '%s' unreachable", 'lineno': -1})
 
-    ret_dict = json.loads(ret.content)
+    ret_dict = json.loads(decode(ret.content))
 
     if not ret_dict['valid']:
         raise ValueError({'message': ret_dict.get('error_msg', ''),
@@ -109,7 +113,7 @@ def validate_nrml(request):
         # get the exception message
         exc_msg = exc.args[0]
         if isinstance(exc_msg, bytes):
-            exc_msg = exc_msg.decode('utf-8')   # make it a unicode object
+            exc_msg = decode(exc_msg)   # make it a unicode object
         elif isinstance(exc_msg, unicode):
             pass
         else:
@@ -177,7 +181,8 @@ def sendback_er_rupture_surface(request):
     rake = request.POST.get('rake')
 
     if (mag is None or hypo_lat is None or hypo_lon is None or
-        hypo_depth is None or strike is None or dip is None or rake is None):
+            hypo_depth is None or strike is None or dip is None
+            or rake is None):
         ret = {'ret': 1, 'ret_s': 'incomplete arguments'}
     else:
         try:
@@ -260,9 +265,9 @@ class FilePathFieldByUser(forms.ChoiceField):
                     full_file = os.path.normpath(
                         os.path.join(normalized_path, f))
                     if (((self.allow_files and os.path.isfile(full_file)) or
-                            (self.allow_folders and os.path.isdir(full_file)))
-                            and
-                            (self.match is None or self.match_re.search(f))):
+                            (self.allow_folders and os.path.isdir(
+                                full_file))) and (self.match is None or
+                                                  self.match_re.search(f))):
                         self.choices.append((f, f))
             except OSError:
                 pass
@@ -297,6 +302,7 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
 
     return fh
 
+
 def _get_available_gsims():
 
     ret = requests.get('%sv1/available_gsims' % WEBUIURL)
@@ -304,9 +310,10 @@ def _get_available_gsims():
     if ret.status_code != 200:
         raise HTTPError({'message': "URL '%s' unreachable" % WEBUIURL})
 
-    ret_list = json.loads(ret.content)
+    ret_list = json.loads(decode(ret.content))
 
-    return [gsim.encode('utf8') for gsim in ret_list]
+    return [gsim for gsim in ret_list]
+
 
 def view(request, **kwargs):
     if getattr(settings, 'STANDALONE', False):
@@ -401,7 +408,7 @@ def view(request, **kwargs):
         request,
         "ipt/ipt.html",
         dict(
-            g_gmpe=gmpe,
+            g_gmpe=json.dumps(gmpe),
             rupture_file_html=rupture_file_html,
             rupture_file_upload=rupture_file_upload,
             list_of_sites_html=list_of_sites_html,
@@ -488,8 +495,8 @@ def upload(request, **kwargs):
 
             if form.is_valid():
                 if (request.FILES['file_upload'].name.endswith('.' + exten) or
-                    (exten2 is not None and request.FILES[
-                        'file_upload'].name.endswith('.' + exten2))):
+                        (exten2 is not None and request.FILES[
+                            'file_upload'].name.endswith('.' + exten2))):
                     if getattr(settings, 'STANDALONE', False):
                         userid = ''
                     else:
@@ -517,9 +524,8 @@ def upload(request, **kwargs):
                         ret['ret_msg'] = 'Not authorized to write the file.'
                         return HttpResponse(json.dumps(ret),
                                             content_type="application/json")
-                    f = file(full_path, "w")
-                    f.write(request.FILES['file_upload'].read())
-                    f.close()
+                    with open(full_path, "wb") as f:
+                        f.write(decode(request.FILES['file_upload'].read()))
 
                     suffix = target
                     match = ".*\." + exten + "$"
@@ -705,7 +711,7 @@ def scenario_prepare(request, **kwargs):
     jobini += "random_seed = 113\n"
 
     if (data['hazard'] is None and data['risk'] is not None and
-        data['gmf_file'] is not None):
+            data['gmf_file'] is not None):
         jobini += "\n[hazard]\n"
         jobini += ("gmfs_file = %s\n" %
                    os.path.basename(data['gmf_file']))
@@ -758,8 +764,8 @@ def scenario_prepare(request, **kwargs):
                                 content_type="application/json")
 
     if ((data['hazard'] == 'hazard' and
-         data['hazard_sites_choice'] == 'exposure-model')
-            or data['risk'] is not None):
+         data['hazard_sites_choice'] == 'exposure-model') or
+            data['risk'] is not None):
         jobini += exposure_model_prep_sect(
             data, z, (data['risk'] is not None), userid, namespace)
 
@@ -797,7 +803,7 @@ def scenario_prepare(request, **kwargs):
         #            ########################
 
         gsim_n = len(data['gsim'])
-        gsim_w = [ 0 ] * gsim_n
+        gsim_w = [0] * gsim_n
         for i in range(0, (gsim_n - 1)):
             gsim_w[i] = "%1.3f" % (1.0 / float(gsim_n))
 
@@ -826,7 +832,7 @@ def scenario_prepare(request, **kwargs):
 </logicTree>\n\
 </nrml>\n"
 
-        z.writestr('gmpe.xml', gmpe.encode('utf-8'))
+        z.writestr('gmpe.xml', encode(gmpe))
 
         if data['risk'] is None:
             jobini += "intensity_measure_types = "
@@ -854,9 +860,9 @@ def scenario_prepare(request, **kwargs):
         jobini += ("number_of_ground_motion_fields = %s\n" %
                    data['number_of_ground_motion_fields'])
 
-    print jobini.encode('utf-8')
+    print(encode(jobini))
 
-    z.writestr('job.ini', jobini.encode('utf-8'))
+    z.writestr('job.ini', encode(jobini))
     z.close()
 
     ret['ret'] = 0
@@ -980,13 +986,13 @@ def event_based_prepare(request, **kwargs):
         jobini_risk += ("conditional_loss_poes = %s\n" %
                         data['conditional_loss_poes'])
 
-    z.writestr('job.ini', jobini_risk.encode('utf-8'))
+    z.writestr('job.ini', encode(jobini_risk))
 
     if (data['ground_motion_fields'] is True or
             data['hazard_curves_from_gmfs'] is True or
             data['hazard_maps'] is True or
             data['uniform_hazard_spectra'] is True):
-        z.writestr('job_hazard.ini', jobini_hazard.encode('utf-8'))
+        z.writestr('job_hazard.ini', encode(jobini_hazard))
 
     z.close()
 

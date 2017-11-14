@@ -274,7 +274,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
 def generator():
     exp_path = os.path.join(os.path.dirname(
         sys.modules[IptExamplesTest.__module__].__file__), 'expected')
-    for name, examples in imt_examples.iteritems():
+    for name, examples in imt_examples.items():
         for example in examples['exams']:
             func_name = "%s_%d_%d_test" % (name, example['exa_id'],
                                            example['subtab_id'])
