@@ -17,7 +17,7 @@ from selenium.webdriver.support.select import Select
 #   openquakeplatform/test/satellites_test.py:ipt__IptExamplesTest.Exposure_1_0_test
 
 # from openquakeplatform.test import pla
-from platform import pla
+from .platform import pla
 
 
 _DATA_SUBFOLDERS = [
