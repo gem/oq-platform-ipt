@@ -158,6 +158,7 @@ def teardown_module(module):
 
 
 def _copy_anything(src, dst):
+    print("SRC [%s] DST [%s]" % (src, dst))
     try:
         shutil.copytree(src, dst)
     except OSError as exc:  # python >2.5
