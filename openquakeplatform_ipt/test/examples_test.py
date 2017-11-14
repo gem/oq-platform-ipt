@@ -132,6 +132,7 @@ def zip_diff(filename1, filename2):
 def setup_module(module):
     global _FILE_PATH_FIELD_DIRECTORY_OLD, _FILE_PATH_FIELD_DIRECTORY
 
+    print("setup_module: begin")
     homedir = os.environ.get('GEM_OQ_PLA_IPT_SERVER_HOMEDIR')
     if homedir is None:
         homedir = os.path.expanduser('~')
@@ -148,6 +149,7 @@ def setup_module(module):
                   file_path_old)
         _FILE_PATH_FIELD_DIRECTORY_OLD = file_path_old
     _FILE_PATH_FIELD_DIRECTORY = file_path
+    print("setup_module: end")
 
 
 def teardown_module(module):
