@@ -16,8 +16,8 @@ from selenium.webdriver.support.select import Select
 #   --with-xunit --xunit-file=xunit-platform-dev.xml  \
 #   openquakeplatform/test/satellites_test.py:ipt__IptExamplesTest.Exposure_1_0_test
 
-# from . import pla
-from openquakeplatform.test import pla
+# from openquakeplatform.test import pla
+from . import pla
 
 
 _DATA_SUBFOLDERS = [

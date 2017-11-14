@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import unittest
 
-from openquakeplatform.test import pla
+# from openquakeplatform.test import pla
+from . import pla
 
 
 class IptTest(unittest.TestCase):
