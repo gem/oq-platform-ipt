@@ -73,8 +73,9 @@ def _do_validate_nrml(xml_text):
     ret_dict = json.loads(ret.content)
 
     if not ret_dict['valid']:
-        raise ValueError({ 'message': ret_dict.get('error_msg', ''),
-                           'lineno': ret_dict.get('error_line', -1)})
+        raise ValueError({'message': ret_dict.get('error_msg', ''),
+                          'lineno': ret_dict.get('error_line', -1)})
+
 
 def validate_nrml(request):
     """
@@ -146,7 +147,8 @@ def sendback_nrml(request):
         return HttpResponseBadRequest(
             'Please provide the "xml_text" parameter')
     known_func_types = [
-        'exposure', 'fragility', 'consequence', 'vulnerability', 'site', 'earthquake_rupture']
+        'exposure', 'fragility', 'consequence', 'vulnerability', 'site',
+        'earthquake_rupture']
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
@@ -200,8 +202,9 @@ def sendback_er_rupture_surface(request):
 
 
 class FileUpload(forms.Form):
-    file_upload = forms.FileField(allow_empty_file=True,
-                                  widget=forms.ClearableFileInput(attrs={'class' : 'hide_file_upload'}))
+    file_upload = forms.FileField(
+        allow_empty_file=True, widget=forms.ClearableFileInput(
+            attrs={'class': 'hide_file_upload'}))
 
 
 class FilePathFieldByUser(forms.ChoiceField):
@@ -446,8 +449,10 @@ def view(request, **kwargs):
             gsim_logic_tree_file_html=gsim_logic_tree_file_html,
             gsim_logic_tree_file_upload=gsim_logic_tree_file_upload,
 
-            source_model_logic_tree_file_html=source_model_logic_tree_file_html,
-            source_model_logic_tree_file_upload=source_model_logic_tree_file_upload,
+            source_model_logic_tree_file_html=(
+                source_model_logic_tree_file_html),
+            source_model_logic_tree_file_upload=(
+                source_model_logic_tree_file_upload),
 
             source_model_file_html=source_model_file_html,
             source_model_file_upload=source_model_file_upload
@@ -483,7 +488,8 @@ def upload(request, **kwargs):
 
             if form.is_valid():
                 if (request.FILES['file_upload'].name.endswith('.' + exten) or
-                    (exten2 is not None and request.FILES['file_upload'].name.endswith('.' + exten2))):
+                    (exten2 is not None and request.FILES[
+                        'file_upload'].name.endswith('.' + exten2))):
                     if getattr(settings, 'STANDALONE', False):
                         userid = ''
                     else:
@@ -548,7 +554,35 @@ def upload(request, **kwargs):
                 # Redirect to the document list after POST
                 return HttpResponse(json.dumps(ret),
                                     content_type="application/json")
+            else:
+                if getattr(settings, 'STANDALONE', False):
+                    userid = ''
+                else:
+                    userid = str(request.user.id)
+                namespace = request.resolver_match.namespace
 
+                suffix = target
+                match = ".*\." + exten + "$"
+                if exten2 is not None:
+                    match += "|.*\." + exten2 + "$"
+
+                class FileHtml(forms.Form):
+                    file_html = FilePathFieldByUser(
+                        userid=userid,
+                        subdir=suffix,
+                        namespace=namespace,
+                        match=match,
+                        recursive=True)
+
+                fileslist = FileHtml()
+
+                ret['ret'] = 0
+                ret['items'] = fileslist.fields['file_html'].choices
+                ret['ret_msg'] = 'List updated'
+
+                # Redirect to the document list after POST
+                return HttpResponse(json.dumps(ret),
+                                    content_type="application/json")
     ret['ret'] = 2
     ret['ret_msg'] = 'Please provide the file.'
 

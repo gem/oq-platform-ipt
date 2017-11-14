@@ -213,3 +213,7 @@ div.bootstrap-tagsinput {
     width: 600px;
     margin-bottom: 16px;
 }
+
+.bootstrap-tagsinput input {
+    width: 100% !important;
+}

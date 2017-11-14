@@ -27,8 +27,6 @@ $(document).ready(function () {
         $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] div.sol-label-text:contains("AbrahamsonEtAl2014RegCHN")'
          ).click();
         $(cf_obj['scen'].pfx + ' button[name="download"]').click();
-
-
-
+        window.gem_example_completed = true;
     }, 1000);
 });

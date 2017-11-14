@@ -58,4 +58,5 @@ $(document).ready(function () {
     table.loadData(data);
 
     $('.ex_gid #convertBtn').trigger('click');
+    window.gem_example_completed = true;
 });

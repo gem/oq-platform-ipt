@@ -22,4 +22,5 @@ $(document).ready(function () {
     $(cf_obj['e_b'].pfx + ' div[name="hazard-sitecond_from-file"] select[name="file_html"]').val('site_conditions/site_model_surrogate.xml');
 
     // $(cf_obj['e_b'].pfx + ' button[name="download"]').click();
+    window.gem_example_completed = true;
 });

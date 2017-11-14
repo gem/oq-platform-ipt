@@ -11,4 +11,5 @@ $(document).ready(function () {
     table.loadData(data);
 
     $('.sc_gid #convertBtn').trigger('click');
+    window.gem_example_completed = true;
 });

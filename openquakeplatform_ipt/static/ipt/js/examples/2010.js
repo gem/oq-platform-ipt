@@ -102,4 +102,5 @@ $(document).ready(function () {
     }
 
     $('.ff_gid #convertBtn').trigger('click');
+    window.gem_example_completed = true;
 });

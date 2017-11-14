@@ -12,4 +12,5 @@ $(document).ready(function () {
     $(cf_obj['e_b'].pfx + ' div[name="hazard-model"] div[name="source-model-file-html"] select').val(['data/source_model_file/source_model01.xml']);
 
     $(cf_obj['e_b'].pfx + ' button[name="download"]').click();
+    window.gem_example_completed = true;
 });
