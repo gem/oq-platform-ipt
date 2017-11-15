@@ -8,6 +8,7 @@ import errno
 import difflib
 import zipfile
 from selenium.webdriver.support.select import Select
+from openquake.moon import platform_get
 
 #
 # TO RUN A SINGLE TEST:
@@ -15,10 +16,6 @@ from selenium.webdriver.support.select import Select
 # python -m openquake.moon.nose_runner --failurecatcher dev -v -s \
 #   --with-xunit --xunit-file=xunit-platform-dev.xml  \
 #   openquakeplatform/test/satellites_test.py:ipt__IptExamplesTest.Exposure_1_0_test
-
-# from openquakeplatform.test import pla
-from .platform import pla
-
 
 _DATA_SUBFOLDERS = [
     'exposure_model', 'fm_businter', 'fm_contents', 'fm_nonstructural',
@@ -173,6 +170,7 @@ def _copy_anything(src, dst):
 class IptUploadTest(unittest.TestCase):
     def upload_test(self):
         # clean all files in upload folder
+        pla = platform_get()
         pla.get('/ipt/?tab_id=7&subtab_id=1')
 
         common = (
@@ -240,6 +238,7 @@ class IptExamplesTest(unittest.TestCase):
 
 def make_function(func_name, exp_path, tab_id, subtab_id, example):
     def generated(self):
+        pla = platform_get()
         homedir = os.path.expanduser('~')
 
         exp_filename = os.path.join(
