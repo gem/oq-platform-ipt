@@ -525,7 +525,7 @@ def upload(request, **kwargs):
                         return HttpResponse(json.dumps(ret),
                                             content_type="application/json")
                     with open(full_path, "wb") as f:
-                        f.write(request.FILES['file_upload'].read())
+                        f.write(encode(request.FILES['file_upload'].read()))
 
                     suffix = target
                     match = ".*\." + exten + "$"
