@@ -107,6 +107,8 @@ _FILE_PATH_FIELD_DIRECTORY = None
 def zip_diff(filename1, filename2):
     differs = False
 
+    print("ZIP_DIFF: F1: [%s]  F2: [%s]" % (filename1, filename2))
+
     z1 = zipfile.ZipFile(open(filename1))
     z2 = zipfile.ZipFile(open(filename2))
     if len(z1.infolist()) != len(z2.infolist()):
