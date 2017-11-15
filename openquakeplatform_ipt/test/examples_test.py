@@ -283,8 +283,11 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
             self.assertEqual(ret, expected)
         elif 'zipfile' in example:
             for t in gen_timeout_poller(5, 0.2):
+                print("\n\nGEN: [%f]" % t)
                 if os.path.exists(zipfile):
-                    break
+                    if (os.path.getsize(zipfile) >=
+                            os.path.getsize(exp_filename)):
+                        break
 
             self.assertNotEqual(zipfile, "")
             self.assertTrue(zip_diff(exp_filename, zipfile) == 0)
