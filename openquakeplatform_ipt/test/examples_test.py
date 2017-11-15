@@ -2,6 +2,7 @@
 import unittest
 import os
 import sys
+import time
 import codecs
 import shutil
 import errno
@@ -212,6 +213,7 @@ class IptExamplesTest(unittest.TestCase):
     def setUpClass(cls):
         #
         # remove all uploaded files
+        pla = platform_get()
         pla.get('/ipt/?tab_id=7&subtab_id=1')
 
         common = (
@@ -234,6 +236,16 @@ class IptExamplesTest(unittest.TestCase):
                 shutil.rmtree(_FILE_PATH_FIELD_DIRECTORY)
         _copy_anything(os.path.join(
             os.path.dirname(__file__), 'data'), _FILE_PATH_FIELD_DIRECTORY)
+
+
+def gen_timeout_poller(secs, delta):
+    start_time = time.time()
+    while True:
+        now = time.time()
+        if start_time + secs < now:
+            break
+        yield (now - start_time)
+        time.sleep(delta)
 
 
 def make_function(func_name, exp_path, tab_id, subtab_id, example):
@@ -270,6 +282,10 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                 ret = ret_tag.get_attribute('innerHTML')
             self.assertEqual(ret, expected)
         elif 'zipfile' in example:
+            for t in gen_timeout_poller(5, 0.2):
+                if os.path.exists(zipfile):
+                    break
+
             self.assertNotEqual(zipfile, "")
             self.assertTrue(zip_diff(exp_filename, zipfile) == 0)
 
