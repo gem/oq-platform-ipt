@@ -109,8 +109,8 @@ def zip_diff(filename1, filename2):
 
     print("ZIP_DIFF: F1: [%s]  F2: [%s]" % (filename1, filename2))
 
-    z1 = zipfile.ZipFile(open(filename1))
-    z2 = zipfile.ZipFile(open(filename2))
+    z1 = zipfile.ZipFile(open(filename1, "rb"))
+    z2 = zipfile.ZipFile(open(filename2, "rb"))
     if len(z1.infolist()) != len(z2.infolist()):
         print("number of archive elements differ: {} in {} vs {} in {}".format(
             len(z1.infolist()), z1.filename, len(z2.infolist()), z2.filename))
@@ -122,6 +122,7 @@ def zip_diff(filename1, filename2):
             delta = ''.join(x[2:] for x in diff
                             if x.startswith('- ') or x.startswith('+ '))
             if delta:
+                print("DIFFER HERE: %s" % zipentry.filename)
                 differs = True
                 break
     if not differs:
@@ -285,7 +286,6 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
             self.assertEqual(ret, expected)
         elif 'zipfile' in example:
             for t in gen_timeout_poller(5, 0.2):
-                print("\n\nGEN: [%f]" % t)
                 if os.path.exists(zipfile):
                     if (os.path.getsize(zipfile) >=
                             os.path.getsize(exp_filename)):

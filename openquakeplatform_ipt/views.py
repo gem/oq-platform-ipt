@@ -36,7 +36,7 @@ from django.http import (HttpResponse,
 from django.conf import settings
 from django import forms
 
-from openquakeplatform.settings import WEBUIURL
+from openquakeplatform.settings import WEBUIURL, TIME_INVARIANT_OUTPUTS
 from openquakeplatform.python3compat import unicode, encode, decode
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
 
@@ -690,10 +690,11 @@ def scenario_prepare(request, **kwargs):
 
     (fd, fname) = tempfile.mkstemp(
         suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
-    fzip = os.fdopen(fd, 'w')
+    fzip = os.fdopen(fd, 'wb')
     z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
-    jobini = "# Generated automatically with IPT at %s\n" % formatdate()
+    jobini = "# Generated automatically with IPT at %s\n" % (
+        "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
     jobini += "[general]\n"
     jobini += "description = %s\n" % data['description']
 
@@ -725,7 +726,7 @@ def scenario_prepare(request, **kwargs):
         jobini += ("rupture_model_file = %s\n" %
                    os.path.basename(data['rupture_model_file']))
         z.write(get_full_path(userid, namespace, data['rupture_model_file']),
-                os.path.basename(data['rupture_model_file']))
+                decode(os.path.basename(data['rupture_model_file'])))
 
         jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
 
@@ -893,7 +894,8 @@ def event_based_prepare(request, **kwargs):
     fzip = os.fdopen(fd, 'w')
     z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
-    jobini = "# Generated automatically with IPT at %s\n" % formatdate()
+    jobini = "# Generated automatically with IPT at %s\n" % (
+        "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
     jobini += "[general]\n"
     jobini += "description = %s\n" % data['description']
 
