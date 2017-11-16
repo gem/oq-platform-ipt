@@ -107,13 +107,13 @@ _FILE_PATH_FIELD_DIRECTORY = None
 def zip_diff(filename1, filename2):
     differs = False
 
-    print("ZIP_DIFF: F1: [%s]  F2: [%s]" % (filename1, filename2))
-
     z1 = zipfile.ZipFile(open(filename1, "rb"))
     z2 = zipfile.ZipFile(open(filename2, "rb"))
     if len(z1.infolist()) != len(z2.infolist()):
-        print("number of archive elements differ: {} in {} vs {} in {}".format(
-            len(z1.infolist()), z1.filename, len(z2.infolist()), z2.filename))
+        print("zip_diff: number of archive elements differ: "
+              "{} in {} vs {} in {}".format(
+                  len(z1.infolist()), z1.filename,
+                  len(z2.infolist()), z2.filename))
         return 1
     for zipentry in z1.infolist():
         if zipentry.filename not in z2.namelist():
@@ -122,7 +122,7 @@ def zip_diff(filename1, filename2):
             delta = ''.join(x[2:] for x in diff
                             if x.startswith('- ') or x.startswith('+ '))
             if delta:
-                print("DIFFER HERE: %s" % zipentry.filename)
+                print("zip_diff: differ here: %s" % zipentry.filename)
                 differs = True
                 break
     if not differs:
@@ -133,7 +133,6 @@ def zip_diff(filename1, filename2):
 def setup_module(module):
     global _FILE_PATH_FIELD_DIRECTORY_OLD, _FILE_PATH_FIELD_DIRECTORY
 
-    print("setup_module: begin")
     homedir = os.environ.get('GEM_OQ_PLA_IPT_SERVER_HOMEDIR')
     if homedir is None:
         homedir = os.path.expanduser('~')
@@ -145,12 +144,10 @@ def setup_module(module):
         'oqdata', 'ipt.pretest'))
 
     if os.path.isdir(file_path):
-        print("new: %s  old: %s" % (file_path, file_path_old))
         os.rename(file_path,
                   file_path_old)
         _FILE_PATH_FIELD_DIRECTORY_OLD = file_path_old
     _FILE_PATH_FIELD_DIRECTORY = file_path
-    print("setup_module: end")
 
 
 def teardown_module(module):
@@ -161,7 +158,6 @@ def teardown_module(module):
 
 
 def _copy_anything(src, dst):
-    print("SRC [%s] DST [%s]" % (src, dst))
     try:
         shutil.copytree(src, dst)
     except OSError as exc:  # python >2.5

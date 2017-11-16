@@ -1,6 +1,4 @@
 from openquake.moon import platform_get, platform_del
-# from .ipt_test import IptTest
-# from .examples_test import IptExamplesTest, IptUploadTest
 
 
 def setup_package():
