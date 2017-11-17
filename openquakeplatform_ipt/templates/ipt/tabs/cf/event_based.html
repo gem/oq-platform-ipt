@@ -138,64 +138,6 @@
     <label>Risk investigation time (years) <span class="ui-icon ui-icon-help ipt_help" title='Parameter that specifies the time period for which the event loss tables and loss exceedance curves will be calculated. If this parameter is not provided, the time period used is the same as the hazard investigation time.'></span>:</label>
     <input type="text" name="risk_investigation_time" value="1">
   </div>
-
-  <div class="alert alert-info ipt-info" role="alert">
-    <div style="text-align: center;">
-      <form style="margin: 0px;">
-        <div class="chbox">
-          <!-- <input type="checkbox" name="loss_choice" value="loss-curve-resolution"> -->
-          <input type="checkbox" name="loss_curve_resolution_choice">
-          <span class="inlible">Loss curve resolution</span>
-        </div>
-        <div class="chbox">
-          <input type="checkbox" name="loss_ratios_choice">
-          <span class="inlible">Loss ratios</span>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="menuItems" name="loss-curve-resolution">
-    <label>Loss curve resolution <span class="ui-icon ui-icon-help ipt_help" title='Parameter that specifies the number of points on the aggregate loss curve. The loss levels on the aggregate loss curve are obtained by dividing the interval between the minimum and maximum portfolio losses in the portfolio loss table into "n" equispaced intervals, where "n" is the value specified for the "loss curve resolution".'></span>:</label>
-    <input type="text" name="loss_curve_resolution" value="20">
-  </div>
-
-  <div class="menuItems" name="loss-ratios">
-    <div name="loss-ratios-structural">
-      <label>Structural vulnerability model <span class="ui-icon ui-icon-help ipt_help" title='Parameter that specifies the set of loss ratios at which the individual asset loss curves will be computed. If "loss ratios" is not set indicated, the individual asset loss curves will not be computed; and only the aggregate loss curve for the portfolio of assets will be computed. Furthermore, if "loss ratios" is required if loss maps will be computed.'></span>:</label><br>
-      <input type="text" name="loss_ratios_structural"
-             value="0.00010, 0.00016, 0.00025, 0.00040, 0.00065, 0.0010, 0.0016, 0.0025, 0.0040, 0.0065, 0.010, 0.016, 0.025, 0.040, 0.065, 0.10, 0.16, 0.25, 0.40, 0.65, 1.0"
-             style="width: 600px";>
-    </div>
-
-    <div name="loss-ratios-nonstructural">
-      <label>Nonstructural vulnerability model <span class="ui-icon ui-icon-help ipt_help" title='Parameter that specifies the set of loss ratios at which the individual asset loss curves will be computed. If "loss ratios" is not set indicated, the individual asset loss curves will not be computed; and only the aggregate loss curve for the portfolio of assets will be computed. Furthermore, if "loss ratios" is required if loss maps will be computed.'></span>:</label><br>
-      <input type="text" name="loss_ratios_nonstructural"
-             value="0.00010, 0.00016, 0.00025, 0.00040, 0.00065, 0.0010, 0.0016, 0.0025, 0.0040, 0.0065, 0.010, 0.016, 0.025, 0.040, 0.065, 0.10, 0.16, 0.25, 0.40, 0.65, 1.0"
-             style="width: 600px";>
-    </div>
-
-    <div name="loss-ratios-contents">
-      <label>Contents vulnerability model <span class="ui-icon ui-icon-help ipt_help" title='Parameter that specifies the set of loss ratios at which the individual asset loss curves will be computed. If "loss ratios" is not set indicated, the individual asset loss curves will not be computed; and only the aggregate loss curve for the portfolio of assets will be computed. Furthermore, if "loss ratios" is required if loss maps will be computed.'></span>:</label><br>
-      <input type="text" name="loss_ratios_contents"
-             value="0.00010, 0.00016, 0.00025, 0.00040, 0.00065, 0.0010, 0.0016, 0.0025, 0.0040, 0.0065, 0.010, 0.016, 0.025, 0.040, 0.065, 0.10, 0.16, 0.25, 0.40, 0.65, 1.0"
-             style="width: 600px";>
-    </div>
-
-    <div name="loss-ratios-businter">
-      <label>Business interruption vulnerability model <span class="ui-icon ui-icon-help ipt_help" title='Parameter that specifies the set of loss ratios at which the individual asset loss curves will be computed. If "loss ratios" is not set indicated, the individual asset loss curves will not be computed; and only the aggregate loss curve for the portfolio of assets will be computed. Furthermore, if "loss ratios" is required if loss maps will be computed.'></span>:</label><br>
-      <input type="text" name="loss_ratios_businter"
-             value="0.00010, 0.00016, 0.00025, 0.00040, 0.00065, 0.0010, 0.0016, 0.0025, 0.0040, 0.0065, 0.010, 0.016, 0.025, 0.040, 0.065, 0.10, 0.16, 0.25, 0.40, 0.65, 1.0"
-             style="width: 600px";>
-    </div>
-
-    <div name="loss-ratios-occupants">
-      <label>Occupants vulnerability model <span class="ui-icon ui-icon-help ipt_help" title='Parameter that specifies the set of loss ratios at which the individual asset loss curves will be computed. If "loss ratios" is not set indicated, the individual asset loss curves will not be computed; and only the aggregate loss curve for the portfolio of assets will be computed. Furthermore, if "loss ratios" is required if loss maps will be computed.'></span>:</label><br>
-      <input type="text" name="loss_ratios_occupants"
-             value="0.00010, 0.00016, 0.00025, 0.00040, 0.00065, 0.0010, 0.0016, 0.0025, 0.0040, 0.0065, 0.010, 0.016, 0.025, 0.040, 0.065, 0.10, 0.16, 0.25, 0.40, 0.65, 1.0"
-             style="width: 600px";>
-    </div>
-  </div>
 </div>
 
 <div name="hazard-outputs">
@@ -222,16 +164,6 @@
   </div>
 
   <div name="hazard-related">
-    <div class="menuItems">
-      <table class="field">
-        <tr><td class="cbox">
-            <input style="vertical-align: top;" type="checkbox" name="mean_hazard_curves">
-          </td><td>
-            <label>Mean hazard curves</label>
-        </td></tr>
-      </table>
-    </div>
-
     <div class="alert alert-info ipt-info" role="alert">
       <div style="text-align: center;">
         <form style="margin: 0px;">

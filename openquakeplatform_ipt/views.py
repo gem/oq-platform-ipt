@@ -36,7 +36,7 @@ from django.http import (HttpResponse,
 from django.conf import settings
 from django import forms
 
-from openquakeplatform.settings import WEBUIURL
+from openquakeplatform.settings import WEBUIURL, TIME_INVARIANT_OUTPUTS
 from openquakeplatform.python3compat import unicode, encode, decode
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
 
@@ -151,7 +151,8 @@ def sendback_nrml(request):
         return HttpResponseBadRequest(
             'Please provide the "xml_text" parameter')
     known_func_types = [
-        'exposure', 'fragility', 'consequence', 'vulnerability', 'site', 'earthquake_rupture']
+        'exposure', 'fragility', 'consequence', 'vulnerability', 'site',
+        'earthquake_rupture']
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
@@ -206,8 +207,9 @@ def sendback_er_rupture_surface(request):
 
 
 class FileUpload(forms.Form):
-    file_upload = forms.FileField(allow_empty_file=True,
-                                  widget=forms.ClearableFileInput(attrs={'class' : 'hide_file_upload'}))
+    file_upload = forms.FileField(
+        allow_empty_file=True, widget=forms.ClearableFileInput(
+            attrs={'class': 'hide_file_upload'}))
 
 
 class FilePathFieldByUser(forms.ChoiceField):
@@ -263,9 +265,9 @@ class FilePathFieldByUser(forms.ChoiceField):
                     full_file = os.path.normpath(
                         os.path.join(normalized_path, f))
                     if (((self.allow_files and os.path.isfile(full_file)) or
-                            (self.allow_folders and os.path.isdir(full_file)))
-                            and
-                            (self.match is None or self.match_re.search(f))):
+                            (self.allow_folders and os.path.isdir(
+                                full_file))) and (self.match is None or
+                                                  self.match_re.search(f))):
                         self.choices.append((f, f))
             except OSError:
                 pass
@@ -454,8 +456,10 @@ def view(request, **kwargs):
             gsim_logic_tree_file_html=gsim_logic_tree_file_html,
             gsim_logic_tree_file_upload=gsim_logic_tree_file_upload,
 
-            source_model_logic_tree_file_html=source_model_logic_tree_file_html,
-            source_model_logic_tree_file_upload=source_model_logic_tree_file_upload,
+            source_model_logic_tree_file_html=(
+                source_model_logic_tree_file_html),
+            source_model_logic_tree_file_upload=(
+                source_model_logic_tree_file_upload),
 
             source_model_file_html=source_model_file_html,
             source_model_file_upload=source_model_file_upload
@@ -491,7 +495,8 @@ def upload(request, **kwargs):
 
             if form.is_valid():
                 if (request.FILES['file_upload'].name.endswith('.' + exten) or
-                        (exten2 is not None and request.FILES['file_upload'].name.endswith('.' + exten2))):
+                        (exten2 is not None and request.FILES[
+                            'file_upload'].name.endswith('.' + exten2))):
                     if getattr(settings, 'STANDALONE', False):
                         userid = ''
                     else:
@@ -520,7 +525,7 @@ def upload(request, **kwargs):
                         return HttpResponse(json.dumps(ret),
                                             content_type="application/json")
                     with open(full_path, "wb") as f:
-                        f.write(decode(request.FILES['file_upload'].read()))
+                        f.write(encode(request.FILES['file_upload'].read()))
 
                     suffix = target
                     match = ".*\." + exten + "$"
@@ -555,7 +560,35 @@ def upload(request, **kwargs):
                 # Redirect to the document list after POST
                 return HttpResponse(json.dumps(ret),
                                     content_type="application/json")
+            else:
+                if getattr(settings, 'STANDALONE', False):
+                    userid = ''
+                else:
+                    userid = str(request.user.id)
+                namespace = request.resolver_match.namespace
 
+                suffix = target
+                match = ".*\." + exten + "$"
+                if exten2 is not None:
+                    match += "|.*\." + exten2 + "$"
+
+                class FileHtml(forms.Form):
+                    file_html = FilePathFieldByUser(
+                        userid=userid,
+                        subdir=suffix,
+                        namespace=namespace,
+                        match=match,
+                        recursive=True)
+
+                fileslist = FileHtml()
+
+                ret['ret'] = 0
+                ret['items'] = fileslist.fields['file_html'].choices
+                ret['ret_msg'] = 'List updated'
+
+                # Redirect to the document list after POST
+                return HttpResponse(json.dumps(ret),
+                                    content_type="application/json")
     ret['ret'] = 2
     ret['ret_msg'] = 'Please provide the file.'
 
@@ -657,10 +690,11 @@ def scenario_prepare(request, **kwargs):
 
     (fd, fname) = tempfile.mkstemp(
         suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
-    fzip = os.fdopen(fd, 'w')
+    fzip = os.fdopen(fd, 'wb')
     z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
-    jobini = "# Generated automatically with IPT at %s\n" % formatdate()
+    jobini = "# Generated automatically with IPT at %s\n" % (
+        "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
     jobini += "[general]\n"
     jobini += "description = %s\n" % data['description']
 
@@ -692,7 +726,7 @@ def scenario_prepare(request, **kwargs):
         jobini += ("rupture_model_file = %s\n" %
                    os.path.basename(data['rupture_model_file']))
         z.write(get_full_path(userid, namespace, data['rupture_model_file']),
-                os.path.basename(data['rupture_model_file']))
+                decode(os.path.basename(data['rupture_model_file'])))
 
         jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
 
@@ -731,8 +765,8 @@ def scenario_prepare(request, **kwargs):
                                 content_type="application/json")
 
     if ((data['hazard'] == 'hazard' and
-         data['hazard_sites_choice'] == 'exposure-model')
-            or data['risk'] is not None):
+         data['hazard_sites_choice'] == 'exposure-model') or
+            data['risk'] is not None):
         jobini += exposure_model_prep_sect(
             data, z, (data['risk'] is not None), userid, namespace)
 
@@ -860,7 +894,8 @@ def event_based_prepare(request, **kwargs):
     fzip = os.fdopen(fd, 'w')
     z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
-    jobini = "# Generated automatically with IPT at %s\n" % formatdate()
+    jobini = "# Generated automatically with IPT at %s\n" % (
+        "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
     jobini += "[general]\n"
     jobini += "description = %s\n" % data['description']
 
@@ -922,52 +957,45 @@ def event_based_prepare(request, **kwargs):
     #            ##################
     jobini += ("risk_investigation_time = %s\n" %
                data['risk_investigation_time'])
-    if data['loss_curve_resolution_choice'] is True:
-        jobini += ("loss_curve_resolution = %s\n" %
-                   data['loss_curve_resolution'])
-    if data['loss_ratios_choice'] is True:
-        jobini += "loss_ratios = { "
-        descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
-                 'contents': 'contents', 'businter': 'business_interruption',
-                 'occupants': 'occupants'}
-        is_first = True
-        for losslist in ['structural', 'nonstructural', 'contents', 'businter',
-                         'occupants']:
-            if data['vm_loss_%s_choice' % losslist] is True:
-                jobini += "%s\"%s\": [ %s ]" % (
-                    ("" if is_first else ", "),
-                    descr[losslist], data['loss_ratios_' + losslist])
-                is_first = False
-        jobini += "}\n"
 
-    jobini += "\n[Hazard outputs]\n"
-    #            ################
-    jobini += "ground_motion_fields = %s\n" % data['ground_motion_fields']
-    jobini += ("hazard_curves_from_gmfs = %s\n" %
-               data['hazard_curves_from_gmfs'])
+    jobini_hazard = jobini
+    jobini_hazard += "\n[Hazard outputs]\n"
+    #                   ################
+    jobini_hazard += ("ground_motion_fields = %s\n" %
+                      data['ground_motion_fields'])
+    jobini_hazard += ("hazard_curves_from_gmfs = %s\n" %
+                      data['hazard_curves_from_gmfs'])
     if data['hazard_curves_from_gmfs']:
-        jobini += "mean_hazard_curves = %s\n" % data['mean_hazard_curves']
+        jobini_hazard += "mean_hazard_curves = %s\n" % False
         if data['quantile_hazard_curves_choice']:
-            jobini += ("quantile_hazard_curves = %s\n" %
-                       data['quantile_hazard_curves'])
-    jobini += "hazard_maps = %s\n" % data['hazard_maps']
+            jobini_hazard += ("quantile_hazard_curves = %s\n" %
+                              data['quantile_hazard_curves'])
+    jobini_hazard += "hazard_maps = %s\n" % data['hazard_maps']
     if data['hazard_maps']:
-        jobini += "poes = %s\n" % data['poes']
-    jobini += "uniform_hazard_spectra = %s\n" % data['uniform_hazard_spectra']
+        jobini_hazard += "poes = %s\n" % data['poes']
+    jobini_hazard += ("uniform_hazard_spectra = %s\n" %
+                      data['uniform_hazard_spectra'])
 
-    jobini += "\n[Risk outputs]\n"
-    #            ##############
-    jobini += "avg_losses = %s\n" % data['avg_losses']
-    jobini += "asset_loss_table = %s\n" % data['asset_loss_table']
+    jobini_risk = jobini
+    jobini_risk += "\n[Risk outputs]\n"
+    #                 ##############
+    jobini_risk += "avg_losses = %s\n" % data['avg_losses']
+    jobini_risk += "asset_loss_table = %s\n" % data['asset_loss_table']
     if data['quantile_loss_curves_choice']:
-        jobini += "quantile_loss_curves = %s\n" % data['quantile_loss_curves']
+        jobini_risk += ("quantile_loss_curves = %s\n" %
+                        data['quantile_loss_curves'])
     if data['conditional_loss_poes_choice']:
-        jobini += ("conditional_loss_poes = %s\n" %
-                   data['conditional_loss_poes'])
+        jobini_risk += ("conditional_loss_poes = %s\n" %
+                        data['conditional_loss_poes'])
 
-    print(encode(jobini))
+    z.writestr('job.ini', encode(jobini_risk))
 
-    z.writestr('job.ini', encode(jobini))
+    if (data['ground_motion_fields'] is True or
+            data['hazard_curves_from_gmfs'] is True or
+            data['hazard_maps'] is True or
+            data['uniform_hazard_spectra'] is True):
+        z.writestr('job_hazard.ini', encode(jobini_hazard))
+
     z.close()
 
     ret['ret'] = 0

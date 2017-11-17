@@ -41,30 +41,22 @@ $(document).ready(function () {
     $('.ex_gid #occupantsCheckBoxes [value="night"]').prop('checked', true);
     $('.ex_gid #occupantsCheckBoxes [value="night"]').trigger('change');
 
-    // add three tags
-    $('.ex_gid #tags').tagsinput('add', 'first');
-    $('.ex_gid #tags').tagsinput('add', 'second');
-    $('.ex_gid #tags').tagsinput('add', 'third');
-
+    var data = [[]];
     var table = $('.ex_gid #table').handsontable('getInstance');
 
-    var data = [];
-
-    // add 2 rows of data to example table
-    for (var e = 0 ; e < 2 ; e++) {
-        data[e] = [];
-        // for each column add a calculated value
-        for (var i = 0 ; i < table.countCols() ; i++) {
-            // add a special case to skip population of a tag cell
-            if (e == 1 && i == 15)
-                continue;
-
-            var cell_val = "" + (parseFloat(e) + parseFloat(i) / 100.0);
-            // trim 2 digits after dot.
-            data[e][i] = cell_val.match(/^[0-9]+\.?[0-9]?[0-9]?/)[0];
+    // for each column add a calculated value
+    for (var i = 0 ; i < table.countCols() ; i++) {
+        if (i == 5) {
+            // we want to show what happens when a cell is left empty
+            data[0][i] = "";
+        }
+        else {
+            data[0][i] = parseFloat(i) / 100.0;
         }
     }
+
     table.loadData(data);
 
     $('.ex_gid #convertBtn').trigger('click');
+    window.gem_example_completed = true;
 });

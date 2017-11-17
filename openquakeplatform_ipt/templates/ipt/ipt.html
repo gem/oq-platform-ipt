@@ -60,31 +60,31 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
             <li><a href="#tabs-7">Configuration File</a></li>
           </ul>
           <!-- EXPOSURE -->
-          <div id="tabs-1" class="ex_gid">
+          <div id="tabs-1" class="ex_gid" name="exposure">
           {% include "ipt/tabs/exposure.html" %}
           </div>
           <!-- FRAGILITY -->
-          <div id="tabs-2" class="ff_gid">
+          <div id="tabs-2" class="ff_gid" name="fragility">
           {% include "ipt/tabs/fragility.html" %}
           </div>
           <!-- CONSEQUENCE -->
-          <div id="tabs-3" class="co_gid">
+          <div id="tabs-3" class="co_gid" name="consequence">
           {% include "ipt/tabs/consequence.html" %}
           </div>
           <!-- VULNERABILITY -->
-          <div id="tabs-4" class="vf_gid">
+          <div id="tabs-4" class="vf_gid" name="vulnerability">
           {% include "ipt/tabs/vulnerability.html" %}
           </div>
           <!-- EARTHQUAKE RUPTURE -->
-          <div id="tabs-5" class="er_gid">
+          <div id="tabs-5" class="er_gid" name="earthquake_rupture">
           {% include "ipt/tabs/earthquake_rupture.html" %}
           </div>
           <!-- SITE CONDITIONS -->
-          <div id="tabs-6" class="sc_gid">
+          <div id="tabs-6" class="sc_gid" name="site_condition">
           {% include "ipt/tabs/site_conds.html" %}
           </div>
           <!-- CONFIGURATION FILE -->
-          <div id="tabs-7" class="cf_gid">
+          <div id="tabs-7" class="cf_gid" name="configuration_file">
           {% include "ipt/tabs/config_files.html" %}
           </div>
         </div>
@@ -97,23 +97,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 {% block extra_script %}
     {{block.super}}
     <script>
-        help = document.getElementById("help_url");
-        csrf_token = "{% csrf_token %}";
-        if(help != null) { help.href+='/explore/'; }
-        var tab_id_s = "{{ request.GET.tab_id }}", tab_id;
-        tab_id = parseInt(tab_id_s) - 1;
-        if (tab_id < 0 || tab_id > 8) {
-            tab_id = 0;
-        }
-        $( "#tabs" ).tabs({active: tab_id });
-        var VALIDATION_URL = 'valid';
-        var SENDBACK_URL = 'sendback';
-        var g_gmpe = {{ g_gmpe|safe }};
-        var g_gmpe_options = [];
-
-        for (var i = 0 ; i < g_gmpe.length ; i++) {
-            g_gmpe_options[i] = { type: "option", value: g_gmpe[i], label: g_gmpe[i] };
-        }
+{% include "ipt/ipt.js" %}
     </script>
     <script src="{{ STATIC_URL }}js/handsontable.full.min.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/bootstrap-tagsinput.min.js"></script>
@@ -128,10 +112,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     <script src="{{ STATIC_URL }}ipt/js/selectTextareaLine.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/selectAllTextareaText.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/validateAndDisplayNRML.js"></script>
-{% if request.GET.example_id|add:"0" > 0 and request.GET.example_id|add:"0" < 100 and request.GET.tab_id|add:"0" > 0 and request.GET.tab_id|add:"0" < 8 %}
-    <script src="{{ STATIC_URL }}ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}.js"></script>
+    {% if request.GET.example_id|add:"0" > 0 and request.GET.example_id|add:"0" < 100 and request.GET.tab_id|add:"0" > 0 and request.GET.tab_id|add:"0" < 8 and request.GET.subtab_id|add:"0" >= 0 and request.GET.subtab_id|add:"0" < 4 %}
+    <script src="{{ STATIC_URL }}ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}{{ request.GET.subtab_id|add:"0"|stringformat:"01d" }}.js"></script>
 {% else %}
-    <!-- Example not found, tab_id: [1-7][{{ request.GET.tab_id|default:"nothing" }}] example_id [0-99]: [{{ request.GET.example_id|default:"nothing" }}]  -->
+    <!-- Example not found "ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}{{ request.GET.subtab_id|add:"0"|stringformat:"01d" }}.js"  -->
 {% endif %}
     <script src="{{ STATIC_URL }}js/sol.js"></script>
 {% endblock extra_script %}

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2015-2016, GEM Foundation.
+   Copyright (c) 2015-2017, GEM Foundation.
 
       This program is free software: you can redistribute it and/or modify
       it under the terms of the GNU Affero General Public License as
@@ -511,7 +511,7 @@ $(document).ready(function () {
                         dest_name = "Scenario" + plus_hazard + plus_risk;
                     }
                     else if (scope == 'e_b') {
-                        dest_name = "EventBasedRisk";
+                        dest_name = "EventBased";
                     }
                     $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
                     $form.append($new_input);
@@ -590,8 +590,8 @@ $(document).ready(function () {
      */
 
     function scenario_manager() {
-        var hazard = null; // null or hazard
-        var risk = null;   // null, damage or loss
+        var hazard = null; // null or 'hazard'
+        var risk = null;   // null, 'damage' or 'loss'
         var hazard_sites_choice = null; // null, region-grid, list-of-sites, exposure-model, site-cond-model
 
         if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
@@ -1192,39 +1192,8 @@ $(document).ready(function () {
         // nothing
 
         // Risk calculation (UI)
-        {
-            var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
-            var pfx_vuln = cf_obj['e_b'].pfx + ' div[name="vulnerability-model"]';
+        // nothing
 
-            var $target = $(pfx + ' div[name="loss-curve-resolution"]');
-            if ($(pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').is(':checked')) {
-                $target.css('display', '');
-            }
-            else {
-                $target.css('display', 'none');
-            }
-
-            var $target = $(pfx + ' div[name="loss-ratios"]');
-            if ($(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked')) {
-                $target.css('display', '');
-            }
-            else {
-                $target.css('display', 'none');
-            }
-
-            var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
-            for (var lossidx in losslist) {
-                var losstype = losslist[lossidx];
-
-                $target = $(pfx + ' div[name="loss-ratios-' + losstype + '"]');
-                if($(pfx_vuln + ' input[type="checkbox"][name="losstype"][value="' + losstype + '"]').is(':checked')) {
-                    $target.css('display', '');
-                }
-                else {
-                    $target.css('display', 'none');
-                }
-            }
-        }
         // Hazard outputs (UI)
         {
             var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-outputs"]';
@@ -1329,12 +1298,7 @@ $(document).ready(function () {
     // no init
 
     // Risk calculation (init)
-    {
-        var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
-
-        $(pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').click(event_based_manager);
-        $(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').click(event_based_manager);
-    }
+    // no init
 
     // Hazard outputs (init)
     {
@@ -1427,8 +1391,6 @@ $(document).ready(function () {
 
             // risk calculations
             risk_investigation_time: null,
-            loss_curve_resolution_choice: false,
-            loss_curve_resolution: null,
             loss_ratios_choice: false,
             loss_ratios_structural: null,
             loss_ratios_nonstructural: null,
@@ -1439,7 +1401,6 @@ $(document).ready(function () {
             // hazard outputs
             ground_motion_fields: null,
             hazard_curves_from_gmfs: null,
-            mean_hazard_curves: null,
             quantile_hazard_curves_choice: false,
             quantile_hazard_curves: null,
             hazard_maps: null,
@@ -1579,40 +1540,6 @@ $(document).ready(function () {
                 ret.str += "'Risk investigation time' field isn't positive number ("
                     + obj.risk_investigation_time + ").\n";
             }
-
-            obj.loss_curve_resolution_choice = $(
-                cf_obj['e_b'].pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').is(':checked');
-            if (obj.loss_curve_resolution_choice) {
-                obj.loss_curve_resolution = $(pfx + ' input[type="text"][name="loss_curve_resolution"]').val();
-                if (!gem_ipt.isInt(obj.loss_curve_resolution) || parseInt(obj.loss_curve_resolution) <= 0.0) {
-                    ret.str += "'Loss curve resolution' field isn't positive number ("
-                        + obj.risk_investigation_time + ").\n";
-                }
-            }
-
-            obj.loss_ratios_choice = $(
-                cf_obj['e_b'].pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked');
-            if (obj.loss_ratios_choice) {
-                var descr = { structural: 'structural', nonstructural: 'nonstructural',
-                              contents: 'contents', businter: 'business interruption',
-                              occupants: 'occupants' };
-                var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
-                for (var lossidx in losslist) {
-                    var losstype = losslist[lossidx];
-
-                    if(obj['vm_loss_' + losstype + '_choice']) {
-                        obj['loss_ratios_' + losstype] = $(pfx + ' input[type="text"][name="loss_ratios_' + losstype + '"]').val();
-                        var arr = obj['loss_ratios_' + losstype].split(',');
-                        for (var k in arr) {
-                            var cur = arr[k].trim(' ');
-                            if (!gem_ipt.isFloat(cur) || cur < 0.0) {
-                                ret.str += "'" + descr[losstype] + " vulnerability model' field element #" + (parseInt(k)+1)
-                                    + " is negative number (" + cur + ").\n";
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         // Hazard outputs (get)
@@ -1626,8 +1553,6 @@ $(document).ready(function () {
                                         ).is(':checked');
 
             if (obj.hazard_curves_from_gmfs) {
-                obj.mean_hazard_curves = $(pfx + ' input[type="checkbox"][name="mean_hazard_curves"]'
-                                          ).is(':checked');
                 obj.quantile_hazard_curves_choice = $(
                     pfx + ' input[type="checkbox"][name="quantile_hazard_curves_choice"]').is(':checked');
                 if (obj.quantile_hazard_curves_choice) {

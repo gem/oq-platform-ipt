@@ -138,4 +138,5 @@ $(document).ready(function () {
     }
 
     $('.vf_gid #convertBtn').trigger('click');
+    window.gem_example_completed = true;
 });
