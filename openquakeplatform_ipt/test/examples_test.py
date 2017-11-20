@@ -210,7 +210,7 @@ class IptUploadTest(unittest.TestCase):
             "$(arguments[0]).trigger('submit');", upload_file)
 
         # wait for js upload callback to setup dropdown item properly
-        time.sleep(2)
+        time.sleep(5)
 
         list_files = Select(pla.xpath_finduniq(
             common + "//div[@name='rupture-file-html']"
