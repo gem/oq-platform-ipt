@@ -9,6 +9,13 @@ import errno
 import difflib
 import zipfile
 from selenium.webdriver.support.select import Select
+try:
+    from openquakeplatform.settings import STANDALONE
+except:
+    STANDALONE = False
+
+from openquakeplatform.settings import FILE_PATH_FIELD_DIRECTORY
+
 from openquake.moon import platform_get
 
 #
@@ -134,14 +141,16 @@ def setup_module(module):
     global _FILE_PATH_FIELD_DIRECTORY_OLD, _FILE_PATH_FIELD_DIRECTORY
 
     homedir = os.environ.get('GEM_OQ_PLA_IPT_SERVER_HOMEDIR')
-    if homedir is None:
-        homedir = os.path.expanduser('~')
-
-    # remember to adjust this assignment accordingly with changes on
-    # settings.py::FILE_PATH_FIELD_DIRECTORY=
-    file_path = os.path.join(homedir, os.path.join('oqdata', 'ipt'))
-    file_path_old = os.path.join(homedir, os.path.join(
-        'oqdata', 'ipt.pretest'))
+    if homedir is not None:
+        file_path = os.path.join(
+            homedir, os.path.basename(FILE_PATH_FIELD_DIRECTORY), 'ipt')
+    else:
+        file_path = os.path.join(
+            FILE_PATH_FIELD_DIRECTORY,
+            ('' if STANDALONE is True else '1'), 'ipt')
+        print("\n\nFILE_PATH: [%s]" % file_path)
+    file_path_old = os.path.join(
+        os.path.dirname(file_path), 'ipt.pretest')
 
     if os.path.isdir(file_path):
         os.rename(file_path,
@@ -199,6 +208,9 @@ class IptUploadTest(unittest.TestCase):
 
         pla.driver.execute_script(
             "$(arguments[0]).trigger('submit');", upload_file)
+
+        # wait for js upload callback to setup dropdown item properly
+        time.sleep(2)
 
         list_files = Select(pla.xpath_finduniq(
             common + "//div[@name='rupture-file-html']"
