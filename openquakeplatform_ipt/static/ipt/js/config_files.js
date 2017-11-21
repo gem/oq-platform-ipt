@@ -1391,7 +1391,6 @@ $(document).ready(function () {
 
             // risk calculations
             risk_investigation_time: null,
-            loss_ratios_choice: false,
             loss_ratios_structural: null,
             loss_ratios_nonstructural: null,
             loss_ratios_contents: null,
@@ -1616,19 +1615,15 @@ $(document).ready(function () {
             obj.conditional_loss_poes_choice = $(
                 pfx + ' input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked');
 
-            if ((!obj.loss_ratios_choice) && obj.conditional_loss_poes_choice) {
-                ret.str += "To include 'Loss maps' you must enable 'Loss ratios' in 'Risk calculation' section.\n";           }
-            if (obj.loss_ratios_choice) {
-                if (obj.conditional_loss_poes_choice) {
-                    obj.conditional_loss_poes = $(pfx + ' input[type="text"][name="conditional_loss_poes"]').val();
+            if (obj.conditional_loss_poes_choice) {
+                obj.conditional_loss_poes = $(pfx + ' input[type="text"][name="conditional_loss_poes"]').val();
 
-                    var arr = obj.conditional_loss_poes.split(',');
-                    for (var k in arr) {
-                        var cur = arr[k].trim(' ');
-                        if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
-                            ret.str += "'Loss maps' field element #" + (parseInt(k)+1)
-                                + " isn't positive number (" + cur + ").\n";
-                        }
+                var arr = obj.conditional_loss_poes.split(',');
+                for (var k in arr) {
+                    var cur = arr[k].trim(' ');
+                    if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
+                        ret.str += "'Loss maps' field element #" + (parseInt(k)+1)
+                            + " isn't positive number (" + cur + ").\n";
                     }
                 }
             }
