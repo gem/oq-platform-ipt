@@ -291,9 +291,12 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
             os.makedirs(normalized_path)
         except OSError:
             fullpa = normalized_path
+            print("FULL FULLPA: [%s]" % fullpa)
             while fullpa != "/":
+                print("IN WHILE FULLPA: [%s]" % fullpa)
                 os.system("ls -ld '%s'" % fullpa)
                 fullpa = os.path.dirname(fullpa)
+                print("POST DIRNAME FULLPA: [%s]" % fullpa)
             raise OSError
 
     class FileHtml(forms.Form):
