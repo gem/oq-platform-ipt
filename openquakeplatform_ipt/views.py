@@ -294,7 +294,7 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
             print("FULL FULLPA: [%s]" % fullpa)
             while fullpa != "/":
                 print("IN WHILE FULLPA: [%s]" % fullpa)
-                os.system("ls -ld '%s'" % fullpa)
+                os.system("ls -ld '%s' 1>&2" % fullpa)
                 fullpa = os.path.dirname(fullpa)
                 print("POST DIRNAME FULLPA: [%s]" % fullpa)
             raise OSError
