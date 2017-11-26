@@ -107,8 +107,39 @@ imt_examples = {
 }
 
 
-_FILE_PATH_FIELD_DIRECTORY_OLD = None
-_FILE_PATH_FIELD_DIRECTORY = None
+_FPATH_FIELD_DIRECTORY_OLD = None
+_FPATH_FIELD_DIRECTORY = None
+
+
+def replicatetree(fm, to):
+    if os.path.isdir(fm) is False:
+        raise OSError("'%s' is not a directory" % fm)
+    if os.path.exists(to):
+        if os.path.isdir(to) is False:
+            os.system("ls -l %s >&2" % to)
+            raise OSError("'%s' is not a directory" % to)
+    else:
+        os.mkdir(to)
+
+    for item in os.listdir(fm):
+        fm_item = os.path.join(fm, item)
+        to_item = os.path.join(to, item)
+        if os.path.isdir(fm_item):
+            if os.path.exists(to_item):
+                if os.path.isdir(to_item):
+                    continue
+                else:
+                    raise OSError("'%s' is not a directory" % to_item)
+            else:
+                os.mkdir(to_item)
+                os.system("ls -ld %s >&2" % to_item)
+                replicatetree(fm_item, to_item)
+        else:
+            if os.path.exists(to_item):
+                if os.path.isdir(to_item):
+                    raise OSError("'%s' is a directory" % to_item)
+            shutil.copyfile(fm_item, to_item)
+            # TODO adjust permissions
 
 
 def zip_diff(filename1, filename2):
@@ -138,7 +169,7 @@ def zip_diff(filename1, filename2):
 
 
 def setup_module(module):
-    global _FILE_PATH_FIELD_DIRECTORY_OLD, _FILE_PATH_FIELD_DIRECTORY
+    global _FPATH_FIELD_DIRECTORY_OLD, _FPATH_FIELD_DIRECTORY
 
     homedir = os.environ.get('GEM_OQ_PLA_IPT_SERVER_HOMEDIR')
     if homedir is not None:
@@ -155,15 +186,15 @@ def setup_module(module):
     if os.path.isdir(file_path):
         os.rename(file_path,
                   file_path_old)
-        _FILE_PATH_FIELD_DIRECTORY_OLD = file_path_old
-    _FILE_PATH_FIELD_DIRECTORY = file_path
+        _FPATH_FIELD_DIRECTORY_OLD = file_path_old
+    _FPATH_FIELD_DIRECTORY = file_path
 
 
 def teardown_module(module):
-    if _FILE_PATH_FIELD_DIRECTORY_OLD is not None:
-        shutil.rmtree(_FILE_PATH_FIELD_DIRECTORY)
-        os.rename(_FILE_PATH_FIELD_DIRECTORY_OLD,
-                  _FILE_PATH_FIELD_DIRECTORY)
+    if _FPATH_FIELD_DIRECTORY_OLD is not None:
+        shutil.rmtree(_FPATH_FIELD_DIRECTORY)
+        os.rename(_FPATH_FIELD_DIRECTORY_OLD,
+                  _FPATH_FIELD_DIRECTORY)
 
 
 def _copy_anything(src, dst):
@@ -242,11 +273,11 @@ class IptExamplesTest(unittest.TestCase):
 
         #
         # populate uploaded file with template
-        if _FILE_PATH_FIELD_DIRECTORY:
-            if os.path.isdir(_FILE_PATH_FIELD_DIRECTORY):
-                shutil.rmtree(_FILE_PATH_FIELD_DIRECTORY)
-        _copy_anything(os.path.join(
-            os.path.dirname(__file__), 'data'), _FILE_PATH_FIELD_DIRECTORY)
+        if _FPATH_FIELD_DIRECTORY:
+            if os.path.isdir(_FPATH_FIELD_DIRECTORY):
+                shutil.rmtree(_FPATH_FIELD_DIRECTORY)
+        replicatetree(os.path.join(
+            os.path.dirname(__file__), 'data'), _FPATH_FIELD_DIRECTORY)
 
 
 def gen_timeout_poller(secs, delta):
