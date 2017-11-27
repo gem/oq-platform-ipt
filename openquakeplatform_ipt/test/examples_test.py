@@ -132,7 +132,6 @@ def replicatetree(fm, to):
                     raise OSError("'%s' is not a directory" % to_item)
             else:
                 os.mkdir(to_item)
-                os.system("ls -ld %s >&2" % to_item)
                 replicatetree(fm_item, to_item)
         else:
             if os.path.exists(to_item):
