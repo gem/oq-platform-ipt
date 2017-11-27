@@ -112,10 +112,10 @@ _FPATH_FIELD_DIRECTORY = None
 
 
 def replicatetree(fm, to):
-    if os.path.isdir(fm) is False:
+    if not os.path.isdir(fm):
         raise OSError("'%s' is not a directory" % fm)
     if os.path.exists(to):
-        if os.path.isdir(to) is False:
+        if not os.path.isdir(to):
             os.system("ls -l %s >&2" % to)
             raise OSError("'%s' is not a directory" % to)
     else:

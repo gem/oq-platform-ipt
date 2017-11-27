@@ -286,7 +286,7 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
     user_allowed_path = get_full_path(userid, namespace)
     if not normalized_path.startswith(user_allowed_path):
         raise LookupError('Unauthorized path: "%s"' % normalized_path)
-    if os.path.isdir(normalized_path) is not True:
+    if not os.path.isdir(normalized_path):
         try:
             os.makedirs(normalized_path)
         except OSError as excp:

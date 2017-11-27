@@ -7,7 +7,7 @@ except:
 
 def setup_package():
     pla = platform_get()
-    pla.init(autologin=(not STANDALONE))
+    pla.init(autologin=not STANDALONE)
 
 
 def teardown_package():
