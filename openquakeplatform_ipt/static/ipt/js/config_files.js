@@ -1615,15 +1615,22 @@ $(document).ready(function () {
             obj.conditional_loss_poes_choice = $(
                 pfx + ' input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked');
 
-            if (obj.conditional_loss_poes_choice) {
-                obj.conditional_loss_poes = $(pfx + ' input[type="text"][name="conditional_loss_poes"]').val();
+            if ((!obj.asset_loss_table) && obj.conditional_loss_poes_choice) {
+                // Was: "To include 'Loss maps' you must enable 'Loss ratios' in 'Risk calculation' section"
+                ret.str += "To include 'Loss maps' you must enable 'Asset loss table' in 'Risk calculation' section.\n";
+            }
 
-                var arr = obj.conditional_loss_poes.split(',');
-                for (var k in arr) {
-                    var cur = arr[k].trim(' ');
-                    if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
-                        ret.str += "'Loss maps' field element #" + (parseInt(k)+1)
-                            + " isn't positive number (" + cur + ").\n";
+            if (!obj.asset_loss_table) {
+                if (obj.conditional_loss_poes_choice) {
+                    obj.conditional_loss_poes = $(pfx + ' input[type="text"][name="conditional_loss_poes"]').val();
+
+                    var arr = obj.conditional_loss_poes.split(',');
+                    for (var k in arr) {
+                        var cur = arr[k].trim(' ');
+                        if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
+                            ret.str += "'Loss maps' field element #" + (parseInt(k)+1)
+                                + " isn't positive number (" + cur + ").\n";
+                        }
                     }
                 }
             }
