@@ -9,6 +9,13 @@ import errno
 import difflib
 import zipfile
 from selenium.webdriver.support.select import Select
+try:
+    from openquakeplatform.settings import STANDALONE
+except:
+    STANDALONE = False
+
+from openquakeplatform.settings import FILE_PATH_FIELD_DIRECTORY
+
 from openquake.moon import platform_get
 
 #
@@ -100,8 +107,37 @@ imt_examples = {
 }
 
 
-_FILE_PATH_FIELD_DIRECTORY_OLD = None
-_FILE_PATH_FIELD_DIRECTORY = None
+_fpath_field_directory_old = None
+_fpath_field_directory = None
+
+
+def replicatetree(fm, to):
+    if not os.path.isdir(fm):
+        raise OSError("'%s' is not a directory" % fm)
+    if os.path.exists(to):
+        if not os.path.isdir(to):
+            os.system("ls -l %s >&2" % to)
+            raise OSError("'%s' is not a directory" % to)
+    else:
+        os.mkdir(to)
+
+    for item in os.listdir(fm):
+        fm_item = os.path.join(fm, item)
+        to_item = os.path.join(to, item)
+        if os.path.isdir(fm_item):
+            if os.path.exists(to_item):
+                if os.path.isdir(to_item):
+                    continue
+                else:
+                    raise OSError("'%s' is not a directory" % to_item)
+            else:
+                os.mkdir(to_item)
+                replicatetree(fm_item, to_item)
+        else:
+            if os.path.exists(to_item):
+                if os.path.isdir(to_item):
+                    raise OSError("'%s' is a directory" % to_item)
+            shutil.copyfile(fm_item, to_item)
 
 
 def zip_diff(filename1, filename2):
@@ -131,30 +167,32 @@ def zip_diff(filename1, filename2):
 
 
 def setup_module(module):
-    global _FILE_PATH_FIELD_DIRECTORY_OLD, _FILE_PATH_FIELD_DIRECTORY
+    global _fpath_field_directory_old, _fpath_field_directory
 
     homedir = os.environ.get('GEM_OQ_PLA_IPT_SERVER_HOMEDIR')
-    if homedir is None:
-        homedir = os.path.expanduser('~')
-
-    # remember to adjust this assignment accordingly with changes on
-    # settings.py::FILE_PATH_FIELD_DIRECTORY=
-    file_path = os.path.join(homedir, os.path.join('oqdata', 'ipt'))
-    file_path_old = os.path.join(homedir, os.path.join(
-        'oqdata', 'ipt.pretest'))
+    if homedir is not None:
+        file_path = os.path.join(
+            homedir, os.path.basename(FILE_PATH_FIELD_DIRECTORY), 'ipt')
+    else:
+        file_path = os.path.join(
+            FILE_PATH_FIELD_DIRECTORY,
+            ('' if STANDALONE is True else '1'), 'ipt')
+        print("\n\nFILE_PATH: [%s]" % file_path)
+    file_path_old = os.path.join(
+        os.path.dirname(file_path), 'ipt.pretest')
 
     if os.path.isdir(file_path):
         os.rename(file_path,
                   file_path_old)
-        _FILE_PATH_FIELD_DIRECTORY_OLD = file_path_old
-    _FILE_PATH_FIELD_DIRECTORY = file_path
+        _fpath_field_directory_old = file_path_old
+    _fpath_field_directory = file_path
 
 
 def teardown_module(module):
-    if _FILE_PATH_FIELD_DIRECTORY_OLD is not None:
-        shutil.rmtree(_FILE_PATH_FIELD_DIRECTORY)
-        os.rename(_FILE_PATH_FIELD_DIRECTORY_OLD,
-                  _FILE_PATH_FIELD_DIRECTORY)
+    if _fpath_field_directory_old is not None:
+        shutil.rmtree(_fpath_field_directory)
+        os.rename(_fpath_field_directory_old,
+                  _fpath_field_directory)
 
 
 def _copy_anything(src, dst):
@@ -200,6 +238,9 @@ class IptUploadTest(unittest.TestCase):
         pla.driver.execute_script(
             "$(arguments[0]).trigger('submit');", upload_file)
 
+        # wait for js upload callback to setup dropdown item properly
+        time.sleep(5)
+
         list_files = Select(pla.xpath_finduniq(
             common + "//div[@name='rupture-file-html']"
             "//select[@name='file_html']"))
@@ -230,11 +271,11 @@ class IptExamplesTest(unittest.TestCase):
 
         #
         # populate uploaded file with template
-        if _FILE_PATH_FIELD_DIRECTORY:
-            if os.path.isdir(_FILE_PATH_FIELD_DIRECTORY):
-                shutil.rmtree(_FILE_PATH_FIELD_DIRECTORY)
-        _copy_anything(os.path.join(
-            os.path.dirname(__file__), 'data'), _FILE_PATH_FIELD_DIRECTORY)
+        if _fpath_field_directory:
+            if os.path.isdir(_fpath_field_directory):
+                shutil.rmtree(_fpath_field_directory)
+        replicatetree(os.path.join(
+            os.path.dirname(__file__), 'data'), _fpath_field_directory)
 
 
 def gen_timeout_poller(secs, delta):

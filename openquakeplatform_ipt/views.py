@@ -287,7 +287,16 @@ def filehtml_create(suffix, userid, namespace, dirnam=None,
     if not normalized_path.startswith(user_allowed_path):
         raise LookupError('Unauthorized path: "%s"' % normalized_path)
     if not os.path.isdir(normalized_path):
-        os.makedirs(normalized_path)
+        try:
+            os.makedirs(normalized_path)
+        except OSError as excp:
+            fullpa = normalized_path
+            print("makedirs failed, full path: [%s]" % fullpa)
+            while fullpa != "/":
+                print("  in while: [%s]" % fullpa)
+                os.system("ls -ld '%s' 1>&2" % fullpa)
+                fullpa = os.path.dirname(fullpa)
+            raise
 
     class FileHtml(forms.Form):
         file_html = FilePathFieldByUser(
