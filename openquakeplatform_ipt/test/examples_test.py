@@ -139,7 +139,6 @@ def replicatetree(fm, to):
                 if os.path.isdir(to_item):
                     raise OSError("'%s' is a directory" % to_item)
             shutil.copyfile(fm_item, to_item)
-            # TODO adjust permissions
 
 
 def zip_diff(filename1, filename2):
