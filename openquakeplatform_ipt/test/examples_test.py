@@ -107,8 +107,8 @@ imt_examples = {
 }
 
 
-_FPATH_FIELD_DIRECTORY_OLD = None
-_FPATH_FIELD_DIRECTORY = None
+_fpath_field_directory_old = None
+_fpath_field_directory = None
 
 
 def replicatetree(fm, to):
@@ -167,7 +167,7 @@ def zip_diff(filename1, filename2):
 
 
 def setup_module(module):
-    global _FPATH_FIELD_DIRECTORY_OLD, _FPATH_FIELD_DIRECTORY
+    global _fpath_field_directory_old, _fpath_field_directory
 
     homedir = os.environ.get('GEM_OQ_PLA_IPT_SERVER_HOMEDIR')
     if homedir is not None:
@@ -184,15 +184,15 @@ def setup_module(module):
     if os.path.isdir(file_path):
         os.rename(file_path,
                   file_path_old)
-        _FPATH_FIELD_DIRECTORY_OLD = file_path_old
-    _FPATH_FIELD_DIRECTORY = file_path
+        _fpath_field_directory_old = file_path_old
+    _fpath_field_directory = file_path
 
 
 def teardown_module(module):
-    if _FPATH_FIELD_DIRECTORY_OLD is not None:
-        shutil.rmtree(_FPATH_FIELD_DIRECTORY)
-        os.rename(_FPATH_FIELD_DIRECTORY_OLD,
-                  _FPATH_FIELD_DIRECTORY)
+    if _fpath_field_directory_old is not None:
+        shutil.rmtree(_fpath_field_directory)
+        os.rename(_fpath_field_directory_old,
+                  _fpath_field_directory)
 
 
 def _copy_anything(src, dst):
@@ -271,11 +271,11 @@ class IptExamplesTest(unittest.TestCase):
 
         #
         # populate uploaded file with template
-        if _FPATH_FIELD_DIRECTORY:
-            if os.path.isdir(_FPATH_FIELD_DIRECTORY):
-                shutil.rmtree(_FPATH_FIELD_DIRECTORY)
+        if _fpath_field_directory:
+            if os.path.isdir(_fpath_field_directory):
+                shutil.rmtree(_fpath_field_directory)
         replicatetree(os.path.join(
-            os.path.dirname(__file__), 'data'), _FPATH_FIELD_DIRECTORY)
+            os.path.dirname(__file__), 'data'), _fpath_field_directory)
 
 
 def gen_timeout_poller(secs, delta):
