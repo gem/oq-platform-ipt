@@ -1391,7 +1391,6 @@ $(document).ready(function () {
 
             // risk calculations
             risk_investigation_time: null,
-            loss_ratios_choice: false,
             loss_ratios_structural: null,
             loss_ratios_nonstructural: null,
             loss_ratios_contents: null,
@@ -1616,9 +1615,12 @@ $(document).ready(function () {
             obj.conditional_loss_poes_choice = $(
                 pfx + ' input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked');
 
-            if ((!obj.loss_ratios_choice) && obj.conditional_loss_poes_choice) {
-                ret.str += "To include 'Loss maps' you must enable 'Loss ratios' in 'Risk calculation' section.\n";           }
-            if (obj.loss_ratios_choice) {
+            if ((!obj.asset_loss_table) && obj.conditional_loss_poes_choice) {
+                // Was: "To include 'Loss maps' you must enable 'Loss ratios' in 'Risk calculation' section"
+                ret.str += "To include 'Loss maps' you must enable 'Asset loss table' in 'Risk calculation' section.\n";
+            }
+
+            if (!obj.asset_loss_table) {
                 if (obj.conditional_loss_poes_choice) {
                     obj.conditional_loss_poes = $(pfx + ' input[type="text"][name="conditional_loss_poes"]').val();
 
