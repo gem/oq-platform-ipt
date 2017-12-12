@@ -41,6 +41,37 @@ function sendbackNRML(nrml, sfx)
     $form[0].submit();
 }
 
+function _cookie_builder(cookies)
+{
+    var ret = "Cookie: ";
+    var pre = "";
+
+    for (i in cookies) {
+        ret += pre + cookies[i].name + "=" + cookies[i].value;
+        pre = "; ";
+    }
+    return ret;
+}
+
+function delegate_downloadNRML(nrml, sfx)
+{
+    var funcType = sfx2name(sfx);
+    var csrf_name = $(csrf_token).attr('name');
+    var csrf_value = $(csrf_token).attr('value');
+
+    if (typeof gem_api == 'undefined')
+        return false;
+
+    var dd_headers = _cookie_builder({'name': csrf_name, 'value': csrf_value});
+    var dd_data = [{'name': 'csrfmiddlewaretoken', 'value': csrf_value},
+                   {'name': 'xml_text', 'value': nrml },
+                   {'name': 'func_type', 'value': funcType }];
+
+    // action (url), method (string like 'POST'), headers (list of strings),
+    //               data (list of dictionaries {name (string), value(string)}
+    gem_api.delegate_download(SENDBACK_URL, 'POST', dd_headers, dd_data);
+}
+
 
 function validationErrorShow(funcType, error_msg){
     $('.' + funcType + '_gid #validationErrorMsg').text(
