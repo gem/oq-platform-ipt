@@ -62,7 +62,9 @@ function delegate_downloadNRML(nrml, sfx)
     if (typeof gem_api == 'undefined')
         return false;
 
-    var dd_headers = _cookie_builder({'name': csrf_name, 'value': csrf_value});
+    var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
+    var cookies = [cookie_csrf];
+    var dd_headers = _cookie_builder(cookies);
     var dd_data = [{'name': 'csrfmiddlewaretoken', 'value': csrf_value},
                    {'name': 'xml_text', 'value': nrml },
                    {'name': 'func_type', 'value': funcType }];
