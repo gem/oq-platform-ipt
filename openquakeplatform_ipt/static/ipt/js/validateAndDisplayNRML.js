@@ -43,11 +43,11 @@ function sendbackNRML(nrml, sfx)
 
 function _cookie_builder(cookies)
 {
-    var ret = "Cookie: ";
-    var pre = "";
+    var ret = {'name': 'Cookie', 'value': ''};
+    var pre = '';
 
     for (i in cookies) {
-        ret += pre + cookies[i].name + "=" + cookies[i].value;
+        ret.value += pre + cookies[i].name + "=" + cookies[i].value;
         pre = "; ";
     }
     return ret;
