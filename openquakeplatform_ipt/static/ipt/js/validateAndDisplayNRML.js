@@ -46,7 +46,7 @@ function _cookie_builder(cookies)
     var ret = {'name': 'Cookie', 'value': ''};
     var pre = '';
 
-    for (i in cookies) {
+    for (var i in cookies) {
         ret.value += pre + cookies[i].name + "=" + cookies[i].value;
         pre = "; ";
     }
@@ -70,18 +70,7 @@ function gem_api_ctx_get_object(object_id)
 
 function gem_api_ctx_del(object_id)
 {
-    delete(window['_gem_api_ctx_' + object_id])
-}
-
-function delegate_downloadNRML_cb(object_id, file_name, success, reason)
-{
-    var obj = gem_api_ctx_get_object(object_id);
-
-    var ret = obj.delegate_downloadNRML_cb(file_name, success, reason);
-
-    gem_api_ctx_del(object_id);
-
-    return ret;
+    delete(window['_gem_api_ctx_' + object_id]);
 }
 
 function dd_obj()
@@ -94,6 +83,17 @@ dd_obj.prototype = {
        console.log(success);
        console.log(reason);
     }
+};
+
+function delegate_downloadNRML_cb(object_id, file_name, success, reason)
+{
+    console.log('object_id: ' + object_id);
+    var obj = gem_api_ctx_get_object(object_id);
+    var ret = obj.delegate_downloadNRML_cb(file_name, success, reason);
+
+    gem_api_ctx_del(object_id);
+
+    return ret;
 }
 
 function delegate_downloadNRML(nrml, sfx)
@@ -116,9 +116,9 @@ function delegate_downloadNRML(nrml, sfx)
     //               data (list of dictionaries {name (string), value(string)}
     //               delegate_downloadNRML_cb == function(obj_suffix, ... )
     cb_obj = new dd_obj();
-    var cb_obj_id = gem_api_ctx_get_object(cb_obj);
-    if (gem_api.delegate_download(SENDBACK_URL, 'POST', dd_headers, dd_data,
-                                  delegate_downloadNRML_cb, cb_obj_id);
+    var cb_obj_id = gem_api_ctx_get_object_id(cb_obj);
+    gem_api.delegate_download(SENDBACK_URL, 'POST', dd_headers, dd_data,
+                              "delegate_downloadNRML_cb", cb_obj_id);
 }
 
 
