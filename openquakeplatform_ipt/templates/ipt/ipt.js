@@ -12,7 +12,7 @@ if (tab_id_int >= 0 && tab_id_int < 7) {
     tab_id = tab_id_int;
 }
 
-var subtab_id_s = "{{ request.GET.subtab_id }}", subtab_id_int;
+var subtab_id_s = "{{ request.GET.subtab_id|default:"0" }}", subtab_id_int;
 var subtab_id_int = parseInt(subtab_id_s) - 1;
 
 switch (tab_id) {
