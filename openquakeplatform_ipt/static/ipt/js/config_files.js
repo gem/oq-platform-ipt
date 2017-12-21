@@ -582,7 +582,7 @@ $(document).ready(function () {
 
         var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
         var cookies = [cookie_csrf];
-        var dd_headers = [gem_cookie_builder(cookies)];
+        var dd_headers = [ipt_cookie_builder(cookies)];
         var dd_data = [{'name': 'csrfmiddlewaretoken', 'value': csrf_value},
                        {'name': 'data', 'value': JSON.stringify(ret.obj)},
                        {'name': 'func_type', 'value': funcType }];
