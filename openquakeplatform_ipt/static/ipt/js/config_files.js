@@ -523,6 +523,80 @@ $(document).ready(function () {
         return false;
     }
 
+    function grc_obj(scope)
+    {
+        this.scope = scope;
+    }
+
+    grc_obj.prototype = {
+        generic_run_calculation_gacb: function(file_name, success, reason)
+        {
+            console.log(this.scope);
+            console.log(file_name);
+            console.log(success);
+            console.log(reason);
+            if (success != 0) {
+                gem_ipt.error_msg(reason);
+                return;
+            }
+
+            // run second part of the command
+            ret = gem_api.run_oq_engine_calc([file_name]);
+            if (ret.ret != 0) {
+                gem_ipt.error_msg(reason);
+                return;
+            }
+        }
+    };
+
+    function generic_run_calculation_gacb(object_id, file_name, success, reason)
+    {
+        var obj = gem_api_ctx_get_object(object_id);
+
+        var ret = obj.generic_run_calculation_gacb(file_name, success, reason);
+        gem_api_ctx_del(object_id);
+
+        return ret;
+    }
+
+    function generic_run_calculation_cb(scope, obj, e)
+    {
+        e.preventDefault();
+
+        if (typeof gem_api == 'undefined') {
+            gem_ipt.error_msg('GEM integrated environmnent not found.');
+            return false;
+        }
+
+        var ret = cf_obj[scope].getData();
+
+        if (ret.ret != 0) {
+            gem_ipt.error_msg(ret.str);
+
+            return;
+        }
+
+        var url_suffix = { scen: "scenario", e_b: "event-based" };
+        var csrf_name = $(csrf_token).attr('name');
+        var csrf_value = $(csrf_token).attr('value');
+
+        var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
+        var cookies = [cookie_csrf];
+        var dd_headers = [gem_cookie_builder(cookies)];
+        var dd_data = [{'name': 'csrfmiddlewaretoken', 'value': csrf_value},
+                       {'name': 'data', 'value': JSON.stringify(ret.obj)},
+                       {'name': 'func_type', 'value': funcType }];
+
+
+
+        var cb_obj = new grc_obj(scope);
+        var cb_obj_id = gem_api_ctx_get_object_id(cb_obj);
+        gem_api.delegate_download(
+            'prepare/' + url_suffix[scope],
+            'POST', dd_headers, dd_data,
+            'generic_run_calculation_gacb', cb_obj_id);
+    }
+
     function do_clean_all()
     {
         $.ajax({
@@ -1150,6 +1224,12 @@ $(document).ready(function () {
         return generic_download_cb('scen', this, e);
     }
     $(cf_obj['scen'].pfx + ' button[name="download"]').click(scenario_download_cb);
+
+    function scenario_run_calculation_cb(e)
+    {
+        return generic_run_calculation_cb('scen', this, e);
+    }
+    $(cf_obj['scen'].pfx + ' button[id="runCalculationBtn"]').click(scenario_run_calculation_cb);
 
     scenario_manager();
 

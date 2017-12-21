@@ -341,3 +341,36 @@ var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
         alert('File not found.');
     }
 }
+
+var _gem_api_ctx_index = 10000;
+function gem_api_ctx_get_object_id(object)
+{
+    window['_gem_api_ctx_' + _gem_api_ctx_index] = object;
+    var object_id = _gem_api_ctx_index.toString();
+    _gem_api_ctx_index += 1;
+
+    return object_id;
+}
+
+function gem_api_ctx_get_object(object_id)
+{
+    return window['_gem_api_ctx_' + object_id];
+}
+
+function gem_api_ctx_del(object_id)
+{
+    delete(window['_gem_api_ctx_' + object_id])
+}
+
+function ipt_cookie_builder(cookies)
+{
+    var ret = {'name': 'Cookie', 'value': ''};
+    var pre = '';
+
+    for (i in cookies) {
+        ret.value += pre + cookies[i].name + "=" + cookies[i].value;
+        pre = "; ";
+    }
+    return ret;
+}
+

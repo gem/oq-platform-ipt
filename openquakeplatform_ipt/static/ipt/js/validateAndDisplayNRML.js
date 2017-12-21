@@ -41,36 +41,15 @@ function sendbackNRML(nrml, sfx)
     $form[0].submit();
 }
 
-function _cookie_builder(cookies)
+function delegate_downloadNRML_gacb(object_id, file_name, success, reason)
 {
-    var ret = {'name': 'Cookie', 'value': ''};
-    var pre = '';
+    var obj = gem_api_ctx_get_object(object_id);
 
-    for (var i in cookies) {
-        ret.value += pre + cookies[i].name + "=" + cookies[i].value;
-        pre = "; ";
-    }
+    var ret = obj.delegate_downloadNRML_cb(file_name, success, reason);
+
+    gem_api_ctx_del(object_id);
+
     return ret;
-}
-
-var _gem_api_ctx_index = 10000;
-function gem_api_ctx_get_object_id(object)
-{
-    window['_gem_api_ctx_' + _gem_api_ctx_index] = object;
-    var object_id = _gem_api_ctx_index.toString();
-    _gem_api_ctx_index += 1;
-
-    return object_id;
-}
-
-function gem_api_ctx_get_object(object_id)
-{
-    return window['_gem_api_ctx_' + object_id];
-}
-
-function gem_api_ctx_del(object_id)
-{
-    delete(window['_gem_api_ctx_' + object_id]);
 }
 
 function dd_obj()
@@ -107,7 +86,7 @@ function delegate_downloadNRML(nrml, sfx)
 
     var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
     var cookies = [cookie_csrf];
-    var dd_headers = [_cookie_builder(cookies)];
+    var dd_headers = [gem_cookie_builder(cookies)];
     var dd_data = [{'name': 'csrfmiddlewaretoken', 'value': csrf_value},
                    {'name': 'xml_text', 'value': nrml },
                    {'name': 'func_type', 'value': funcType }];
@@ -118,7 +97,7 @@ function delegate_downloadNRML(nrml, sfx)
     cb_obj = new dd_obj();
     var cb_obj_id = gem_api_ctx_get_object_id(cb_obj);
     gem_api.delegate_download(SENDBACK_URL, 'POST', dd_headers, dd_data,
-                              "delegate_downloadNRML_cb", cb_obj_id);
+                              "delegate_downloadNRML_gacb", cb_obj_id);
 }
 
 
