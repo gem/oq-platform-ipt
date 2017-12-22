@@ -457,7 +457,49 @@ $(document).ready(function () {
           ' form[name="site-conditions"]').submit(fileNew_upload);
     }
 
-    function generic_download_cb(scope, obj, e)
+
+    function generic_prepare_download_postcb(data, scope) {
+        if (data.ret == 0) {
+            var $form = $(cf_obj[scope].pfx + ' form[name="downloadForm"]');
+            var hazard = null, risk = null, plus_hazard = '', plus_risk = '';
+            var dest_name = 'Unknown';
+            var $new_input;
+
+            $form.empty();
+            $form.append(csrf_token);
+            $form.attr({'action': 'download'});
+            $new_input = $('<input/>');
+            $new_input.attr('type', 'hidden').attr({'name': 'zipname', 'value': data.zipname });
+            $form.append($new_input);
+
+            $new_input = $('<input/>');
+            if (scope == 'scen') {
+                if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
+                    hazard = 'hazard';
+                }
+                if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="risk"]').is(':checked')) {
+                    risk = $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]:checked').val();
+                }
+
+                if (hazard == 'hazard') {
+                    plus_hazard = "Hazard";
+                }
+                if (risk != null) {
+                    plus_risk = gem_capitalize(risk);
+                }
+                dest_name = "Scenario" + plus_hazard + plus_risk;
+            }
+            else if (scope == 'e_b') {
+                dest_name = "EventBased";
+            }
+            $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
+            $form.append($new_input);
+
+            $form.submit();
+        }
+    }
+
+    function generic_prepare_cb(scope, obj, on_success, e)
     {
         e.preventDefault();
 
@@ -479,45 +521,8 @@ $(document).ready(function () {
             cache: false,
             processData: false,
             contentType: false,
-            success: function(data) {
-                if (data.ret == 0) {
-                    var $form = $(cf_obj[scope].pfx + ' form[name="downloadForm"]');
-                    var hazard = null, risk = null, plus_hazard = '', plus_risk = '';
-                    var dest_name = 'Unknown';
-                    var $new_input;
-
-                    $form.empty();
-                    $form.append(csrf_token);
-                    $form.attr({'action': 'download'});
-                    $new_input = $('<input/>');
-                    $new_input.attr('type', 'hidden').attr({'name': 'zipname', 'value': data.zipname });
-                    $form.append($new_input);
-
-                    $new_input = $('<input/>');
-                    if (scope == 'scen') {
-                        if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
-                            hazard = 'hazard';
-                        }
-                        if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="risk"]').is(':checked')) {
-                            risk = $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]:checked').val();
-                        }
-
-                        if (hazard == 'hazard') {
-                            plus_hazard = "Hazard";
-                        }
-                        if (risk != null) {
-                            plus_risk = gem_capitalize(risk);
-                        }
-                        dest_name = "Scenario" + plus_hazard + plus_risk;
-                    }
-                    else if (scope == 'e_b') {
-                        dest_name = "EventBased";
-                    }
-                    $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
-                    $form.append($new_input);
-
-                    $form.submit();
-                }
+            success: function (data) {
+                return on_success(data, scope);
             }
         });
         return false;
@@ -1221,7 +1226,7 @@ $(document).ready(function () {
 
     function scenario_download_cb(e)
     {
-        return generic_download_cb('scen', this, e);
+        return generic_prepare_cb('scen', this, generic_prepare_download_postcb, e);
     }
     $(cf_obj['scen'].pfx + ' button[name="download"]').click(scenario_download_cb);
 
@@ -1399,7 +1404,7 @@ $(document).ready(function () {
     $(cf_obj['e_b'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
     function event_based_download_cb(e)
     {
-        return generic_download_cb('e_b', this, e);
+        return generic_prepare_cb('e_b', this, generic_prepare_download_postcb, e);
     }
     $(cf_obj['e_b'].pfx + ' button[name="download"]').on('click', event_based_download_cb);
 
