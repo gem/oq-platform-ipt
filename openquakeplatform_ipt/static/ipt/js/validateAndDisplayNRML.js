@@ -41,17 +41,6 @@ function sendbackNRML(nrml, sfx)
     $form[0].submit();
 }
 
-function delegate_downloadNRML_gacb(object_id, file_name, success, reason)
-{
-    var obj = gem_api_ctx_get_object(object_id);
-
-    var ret = obj.delegate_downloadNRML_cb(file_name, success, reason);
-
-    gem_api_ctx_del(object_id);
-
-    return ret;
-}
-
 function dd_obj()
 {
 }
@@ -64,10 +53,10 @@ dd_obj.prototype = {
     }
 };
 
-function delegate_downloadNRML_cb(object_id, file_name, success, reason)
+function delegate_downloadNRML_gacb(object_id, file_name, success, reason)
 {
-    console.log('object_id: ' + object_id);
     var obj = gem_api_ctx_get_object(object_id);
+
     var ret = obj.delegate_downloadNRML_cb(file_name, success, reason);
 
     gem_api_ctx_del(object_id);

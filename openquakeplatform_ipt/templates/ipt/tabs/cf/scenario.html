@@ -358,7 +358,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 
   <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button>
   {%if gem_qgis != None or True %}
-      <button id="runCalculationBtn" type="button" class="btn btn-danger">Run Calculation</button>
+      <button name="run-calc-btn" type="button" class="btn btn-danger">Run Calculation</button>
   {% endif %}
 
   <form style="display: inline-block;" name="downloadForm" method="post">{% csrf_token %}</form>
