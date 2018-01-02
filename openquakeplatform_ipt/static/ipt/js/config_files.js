@@ -1025,8 +1025,8 @@ $(document).ready(function () {
     function scenario_fileNew_cb(e) {
         $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
         if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
-            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
             $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
+            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
         }
     }
 
@@ -1424,8 +1424,8 @@ $(document).ready(function () {
     function event_based_fileNew_cb(e) {
         $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
         if ($(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
-            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
             $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(event_based_fileNew_upload);
+            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
         }
     }
 
