@@ -46,10 +46,8 @@ function dd_obj()
 }
 
 dd_obj.prototype = {
-   delegate_downloadNRML_cb: function(file_name, success, reason) {
-       console.log(file_name);
-       console.log(success);
-       console.log(reason);
+    delegate_downloadNRML_cb: function(file_name, success, reason) {
+        return true;
     }
 };
 
