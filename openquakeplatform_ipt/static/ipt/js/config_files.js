@@ -27,7 +27,7 @@ var cf_obj = {
         getData: null,
         expModel_coords: null
     }
-}
+};
 
 $(document).ready(function () {
     $('.cf_gid #tabs[name="subtabs"] a').click(function (e) {
@@ -1435,6 +1435,12 @@ $(document).ready(function () {
         return generic_prepare_cb('e_b', this, generic_prepare_download_postcb, e);
     }
     $(cf_obj['e_b'].pfx + ' button[name="download"]').on('click', event_based_download_cb);
+
+    function event_based_runcalc_cb(e)
+    {
+        return generic_prepare_cb('e_b', this, generic_prepare_runcalc_postcb, e);
+    }
+    $(cf_obj['e_b'].pfx + ' button[name="run-calc-btn"]').click(event_based_runcalc_cb);
 
     function event_based_getData()
     {

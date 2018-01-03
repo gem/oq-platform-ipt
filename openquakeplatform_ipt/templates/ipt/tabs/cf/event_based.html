@@ -270,5 +270,9 @@
   <hr>
   <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="clean_all">Clean all</button>
 
-  <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button><form style="display: inline-block;" name="downloadForm" method="post">{% csrf_token %}</form>
+  <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button>
+  {%if gem_qgis != None %}
+  <button name="run-calc-btn" type="button" style="vertical-align: top; margin: auto;" class="btn btn-primary">Run Calculation</button>
+  {% endif %}
+  <form style="display: inline-block;" name="downloadForm" method="post">{% csrf_token %}</form>
 </div>
