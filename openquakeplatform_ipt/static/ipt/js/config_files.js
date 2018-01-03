@@ -462,7 +462,6 @@ $(document).ready(function () {
         var dest_name = 'Unknown';
         var hazard = null, risk = null, plus_hazard = '', plus_risk = '';
 
-        console.log("scope: " + scope);
         if (scope == 'scen') {
             if ($(cf_obj['scen'].pfx + ' input[type="checkbox"]' +
                   '[name="hazard"]').is(':checked')) {
@@ -511,36 +510,18 @@ $(document).ready(function () {
         $form.submit();
     }
 
-    function generic_prepare_download_postcb_new(data, scope)
-    {
-        var $form = $(cf_obj[scope].pfx + ' form[name="downloadForm"]');
-        var csrf_name = $(csrf_token).attr('name');
-        var csrf_value = $(csrf_token).attr('value');
-
-        var dest_name;
-        var $new_input;
-
-        $.post('download', {csrf_name: csrf_value,
-                            'zipname': data.zipname,
-                            'dest_name': dest_name});
-    }
-
     function runcalc_obj()
     {
     }
 
     runcalc_obj.prototype = {
         runcalc_cb: function(file_name, success, reason) {
-            console.log(file_name);
-            console.log(success);
-            console.log(reason);
             gem_api.run_oq_engine_calc([file_name]);
         }
     };
 
     window.runcalc_gacb = function(object_id, file_name, success, reason)
     {
-        console.log('object_id: ' + object_id);
         var obj = gem_api_ctx_get_object(object_id);
         var ret = obj.runcalc_cb(file_name, success, reason);
 
@@ -625,10 +606,6 @@ $(document).ready(function () {
     grc_obj.prototype = {
         generic_run_calculation_gacb: function(file_name, success, reason)
         {
-            console.log(this.scope);
-            console.log(file_name);
-            console.log(success);
-            console.log(reason);
             if (success != 0) {
                 gem_ipt.error_msg(reason);
                 return;
@@ -651,45 +628,6 @@ $(document).ready(function () {
         gem_api_ctx_del(object_id);
 
         return ret;
-    }
-
-    function generic_run_calculation_cb(scope, obj, e)
-    {
-        e.preventDefault();
-
-        if (typeof gem_api == 'undefined') {
-            gem_ipt.error_msg('GEM integrated environmnent not found.');
-            return false;
-        }
-
-        var ret = cf_obj[scope].getData();
-
-        if (ret.ret != 0) {
-            gem_ipt.error_msg(ret.str);
-
-            return;
-        }
-
-        var funcType = sfx2name(scope);
-        var url_suffix = { "scen": "scenario", "e_b": "event-based" };
-        var csrf_name = $(csrf_token).attr('name');
-        var csrf_value = $(csrf_token).attr('value');
-
-        var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
-        var cookies = [cookie_csrf];
-        var dd_headers = [ipt_cookie_builder(cookies)];
-        var dd_data = [{'name': 'csrfmiddlewaretoken', 'value': csrf_value},
-                       {'name': 'data', 'value': JSON.stringify(ret.obj)},
-                       {'name': 'func_type', 'value': funcType }];
-
-
-
-        var cb_obj = new grc_obj(scope);
-        var cb_obj_id = gem_api_ctx_get_object_id(cb_obj);
-        gem_api.delegate_download(
-            'prepare/' + url_suffix[scope],
-            'POST', dd_headers, dd_data,
-            'generic_run_calculation_gacb', cb_obj_id);
     }
 
     function do_clean_all()
