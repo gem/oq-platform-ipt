@@ -294,6 +294,12 @@ $('.ex_gid #downloadBtn').click(function() {
     sendbackNRML(ex_obj.nrml, 'ex');
 });
 
+if (typeof gem_api != 'undefined') {
+    $('.ex_gid #delegateDownloadBtn').click(function() {
+        delegate_downloadNRML(ex_obj.nrml, 'ex');
+    });
+}
+
 $('.ex_gid #convertBtn').click(function() {
     var data = null;
 

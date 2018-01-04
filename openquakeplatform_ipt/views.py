@@ -1027,8 +1027,10 @@ def download(request):
 
         resp = HttpResponse(content=content,
                             content_type='application/zip')
+        resp['Content-Description'] = 'File Transfer'
         resp['Content-Disposition'] = (
             'attachment; filename="' + dest_name + '.zip"')
+        resp['Content-Length'] = len(content)
         return resp
 
 
