@@ -18,7 +18,11 @@ $(document).ready(function () {
         // waiting for gmpe list population
         $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] div.sol-label-text:contains("AbrahamsonEtAl2014RegCHN")'
          ).click()
-        $(cf_obj['scen'].pfx + ' button[name="download"]').click();
+        if (typeof gem_api != 'undefined') {
+            $(cf_obj['scen'].pfx + ' button[name="run-calc-btn"]').click();
+        } else {
+            $(cf_obj['scen'].pfx + ' button[name="download"]').click();
+        }
         window.gem_example_completed = true;
     }, 1000);
 });
