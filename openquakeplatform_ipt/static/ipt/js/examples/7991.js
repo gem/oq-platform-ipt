@@ -18,7 +18,7 @@ $(document).ready(function () {
         // waiting for gmpe list population
         $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] div.sol-label-text:contains("AbrahamsonEtAl2014RegCHN")'
          ).click()
-        if (typeof gem_api != 'undefined') {
+        if ('gem_api' in window) {
             $(cf_obj['scen'].pfx + ' button[name="run-calc-btn"]').click();
         } else {
             $(cf_obj['scen'].pfx + ' button[name="download"]').click();
