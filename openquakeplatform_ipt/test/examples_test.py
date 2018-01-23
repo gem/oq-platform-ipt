@@ -18,6 +18,7 @@ from openquakeplatform.settings import FILE_PATH_FIELD_DIRECTORY
 
 from openquake.moon import platform_get
 
+PLA_ADMIN_ID = os.environ.get('GEM_PLA_ADMIN_ID', '1')
 #
 # TO RUN A SINGLE TEST:
 #
@@ -176,7 +177,7 @@ def setup_module(module):
     else:
         file_path = os.path.join(
             FILE_PATH_FIELD_DIRECTORY,
-            ('' if STANDALONE is True else '1'), 'ipt')
+            ('' if STANDALONE is True else PLA_ADMIN_ID), 'ipt')
         print("\n\nFILE_PATH: [%s]" % file_path)
     file_path_old = os.path.join(
         os.path.dirname(file_path), 'ipt.pretest')
