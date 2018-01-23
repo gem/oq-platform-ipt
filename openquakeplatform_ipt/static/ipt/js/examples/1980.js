@@ -41,19 +41,22 @@ $(document).ready(function () {
     $('.ex_gid #occupantsCheckBoxes [value="night"]').prop('checked', true);
     $('.ex_gid #occupantsCheckBoxes [value="night"]').trigger('change');
 
+    var data = [[]];
     var table = $('.ex_gid #table').handsontable('getInstance');
 
-    var data = [];
-
-    // add 2 rows of data to example table
-    for (var e = 0 ; e < 2 ; e++) {
-        data[e] = [];
-        // for each column add a calculated value
-        for (var i = 0 ; i < table.countCols() ; i++) {
-            data[e][i] = parseFloat(e) + parseFloat(i) / 100.0;
+    // for each column add a calculated value
+    for (var i = 0 ; i < table.countCols() ; i++) {
+        if (i == 5) {
+            // we want to show what happens when a cell is left empty
+            data[0][i] = "";
+        }
+        else {
+            data[0][i] = parseFloat(i) / 100.0;
         }
     }
+
     table.loadData(data);
 
     $('.ex_gid #convertBtn').trigger('click');
+    window.gem_example_completed = true;
 });

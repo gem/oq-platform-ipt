@@ -205,3 +205,16 @@ span.ipt_help {
     width: 100px;
     margin-left: 16px;
 }
+
+input.hide_file_upload {
+    visibility: hidden;
+}
+
+div.bootstrap-tagsinput {
+    width: 600px;
+    margin-bottom: 16px;
+}
+
+.bootstrap-tagsinput input {
+    width: 100% !important;
+}

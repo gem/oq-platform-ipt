@@ -2,7 +2,7 @@
 <nrml xmlns="http://openquake.org/xmlns/nrml/0.5">
 	<fragilityModel id="111vv1" assetCategory="buildings" lossCategory="structural">
 		<description>the description</description>
-		<limitStates> slight moderate extensive complete</limitStates>
+		<limitStates>slight moderate extensive complete</limitStates>
 		<fragilityFunction id="111" format="discrete">
 			<imls imt="PGA" noDamageLimit="0.8">0 1</imls>
 			<poes ls="slight">0.1 1.1</poes>

@@ -218,6 +218,6 @@ def get_rupture_surface_round(mag, hypocenter, strike, dip, rake):
     rupture_plane = get_rupture_surface(mag, hypocenter, strike, dip, rake)
     for corner in ["topLeft", "bottomLeft", "topRight", "bottomRight"]:
         for comp in ["lat", "lon", "depth"]:
-            rupture_plane[corner][comp] = "%.5g" % rupture_plane[corner][comp]
+            rupture_plane[corner][comp] = "%.5f" % rupture_plane[corner][comp]
 
     return rupture_plane

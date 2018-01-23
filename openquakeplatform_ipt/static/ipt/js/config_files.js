@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2015-2016, GEM Foundation.
+   Copyright (c) 2015-2017, GEM Foundation.
 
       This program is free software: you can redistribute it and/or modify
       it under the terms of the GNU Affero General Public License as
@@ -27,7 +27,7 @@ var cf_obj = {
         getData: null,
         expModel_coords: null
     }
-}
+};
 
 $(document).ready(function () {
     $('.cf_gid #tabs[name="subtabs"] a').click(function (e) {
@@ -457,7 +457,117 @@ $(document).ready(function () {
           ' form[name="site-conditions"]').submit(fileNew_upload);
     }
 
-    function generic_download_cb(scope, obj, e)
+    cf_obj.generate_dest_name = function(scope)
+    {
+        var dest_name = 'Unknown';
+        var hazard = null, risk = null, plus_hazard = '', plus_risk = '';
+
+        if (scope == 'scen') {
+            if ($(cf_obj['scen'].pfx + ' input[type="checkbox"]' +
+                  '[name="hazard"]').is(':checked')) {
+                hazard = 'hazard';
+            }
+            if ($(cf_obj['scen'].pfx + ' input[type="checkbox"]' +
+                  '[name="risk"]').is(':checked')) {
+                risk = $(cf_obj['scen'].pfx + ' input[type="radio"]' +
+                         '[name="risk-type"]:checked').val();
+            }
+
+            if (hazard == 'hazard') {
+                plus_hazard = "Hazard";
+            }
+            if (risk != null) {
+                plus_risk = gem_capitalize(risk);
+            }
+            dest_name = "Scenario" + plus_hazard + plus_risk;
+        }
+        else if (scope == 'e_b') {
+            dest_name = "EventBased";
+        }
+
+        return dest_name;
+    };
+
+    function generic_prepare_download_postcb(data, scope)
+    {
+        var $form = $(cf_obj[scope].pfx + ' form[name="downloadForm"]');
+        var dest_name;
+        var $new_input;
+
+        $form.empty();
+        $form.append(csrf_token);
+        $form.attr({'action': 'download'});
+        $form.attr({'accept': 'application/zip'});
+        $new_input = $('<input/>');
+        $new_input.attr('type', 'hidden').attr({'name': 'zipname', 'value': data.zipname });
+        $form.append($new_input);
+
+        $new_input = $('<input/>');
+        dest_name = cf_obj.generate_dest_name(scope);
+        $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
+        $form.append($new_input);
+
+        $form.submit();
+    }
+
+    function runcalc_obj()
+    {
+    }
+
+    runcalc_obj.prototype = {
+        runcalc_cb: function(file_name, success, reason) {
+            gem_api.run_oq_engine_calc([file_name]);
+        }
+    };
+
+    window.runcalc_gacb = function(object_id, file_name, success, reason)
+    {
+        var obj = gem_api_ctx_get_object(object_id);
+        var ret = obj.runcalc_cb(file_name, success, reason);
+
+        gem_api_ctx_del(object_id);
+
+        return ret;
+    }
+
+    function generic_prepare_runcalc_postcb(data, scope)
+    {
+        var dest_name;
+        var $new_input;
+
+        var csrf_name = $(csrf_token).attr('name');
+        var csrf_value = $(csrf_token).attr('value');
+
+        if (typeof gem_api == 'undefined')
+            return false;
+
+        var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
+        var cookies = [cookie_csrf];
+        var dd_headers = [ipt_cookie_builder(cookies)];
+
+        dest_name = cf_obj.generate_dest_name(scope);
+
+        var dd_data = [{'name': 'csrfmiddlewaretoken', 'value': csrf_value},
+                       {'name': 'zipname', 'value': data.zipname },
+                       {'name': 'dest_name', 'value': dest_name }
+                      ];
+
+        cb_obj = new runcalc_obj();
+        var cb_obj_id = gem_api_ctx_get_object_id(cb_obj);
+        gem_api.delegate_download('download', 'POST', dd_headers, dd_data,
+                                  'runcalc_gacb', cb_obj_id);
+    }
+
+    /*
+       a zip file with all is needed to run a calculation is currently in 2 phases:
+       - prepare the zip file on the server
+       -
+         . download it (using generic_prepare_download_postcb function)
+         OR
+         . delegate gem integrated environment to do it and run a calculation
+           (using generic_prepare_download_postcb function)
+     */
+    function generic_prepare_cb(scope, obj, on_success, e)
     {
         e.preventDefault();
 
@@ -479,48 +589,45 @@ $(document).ready(function () {
             cache: false,
             processData: false,
             contentType: false,
-            success: function(data) {
+            success: function (data) {
                 if (data.ret == 0) {
-                    var $form = $(cf_obj[scope].pfx + ' form[name="downloadForm"]');
-                    var hazard = null, risk = null, plus_hazard = '', plus_risk = '';
-                    var dest_name = 'Unknown';
-                    var $new_input;
-
-                    $form.empty();
-                    $form.append(csrf_token);
-                    $form.attr({'action': 'download'});
-                    $new_input = $('<input/>');
-                    $new_input.attr('type', 'hidden').attr({'name': 'zipname', 'value': data.zipname });
-                    $form.append($new_input);
-
-                    $new_input = $('<input/>');
-                    if (scope == 'scen') {
-                        if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
-                            hazard = 'hazard';
-                        }
-                        if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="risk"]').is(':checked')) {
-                            risk = $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]:checked').val();
-                        }
-
-                        if (hazard == 'hazard') {
-                            plus_hazard = "Hazard";
-                        }
-                        if (risk != null) {
-                            plus_risk = gem_capitalize(risk);
-                        }
-                        dest_name = "Scenario" + plus_hazard + plus_risk;
-                    }
-                    else if (scope == 'e_b') {
-                        dest_name = "EventBasedRisk";
-                    }
-                    $new_input.attr('type', 'hidden').attr({'name': 'dest_name', 'value': dest_name });
-                    $form.append($new_input);
-
-                    $form.submit();
+                    return on_success(data, scope);
                 }
             }
         });
         return false;
+    }
+
+    function grc_obj(scope)
+    {
+        this.scope = scope;
+    }
+
+    grc_obj.prototype = {
+        generic_run_calculation_gacb: function(file_name, success, reason)
+        {
+            if (success != 0) {
+                gem_ipt.error_msg(reason);
+                return;
+            }
+
+            // run second part of the command
+            ret = gem_api.run_oq_engine_calc([file_name]);
+            if (ret.ret != 0) {
+                gem_ipt.error_msg(reason);
+                return;
+            }
+        }
+    };
+
+    function generic_run_calculation_gacb(object_id, file_name, success, reason)
+    {
+        var obj = gem_api_ctx_get_object(object_id);
+
+        var ret = obj.generic_run_calculation_gacb(file_name, success, reason);
+        gem_api_ctx_del(object_id);
+
+        return ret;
     }
 
     function do_clean_all()
@@ -590,8 +697,8 @@ $(document).ready(function () {
      */
 
     function scenario_manager() {
-        var hazard = null; // null or hazard
-        var risk = null;   // null, damage or loss
+        var hazard = null; // null or 'hazard'
+        var risk = null;   // null, 'damage' or 'loss'
         var hazard_sites_choice = null; // null, region-grid, list-of-sites, exposure-model, site-cond-model
 
         if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
@@ -633,6 +740,22 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
 
+        // GMF file upload (ui)
+        $target = $(cf_obj['scen'].pfx + ' div[name="gmf-file"]');
+        if (hazard == null && risk != null) {
+            $target.css('display', '');
+
+            $subtarget = $(cf_obj['scen'].pfx + ' div[name="gmf-file"] div[name="gmf-file-html"]');
+
+            if ($(cf_obj['scen'].pfx + ' div[name="gmf-file"] input[name="use_gmf_file"]').is(':checked'))
+                $subtarget.css('display', '');
+            else
+                $subtarget.css('display', 'none');
+        }
+        else {
+            $target.css('display', 'none');
+        }
+
         // Exposure model (ui)
         exposure_model_sect_manager(
             'scen', ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null),
@@ -667,12 +790,7 @@ $(document).ready(function () {
             else {
                 $(cf_obj['scen'].pfx + ' div[name="hazard-imt_specify-imt"]').css('display', 'none');
             }
-            // GMPE sub choice
-            var gmpe_choice = $(cf_obj['scen'].pfx + ' input[type="radio"]'
-                                + '[name="hazard_gmpe"]:checked').val();
-
-            $(cf_obj['scen'].pfx + ' div[name^="hazard-gmpe_"]').css('display', 'none');
-            $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_' + gmpe_choice + '"]').css('display', '');
+            $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"]').css('display', '');
         }
         else
             $target.css('display', 'none');
@@ -729,6 +847,14 @@ $(document).ready(function () {
 
     $(cf_obj['scen'].pfx + ' div[name="list-of-sites-new"]' +
       ' form[name="list-of-sites"]').submit(scenario_fileNew_upload);
+
+    // GMF file upload (init)
+    $(cf_obj['scen'].pfx + ' div[name="gmf-file"] input[name="use_gmf_file"]').click(scenario_manager);
+
+    $(cf_obj['scen'].pfx + ' div[name="gmf-file"] button[name="gmf-file-new"]').click(scenario_fileNew_cb);
+
+    $(cf_obj['scen'].pfx + ' div[name="gmf-file-new"]' +
+      ' form[name="gmf-file"]').submit(scenario_fileNew_upload);
 
     // Exposure model (init)
     exposure_model_init('scen', scenario_fileNew_cb, scenario_fileNew_upload, scenario_manager);
@@ -800,16 +926,6 @@ $(document).ready(function () {
       ' form[name="gmpe"]').submit(scenario_fileNew_upload);
 
     // Calculation parameters: gsim_logic_tree_file (init)
-    $(cf_obj['scen'].pfx + ' button[name="gsim-logic-tree-file-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="gsim-logic-tree-file-new"]' +
-      ' form[name="gsim-logic-tree-file"]').submit(scenario_fileNew_upload);
-
-    // Calculation parameters: hazard gmpe callbacks (init)
-    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"]').click(scenario_manager);
-    $(cf_obj['scen'].pfx + ' input[name="hazard_gmpe"][value="specify-gmpe"]'
-     ).prop('checked', true);  // .triggerHandler('click');
-
     $(cf_obj['scen'].pfx + ' select[name="gmpe"]').searchableOptionList(
         {data: g_gmpe_options,
          showSelectionBelowList: true,
@@ -834,16 +950,22 @@ $(document).ready(function () {
     $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]').click(scenario_manager);
     $(cf_obj['scen'].pfx + ' input[name="risk-type"][value="damage"]').prop('checked', true);
 
-    /* generic callback to show upload div (init) */
-    function scenario_fileNew_cb(e) {
-        $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
-    }
-
     /* form widgets and previous remote list select element must follow precise
        naming schema with '<name>-html' and '<name>-new', see config_files.html */
     function scenario_fileNew_upload(event)
     {
-        return generic_fileNew_upload('scen', this, event);
+        form = $(event.target).parent('form').get(0);
+        return generic_fileNew_upload('scen', form, event);
+    }
+
+
+    /* generic callback to show upload div (init) */
+    function scenario_fileNew_cb(e) {
+        $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+        if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
+            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+        }
     }
 
     /* hazard sites callbacks */
@@ -872,6 +994,9 @@ $(document).ready(function () {
             grid_spacing: null,
             reggrid_coords_data: null,
             list_of_sites: null,
+
+            // ground motion field
+            gmf_file: null,
 
             // exposure model
             exposure_model: null,
@@ -930,7 +1055,6 @@ $(document).ready(function () {
             asset_correlation: null,
 
             // calculation parameters
-            gmpe_choice: null,
             intensity_measure_types: null,
             gsim_logic_tree_file: null,
 
@@ -1013,6 +1137,12 @@ $(document).ready(function () {
             }
         }
 
+        // Ground Motion Field file
+        if (obj.hazard == null && obj.risk != null &&
+            $(cf_obj['scen'].pfx + ' div[name="gmf-file"] input[name="use_gmf_file"]').is(':checked')) {
+            obj.gmf_file = $(cf_obj['scen'].pfx + ' div[name="gmf-file"] div[name="gmf-file-html"] select[name="file_html"]').val();
+        }
+
         // Exposure model (get)
         exposure_model_getData(
             'scen', ret, files_list, obj,
@@ -1065,30 +1195,12 @@ $(document).ready(function () {
 
         // Calculation parameters (get)
         if (obj.hazard == 'hazard') {
-            obj.gmpe_choice = $(cf_obj['scen'].pfx + ' input[type="radio"]'
-                                + '[name="hazard_gmpe"]:checked').val();
-
-            if (obj.gmpe_choice == 'specify-gmpe') {
-                obj.gsim = $(cf_obj['scen'].pfx + ' input[type="radio"][name="gmpe"]:checked').map(function(_, el) {
-                    return $(el).val();
-                }).get();
-
-                if (obj.gsim.length < 1) {
-                    ret.str += "Unique GMPE not selected.\n";
-                }
-            }
-            else if (obj.gmpe_choice == 'from-file') {
-                // calculation parameters -> from file (get)
-                obj.gsim_logic_tree_file = $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_from-file"]'
-                                          + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
-                if (obj.gsim_logic_tree_file == '') {
-                    ret.str += "'GMPE logic tree file' field is empty.\n";
-                }
-                uniqueness_add(files_list, 'GMPE logic tree', obj.gsim_logic_tree_file);
-                ret.str += uniqueness_check(files_list);
-            }
-            else {
-                ret.str += "Unknown 'GMPE' choice (" + obj.gmpe_choice + ").\n";
+            obj.gsim =  $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"]'
+                        + ' input[type="checkbox"][name="gmpe"]:checked').map(function(_, el) {
+                            return $(el).val();
+                        }).get();
+            if (obj.gsim.length < 1) {
+                ret.str += "At least one GMPE must be selected.\n";
             }
 
             if (obj.risk == null) {
@@ -1142,9 +1254,15 @@ $(document).ready(function () {
 
     function scenario_download_cb(e)
     {
-        return generic_download_cb('scen', this, e);
+        return generic_prepare_cb('scen', this, generic_prepare_download_postcb, e);
     }
     $(cf_obj['scen'].pfx + ' button[name="download"]').click(scenario_download_cb);
+
+    function scenario_runcalc_cb(e)
+    {
+        return generic_prepare_cb('scen', this, generic_prepare_runcalc_postcb, e);
+    }
+    $(cf_obj['scen'].pfx + ' button[name="run-calc-btn"]').click(scenario_runcalc_cb);
 
     scenario_manager();
 
@@ -1154,7 +1272,8 @@ $(document).ready(function () {
 
     function event_based_fileNew_upload(event)
     {
-        return generic_fileNew_upload('e_b', this, event);
+        form = $(event.target).parent('form').get(0);
+        return generic_fileNew_upload('e_b', form, event);
     }
 
     function event_based_manager()
@@ -1186,39 +1305,8 @@ $(document).ready(function () {
         // nothing
 
         // Risk calculation (UI)
-        {
-            var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
-            var pfx_vuln = cf_obj['e_b'].pfx + ' div[name="vulnerability-model"]';
+        // nothing
 
-            var $target = $(pfx + ' div[name="loss-curve-resolution"]');
-            if ($(pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').is(':checked')) {
-                $target.css('display', '');
-            }
-            else {
-                $target.css('display', 'none');
-            }
-
-            var $target = $(pfx + ' div[name="loss-ratios"]');
-            if ($(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked')) {
-                $target.css('display', '');
-            }
-            else {
-                $target.css('display', 'none');
-            }
-
-            var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
-            for (var lossidx in losslist) {
-                var losstype = losslist[lossidx];
-
-                $target = $(pfx + ' div[name="loss-ratios-' + losstype + '"]');
-                if($(pfx_vuln + ' input[type="checkbox"][name="losstype"][value="' + losstype + '"]').is(':checked')) {
-                    $target.css('display', '');
-                }
-                else {
-                    $target.css('display', 'none');
-                }
-            }
-        }
         // Hazard outputs (UI)
         {
             var pfx = cf_obj['e_b'].pfx + ' div[name="hazard-outputs"]';
@@ -1273,6 +1361,10 @@ $(document).ready(function () {
     /* generic callback to show upload div */
     function event_based_fileNew_cb(e) {
         $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+        if ($(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(event_based_fileNew_upload);
+            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+        }
     }
 
     // Exposure model (init)
@@ -1319,12 +1411,7 @@ $(document).ready(function () {
     // no init
 
     // Risk calculation (init)
-    {
-        var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
-
-        $(pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').click(event_based_manager);
-        $(pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').click(event_based_manager);
-    }
+    // no init
 
     // Hazard outputs (init)
     {
@@ -1345,9 +1432,15 @@ $(document).ready(function () {
     $(cf_obj['e_b'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
     function event_based_download_cb(e)
     {
-        return generic_download_cb('e_b', this, e);
+        return generic_prepare_cb('e_b', this, generic_prepare_download_postcb, e);
     }
     $(cf_obj['e_b'].pfx + ' button[name="download"]').on('click', event_based_download_cb);
+
+    function event_based_runcalc_cb(e)
+    {
+        return generic_prepare_cb('e_b', this, generic_prepare_runcalc_postcb, e);
+    }
+    $(cf_obj['e_b'].pfx + ' button[name="run-calc-btn"]').click(event_based_runcalc_cb);
 
     function event_based_getData()
     {
@@ -1417,9 +1510,6 @@ $(document).ready(function () {
 
             // risk calculations
             risk_investigation_time: null,
-            loss_curve_resolution_choice: false,
-            loss_curve_resolution: null,
-            loss_ratios_choice: false,
             loss_ratios_structural: null,
             loss_ratios_nonstructural: null,
             loss_ratios_contents: null,
@@ -1429,7 +1519,6 @@ $(document).ready(function () {
             // hazard outputs
             ground_motion_fields: null,
             hazard_curves_from_gmfs: null,
-            mean_hazard_curves: null,
             quantile_hazard_curves_choice: false,
             quantile_hazard_curves: null,
             hazard_maps: null,
@@ -1569,40 +1658,6 @@ $(document).ready(function () {
                 ret.str += "'Risk investigation time' field isn't positive number ("
                     + obj.risk_investigation_time + ").\n";
             }
-
-            obj.loss_curve_resolution_choice = $(
-                cf_obj['e_b'].pfx + ' input[type="checkbox"][name="loss_curve_resolution_choice"]').is(':checked');
-            if (obj.loss_curve_resolution_choice) {
-                obj.loss_curve_resolution = $(pfx + ' input[type="text"][name="loss_curve_resolution"]').val();
-                if (!gem_ipt.isInt(obj.loss_curve_resolution) || parseInt(obj.loss_curve_resolution) <= 0.0) {
-                    ret.str += "'Loss curve resolution' field isn't positive number ("
-                        + obj.risk_investigation_time + ").\n";
-                }
-            }
-
-            obj.loss_ratios_choice = $(
-                cf_obj['e_b'].pfx + ' input[type="checkbox"][name="loss_ratios_choice"]').is(':checked');
-            if (obj.loss_ratios_choice) {
-                var descr = { structural: 'structural', nonstructural: 'nonstructural',
-                              contents: 'contents', businter: 'business interruption',
-                              occupants: 'occupants' };
-                var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
-                for (var lossidx in losslist) {
-                    var losstype = losslist[lossidx];
-
-                    if(obj['vm_loss_' + losstype + '_choice']) {
-                        obj['loss_ratios_' + losstype] = $(pfx + ' input[type="text"][name="loss_ratios_' + losstype + '"]').val();
-                        var arr = obj['loss_ratios_' + losstype].split(',');
-                        for (var k in arr) {
-                            var cur = arr[k].trim(' ');
-                            if (!gem_ipt.isFloat(cur) || cur < 0.0) {
-                                ret.str += "'" + descr[losstype] + " vulnerability model' field element #" + (parseInt(k)+1)
-                                    + " is negative number (" + cur + ").\n";
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         // Hazard outputs (get)
@@ -1616,8 +1671,6 @@ $(document).ready(function () {
                                         ).is(':checked');
 
             if (obj.hazard_curves_from_gmfs) {
-                obj.mean_hazard_curves = $(pfx + ' input[type="checkbox"][name="mean_hazard_curves"]'
-                                          ).is(':checked');
                 obj.quantile_hazard_curves_choice = $(
                     pfx + ' input[type="checkbox"][name="quantile_hazard_curves_choice"]').is(':checked');
                 if (obj.quantile_hazard_curves_choice) {
@@ -1681,9 +1734,12 @@ $(document).ready(function () {
             obj.conditional_loss_poes_choice = $(
                 pfx + ' input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked');
 
-            if ((!obj.loss_ratios_choice) && obj.conditional_loss_poes_choice) {
-                ret.str += "To include 'Loss maps' you must enable 'Loss ratios' in 'Risk calculation' section.\n";           }
-            if (obj.loss_ratios_choice) {
+            if ((!obj.asset_loss_table) && obj.conditional_loss_poes_choice) {
+                // Was: "To include 'Loss maps' you must enable 'Loss ratios' in 'Risk calculation' section"
+                ret.str += "To include 'Loss maps' you must enable 'Asset loss table' in 'Risk calculation' section.\n";
+            }
+
+            if (!obj.asset_loss_table) {
                 if (obj.conditional_loss_poes_choice) {
                     obj.conditional_loss_poes = $(pfx + ' input[type="text"][name="conditional_loss_poes"]').val();
 
