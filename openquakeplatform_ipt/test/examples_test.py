@@ -229,12 +229,27 @@ class IptUploadTest(unittest.TestCase):
             common + "//input[@type='checkbox' and @name='hazard']")
         hazard_cbx.click()
 
+        up_file = os.path.join(os.path.dirname(__file__), 'data',
+                               'rupture_file', 'rupture_model.xml')
+
+        print(up_file)
+
+        hide_div = pla.xpath_finduniq(
+            common + "//div[@name='rupture-file-new']")
+
+        pla.driver.execute_script(
+            "$(arguments[0]).attr('style','display:block;')",
+            hide_div)
+
         upload_file = pla.xpath_finduniq(
             common + "//div[@name='rupture-file-new']"
+            "//form[@id='file-upload-form' and @name='rupture-file']"
             "//input[@name='file_upload']")
-        upload_file.send_keys(os.path.join(
-            os.path.dirname(__file__), 'data', 'rupture_file',
-            'rupture_model.xml'))
+        # upload_file.send_keys(os.path.join(
+        #     os.path.dirname(__file__), 'data', 'rupture_file',
+        #     'rupture_model.xml'))
+
+        upload_file.send_keys(up_file)
 
         pla.driver.execute_script(
             "$(arguments[0]).trigger('submit');", upload_file)
@@ -348,5 +363,6 @@ def generator():
                 example['subtab_id'], example)
 
             setattr(IptExamplesTest, func_name, test_func)
+
 
 generator()
