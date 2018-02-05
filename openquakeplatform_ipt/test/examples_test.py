@@ -206,11 +206,24 @@ def _copy_anything(src, dst):
             raise
 
 
+def hide_footer(self):
+    pla = platform_get()
+    footer = pla.xpath_finduniq(
+        "//footer[@id='footer and class='footer']")
+    # hide footer
+    pla.driver.execute_script(
+        "$(arguments[0]).attr('style','display:block;')",
+        footer)
+
+
 class IptUploadTest(unittest.TestCase):
     def upload_test(self):
         # clean all files in upload folder
         pla = platform_get()
         pla.get('/ipt/?tab_id=7&subtab_id=1')
+
+        # hide footer
+        hide_footer()
 
         common = (
             "//div[starts-with(@id, 'tabs-') and @name='configuration_file']"
@@ -271,6 +284,9 @@ class IptExamplesTest(unittest.TestCase):
         # remove all uploaded files
         pla = platform_get()
         pla.get('/ipt/?tab_id=7&subtab_id=1')
+
+        # hide footer
+        hide_footer()
 
         common = (
             "//div[starts-with(@id, 'tabs-') and @name='configuration_file']"
