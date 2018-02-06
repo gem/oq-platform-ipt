@@ -22,12 +22,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 
 {% block extra_head %}
     {{block.super}}
-    <link href="{{ STATIC_URL }}geonode/css/platform.css" rel="stylesheet"/>
-    <link href="{{ STATIC_URL }}geonode/css/handsontable.full.min.css" rel="stylesheet"/>
+    <link href="{{ STATIC_URL }}css/platform.css" rel="stylesheet"/>
+    <link href="{{ STATIC_URL }}css/handsontable.full.min.css" rel="stylesheet"/>
     <link href="{{ STATIC_URL }}ipt/css/ipt.css" rel="stylesheet"/>
-    <link href="{{ STATIC_URL }}geonode/css/jQuery-UI-Bootstrap-0.2.5.css" rel="stylesheet"/>
+    <link href="{{ STATIC_URL }}css/jQuery-UI-Bootstrap-0.2.5.css" rel="stylesheet"/>
     <link rel="stylesheet" href="{{ STATIC_URL }}geonode/css/absolute_center_spinner.css" />
-    <link href="{{ STATIC_URL }}geonode/css/sol.css" rel="stylesheet"/>
+    <link href="{{ STATIC_URL }}css/sol.css" rel="stylesheet"/>
     <link href="{{ STATIC_URL }}ipt/css/bootstrap-tagsinput.css" rel="stylesheet"/>
 {% endblock extra_head %}
 
@@ -99,7 +99,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     <script>
 {% include "ipt/ipt.js" %}
     </script>
-    <script src="{{ STATIC_URL }}geonode/js/handsontable.full.min.js"></script>
+    <script src="{{ STATIC_URL }}js/handsontable.full.min.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/bootstrap-tagsinput.min.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/common.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/exposure.js"></script>
@@ -119,5 +119,5 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
             <!-- Example not found "ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}{{ request.GET.subtab_id|add:"0"|stringformat:"01d" }}.js"  -->
         {% endif %}
     {% endwith %}
-    <script src="{{ STATIC_URL }}geonode/js/sol.js"></script>
+    <script src="{{ STATIC_URL }}js/sol.js"></script>
 {% endblock extra_script %}
