@@ -9,8 +9,6 @@ class IptTest(unittest.TestCase):
         pla = platform_get()
         pla.get('/ipt')
 
-        time.sleep(1000000000)
-
         # initially, we are in the exposure tab, and the handson table is empty
 
         # <button id="saveBtnEX" type="button" style="display: block;"
