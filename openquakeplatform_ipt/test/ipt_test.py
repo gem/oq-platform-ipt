@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 import unittest
 from openquake.moon import platform_get
+import time
 
 
 class IptTest(unittest.TestCase):
     def check_empty_cells_test(self):
         pla = platform_get()
         pla.get('/ipt')
+
+        time.sleep(1000000000)
 
         # initially, we are in the exposure tab, and the handson table is empty
 
