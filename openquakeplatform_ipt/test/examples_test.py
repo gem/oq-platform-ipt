@@ -212,7 +212,7 @@ class IptUploadTest(unittest.TestCase):
 
         # hide footer
         footer = pla.xpath_finduniq(
-            "//footer[@id='footer and @class='footer']")
+            "//footer[@id='footer' and @class='footer']")
         # hide
         pla.driver.execute_script(
             "$(arguments[0]).attr('style','display:none;')", footer)
@@ -264,7 +264,7 @@ class IptExamplesTest(unittest.TestCase):
 
         # hide footer
         footer = pla.xpath_finduniq(
-            "//footer[@id='footer and @class='footer']")
+            "//footer[@id='footer' and @class='footer']")
         # hide
         pla.driver.execute_script(
             "$(arguments[0]).attr('style','display:none;')", footer)
