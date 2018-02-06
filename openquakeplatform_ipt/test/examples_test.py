@@ -285,7 +285,6 @@ class IptExamplesTest(unittest.TestCase):
         # hide
         pla.driver.execute_script(
             "$(arguments[0]).attr('style','display:none;')", footer)
-        hide_footer()
 
         common = (
             "//div[starts-with(@id, 'tabs-') and @name='configuration_file']"
