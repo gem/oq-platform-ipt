@@ -23,7 +23,6 @@ from openquake.moon import platform_get
 #
 # python -m openquake.moon.nose_runner --failurecatcher dev -v -s \
 #   --with-xunit --xunit-file=xunit-platform-dev.xml  \
-#   openquakeplatform/test/satellites_test.py:ipt__IptExamplesTest.Exposure_1_0_test
 
 _DATA_SUBFOLDERS = [
     'exposure_model', 'fm_businter', 'fm_contents', 'fm_nonstructural',
@@ -211,6 +210,13 @@ class IptUploadTest(unittest.TestCase):
         pla = platform_get()
         pla.get('/ipt/?tab_id=7&subtab_id=1')
 
+        # hide footer
+        footer = pla.xpath_finduniq(
+            "//footer[@id='footer and @class='footer']")
+        # hide
+        pla.driver.execute_script(
+            "$(arguments[0]).attr('style','display:none;')", footer)
+
         common = (
             "//div[starts-with(@id, 'tabs-') and @name='configuration_file']"
             "//div[starts-with(@id, 'cf_subtabs-') and @name='scenario']")
@@ -255,6 +261,13 @@ class IptExamplesTest(unittest.TestCase):
         # remove all uploaded files
         pla = platform_get()
         pla.get('/ipt/?tab_id=7&subtab_id=1')
+
+        # hide footer
+        footer = pla.xpath_finduniq(
+            "//footer[@id='footer and @class='footer']")
+        # hide
+        pla.driver.execute_script(
+            "$(arguments[0]).attr('style','display:none;')", footer)
 
         common = (
             "//div[starts-with(@id, 'tabs-') and @name='configuration_file']"
@@ -347,5 +360,6 @@ def generator():
                 example['subtab_id'], example)
 
             setattr(IptExamplesTest, func_name, test_func)
+
 
 generator()
