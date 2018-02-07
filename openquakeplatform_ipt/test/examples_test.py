@@ -236,13 +236,13 @@ class IptUploadTest(unittest.TestCase):
 
         # show div with upload file
         up_file = os.path.join(os.path.dirname(__file__), 'data',
-            'rupture_file', 'rupture_model.xml')
+                               'rupture_file', 'rupture_model.xml')
 
         hide_div = pla.xpath_finduniq(
             common + "//div[@name='rupture-file-new']")
 
         pla.driver.execute_script(
-            "$(arguments[0]).attr('style','display:block;')" hide_div)
+            "$(arguments[0]).attr('style','display:block;')", hide_div)
 
         upload_file = pla.xpath_finduniq(
             common + "//div[@name='rupture-file-new']"
