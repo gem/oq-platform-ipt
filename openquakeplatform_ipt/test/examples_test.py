@@ -213,59 +213,59 @@ class IptUploadTest(unittest.TestCase):
         pla.get('/ipt/?tab_id=7&subtab_id=1')
 
         # hide footer
-        try:
+        if STANDALONE is True:
             footer = pla.xpath_finduniq(
                 "//footer[@id='footer' and @class='footer']")
             # hide
             pla.driver.execute_script(
                 "$(arguments[0]).attr('style','display:none;')", footer)
-        except:
-            common = (
-                "//div[starts-with(@id, 'tabs-')"
-                " and @name='configuration_file']"
-                "//div[starts-with(@id, 'cf_subtabs-') and @name='scenario']")
 
-            clean_all = pla.xpath_finduniq(
-                common + "//button[@type='submit' and @name='clean_all']")
-            clean_all.click()
+        common = (
+            "//div[starts-with(@id, 'tabs-')"
+            " and @name='configuration_file']"
+            "//div[starts-with(@id, 'cf_subtabs-') and @name='scenario']")
 
-            confirm = pla.xpath_finduniq(
-                "//div[@class='ui-dialog-buttonset']//button["
-                "@type='button' and normalize-space(text())='Yes']")
-            confirm.click()
+        clean_all = pla.xpath_finduniq(
+            common + "//button[@type='submit' and @name='clean_all']")
+        clean_all.click()
 
-            hazard_cbx = pla.xpath_finduniq(
-                common + "//input[@type='checkbox' and @name='hazard']")
-            hazard_cbx.click()
+        confirm = pla.xpath_finduniq(
+            "//div[@class='ui-dialog-buttonset']//button["
+            "@type='button' and normalize-space(text())='Yes']")
+        confirm.click()
 
-            # show div with upload file
-            up_file = os.path.join(os.path.dirname(__file__), 'data',
-                                   'rupture_file', 'rupture_model.xml')
+        hazard_cbx = pla.xpath_finduniq(
+            common + "//input[@type='checkbox' and @name='hazard']")
+        hazard_cbx.click()
 
-            hide_div = pla.xpath_finduniq(
-                common + "//div[@name='rupture-file-new']")
+        # show div with upload file
+        up_file = os.path.join(os.path.dirname(__file__), 'data',
+                               'rupture_file', 'rupture_model.xml')
 
-            pla.driver.execute_script(
-                "$(arguments[0]).attr('style','display:block;')", hide_div)
+        hide_div = pla.xpath_finduniq(
+            common + "//div[@name='rupture-file-new']")
 
-            upload_file = pla.xpath_finduniq(
-                common + "//div[@name='rupture-file-new']"
-                "//form[@id='file-upload-form' and @name='rupture-file']"
-                "//input[@name='file_upload']")
+        pla.driver.execute_script(
+            "$(arguments[0]).attr('style','display:block;')", hide_div)
 
-            upload_file.send_keys(up_file)
+        upload_file = pla.xpath_finduniq(
+            common + "//div[@name='rupture-file-new']"
+            "//form[@id='file-upload-form' and @name='rupture-file']"
+            "//input[@name='file_upload']")
 
-            pla.driver.execute_script(
-                "$(arguments[0]).trigger('submit');", upload_file)
+        upload_file.send_keys(up_file)
 
-            # wait for js upload callback to setup dropdown item properly
-            time.sleep(5)
+        pla.driver.execute_script(
+            "$(arguments[0]).trigger('submit');", upload_file)
 
-            list_files = Select(pla.xpath_finduniq(
-                common + "//div[@name='rupture-file-html']"
-                "//select[@name='file_html']"))
+        # wait for js upload callback to setup dropdown item properly
+        time.sleep(5)
 
-            assert list_files.first_selected_option.text == "rupture_model.xml"
+        list_files = Select(pla.xpath_finduniq(
+            common + "//div[@name='rupture-file-html']"
+            "//select[@name='file_html']"))
+
+        assert list_files.first_selected_option.text == "rupture_model.xml"
 
 
 class IptExamplesTest(unittest.TestCase):
@@ -277,35 +277,34 @@ class IptExamplesTest(unittest.TestCase):
         pla.get('/ipt/?tab_id=7&subtab_id=1')
 
         # hide footer
-        try:
+        if STANDALONE is True:
             footer = pla.xpath_finduniq(
                 "//footer[@id='footer' and @class='footer']")
             # hide
             pla.driver.execute_script(
                 "$(arguments[0]).attr('style','display:none;')", footer)
-        except:
 
-            common = (
-                "//div[starts-with(@id, 'tabs-') and"
-                " @name='configuration_file']"
-                "//div[starts-with(@id, 'cf_subtabs-') and @name='scenario']")
+        common = (
+            "//div[starts-with(@id, 'tabs-') and"
+            " @name='configuration_file']"
+            "//div[starts-with(@id, 'cf_subtabs-') and @name='scenario']")
 
-            clean_all = pla.xpath_finduniq(
-                common + "//button[@type='submit' and @name='clean_all']")
-            clean_all.click()
+        clean_all = pla.xpath_finduniq(
+            common + "//button[@type='submit' and @name='clean_all']")
+        clean_all.click()
 
-            confirm = pla.xpath_finduniq(
-                "//div[@class='ui-dialog-buttonset']//button["
-                "@type='button' and normalize-space(text())='Yes']")
-            confirm.click()
+        confirm = pla.xpath_finduniq(
+            "//div[@class='ui-dialog-buttonset']//button["
+            "@type='button' and normalize-space(text())='Yes']")
+        confirm.click()
 
-            #
-            # populate uploaded file with template
-            if _fpath_field_directory:
-                if os.path.isdir(_fpath_field_directory):
-                    shutil.rmtree(_fpath_field_directory)
-            replicatetree(os.path.join(
-                os.path.dirname(__file__), 'data'), _fpath_field_directory)
+        #
+        # populate uploaded file with template
+        if _fpath_field_directory:
+            if os.path.isdir(_fpath_field_directory):
+                shutil.rmtree(_fpath_field_directory)
+        replicatetree(os.path.join(
+            os.path.dirname(__file__), 'data'), _fpath_field_directory)
 
 
 def gen_timeout_poller(secs, delta):
