@@ -206,7 +206,8 @@ span.ipt_help {
 }
 
 input.hide_file_upload {
-    visibility: initial;
+    visibility: hidden;
+    /*display: none;*/
 }
 
 div.bootstrap-tagsinput {
