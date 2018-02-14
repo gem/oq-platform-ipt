@@ -212,6 +212,9 @@ class IptUploadTest(unittest.TestCase):
         pla = platform_get()
         pla.get('/ipt/?tab_id=7&subtab_id=1')
 
+        pla.driver.execute_script(
+            "window.gem_not_interactive = true;")
+
         # hide footer
         if STANDALONE is True:
             footer = pla.xpath_finduniq(
@@ -242,21 +245,22 @@ class IptUploadTest(unittest.TestCase):
         up_file = os.path.join(os.path.dirname(__file__), 'data',
                                'rupture_file', 'rupture_model.xml')
 
-        hide_div = pla.xpath_finduniq(
-            common + "//div[@name='rupture-file-new']")
-
-        pla.driver.execute_script(
-            "$(arguments[0]).attr('style','display:block;')", hide_div)
+        butt_upload_file = pla.xpath_finduniq(
+            "//button[@name='rupture-file-new'"
+            " and normalize-space(text())='Upload']")
+        butt_upload_file.click()
 
         upload_file = pla.xpath_finduniq(
             common + "//div[@name='rupture-file-new']"
             "//form[@id='file-upload-form' and @name='rupture-file']"
             "//input[@name='file_upload']")
 
+        pla.driver.execute_script(
+            "$(arguments[0]).attr('style','visibility:visible;')", upload_file)
+
         upload_file.send_keys(up_file)
 
-        pla.driver.execute_script(
-            "$(arguments[0]).trigger('submit');", upload_file)
+        upload_file.submit()
 
         # wait for js upload callback to setup dropdown item properly
         time.sleep(5)
