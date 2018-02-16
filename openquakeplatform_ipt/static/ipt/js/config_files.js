@@ -964,7 +964,9 @@ $(document).ready(function () {
         $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
         if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
             $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
-            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+            if (window.gem_not_interactive == undefined) {
+                $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+            }    
         }
     }
 
