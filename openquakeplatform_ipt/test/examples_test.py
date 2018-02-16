@@ -19,12 +19,12 @@ from openquakeplatform.settings import FILE_PATH_FIELD_DIRECTORY
 from openquake.moon import platform_get
 
 PLA_ADMIN_ID = os.environ.get('GEM_PLA_ADMIN_ID', '1')
+
 #
 # TO RUN A SINGLE TEST:
 #
 # python -m openquake.moon.nose_runner --failurecatcher dev -v -s \
 #   --with-xunit --xunit-file=xunit-platform-dev.xml  \
-#   openquakeplatform/test/satellites_test.py:ipt__IptExamplesTest.Exposure_1_0_test
 
 _DATA_SUBFOLDERS = [
     'exposure_model', 'fm_businter', 'fm_contents', 'fm_nonstructural',
@@ -212,15 +212,20 @@ class IptUploadTest(unittest.TestCase):
         pla = platform_get()
         pla.get('/ipt/?tab_id=7&subtab_id=1')
 
-        # hide footer
-        footer = pla.xpath_finduniq(
-            "//footer[@id='footer' and @class='footer']")
-        # hide
         pla.driver.execute_script(
-            "$(arguments[0]).attr('style','display:none;')", footer)
+            "window.gem_not_interactive = true;")
+
+        # hide footer
+        if STANDALONE is True:
+            footer = pla.xpath_finduniq(
+                "//footer[@id='footer' and @class='footer']")
+            # hide
+            pla.driver.execute_script(
+                "$(arguments[0]).attr('style','display:none;')", footer)
 
         common = (
-            "//div[starts-with(@id, 'tabs-') and @name='configuration_file']"
+            "//div[starts-with(@id, 'tabs-')"
+            " and @name='configuration_file']"
             "//div[starts-with(@id, 'cf_subtabs-') and @name='scenario']")
 
         clean_all = pla.xpath_finduniq(
@@ -236,30 +241,26 @@ class IptUploadTest(unittest.TestCase):
             common + "//input[@type='checkbox' and @name='hazard']")
         hazard_cbx.click()
 
+        # show div with upload file
         up_file = os.path.join(os.path.dirname(__file__), 'data',
                                'rupture_file', 'rupture_model.xml')
 
-        print(up_file)
-
-        hide_div = pla.xpath_finduniq(
-            common + "//div[@name='rupture-file-new']")
-
-        pla.driver.execute_script(
-            "$(arguments[0]).attr('style','display:block;')",
-            hide_div)
+        butt_upload_file = pla.xpath_finduniq(
+            "//button[@name='rupture-file-new'"
+            " and normalize-space(text())='Upload']")
+        butt_upload_file.click()
 
         upload_file = pla.xpath_finduniq(
             common + "//div[@name='rupture-file-new']"
             "//form[@id='file-upload-form' and @name='rupture-file']"
             "//input[@name='file_upload']")
-        # upload_file.send_keys(os.path.join(
-        #     os.path.dirname(__file__), 'data', 'rupture_file',
-        #     'rupture_model.xml'))
+
+        pla.driver.execute_script(
+            "$(arguments[0]).attr('style','visibility:visible;')", upload_file)
 
         upload_file.send_keys(up_file)
 
-        pla.driver.execute_script(
-            "$(arguments[0]).trigger('submit');", upload_file)
+        upload_file.submit()
 
         # wait for js upload callback to setup dropdown item properly
         time.sleep(5)
@@ -280,14 +281,16 @@ class IptExamplesTest(unittest.TestCase):
         pla.get('/ipt/?tab_id=7&subtab_id=1')
 
         # hide footer
-        footer = pla.xpath_finduniq(
-            "//footer[@id='footer' and @class='footer']")
-        # hide
-        pla.driver.execute_script(
-            "$(arguments[0]).attr('style','display:none;')", footer)
+        if STANDALONE is True:
+            footer = pla.xpath_finduniq(
+                "//footer[@id='footer' and @class='footer']")
+            # hide
+            pla.driver.execute_script(
+                "$(arguments[0]).attr('style','display:none;')", footer)
 
         common = (
-            "//div[starts-with(@id, 'tabs-') and @name='configuration_file']"
+            "//div[starts-with(@id, 'tabs-') and"
+            " @name='configuration_file']"
             "//div[starts-with(@id, 'cf_subtabs-') and @name='scenario']")
 
         clean_all = pla.xpath_finduniq(
