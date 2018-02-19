@@ -900,7 +900,7 @@ def event_based_prepare(request, **kwargs):
 
     (fd, fname) = tempfile.mkstemp(
         suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
-    fzip = os.fdopen(fd, 'w')
+    fzip = os.fdopen(fd, 'wb')
     z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
     jobini = "# Generated automatically with IPT at %s\n" % (
