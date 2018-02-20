@@ -207,6 +207,63 @@ def _copy_anything(src, dst):
 
 
 class IptUploadTest(unittest.TestCase):
+    def stochastic_eventbase_test(self):
+        pla = platform_get()
+        pla.get('/ipt')
+
+        pla.driver.execute_script(
+            "window.gem_not_interactive = true;")
+
+        common = (
+            "//div[starts-with(@id, 'tabs-')"
+            " and @name='configuration_file']"
+            "//div[starts-with(@id, 'cf_subtabs-') and @name='event-based']")
+
+        # Exposure xml upload
+        exp_file = os.path.join(os.path.dirname(__file__), 'data',
+                                'stochastic_event_base', 'exposure_model.xml')
+
+        exp_upload_file = pla.xpath_finduniq(
+            common + "//button[@name='exposure-model-new'"
+            " and normalize-space(text())='Upload']")
+        exp_upload_file.click()
+
+        exp_upload_file = pla.xpath_finduniq(
+            common + "//div[@name='exposure-model-new']"
+            "//form[@id='file-upload-form' and @name='exposure-model']"
+            "//input[@name='file_upload']")
+
+        pla.driver.execute_script(
+            "$(arguments[0]).attr('style','visibility:visible;')",
+            exp_upload_file)
+
+        exp_upload_file.send_keys(exp_file)
+
+        exp_upload_file.submit()
+
+        # Vulnerability xml upload
+        vul_file = os.path.join(os.path.dirname(__file__), 'data',
+                                'stochastic_event_base',
+                                'vulnerability_model_BOG.xml')
+
+        vul_upload_file = pla.xpath_finduniq(
+            common + "//button[@name='vm-structural-new'"
+            " and normalize-space(text())='Upload']")
+        vul_upload_file.click()
+
+        vul_upload_file = pla.xpath_finduniq(
+            common + "//div[@name='exposure-model-new']"
+            "//form[@id='file-upload-form' and @name='vm-structural']"
+            "//input[@name='file_upload']")
+
+        pla.driver.execute_script(
+            "$(arguments[0]).attr('style','visibility:visible;')",
+            exp_upload_file)
+
+        vul_upload_file.send_keys(vul_file)
+
+        vul_upload_file.submit()
+
     def upload_test(self):
         # clean all files in upload folder
         pla = platform_get()
