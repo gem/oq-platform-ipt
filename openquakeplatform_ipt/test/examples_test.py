@@ -102,7 +102,9 @@ imt_examples = {
         'exams': [
             {'exa_id': 99, 'subtab_id': 1,
              'zipfile': 'ScenarioHazard.zip',
-             'sfx': 'zip'}
+             'sfx': 'zip'},
+            {'exa_id': 99, 'subtab_id': 3,
+             'sfx': 'xml'}
         ]
     }
 }
