@@ -104,6 +104,7 @@ imt_examples = {
              'zipfile': 'ScenarioHazard.zip',
              'sfx': 'zip'},
             {'exa_id': 99, 'subtab_id': 3,
+             'zipfile': 'EventBase.zip',
              'sfx': 'xml'}
         ]
     }
