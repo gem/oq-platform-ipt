@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import unittest
 from openquake.moon import platform_get
-import time
 
 
 class IptTest(unittest.TestCase):
