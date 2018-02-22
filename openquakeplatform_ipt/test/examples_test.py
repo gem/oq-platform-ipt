@@ -26,13 +26,6 @@ PLA_ADMIN_ID = os.environ.get('GEM_PLA_ADMIN_ID', '1')
 # python -m openquake.moon.nose_runner --failurecatcher dev -v -s \
 #   --with-xunit --xunit-file=xunit-platform-dev.xml  \
 
-_DATA_SUBFOLDERS = [
-    'exposure_model', 'fm_businter', 'fm_contents', 'fm_nonstructural',
-    'fm_structural', 'fragility_cons', 'gmf_file', 'gsim_logic_tree_file',
-    'imt', 'list_of_sites', 'rupture_file', 'site_conditions', 'site_model',
-    'source_model_file', 'source_model_logic_tree_file', 'vm_businter',
-    'vm_contents', 'vm_nonstructural', 'vm_occupants', 'vm_structural']
-
 imt_examples = {
     'Exposure': {
         'tab_id': 1,
@@ -105,7 +98,7 @@ imt_examples = {
              'sfx': 'zip'},
             {'exa_id': 99, 'subtab_id': 3,
              'zipfile': 'EventBase.zip',
-             'sfx': 'xml'}
+             'sfx': 'zip'}
         ]
     }
 }
