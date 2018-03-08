@@ -12,13 +12,11 @@ $(document).ready(function () {
     var table = $(cf_obj['scen'].pfx + ' div[name="table"]').handsontable('getInstance');
     table.loadData(data);
     
-    setTimeout(function () {
-        $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] input[type="text"]').focus();
-        $(cf_obj['scen'].pfx + ' div[name="rupture-file-html"] select[name="file_html"]').val('rupture_file/rupture_model.xml');
-        // waiting for gmpe list population
-        $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] div.sol-label-text:contains("AbrahamsonEtAl2014RegCHN")'
-         ).click()
-        $(cf_obj['scen'].pfx + ' button[name="download"]').click();
-        window.gem_example_completed = true;
-    }, 1000);
+    $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] input[type="text"]').focus();
+    $(cf_obj['scen'].pfx + ' div[name="rupture-file-html"] select[name="file_html"]').val('rupture_file/rupture_model.xml');
+    // waiting for gmpe list population
+    $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] div.sol-label-text:contains("AbrahamsonEtAl2014RegCHN")'
+     ).click()
+    $(cf_obj['scen'].pfx + ' button[name="download"]').click();
+    window.gem_example_completed = true;
 });
