@@ -20,6 +20,7 @@ var ff_obj = {
     tbl_idx: 0,
     nrml: "",
     limitStates: [],
+    is_interactive: true,
 
     ctx: {
         functionId: null,
@@ -296,6 +297,7 @@ var ff_obj = {
                 default:
                     console.log('dewrapping');
                     wrapping4load('.ex_gid *', false);
+                    ff_obj.is_interactive = true;
                     return;
                     break;
                 }
@@ -319,6 +321,7 @@ var ff_obj = {
 
         ctx_load_step = obj.ctx_load_step_gen(obj, 0, ctx);
 
+        ff_obj.is_interactive = false;
         ctx_load_step();
     }
 };
@@ -494,9 +497,10 @@ function ff_addTable (funcType) {
 
     // Logic to remove a table
     $('.ff_gid .table' + tbl_idx + '_id [name="destroy_table"]').click(function() {
-        if (confirm("Do you really want to remove this function?") == false)
-            return;
-
+        if (ff_obj.is_interactive) {
+            if (confirm("Do you really want to remove this function?") == false)
+                return;
+        }
         $('.ff_gid #table' + tbl_idx).remove();
         delete ff_obj.tbl[tbl_idx];
         if (Object.keys(ff_obj.tbl).length == 0) {
