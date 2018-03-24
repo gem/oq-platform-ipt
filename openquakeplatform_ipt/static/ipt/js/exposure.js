@@ -23,6 +23,28 @@ var ex_obj = {
     header: [],
     headerbase_len: 0,
 
+    ctx: {
+        description: null,
+        costStruc: null,
+        structural_costs_units: null,
+        retroChbx: null,
+        limitSelect: null,
+        deductibleSelect: null,
+        costNonStruc: null,
+        nonstructural_costs_units: null,
+        costContent: null,
+        contents_costs_units: null,
+        costBusiness: null,
+        busi_inter_costs_units: null,
+        perAreaSelect: null,
+        area_units: null,
+        occupants_day: null,
+        occupants_night: null,
+        occupants_transit: null,
+        tags: null,
+        table: null
+    },
+
     // perAreaRefCount is used to keep track of any time perArea is selected
     perAreaRefCount: {
         costStruc : false,
@@ -61,6 +83,218 @@ var ex_obj = {
             $('.ex_gid #perArea').show();
         else
             $('.ex_gid #perArea').hide();
+    },
+
+    ctx_get: function (obj) {
+        var ctx = obj.ctx;
+
+        ctx.description = $('.ex_gid textarea#description').val();
+        ctx.costStruc = $('.ex_gid select#costStruc').val();
+        ctx.structural_costs_units = $('.ex_gid input#structural_costs_units').val();
+        ctx.retroChbx = $('.ex_gid input#retroChbx').is(':checked');
+        ctx.limitSelect = $('.ex_gid select#limitSelect').val();
+        ctx.deductibleSelect = $('.ex_gid select#deductibleSelect').val();
+        ctx.costNonStruc = $('.ex_gid select#costNonStruc').val();
+        ctx.nonstructural_costs_units = $('.ex_gid input#nonstructural_costs_units').val();
+        ctx.costContent = $('.ex_gid select#costContent').val();
+        ctx.contents_costs_units = $('.ex_gid input#contents_costs_units').val();
+        ctx.costBusiness = $('.ex_gid select#costBusiness').val();
+        ctx.busi_inter_costs_units = $('.ex_gid input#busi_inter_costs_units').val();
+        ctx.perAreaSelect = $('.ex_gid select#perAreaSelect').val();
+        ctx.area_units = $('.ex_gid input#area_units').val();
+
+        ctx.occupants_day = $('.ex_gid div#occupantsCheckBoxes input[type="checkbox"][value="day"]').is(':checked');
+        ctx.occupants_night = $('.ex_gid div#occupantsCheckBoxes input[type="checkbox"][value="night"]').is(':checked');
+        ctx.occupants_transit = $('.ex_gid div#occupantsCheckBoxes input[type="checkbox"][value="transit"]').is(':checked');
+        ctx.tags = $('.ex_gid #tags').tagsinput('items');
+        ctx.table = $('.ex_gid #table').handsontable('getInstance').getData();
+    },
+
+    ctx_save: function (obj) {
+        if (window.localStorage == undefined) {
+            return false;
+        }
+        obj.ctx_get(obj);
+        var ser = JSON.stringify(obj.ctx);
+        window.localStorage.setItem('gem_ipt_exposure', ser);
+        console.log(ser);
+    },
+
+    ctx_load: function (obj) {
+        if (window.localStorage == undefined) {
+            return false;
+        }
+        var ser = window.localStorage.getItem('gem_ipt_exposure');
+        if (ser == null)
+            return false;
+
+        var ctx = JSON.parse(ser);
+        var load_step = 0;
+
+        // console.log(ctx);
+
+        function ctx_load_multiphase() {
+            wrapping4load('.ex_gid *', true);
+
+            if (gl_wrapping4load_counter != 0) {
+                // console.log("ctx_load_multiphase: gl_wrapping4load_counter != 0 (" + gl_wrapping4load_counter + ")");
+                gl_wrapping4load_counter = 0;
+                setTimeout(ctx_load_multiphase, 0);
+                // console.log('retry later');
+                return;
+            }
+            // else {
+            //     console.log('ctx_load_multiphase, advance');
+            // }
+            var changed = false;
+            while (changed == false) {
+                switch(load_step) {
+                case 0:
+                    if ($('.ex_gid textarea#description').val() != ctx.description) {
+                        $('.ex_gid textarea#description').val(ctx.description).change();
+                        changed = true;
+                    }
+                    break;
+                case 1:
+                    if ($('.ex_gid select#costStruc').val() != ctx.costStruc) {
+                        $('.ex_gid select#costStruc').val(ctx.costStruc).change();
+                        changed = true;
+                    }
+                    break;
+                case 2:
+                    if ($('.ex_gid input#structural_costs_units').val() != ctx.structural_costs_units) {
+                        $('.ex_gid input#structural_costs_units').val(ctx.structural_costs_units).change();
+                        changed = true;
+                    }
+                    break;
+                case 3:
+                    if ($('.ex_gid input#retroChbx').is(':checked') != ctx.retroChbx) {
+                        $('.ex_gid input#retroChbx').prop('checked', ctx.retroChbx).change();
+                        changed = true;
+                    }
+                    break;
+                case 4:
+                    if ($('.ex_gid select#limitSelect').val() != ctx.limitSelect) {
+                        $('.ex_gid select#limitSelect').val(ctx.limitSelect).change();
+                        changed = true;
+                    }
+                    break;
+                case 5:
+                    if ($('.ex_gid select#deductibleSelect').val() != ctx.deductibleSelect) {
+                        $('.ex_gid select#deductibleSelect').val(ctx.deductibleSelect).change();
+                        changed = true;
+                    }
+                    break;
+                case 6:
+                    if ($('.ex_gid select#costNonStruc').val() != ctx.costNonStruc) {
+                        $('.ex_gid select#costNonStruc').val(ctx.costNonStruc).change();
+                        changed = true;
+                    }
+                    break;
+                case 7:
+                    if ($('.ex_gid input#nonstructural_costs_units').val() != ctx.nonstructural_costs_units) {
+                        $('.ex_gid input#nonstructural_costs_units').val(ctx.nonstructural_costs_units).change();
+                        changed = true;
+                    }
+                    break;
+                case 8:
+                    if ($('.ex_gid select#costContent').val() != ctx.costContent) {
+                        $('.ex_gid select#costContent').val(ctx.costContent).change();
+                        changed = true;
+                    }
+                    break;
+                case 9:
+                    if ($('.ex_gid input#contents_costs_units').val() != ctx.contents_costs_units) {
+                        $('.ex_gid input#contents_costs_units').val(ctx.contents_costs_units).change();
+                        changed = true;
+                    }
+                    break;
+                case 10:
+                    if ($('.ex_gid select#costBusiness').val() != ctx.costBusiness) {
+                        $('.ex_gid select#costBusiness').val(ctx.costBusiness).change();
+                        changed = true;
+                    }
+                    break;
+                case 11:
+                    if ($('.ex_gid input#busi_inter_costs_units').val() != ctx.busi_inter_costs_units) {
+                        $('.ex_gid input#busi_inter_costs_units').val(ctx.busi_inter_costs_units);
+                        changed = true;
+                    }
+                    break;
+                case 12:
+                    if ($('.ex_gid select#perAreaSelect').val() != ctx.perAreaSelect) {
+                        $('.ex_gid select#perAreaSelect').val(ctx.perAreaSelect).change();
+                        changed = true;
+                    }
+                    break;
+                case 13:
+
+                    if ($('.ex_gid input#area_units').val() != ctx.area_units) {
+                        $('.ex_gid input#area_units').val(ctx.area_units).change();
+                        changed = true;
+                    }
+                    break;
+                case 14:
+                    if ($('.ex_gid div#occupantsCheckBoxes input[type="checkbox"][value="day"]').is(
+                        ':checked') != ctx.occupants_day) {
+                        $('.ex_gid div#occupantsCheckBoxes input[type="checkbox"][value="day"]').prop(
+                            'checked', ctx.occupants_day).change();
+                        changed = true;
+                    }
+                    break;
+                case 15:
+                    if ($('.ex_gid div#occupantsCheckBoxes input[type="checkbox"][value="night"]').is(
+                        ':checked') != ctx.occupants_night) {
+                        $('.ex_gid div#occupantsCheckBoxes input[type="checkbox"][value="night"]').prop(
+                            'checked', ctx.occupants_night).change();
+                        changed = true;
+                    }
+                    break;
+                case 16:
+                    if ($('.ex_gid div#occupantsCheckBoxes input[type="checkbox"][value="transit"]').is(
+                        ':checked') != ctx.occupants_transit) {
+                        $('.ex_gid div#occupantsCheckBoxes input[type="checkbox"][value="transit"]').prop(
+                            'checked', ctx.occupants_transit).change();
+                        changed = true;
+                    }
+                    break;
+                case 17:
+                    var eq = false;
+                    var tags_cur = $('.ex_gid #tags').tagsinput('items');
+                    if (ctx.tags.length == tags_cur.length) {
+                        eq = true;
+                        for (var i = 0 ; i < ctx.tags.length ; i++) {
+                            if (ctx.tags[i] != tags_cur[i]) {
+                                eq = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (eq == false) {
+                        for (var i = 0 ; i < ctx.tags.length ; i++) {
+                            $('.ex_gid #tags').tagsinput('add', ctx.tags[i]);
+                        }
+                        changed = true;
+                    }
+                    break;
+                case 18:
+                    console.log('pre-load');
+                    var table = $('.ex_gid #table').handsontable('getInstance');
+                    table.loadData(ctx.table);
+                    changed = true;
+                    break;
+                default:
+                    console.log('dewrapping');
+                    wrapping4load('.ex_gid *', false);
+                    return;
+                    break;
+                }
+
+                load_step++;
+            }
+            setTimeout(ctx_load_multiphase, 0);
+        };
+        setTimeout(ctx_load_multiphase, 0);
     }
 };
 

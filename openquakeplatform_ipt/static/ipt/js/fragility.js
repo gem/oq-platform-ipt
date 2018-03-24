@@ -15,11 +15,313 @@
       along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 */
 
-var ff_obj = { tbl: {},
-               tbl_idx: 0,
-               nrml: "",
-               limitStates: []
-             };
+var ff_obj = {
+    tbl: {},
+    tbl_idx: 0,
+    nrml: "",
+    limitStates: [],
+
+    ctx: {
+        functionId: null,
+        assetCategory: null,
+        lossCategory: null,
+        functionDescription: null,
+        limitStates: null,
+        tables: null
+    },
+
+    ctx_function_cont_get: function(idx, scope) {
+        var ret = {'type': 'cont'};
+        ret['id'] = $(scope).find('input[type="text"][name="id"]').val();
+        ret['imt'] = $(scope).find('input[type="text"][name="imt"]').val();
+        ret['no-damage-limit'] = $(scope).find('input[type="text"][name="no-damage-limit"]').val();
+        ret['min-impls'] = $(scope).find('input[type="text"][name="min-impls"]').val();
+        ret['max-impls'] = $(scope).find('input[type="text"][name="max-impls"]').val();
+        ret['table'] = $('.ff_gid [name="tableDiv' + (idx + 1) + '"]').handsontable("getInstance").getData();
+
+        return ret;
+    },
+
+    ctx_function_discr_get: function(idx, scope) {
+        var ret = {'type': 'discr'};
+        ret['id'] = $(scope).find('input[type="text"][name="id"]').val();
+        ret['imt'] = $(scope).find('input[type="text"][name="imt"]').val();
+        ret['no-damage-limit'] = $(scope).find('input[type="text"][name="no-damage-limit"]').val();
+        ret['table'] = $('.ff_gid [name="tableDiv' + (idx + 1) + '"]').handsontable("getInstance").getData();
+
+        return ret;
+    },
+
+    ctx_tables_get: function(obj) {
+        var ret = [];
+        var $funcs = $(".ff_gid .tables_gid");
+
+        for (var i = 0 ; i < $funcs.length ; i++) {
+            var ty = $($funcs[i]).attr('data-gem-func-type');
+            if (ty == 'cont') {
+                ret.push(obj.ctx_function_cont_get(i, $funcs[i]));
+            }
+            else if (ty == 'discr') {
+                ret.push(obj.ctx_function_discr_get(i, $funcs[i]));
+            }
+            else {
+                console.log("Fragility function type [" + ty + "] not recognized");
+            }
+        }
+        return ret;
+    },
+
+    ctx_get: function (obj) {
+        var ctx = obj.ctx;
+
+        ctx.functionId = $('.ff_gid input#functionId').val();
+        ctx.assetCategory = $('.ff_gid input#assetCategory').val();
+        ctx.lossCategory = $('.ff_gid select#lossCategory').val();
+        ctx.functionDescription = $('.ff_gid textarea#functionDescription').val();
+        ctx.limitStates = $('.ff_gid textarea#limitStates').val();
+        ctx.tables = obj.ctx_tables_get(obj);
+    },
+
+    ctx_save: function (obj) {
+        if (window.localStorage == undefined) {
+            return false;
+        }
+        obj.ctx_get(obj);
+        var ser = JSON.stringify(obj.ctx);
+        window.localStorage.setItem('gem_ipt_fragility', ser);
+        console.log(ser);
+    },
+
+    ctx_load_func_cont_step_gen: function (obj, load_step, load_funcs_step, step_cur, ctx)
+    {
+        function ctx_load_func_cont_step()
+        {
+            var changed = false;
+            var table = ctx.tables[load_funcs_step];
+
+            while (changed == false) {
+                switch(step_cur) {
+                case 0:
+                    $('.ff_gid button#addContFunc').click();
+                    changed = true;
+                    break;
+                case 1:
+                    $('.ff_gid div.tables_gid:last input[type="text"][name="id"]').val(table['id']);
+                    changed = true;
+                    break;
+                case 2:
+                    $('.ff_gid div.tables_gid:last input[type="text"][name="imt"]').val(table['imt']);
+                    changed = true;
+                    break;
+                case 3:
+                    $('.ff_gid div.tables_gid:last input[type="text"][name="no-damage-limit"]').val(table['no-damage-limit']);
+                    changed = true;
+                    break;
+                case 4:
+                    $('.ff_gid div.tables_gid:last input[type="text"][name="min-impls"]').val(table['min-impls']);
+                    changed = true;
+                    break;
+                case 5:
+                    $('.ff_gid div.tables_gid:last input[type="text"][name="max-impls"]').val(table['max-impls']);
+                    changed = true;
+                    break;
+                case 6:
+                    var htable = $('.ff_gid div.tables_gid:last div[name^="tableDiv"]').handsontable("getInstance");
+                    htable.loadData(table.table);
+
+                    changed = true;
+                    break;
+                default:
+                    var ctx_load_funcs_step = obj.ctx_load_funcs_step_gen(
+                        obj, load_step, load_funcs_step + 1, ctx);
+                    ctx_load_funcs_step();
+                    return;
+                    break;
+                }
+
+                step_cur++;
+            }
+            setTimeout(ctx_load_func_cont_step, 0);
+        }
+
+        return ctx_load_func_cont_step;
+    },
+
+    ctx_load_func_discr_step_gen: function (obj, load_step, load_funcs_step, step_cur, ctx)
+    {
+        function ctx_load_func_discr_step()
+        {
+            var changed = false;
+            var table = ctx.tables[load_funcs_step];
+
+            while (changed == false) {
+                switch(step_cur) {
+                case 0:
+                    $('.ff_gid button#addDiscrFunc').click();
+                    changed = true;
+                    break;
+                case 1:
+                    $('.ff_gid div.tables_gid:last input[type="text"][name="id"]').val(table['id']);
+                    changed = true;
+                    break;
+                case 2:
+                    $('.ff_gid div.tables_gid:last input[type="text"][name="imt"]').val(table['imt']);
+                    changed = true;
+                    break;
+                case 3:
+                    $('.ff_gid div.tables_gid:last input[type="text"][name="no-damage-limit"]').val(table['no-damage-limit']);
+                    changed = true;
+                    break;
+                case 4:
+                    var htable = $('.ff_gid div.tables_gid:last div[name^="tableDiv"]').handsontable("getInstance");
+                    htable.loadData(table.table);
+
+                    changed = true;
+                    break;
+                default:
+                    var ctx_load_funcs_step = obj.ctx_load_funcs_step_gen(
+                        obj, load_step, load_funcs_step + 1, ctx);
+                    ctx_load_funcs_step();
+                    return;
+                    break;
+                }
+
+                step_cur++;
+            }
+            setTimeout(ctx_load_func_discr_step, 0);
+        }
+
+        return ctx_load_func_discr_step;
+    },
+
+    ctx_load_funcs_step_gen: function (obj, load_step, step_cur, ctx) {
+        function ctx_load_funcs_step() {
+            var tables = ctx.tables;
+            wrapping4load('.ff_gid *', true);
+
+            if (gl_wrapping4load_counter != 0) {
+                // console.log("ctx_load_funcs_step: gl_wrapping4load_counter != 0 (" + gl_wrapping4load_counter + ")");
+                gl_wrapping4load_counter = 0;
+                setTimeout(ctx_load_funcs_step, 0);
+                // console.log('retry later');
+                return;
+            }
+            // else {
+            //     console.log('ctx_load_funcs_step, advance');
+            // }
+            if (step_cur < tables.length) {
+                if (tables[step_cur].type == 'cont') {
+                    var ctx_load_func_cont_step = obj.ctx_load_func_cont_step_gen(
+                        obj, load_step, step_cur, 0, ctx);
+                    ctx_load_func_cont_step();
+                    return;
+                }
+                else if (tables[step_cur].type == 'discr') {
+                    var ctx_load_func_discr_step = obj.ctx_load_func_discr_step_gen(
+                        obj, load_step, step_cur, 0, ctx);
+                    ctx_load_func_discr_step();
+                    return;
+                }
+                else {
+                    console.log('Unknown table type: ' + tables[step_cur].type);
+                }
+            }
+            else {
+                // return to ctx_load
+                var ctx_load_step = obj.ctx_load_step_gen(obj, load_step + 1, ctx);
+                ctx_load_step();
+            }
+        }
+        return ctx_load_funcs_step;
+    },
+
+    ctx_load_step_gen: function(obj, step_cur, ctx) {
+
+        function ctx_load_step() {
+            console.log('step pre');
+            wrapping4load('.ff_gid *', true);
+
+            if (gl_wrapping4load_counter != 0) {
+                // console.log("ctx_load_step: gl_wrapping4load_counter != 0 (" + gl_wrapping4load_counter + ")");
+                gl_wrapping4load_counter = 0;
+                setTimeout(ctx_load_step, 0);
+                // console.log('retry later');
+                return;
+            }
+            // else {
+            //     console.log('ctx_load_step: advance');
+            // }
+            var changed = false;
+            while (changed == false) {
+                switch(step_cur) {
+                case 0:
+                    if ($('.ff_gid input#functionId').val() != ctx.functionId) {
+                        $('.ff_gid input#functionId').val(ctx.functionId).change();
+                        changed = true;
+                    }
+                    break;
+                case 1:
+                    if ($('.ff_gid input#assetCategory').val() != ctx.assetCategory) {
+                        $('.ff_gid input#assetCategory').val(ctx.assetCategory).change();
+                        changed = true;
+                    }
+                    break;
+                case 2:
+                    if ($('.ff_gid select#lossCategory').val() != ctx.lossCategory) {
+                        $('.ff_gid select#lossCategory').val(ctx.lossCategory).change();
+                        changed = true;
+                    }
+                    break;
+                case 3:
+                    if ($('.ff_gid textarea#functionDescription').val() != ctx.functionDescription) {
+                        $('.ff_gid textarea#functionDescription').val(ctx.functionDescription);
+                        changed = true;
+                    }
+                    break;
+                case 4:
+                    if ($('.ff_gid textarea#limitStates').val() != ctx.limitStates) {
+                        $('.ff_gid textarea#limitStates').val(ctx.limitStates).change();
+                        changed = true;
+                    }
+                    break;
+                case 5:
+                    $('.ff_gid button[name="destroy_table"]').click();
+                    changed = true;
+                    break;
+                case 6:
+                    var ctx_load_funcs_step = obj.ctx_load_funcs_step_gen(obj, step_cur, 0, ctx);
+                    ctx_load_funcs_step();
+                    return;
+                    break;
+                default:
+                    console.log('dewrapping');
+                    wrapping4load('.ex_gid *', false);
+                    return;
+                    break;
+                }
+
+                step_cur++;
+            }
+            setTimeout(ctx_load_step, 0);
+        };
+        return ctx_load_step;
+    },
+
+    ctx_load: function (obj) {
+        if (window.localStorage == undefined) {
+            return false;
+        }
+        var ser = window.localStorage.getItem('gem_ipt_fragility');
+        if (ser == null)
+            return false;
+
+        var ctx = JSON.parse(ser);
+
+        ctx_load_step = obj.ctx_load_step_gen(obj, 0, ctx);
+
+        ctx_load_step();
+    }
+};
 
 function ff_sh2full(funcType)
 {
