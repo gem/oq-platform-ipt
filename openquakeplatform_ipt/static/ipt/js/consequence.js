@@ -20,7 +20,119 @@ var co_obj = {
     damage_states: null,
     tbl: null,
     tbl_file: null,
-    header: null
+    header: null,
+
+    ctx: {
+        assetCat: null,
+        lossCategory: null,
+        descr: null,
+        damageStates: null,
+        probDistrib: null,
+        table: null
+    },
+
+    ctx_get: function(obj) {
+        var ctx = obj.ctx;
+
+        ctx.assetCat = $(obj.pfx + 'input[name="asset-cat"]').val();
+        ctx.lossCategory = $(obj.pfx + 'select#lossCategory').val();
+        ctx.descr = $(obj.pfx + 'textarea[name="descr"]').val();
+        ctx.damageStates = $(obj.pfx + 'input[name="damage-states"]').val();
+        ctx.probDistrib = $(obj.pfx + 'input[name="asset-cat"]').val();
+        ctx.table = $(obj.pfx + '#table').handsontable('getInstance').getData();
+    },
+
+    ctx_save: function (obj) {
+        if (window.localStorage == undefined) {
+            return false;
+        }
+        obj.ctx_get(obj);
+        var ser = JSON.stringify(obj.ctx);
+        window.localStorage.setItem('gem_ipt_fragility', ser);
+        console.log(ser);
+    },
+
+    ctx_load_step_gen: function(obj, step_cur, ctx) {
+
+        function ctx_load_step() {
+            console.log('step pre');
+            wrapping4load(obj.pfx + '*', true);
+
+            if (gl_wrapping4load_counter != 0) {
+                // console.log("ctx_load_step: gl_wrapping4load_counter != 0 (" + gl_wrapping4load_counter + ")");
+                gl_wrapping4load_counter = 0;
+                setTimeout(ctx_load_step, 0);
+                // console.log('retry later');
+                return;
+            }
+            // else {
+            //     console.log('ctx_load_step: advance');
+            // }
+            var changed = false;
+            while (changed == false) {
+                switch(step_cur) {
+                case 0:
+                    if ($(obj.pfx + 'input[name="asset-cat"]').val() != ctx.assetCat) {
+                        $(obj.pfx + 'input[name="asset-cat"]').val(ctx.assetCat).change();
+                        changed = true;
+                    }
+                    break;
+                case 1:
+                    if ($(obj.pfx + 'select#lossCategory').val() != ctx.lossCategory) {
+                        $(obj.pfx + 'select#lossCategory').val(ctx.lossCategory).change();
+                        changed = true;
+                    }
+                    break;
+                case 2:
+                    if ($(obj.pfx + 'textarea[name="descr"]').val() != ctx.descr) {
+                        $(obj.pfx + 'textarea[name="descr"]').val(ctx.descr).change();
+                        changed = true;
+                    }
+                    break;
+                case 3:
+                    if ($(obj.pfx + 'input[name="damage-states"]').val() != ctx.damageStates) {
+                        $(obj.pfx + 'input[name="damage-states"]').val(ctx.damageStates).change();
+                        changed = true;
+                    }
+                    break;
+                case 4:
+                    if ($(obj.pfx + 'input[name="asset-cat"]').val() != ctx.probDistrib) {
+                        $(obj.pfx + 'input[name="asset-cat"]').val(ctx.probDistrib).change();
+                        changed = true;
+                    }
+                    break;
+                case 5:
+                    $(obj.pfx + '#table').handsontable('getInstance').loadData(ctx.table);
+                    changed = true;
+                    break;
+                default:
+                    console.log('dewrapping');
+                    wrapping4load(obj.pfx + '*', false);
+                    return;
+                    break;
+                }
+
+                step_cur++;
+            }
+            setTimeout(ctx_load_step, 0);
+        };
+        return ctx_load_step;
+    },
+
+    ctx_load: function (obj) {
+        if (window.localStorage == undefined) {
+            return false;
+        }
+        var ser = window.localStorage.getItem('gem_ipt_consequence');
+        if (ser == null)
+            return false;
+
+        var ctx = JSON.parse(ser);
+
+        var ctx_load_step = obj.ctx_load_step_gen(obj, 0, ctx);
+
+        ctx_load_step();
+    }
 };
 
 // tab initialization
@@ -83,7 +195,7 @@ function co_updateTable() {
     $(co_obj.pfx + '#convertBtn').show();
 }
 
-$('.co_gid #downloadBtn').click(function() {
+$(co_obj.pfx + '#downloadBtn').click(function() {
     sendbackNRML(co_obj.nrml, 'co');
 });
 
