@@ -16,6 +16,8 @@
 */
 
 var ff_obj = {
+    pfx: 'div.ff_gid ',
+    o: $('div.ff_gid'),
     tbl: {},
     tbl_idx: 0,
     nrml: "",
@@ -38,7 +40,7 @@ var ff_obj = {
         ret['no-damage-limit'] = $(scope).find('input[type="text"][name="no-damage-limit"]').val();
         ret['min-impls'] = $(scope).find('input[type="text"][name="min-impls"]').val();
         ret['max-impls'] = $(scope).find('input[type="text"][name="max-impls"]').val();
-        ret['table'] = $('.ff_gid [name="tableDiv' + (idx + 1) + '"]').handsontable("getInstance").getData();
+        ret['table'] = ff_obj.o.find('[name="tableDiv' + (idx + 1) + '"]').handsontable("getInstance").getData();
 
         return ret;
     },
@@ -48,14 +50,14 @@ var ff_obj = {
         ret['id'] = $(scope).find('input[type="text"][name="id"]').val();
         ret['imt'] = $(scope).find('input[type="text"][name="imt"]').val();
         ret['no-damage-limit'] = $(scope).find('input[type="text"][name="no-damage-limit"]').val();
-        ret['table'] = $('.ff_gid [name="tableDiv' + (idx + 1) + '"]').handsontable("getInstance").getData();
+        ret['table'] = ff_obj.o.find('[name="tableDiv' + (idx + 1) + '"]').handsontable("getInstance").getData();
 
         return ret;
     },
 
     ctx_tables_get: function(obj) {
         var ret = [];
-        var $funcs = $(".ff_gid .tables_gid");
+        var $funcs = ff_obj.o.find('.tables_gid');
 
         for (var i = 0 ; i < $funcs.length ; i++) {
             var ty = $($funcs[i]).attr('data-gem-func-type');
@@ -75,11 +77,11 @@ var ff_obj = {
     ctx_get: function (obj) {
         var ctx = obj.ctx;
 
-        ctx.functionId = $('.ff_gid input#functionId').val();
-        ctx.assetCategory = $('.ff_gid input#assetCategory').val();
-        ctx.lossCategory = $('.ff_gid select#lossCategory').val();
-        ctx.functionDescription = $('.ff_gid textarea#functionDescription').val();
-        ctx.limitStates = $('.ff_gid textarea#limitStates').val();
+        ctx.functionId = ff_obj.o.find('input#functionId').val();
+        ctx.assetCategory = ff_obj.o.find('input#assetCategory').val();
+        ctx.lossCategory = ff_obj.o.find('select#lossCategory').val();
+        ctx.functionDescription = ff_obj.o.find('textarea#functionDescription').val();
+        ctx.limitStates = ff_obj.o.find('textarea#limitStates').val();
         ctx.tables = obj.ctx_tables_get(obj);
     },
 
@@ -103,31 +105,31 @@ var ff_obj = {
             while (changed == false) {
                 switch(step_cur) {
                 case 0:
-                    $('.ff_gid button#addContFunc').click();
+                    ff_obj.o.find('button#addContFunc').click();
                     changed = true;
                     break;
                 case 1:
-                    $('.ff_gid div.tables_gid:last input[type="text"][name="id"]').val(table['id']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="id"]').val(table['id']);
                     changed = true;
                     break;
                 case 2:
-                    $('.ff_gid div.tables_gid:last input[type="text"][name="imt"]').val(table['imt']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="imt"]').val(table['imt']);
                     changed = true;
                     break;
                 case 3:
-                    $('.ff_gid div.tables_gid:last input[type="text"][name="no-damage-limit"]').val(table['no-damage-limit']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="no-damage-limit"]').val(table['no-damage-limit']);
                     changed = true;
                     break;
                 case 4:
-                    $('.ff_gid div.tables_gid:last input[type="text"][name="min-impls"]').val(table['min-impls']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="min-impls"]').val(table['min-impls']);
                     changed = true;
                     break;
                 case 5:
-                    $('.ff_gid div.tables_gid:last input[type="text"][name="max-impls"]').val(table['max-impls']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="max-impls"]').val(table['max-impls']);
                     changed = true;
                     break;
                 case 6:
-                    var htable = $('.ff_gid div.tables_gid:last div[name^="tableDiv"]').handsontable("getInstance");
+                    var htable = ff_obj.o.find('div.tables_gid:last div[name^="tableDiv"]').handsontable("getInstance");
                     htable.loadData(table.table);
 
                     changed = true;
@@ -158,23 +160,23 @@ var ff_obj = {
             while (changed == false) {
                 switch(step_cur) {
                 case 0:
-                    $('.ff_gid button#addDiscrFunc').click();
+                    ff_obj.o.find('button#addDiscrFunc').click();
                     changed = true;
                     break;
                 case 1:
-                    $('.ff_gid div.tables_gid:last input[type="text"][name="id"]').val(table['id']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="id"]').val(table['id']);
                     changed = true;
                     break;
                 case 2:
-                    $('.ff_gid div.tables_gid:last input[type="text"][name="imt"]').val(table['imt']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="imt"]').val(table['imt']);
                     changed = true;
                     break;
                 case 3:
-                    $('.ff_gid div.tables_gid:last input[type="text"][name="no-damage-limit"]').val(table['no-damage-limit']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="no-damage-limit"]').val(table['no-damage-limit']);
                     changed = true;
                     break;
                 case 4:
-                    var htable = $('.ff_gid div.tables_gid:last div[name^="tableDiv"]').handsontable("getInstance");
+                    var htable = ff_obj.o.find('div.tables_gid:last div[name^="tableDiv"]').handsontable("getInstance");
                     htable.loadData(table.table);
 
                     changed = true;
@@ -198,7 +200,7 @@ var ff_obj = {
     ctx_load_funcs_step_gen: function (obj, load_step, step_cur, ctx) {
         function ctx_load_funcs_step() {
             var tables = ctx.tables;
-            wrapping4load('.ff_gid *', true);
+            wrapping4load(obj.pfx + '*', true);
 
             if (gl_wrapping4load_counter != 0) {
                 // console.log("ctx_load_funcs_step: gl_wrapping4load_counter != 0 (" + gl_wrapping4load_counter + ")");
@@ -240,7 +242,7 @@ var ff_obj = {
 
         function ctx_load_step() {
             console.log('step pre');
-            wrapping4load('.ff_gid *', true);
+            wrapping4load(obj.pfx + '*', true);
 
             if (gl_wrapping4load_counter != 0) {
                 // console.log("ctx_load_step: gl_wrapping4load_counter != 0 (" + gl_wrapping4load_counter + ")");
@@ -256,37 +258,37 @@ var ff_obj = {
             while (changed == false) {
                 switch(step_cur) {
                 case 0:
-                    if ($('.ff_gid input#functionId').val() != ctx.functionId) {
-                        $('.ff_gid input#functionId').val(ctx.functionId).change();
+                    if (ff_obj.o.find('input#functionId').val() != ctx.functionId) {
+                        ff_obj.o.find('input#functionId').val(ctx.functionId).change();
                         changed = true;
                     }
                     break;
                 case 1:
-                    if ($('.ff_gid input#assetCategory').val() != ctx.assetCategory) {
-                        $('.ff_gid input#assetCategory').val(ctx.assetCategory).change();
+                    if (ff_obj.o.find('input#assetCategory').val() != ctx.assetCategory) {
+                        ff_obj.o.find('input#assetCategory').val(ctx.assetCategory).change();
                         changed = true;
                     }
                     break;
                 case 2:
-                    if ($('.ff_gid select#lossCategory').val() != ctx.lossCategory) {
-                        $('.ff_gid select#lossCategory').val(ctx.lossCategory).change();
+                    if (ff_obj.o.find('select#lossCategory').val() != ctx.lossCategory) {
+                        ff_obj.o.find('select#lossCategory').val(ctx.lossCategory).change();
                         changed = true;
                     }
                     break;
                 case 3:
-                    if ($('.ff_gid textarea#functionDescription').val() != ctx.functionDescription) {
-                        $('.ff_gid textarea#functionDescription').val(ctx.functionDescription);
+                    if (ff_obj.o.find('textarea#functionDescription').val() != ctx.functionDescription) {
+                        ff_obj.o.find('textarea#functionDescription').val(ctx.functionDescription);
                         changed = true;
                     }
                     break;
                 case 4:
-                    if ($('.ff_gid textarea#limitStates').val() != ctx.limitStates) {
-                        $('.ff_gid textarea#limitStates').val(ctx.limitStates).change();
+                    if (ff_obj.o.find('textarea#limitStates').val() != ctx.limitStates) {
+                        ff_obj.o.find('textarea#limitStates').val(ctx.limitStates).change();
                         changed = true;
                     }
                     break;
                 case 5:
-                    $('.ff_gid button[name="destroy_table"]').click();
+                    ff_obj.o.find('button[name="destroy_table"]').click();
                     changed = true;
                     break;
                 case 6:
@@ -296,7 +298,7 @@ var ff_obj = {
                     break;
                 default:
                     console.log('dewrapping');
-                    wrapping4load('.ex_gid *', false);
+                    wrapping4load(obj.pfx + '*', false);
                     ff_obj.is_interactive = true;
                     return;
                     break;
@@ -350,7 +352,7 @@ function ff_addTable (funcType) {
     var format_name = ff_sh2long(funcType);
 
     // Get info from the form and build the table header
-    ff_obj.limitStates = $('.ff_gid #limitStates').val().split(',');
+    ff_obj.limitStates = ff_obj.o.find('#limitStates').val().split(',');
     var limitStatesHeader = [];
     for (var i = 0; i < ff_obj.limitStates.length; i++) {
         ff_obj.limitStates[i] = ff_obj.limitStates[i].toString().trim();
@@ -362,7 +364,7 @@ function ff_addTable (funcType) {
 
     var colWidth;
     // disable the fragility function form
-    $('.ff_gid #limitStates').prop('disabled', true);
+    ff_obj.o.find('#limitStates').prop('disabled', true);
     // Setup the header
     if (funcType == 'discr') {
         header = limitStatesHeader;
@@ -392,7 +394,7 @@ function ff_addTable (funcType) {
     }
 
     // Create the fragility function set (ffs)
-    $('.ff_gid #tables').append(
+    ff_obj.o.find('#tables').append(
         '<div id="table'+ff_obj.tbl_idx+'" class="tables_gid table'+ff_obj.tbl_idx+'_id' +
             ' ffsTableDiv panel panel-default" data-gem-func-type="'+ funcType + '">' +
           '<strong class="ffsTitle">' + format_name.toUpperCase() + '</strong><button type="button" name="destroy_table" class="destroyTable btn-danger btn">Remove Function</button><br>' +
@@ -418,7 +420,7 @@ function ff_addTable (funcType) {
     );
 
     // force bootstrap style
-    $('.ff_gid .btn-danger').css({'background-color': '#da4f49'});
+    ff_obj.o.find('.btn-danger').css({'background-color': '#da4f49'});
 
 
     ////////////////////////////////
@@ -461,8 +463,8 @@ function ff_addTable (funcType) {
         };
     }
 
-    $('.ff_gid [name="tableDiv'+ff_obj.tbl_idx+'"]').handsontable(handson_params);
-    ff_obj.tbl[ff_obj.tbl_idx] = $('.ff_gid [name="tableDiv'+ff_obj.tbl_idx+'"]').handsontable("getInstance");
+    ff_obj.o.find('[name="tableDiv'+ff_obj.tbl_idx+'"]').handsontable(handson_params);
+    ff_obj.tbl[ff_obj.tbl_idx] = ff_obj.o.find('[name="tableDiv'+ff_obj.tbl_idx+'"]').handsontable("getInstance");
     table = ff_obj.tbl[ff_obj.tbl_idx];
 
     // Populate the table with limit states
@@ -474,7 +476,7 @@ function ff_addTable (funcType) {
 
     if (funcType == 'discr') {
         var tbl = ff_obj.tbl[ff_obj.tbl_idx];
-        var $box = $('.ff_gid [name="tableDiv'+ff_obj.tbl_idx+'"]');
+        var $box = ff_obj.o.find('[name="tableDiv'+ff_obj.tbl_idx+'"]');
 
         setTimeout(function() {
             return gem_tableHeightUpdate($box);
@@ -489,46 +491,46 @@ function ff_addTable (funcType) {
         });
     }
 
-    $('.ff_gid #outputText').empty();
-    $('.ff_gid #convertBtn').show();
+    ff_obj.o.find('#outputText').empty();
+    ff_obj.o.find('#convertBtn').show();
 
     // use tbl_idx to fix with a closure the idx value inside click and change callbacks
     var tbl_idx = ff_obj.tbl_idx;
 
     // Logic to remove a table
-    $('.ff_gid .table' + tbl_idx + '_id [name="destroy_table"]').click(function() {
+    ff_obj.o.find('.table' + tbl_idx + '_id [name="destroy_table"]').click(function() {
         if (ff_obj.is_interactive) {
             if (confirm("Do you really want to remove this function?") == false)
                 return;
         }
-        $('.ff_gid #table' + tbl_idx).remove();
+        ff_obj.o.find('#table' + tbl_idx).remove();
         delete ff_obj.tbl[tbl_idx];
         if (Object.keys(ff_obj.tbl).length == 0) {
-            $('.ff_gid #limitStates').prop('disabled', false);
-            $('.ff_gid #convertBtn').hide();
-            $('.ff_gid #outputDiv').hide();
+            ff_obj.o.find('#limitStates').prop('disabled', false);
+            ff_obj.o.find('#convertBtn').hide();
+            ff_obj.o.find('#outputDiv').hide();
         }
     });
 
     // Logic to manage newRow button
-    $('.ff_gid .table' + tbl_idx + '_id #new_row_add').click(function() {
+    ff_obj.o.find('.table' + tbl_idx + '_id #new_row_add').click(function() {
         var table;
-        table = $('.ff_gid [name="tableDiv'+ff_obj.tbl_idx+'"]').handsontable("getInstance");
+        table = ff_obj.o.find('[name="tableDiv'+ff_obj.tbl_idx+'"]').handsontable("getInstance");
         table.alter('insert_row', table.countRows());
     });
 
     // Increase the ffs panel when many limit states are defined
     if (limitStateLength > 5) {
-        $('.ff_gid .ffsTableDiv').height(240 + (limitStateLength * 1.5));
+        ff_obj.o.find('.ffsTableDiv').height(240 + (limitStateLength * 1.5));
     }
 
 }
 
-$('.ff_gid #downloadBtn').click(function() {
+ff_obj.o.find('#downloadBtn').click(function() {
     sendbackNRML(ff_obj.nrml, 'ff');
 });
 
-$('.ff_gid #convertBtn').click(function() {
+ff_obj.o.find('#convertBtn').click(function() {
     var tabs_data = {};
 
     // get the data for each table
@@ -537,14 +539,14 @@ $('.ff_gid #convertBtn').click(function() {
     }
 
     for(var k in tabs_data) {
-        var pfx = '.ff_gid .table'+k+'_id';
+        var $pfx = ff_obj.o.find('.table'+k+'_id');
         var tab_data = tabs_data[k];
 
         for (var i = 0; i < tab_data.length; i++) {
             for (var j = 0; j < tab_data[i].length; j++) {
                 if (tab_data[i][j] === null || tab_data[i][j].toString().trim() == "") {
-                    var funcType = $(pfx).attr('data-gem-func-type');
-                    var funcId = $(pfx+' [name="id"]').val();
+                    var funcType = $pfx.attr('data-gem-func-type');
+                    var funcId = $pfx.find('[name="id"]').val();
                     var error_msg = "empty cell detected at coords (" + (i+1) + ", " + (j+1) + ") of " +
                         ff_sh2long(funcType)+ " with ID " + funcId;
 
@@ -555,10 +557,10 @@ $('.ff_gid #convertBtn').click(function() {
         }
     }
 
-    var functionId = $('.ff_gid #functionId').val();
-    var assetCategory = $('.ff_gid #assetCategory').val();
-    var lossCategory = $('.ff_gid #lossCategory').val();
-    var functionDescription = $('.ff_gid #functionDescription').val();
+    var functionId = ff_obj.o.find('#functionId').val();
+    var assetCategory = ff_obj.o.find('#assetCategory').val();
+    var lossCategory = ff_obj.o.find('#lossCategory').val();
+    var functionDescription = ff_obj.o.find('#functionDescription').val();
 
     // Opening limit state tag
     var limitStatesXML = '\t\t<limitStates>';
@@ -576,25 +578,25 @@ $('.ff_gid #convertBtn').click(function() {
     var fragilityFunction = '';
     // Create the ffs elements
     for (var k in ff_obj.tbl) {
-        var pfx = '.ff_gid .table'+k+'_id';
+        var $pfx = ff_obj.o.find('.table'+k+'_id');
         var tab_data = tabs_data[k];
-        var funcType = $(pfx).attr('data-gem-func-type');
+        var funcType = $pfx.attr('data-gem-func-type');
 
         var ffs;
         // Opening ffs tag
         if (funcType == 'discr') {
-            ffs = '\t\t<fragilityFunction id="'+$(pfx+' [name="id"]').val()+'" format="'+
+            ffs = '\t\t<fragilityFunction id="'+$pfx.find('[name="id"]').val()+'" format="'+
                 ff_sh2full(funcType)+'">\n';
         } else if (funcType == 'cont') {
-            ffs = '\t\t<fragilityFunction id="'+$(pfx+' [name="id"]').val()+'" format="'+
+            ffs = '\t\t<fragilityFunction id="'+$pfx.find('[name="id"]').val()+'" format="'+
                 ff_sh2full(funcType)+'" shape="logncdf">\n';
         }
         // Create the imls tag
         var imlsTag;
         if (funcType == 'discr') {
             // Opening IML tag
-            imlsTag = '\t\t\t<imls imt="'+$(pfx+' [name="imt"]').val()+'" noDamageLimit="'+
-                $(pfx+' [name="no-damage-limit"]').val()+'">';
+            imlsTag = '\t\t\t<imls imt="'+$pfx.find('[name="imt"]').val()+'" noDamageLimit="'+
+                $pfx.find('[name="no-damage-limit"]').val()+'">';
 
             for (var i = 0; i < tab_data.length; i++) {
                 // IML values
@@ -603,10 +605,10 @@ $('.ff_gid #convertBtn').click(function() {
             // Closing IML tag
             imlsTag += '</imls>\n';
         } else if (funcType == 'cont') {
-            imlsTag = '\t\t\t<imls imt="'+$(pfx+' [name="imt"]').val()+
-                '" noDamageLimit="'+$(pfx+' [name="no-damage-limit"]').val()+
-                '" minIML="'+$(pfx+' [name="min-impls"]').val()+
-                '" maxIML="'+$(pfx+' [name="max-impls"]').val()+
+            imlsTag = '\t\t\t<imls imt="'+$pfx.find('[name="imt"]').val()+
+                '" noDamageLimit="'+$pfx.find('[name="no-damage-limit"]').val()+
+                '" minIML="'+$pfx.find('[name="min-impls"]').val()+
+                '" maxIML="'+$pfx.find('[name="max-impls"]').val()+
                 '"/>\n';
         }
         // Dynamic imls tag
@@ -656,18 +658,18 @@ $('.ff_gid #convertBtn').click(function() {
 
 // initialization function
 $(document).ready(function (){
-    $('.ff_gid #outputDiv').hide();
+    ff_obj.o.find('#outputDiv').hide();
 
-    $('.ff_gid #addDiscrFunc').click(function() {
+    ff_obj.o.find('#addDiscrFunc').click(function() {
         var funcType = 'discr';
         ff_addTable(funcType);
-        $('.ff_gid #outputDiv').hide();
+        ff_obj.o.find('#outputDiv').hide();
     });
 
-    $('.ff_gid #addContFunc').click(function() {
+    ff_obj.o.find('#addContFunc').click(function() {
         var funcType = 'cont';
         ff_addTable(funcType);
-        $('.ff_gid #outputDiv').hide();
+        ff_obj.o.find('#outputDiv').hide();
     });
 
 });
