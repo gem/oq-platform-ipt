@@ -120,35 +120,23 @@ var ex_obj = {
         console.log(ser);
     },
 
-    ctx_load: function (obj) {
-        if (window.localStorage == undefined) {
-            return false;
-        }
-        var ser = window.localStorage.getItem('gem_ipt_exposure');
-        if (ser == null)
-            return false;
-
-        var ctx = JSON.parse(ser);
-        var load_step = 0;
-
-        // console.log(ctx);
-
-        function ctx_load_multiphase() {
+    ctx_load_step_gen: function(obj, step_cur, ctx) {
+        function ctx_load_step() {
             wrapping4load('.ex_gid *', true);
 
             if (gl_wrapping4load_counter != 0) {
-                // console.log("ctx_load_multiphase: gl_wrapping4load_counter != 0 (" + gl_wrapping4load_counter + ")");
+                // console.log("ctx_load_step: gl_wrapping4load_counter != 0 (" + gl_wrapping4load_counter + ")");
                 gl_wrapping4load_counter = 0;
-                setTimeout(ctx_load_multiphase, 0);
+                setTimeout(ctx_load_step, 0);
                 // console.log('retry later');
                 return;
             }
             // else {
-            //     console.log('ctx_load_multiphase, advance');
+            //     console.log('ctx_load_step, advance');
             // }
             var changed = false;
             while (changed == false) {
-                switch(load_step) {
+                switch(step_cur) {
                 case 0:
                     if ($('.ex_gid textarea#description').val() != ctx.description) {
                         $('.ex_gid textarea#description').val(ctx.description).change();
@@ -290,11 +278,27 @@ var ex_obj = {
                     break;
                 }
 
-                load_step++;
+                step_cur++;
             }
-            setTimeout(ctx_load_multiphase, 0);
+            setTimeout(ctx_load_step, 0);
         };
-        setTimeout(ctx_load_multiphase, 0);
+        return ctx_load_step;
+    },
+
+    ctx_load: function (obj) {
+        if (window.localStorage == undefined) {
+            return false;
+        }
+        var ser = window.localStorage.getItem('gem_ipt_exposure');
+        if (ser == null)
+            return false;
+
+        var ctx = JSON.parse(ser);
+        var load_step = 0;
+
+        var ctx_load_step = obj.ctx_load_step_gen(obj, 0, ctx);
+
+        setTimeout(ctx_load_step, 0);
     }
 };
 
