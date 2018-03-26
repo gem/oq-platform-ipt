@@ -17,6 +17,7 @@
 
 var ex_obj = {
     pfx: "div.ex_gid ",
+    o: $('div.ex_gid'),
     tbl_file: null,
     tbl: {},
     tbl_idx: 0,
@@ -81,34 +82,34 @@ var ex_obj = {
         this.perAreaUpdate(selectedValue, element);
 
         if (this.perAreaIsVisible())
-            $(ex_obj.pfx + '#perArea').show();
+            ex_obj.o.find('#perArea').show();
         else
-            $(ex_obj.pfx + '#perArea').hide();
+            ex_obj.o.find('#perArea').hide();
     },
 
     ctx_get: function (obj) {
         var ctx = obj.ctx;
 
-        ctx.description = $(obj.pfx + 'textarea#description').val();
-        ctx.costStruc = $(obj.pfx + 'select#costStruc').val();
-        ctx.structural_costs_units = $(obj.pfx + 'input#structural_costs_units').val();
-        ctx.retroChbx = $(obj.pfx + 'input#retroChbx').is(':checked');
-        ctx.limitSelect = $(obj.pfx + 'select#limitSelect').val();
-        ctx.deductibleSelect = $(obj.pfx + 'select#deductibleSelect').val();
-        ctx.costNonStruc = $(obj.pfx + 'select#costNonStruc').val();
-        ctx.nonstructural_costs_units = $(obj.pfx + 'input#nonstructural_costs_units').val();
-        ctx.costContent = $(obj.pfx + 'select#costContent').val();
-        ctx.contents_costs_units = $(obj.pfx + 'input#contents_costs_units').val();
-        ctx.costBusiness = $(obj.pfx + 'select#costBusiness').val();
-        ctx.busi_inter_costs_units = $(obj.pfx + 'input#busi_inter_costs_units').val();
-        ctx.perAreaSelect = $(obj.pfx + 'select#perAreaSelect').val();
-        ctx.area_units = $(obj.pfx + 'input#area_units').val();
+        ctx.description = obj.o.find('textarea#description').val();
+        ctx.costStruc = obj.o.find('select#costStruc').val();
+        ctx.structural_costs_units = obj.o.find('input#structural_costs_units').val();
+        ctx.retroChbx = obj.o.find('input#retroChbx').is(':checked');
+        ctx.limitSelect = obj.o.find('select#limitSelect').val();
+        ctx.deductibleSelect = obj.o.find('select#deductibleSelect').val();
+        ctx.costNonStruc = obj.o.find('select#costNonStruc').val();
+        ctx.nonstructural_costs_units = obj.o.find('input#nonstructural_costs_units').val();
+        ctx.costContent = obj.o.find('select#costContent').val();
+        ctx.contents_costs_units = obj.o.find('input#contents_costs_units').val();
+        ctx.costBusiness = obj.o.find('select#costBusiness').val();
+        ctx.busi_inter_costs_units = obj.o.find('input#busi_inter_costs_units').val();
+        ctx.perAreaSelect = obj.o.find('select#perAreaSelect').val();
+        ctx.area_units = obj.o.find('input#area_units').val();
 
-        ctx.occupants_day = $(obj.pfx + 'div#occupantsCheckBoxes input[type="checkbox"][value="day"]').is(':checked');
-        ctx.occupants_night = $(obj.pfx + 'div#occupantsCheckBoxes input[type="checkbox"][value="night"]').is(':checked');
-        ctx.occupants_transit = $(obj.pfx + 'div#occupantsCheckBoxes input[type="checkbox"][value="transit"]').is(':checked');
-        ctx.tags = $(obj.pfx + '#tags').tagsinput('items');
-        ctx.table = $(obj.pfx + '#table').handsontable('getInstance').getData();
+        ctx.occupants_day = obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="day"]').is(':checked');
+        ctx.occupants_night = obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="night"]').is(':checked');
+        ctx.occupants_transit = obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="transit"]').is(':checked');
+        ctx.tags = obj.o.find('#tags').tagsinput('items');
+        ctx.table = obj.o.find('#table').handsontable('getInstance').getData();
     },
 
     ctx_save: function (obj) {
@@ -139,117 +140,117 @@ var ex_obj = {
             while (changed == false) {
                 switch(step_cur) {
                 case 0:
-                    if ($(obj.pfx + 'textarea#description').val() != ctx.description) {
-                        $(obj.pfx + 'textarea#description').val(ctx.description).change();
+                    if (obj.o.find('textarea#description').val() != ctx.description) {
+                        obj.o.find('textarea#description').val(ctx.description).change();
                         changed = true;
                     }
                     break;
                 case 1:
-                    if ($(obj.pfx + 'select#costStruc').val() != ctx.costStruc) {
-                        $(obj.pfx + 'select#costStruc').val(ctx.costStruc).change();
+                    if (obj.o.find('select#costStruc').val() != ctx.costStruc) {
+                        obj.o.find('select#costStruc').val(ctx.costStruc).change();
                         changed = true;
                     }
                     break;
                 case 2:
-                    if ($(obj.pfx + 'input#structural_costs_units').val() != ctx.structural_costs_units) {
-                        $(obj.pfx + 'input#structural_costs_units').val(ctx.structural_costs_units).change();
+                    if (obj.o.find('input#structural_costs_units').val() != ctx.structural_costs_units) {
+                        obj.o.find('input#structural_costs_units').val(ctx.structural_costs_units).change();
                         changed = true;
                     }
                     break;
                 case 3:
-                    if ($(obj.pfx + 'input#retroChbx').is(':checked') != ctx.retroChbx) {
-                        $(obj.pfx + 'input#retroChbx').prop('checked', ctx.retroChbx).change();
+                    if (obj.o.find('input#retroChbx').is(':checked') != ctx.retroChbx) {
+                        obj.o.find('input#retroChbx').prop('checked', ctx.retroChbx).change();
                         changed = true;
                     }
                     break;
                 case 4:
-                    if ($(obj.pfx + 'select#limitSelect').val() != ctx.limitSelect) {
-                        $(obj.pfx + 'select#limitSelect').val(ctx.limitSelect).change();
+                    if (obj.o.find('select#limitSelect').val() != ctx.limitSelect) {
+                        obj.o.find('select#limitSelect').val(ctx.limitSelect).change();
                         changed = true;
                     }
                     break;
                 case 5:
-                    if ($(obj.pfx + 'select#deductibleSelect').val() != ctx.deductibleSelect) {
-                        $(obj.pfx + 'select#deductibleSelect').val(ctx.deductibleSelect).change();
+                    if (obj.o.find('select#deductibleSelect').val() != ctx.deductibleSelect) {
+                        obj.o.find('select#deductibleSelect').val(ctx.deductibleSelect).change();
                         changed = true;
                     }
                     break;
                 case 6:
-                    if ($(obj.pfx + 'select#costNonStruc').val() != ctx.costNonStruc) {
-                        $(obj.pfx + 'select#costNonStruc').val(ctx.costNonStruc).change();
+                    if (obj.o.find('select#costNonStruc').val() != ctx.costNonStruc) {
+                        obj.o.find('select#costNonStruc').val(ctx.costNonStruc).change();
                         changed = true;
                     }
                     break;
                 case 7:
-                    if ($(obj.pfx + 'input#nonstructural_costs_units').val() != ctx.nonstructural_costs_units) {
-                        $(obj.pfx + 'input#nonstructural_costs_units').val(ctx.nonstructural_costs_units).change();
+                    if (obj.o.find('input#nonstructural_costs_units').val() != ctx.nonstructural_costs_units) {
+                        obj.o.find('input#nonstructural_costs_units').val(ctx.nonstructural_costs_units).change();
                         changed = true;
                     }
                     break;
                 case 8:
-                    if ($(obj.pfx + 'select#costContent').val() != ctx.costContent) {
-                        $(obj.pfx + 'select#costContent').val(ctx.costContent).change();
+                    if (obj.o.find('select#costContent').val() != ctx.costContent) {
+                        obj.o.find('select#costContent').val(ctx.costContent).change();
                         changed = true;
                     }
                     break;
                 case 9:
-                    if ($(obj.pfx + 'input#contents_costs_units').val() != ctx.contents_costs_units) {
-                        $(obj.pfx + 'input#contents_costs_units').val(ctx.contents_costs_units).change();
+                    if (obj.o.find('input#contents_costs_units').val() != ctx.contents_costs_units) {
+                        obj.o.find('input#contents_costs_units').val(ctx.contents_costs_units).change();
                         changed = true;
                     }
                     break;
                 case 10:
-                    if ($(obj.pfx + 'select#costBusiness').val() != ctx.costBusiness) {
-                        $(obj.pfx + 'select#costBusiness').val(ctx.costBusiness).change();
+                    if (obj.o.find('select#costBusiness').val() != ctx.costBusiness) {
+                        obj.o.find('select#costBusiness').val(ctx.costBusiness).change();
                         changed = true;
                     }
                     break;
                 case 11:
-                    if ($(obj.pfx + 'input#busi_inter_costs_units').val() != ctx.busi_inter_costs_units) {
-                        $(obj.pfx + 'input#busi_inter_costs_units').val(ctx.busi_inter_costs_units);
+                    if (obj.o.find('input#busi_inter_costs_units').val() != ctx.busi_inter_costs_units) {
+                        obj.o.find('input#busi_inter_costs_units').val(ctx.busi_inter_costs_units);
                         changed = true;
                     }
                     break;
                 case 12:
-                    if ($(obj.pfx + 'select#perAreaSelect').val() != ctx.perAreaSelect) {
-                        $(obj.pfx + 'select#perAreaSelect').val(ctx.perAreaSelect).change();
+                    if (obj.o.find('select#perAreaSelect').val() != ctx.perAreaSelect) {
+                        obj.o.find('select#perAreaSelect').val(ctx.perAreaSelect).change();
                         changed = true;
                     }
                     break;
                 case 13:
 
-                    if ($(obj.pfx + 'input#area_units').val() != ctx.area_units) {
-                        $(obj.pfx + 'input#area_units').val(ctx.area_units).change();
+                    if (obj.o.find('input#area_units').val() != ctx.area_units) {
+                        obj.o.find('input#area_units').val(ctx.area_units).change();
                         changed = true;
                     }
                     break;
                 case 14:
-                    if ($(obj.pfx + 'div#occupantsCheckBoxes input[type="checkbox"][value="day"]').is(
+                    if (obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="day"]').is(
                         ':checked') != ctx.occupants_day) {
-                        $(obj.pfx + 'div#occupantsCheckBoxes input[type="checkbox"][value="day"]').prop(
+                        obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="day"]').prop(
                             'checked', ctx.occupants_day).change();
                         changed = true;
                     }
                     break;
                 case 15:
-                    if ($(obj.pfx + 'div#occupantsCheckBoxes input[type="checkbox"][value="night"]').is(
+                    if (obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="night"]').is(
                         ':checked') != ctx.occupants_night) {
-                        $(obj.pfx + 'div#occupantsCheckBoxes input[type="checkbox"][value="night"]').prop(
+                        obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="night"]').prop(
                             'checked', ctx.occupants_night).change();
                         changed = true;
                     }
                     break;
                 case 16:
-                    if ($(obj.pfx + 'div#occupantsCheckBoxes input[type="checkbox"][value="transit"]').is(
+                    if (obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="transit"]').is(
                         ':checked') != ctx.occupants_transit) {
-                        $(obj.pfx + 'div#occupantsCheckBoxes input[type="checkbox"][value="transit"]').prop(
+                        obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="transit"]').prop(
                             'checked', ctx.occupants_transit).change();
                         changed = true;
                     }
                     break;
                 case 17:
                     var eq = false;
-                    var tags_cur = $(obj.pfx + '#tags').tagsinput('items');
+                    var tags_cur = obj.o.find('#tags').tagsinput('items');
                     if (ctx.tags.length == tags_cur.length) {
                         eq = true;
                         for (var i = 0 ; i < ctx.tags.length ; i++) {
@@ -261,14 +262,14 @@ var ex_obj = {
                     }
                     if (eq == false) {
                         for (var i = 0 ; i < ctx.tags.length ; i++) {
-                            $(obj.pfx + '#tags').tagsinput('add', ctx.tags[i]);
+                            obj.o.find('#tags').tagsinput('add', ctx.tags[i]);
                         }
                         changed = true;
                     }
                     break;
                 case 18:
                     console.log('pre-load');
-                    var table = $(obj.pfx + '#table').handsontable('getInstance');
+                    var table = obj.o.find('#table').handsontable('getInstance');
                     table.loadData(ctx.table);
                     changed = true;
                     break;
@@ -303,7 +304,7 @@ var ex_obj = {
     }
 };
 
-$(ex_obj.pfx + '#costStruc').change(function() {
+ex_obj.o.find('#costStruc').change(function() {
     // There is a bug in the handsontable lib where one can not
     // paste values into the table when the user has made a selection
     // from a dropdown menu. The reason for this error is that the focus
@@ -313,66 +314,66 @@ $(ex_obj.pfx + '#costStruc').change(function() {
     $(this).blur();
     ex_obj.perAreaManager($(this).val(), $(this).context.id);
     if ($(this).val() != 'none') {
-        $(ex_obj.pfx + '#structural_costs_units_div').show();
-        $(ex_obj.pfx + '#retrofittingSelect').show();
-        $(ex_obj.pfx + '#limitDiv').show();
-        $(ex_obj.pfx + '#deductibleDiv').show();
+        ex_obj.o.find('#structural_costs_units_div').show();
+        ex_obj.o.find('#retrofittingSelect').show();
+        ex_obj.o.find('#limitDiv').show();
+        ex_obj.o.find('#deductibleDiv').show();
     } else {
-        $(ex_obj.pfx + '#structural_costs_units_div').hide();
-        $(ex_obj.pfx + '#retrofittingSelect').hide();
-        $(ex_obj.pfx + '#limitDiv').hide();
-        $(ex_obj.pfx + '#deductibleDiv').hide();
+        ex_obj.o.find('#structural_costs_units_div').hide();
+        ex_obj.o.find('#retrofittingSelect').hide();
+        ex_obj.o.find('#limitDiv').hide();
+        ex_obj.o.find('#deductibleDiv').hide();
         // Uncheck retrofitting
-        $(ex_obj.pfx + '#retroChbx').attr('checked', false);
+        ex_obj.o.find('#retroChbx').attr('checked', false);
         // Unselect the limit & deductible
-        $(ex_obj.pfx + '#limitSelect').val('0');
-        $(ex_obj.pfx + '#deductibleSelect').val('0');
+        ex_obj.o.find('#limitSelect').val('0');
+        ex_obj.o.find('#deductibleSelect').val('0');
     }
 });
 
-$(ex_obj.pfx + '#costNonStruc').change(function() {
+ex_obj.o.find('#costNonStruc').change(function() {
     // unfocus the selection menu, see the note at the costStruc change event
     $(this).blur();
 
     if ($(this).val() != 'none') {
-        $(ex_obj.pfx + '#nonstructural_costs_units_div').show();
+        ex_obj.o.find('#nonstructural_costs_units_div').show();
     }
     else {
-        $(ex_obj.pfx + '#nonstructural_costs_units_div').hide();
+        ex_obj.o.find('#nonstructural_costs_units_div').hide();
     }
     ex_obj.perAreaManager($(this).val(), $(this).context.id);
 });
 
-$(ex_obj.pfx + '#costContent').change(function() {
+ex_obj.o.find('#costContent').change(function() {
     if ($(this).val() != 'none') {
-        $(ex_obj.pfx + '#contents_costs_units_div').show();
+        ex_obj.o.find('#contents_costs_units_div').show();
     }
     else {
-        $(ex_obj.pfx + '#contents_costs_units_div').hide();
+        ex_obj.o.find('#contents_costs_units_div').hide();
     }
-    // unfocus the selection menu, see the note at the costStruc change event
-    $(this).blur();
-    ex_obj.perAreaManager($(this).val(), $(this).context.id);
-});
-
-$(ex_obj.pfx + '#costBusiness').change(function() {
-    if ($(this).val() != 'none') {
-        $(ex_obj.pfx + '#busi_inter_costs_units_div').show();
-    }
-    else {
-        $(ex_obj.pfx + '#busi_inter_costs_units_div').hide();
-    }
-
     // unfocus the selection menu, see the note at the costStruc change event
     $(this).blur();
     ex_obj.perAreaManager($(this).val(), $(this).context.id);
 });
 
-$(ex_obj.pfx + '#form').change(function() {
+ex_obj.o.find('#costBusiness').change(function() {
+    if ($(this).val() != 'none') {
+        ex_obj.o.find('#busi_inter_costs_units_div').show();
+    }
+    else {
+        ex_obj.o.find('#busi_inter_costs_units_div').hide();
+    }
+
+    // unfocus the selection menu, see the note at the costStruc change event
+    $(this).blur();
+    ex_obj.perAreaManager($(this).val(), $(this).context.id);
+});
+
+ex_obj.o.find('#form').change(function() {
     // unfocus the selection menu, see the note at the costStruc change event
     $(this).blur();
     ex_updateTable();
-    $(ex_obj.pfx + '#outputDiv').hide();
+    ex_obj.o.find('#outputDiv').hide();
 });
 
 function checkForValueInHeader(header, argument) {
@@ -381,8 +382,8 @@ function checkForValueInHeader(header, argument) {
 }
 
 function ex_updateTableTags(delta) {
-    var tags = $(ex_obj.pfx + '#tags').tagsinput('items');
-    var tbl = $(ex_obj.pfx + '#table').handsontable('getInstance');
+    var tags = ex_obj.o.find('#tags').tagsinput('items');
+    var tbl = ex_obj.o.find('#table').handsontable('getInstance');
     var cols_cur = tbl.countCols();
     var cols_headers = tbl.getColHeader();
 
@@ -411,12 +412,12 @@ function ex_updateTableTags(delta) {
 }
 
 function ex_updateTable() {
-    $(ex_obj.pfx + '#table_file').val("");
+    ex_obj.o.find('#table_file').val("");
     ex_obj.tbl_file = null;
 
     // Remove any existing table, if already exists
-    if ($(ex_obj.pfx + '#table').handsontable('getInstance') !== undefined) {
-        $(ex_obj.pfx + '#table').handsontable('destroy');
+    if (ex_obj.o.find('#table').handsontable('getInstance') !== undefined) {
+        ex_obj.o.find('#table').handsontable('destroy');
     }
 
     // Default columns
@@ -440,42 +441,42 @@ function ex_updateTable() {
     }
 
     // Get info from the expsure form and use it to build the table header
-    $(ex_obj.pfx + '#costStruc option:selected').each(function() {
+    ex_obj.o.find('#costStruc option:selected').each(function() {
         checkForValue($(this).attr('value'), 'structural');
     });
 
-    $(ex_obj.pfx + '#costNonStruc option:selected').each(function() {
+    ex_obj.o.find('#costNonStruc option:selected').each(function() {
         checkForValue($(this).attr('value'), 'non-structural');
     });
 
-    $(ex_obj.pfx + '#costContent option:selected').each(function() {
+    ex_obj.o.find('#costContent option:selected').each(function() {
         checkForValue($(this).attr('value'), 'contents');
     });
 
-    $(ex_obj.pfx + '#costBusiness option:selected').each(function() {
+    ex_obj.o.find('#costBusiness option:selected').each(function() {
         checkForValue($(this).attr('value'), 'business');
     });
 
-    $(ex_obj.pfx + '#limitSelect option:selected').each(function() {
+    ex_obj.o.find('#limitSelect option:selected').each(function() {
         checkForValue($(this).attr('value'), 'limit');
     });
 
-    $(ex_obj.pfx + '#deductibleSelect option:selected').each(function() {
+    ex_obj.o.find('#deductibleSelect option:selected').each(function() {
         checkForValue($(this).attr('value'), 'deductible');
     });
 
-    var perAreaVisible = $(ex_obj.pfx + '#perArea:visible').length;
+    var perAreaVisible = ex_obj.o.find('#perArea:visible').length;
     if (perAreaVisible === 1) {
         ex_obj.header.push('area');
     }
 
-    $(ex_obj.pfx + '#occupantsCheckBoxes input:checked').each(function() {
+    ex_obj.o.find('#occupantsCheckBoxes input:checked').each(function() {
         ex_obj.header.push($(this).attr('value'));
         // unfocus the selection menu, see the note at the exposure costStruc change event
         $(this).blur();
     });
 
-    $(ex_obj.pfx + '#retrofittingSelect input:checked').each(function() {
+    ex_obj.o.find('#retrofittingSelect input:checked').each(function() {
         ex_obj.header.push($(this).attr('value'));
         // unfocus the selection menu, see the note at the exposure costStruc change event
         $(this).blur();
@@ -484,7 +485,7 @@ function ex_updateTable() {
     ex_obj.headerbase_len = ex_obj.header.length;
 
     // manage tags
-    var tags = $(ex_obj.pfx + '#tags').tagsinput('items');
+    var tags = ex_obj.o.find('#tags').tagsinput('items');
     for (i = 0 ; i < tags.length ; i++) {
         ex_obj.header.push("tag_" + tags[i]);
     }
@@ -495,7 +496,7 @@ function ex_updateTable() {
     ///////////////////////////////
     /// Exposure Table Settings ///
     ///////////////////////////////
-    $(ex_obj.pfx + '#table').handsontable({
+    ex_obj.o.find('#table').handsontable({
         colHeaders: ex_obj.header,
         rowHeaders: true,
         contextMenu: true,
@@ -505,44 +506,44 @@ function ex_updateTable() {
         stretchH: 'all',
         className: "htRight"
     });
-    ex_obj.tbl = $(ex_obj.pfx + '#table').handsontable('getInstance');
+    ex_obj.tbl = ex_obj.o.find('#table').handsontable('getInstance');
     setTimeout(function() {
-        return gem_tableHeightUpdate($(ex_obj.pfx + '#table'));
+        return gem_tableHeightUpdate(ex_obj.o.find('#table'));
     }, 0);
 
     ex_obj.tbl.addHook('afterCreateRow', function() {
-        return gem_tableHeightUpdate($(ex_obj.pfx + '#table'));
+        return gem_tableHeightUpdate(ex_obj.o.find('#table'));
     });
 
     ex_obj.tbl.addHook('afterRemoveRow', function() {
-        return gem_tableHeightUpdate($(ex_obj.pfx + '#table'));
+        return gem_tableHeightUpdate(ex_obj.o.find('#table'));
     });
     ex_obj.tbl.addHook('afterChange', function(changes, source) {
         // when loadData is used, for performace reasons, changes are 'null'
         if (changes != null || source != 'loadData') {
-            $(ex_obj.pfx + '#table_file').val("");
+            ex_obj.o.find('#table_file').val("");
             ex_obj.tbl_file = null;
         }
     });
 
-    $(ex_obj.pfx + '#outputText').empty();
-    $(ex_obj.pfx + '#convertBtn').show();
+    ex_obj.o.find('#outputText').empty();
+    ex_obj.o.find('#convertBtn').show();
 }
 
-$(ex_obj.pfx + '#downloadBtn').click(function() {
+ex_obj.o.find('#downloadBtn').click(function() {
     sendbackNRML(ex_obj.nrml, 'ex');
 });
 
 if (typeof gem_api != 'undefined') {
-    $(ex_obj.pfx + '#delegateDownloadBtn').click(function() {
+    ex_obj.o.find('#delegateDownloadBtn').click(function() {
         delegate_downloadNRML(ex_obj.nrml, 'ex');
     });
 }
 
-$(ex_obj.pfx + '#convertBtn').click(function() {
+ex_obj.o.find('#convertBtn').click(function() {
     var data = null;
 
-    if ($(ex_obj.pfx + 'input#table_file')[0].files.length > 0) {
+    if (ex_obj.o.find('input#table_file')[0].files.length > 0) {
         data = ex_obj.tbl_file;
     }
     else {
@@ -570,7 +571,7 @@ $(ex_obj.pfx + '#convertBtn').click(function() {
         return ex_obj.header.indexOf(argument);
     }
 
-    var description = $(ex_obj.pfx + '#description').val();
+    var description = ex_obj.o.find('#description').val();
 
     var asset = '';
     var latitude = 'latitude';
@@ -593,7 +594,7 @@ $(ex_obj.pfx + '#convertBtn').click(function() {
 
     // list of tags
     var asset_tags;
-    var tags = $(ex_obj.pfx + '#tags').tagsinput('items');
+    var tags = ex_obj.o.find('#tags').tagsinput('items');
 
     // Get the the index for each header element
     var latitudeInx = checkHeaderMatch(latitude);
@@ -615,48 +616,48 @@ $(ex_obj.pfx + '#convertBtn').click(function() {
 
     // Pre area selection
     var areaType = "";
-    var areaTypeSelected = $(ex_obj.pfx + '#perAreaSelect').val();
-    if ($(ex_obj.pfx + '#perArea').is(":visible")) {
-        areaType += '\t\t\t<area type="'+areaTypeSelected+'" unit="' + $(ex_obj.pfx + '#area_units').val() + '" />\n';
+    var areaTypeSelected = ex_obj.o.find('#perAreaSelect').val();
+    if (ex_obj.o.find('#perArea').is(":visible")) {
+        areaType += '\t\t\t<area type="'+areaTypeSelected+'" unit="' + ex_obj.o.find('#area_units').val() + '" />\n';
     }
 
     // Cost Type
     var costType= '';
-    var costTypeStruc = $(ex_obj.pfx + '#costStruc option:selected').val();
+    var costTypeStruc = ex_obj.o.find('#costStruc option:selected').val();
     if (costTypeStruc !== 'none') {
-        costType += '\t\t\t\t<costType name="structural" type="'+costTypeStruc+'" unit="' + $(ex_obj.pfx + '#structural_costs_units').val() + '"/>\n';
+        costType += '\t\t\t\t<costType name="structural" type="'+costTypeStruc+'" unit="' + ex_obj.o.find('#structural_costs_units').val() + '"/>\n';
     }
 
-    var costTypeNonStruc = $(ex_obj.pfx + '#costNonStruc option:selected').val();
+    var costTypeNonStruc = ex_obj.o.find('#costNonStruc option:selected').val();
     if (costTypeNonStruc !== 'none') {
-        costType += '\t\t\t\t<costType name="nonstructural" type="'+costTypeNonStruc+'" unit="' + $(ex_obj.pfx + '#nonstructural_costs_units').val() + '"/>\n';
+        costType += '\t\t\t\t<costType name="nonstructural" type="'+costTypeNonStruc+'" unit="' + ex_obj.o.find('#nonstructural_costs_units').val() + '"/>\n';
     }
 
-    var costTypeContent = $(ex_obj.pfx + '#costContent option:selected').val();
+    var costTypeContent = ex_obj.o.find('#costContent option:selected').val();
     if (costTypeContent !== 'none') {
-        costType += '\t\t\t\t<costType name="contents" type="'+costTypeContent+'" unit="' + $(ex_obj.pfx + '#contents_costs_units').val() + '"/>\n';
+        costType += '\t\t\t\t<costType name="contents" type="'+costTypeContent+'" unit="' + ex_obj.o.find('#contents_costs_units').val() + '"/>\n';
     }
 
-    var costTypeBusiness = $(ex_obj.pfx + '#costBusiness option:selected').val();
+    var costTypeBusiness = ex_obj.o.find('#costBusiness option:selected').val();
     if (costTypeBusiness !== 'none') {
-        costType += '\t\t\t\t<costType name="business_interruption" type="'+costTypeBusiness+'" unit="' + $(ex_obj.pfx + '#busi_inter_costs_units').val() + '"/>\n';
+        costType += '\t\t\t\t<costType name="business_interruption" type="'+costTypeBusiness+'" unit="' + ex_obj.o.find('#busi_inter_costs_units').val() + '"/>\n';
     }
 
-    var limitState = $(ex_obj.pfx + '#limitSelect option:selected').val();
+    var limitState = ex_obj.o.find('#limitSelect option:selected').val();
     if (limitState == 'absolute') {
         insuranceLimit = '\t\t\t<insuranceLimit isAbsolute="true"/>\n';
     } else if (limitState == 'relative') {
         insuranceLimit = '\t\t\t<insuranceLimit isAbsolute="false"/>\n';
     }
 
-    var deductibleState = $(ex_obj.pfx + '#deductibleSelect option:selected').val();
+    var deductibleState = ex_obj.o.find('#deductibleSelect option:selected').val();
     if (deductibleState == 'absolute') {
         deductible = '\t\t\t<deductible isAbsolute="true"/>\n';
     } else if (deductibleState == 'relative') {
         deductible = '\t\t\t<deductible isAbsolute="false"/>\n';
     }
 
-    var retrofittingSelect = $(ex_obj.pfx + '#retrofittingSelect input:checked').val();
+    var retrofittingSelect = ex_obj.o.find('#retrofittingSelect input:checked').val();
 
     // Create the asset
     for (var i = 0; i < not_empty_rows ; i++) {
@@ -819,26 +820,26 @@ $(document).ready(function () {
     /////////////////////////////////////////////////////////
     // Manage the visibility of the perArea selection menu //
     /////////////////////////////////////////////////////////
-    $(ex_obj.pfx + '#perArea').hide();
+    ex_obj.o.find('#perArea').hide();
 
-    $(ex_obj.pfx + 'input#table_file').on(
+    ex_obj.o.find('input#table_file').on(
         'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, ex_obj, 1, -180, 180); });
 
-    $(ex_obj.pfx + '#retrofittingSelect').hide();
-    $(ex_obj.pfx + '#limitDiv').hide();
-    $(ex_obj.pfx + '#deductibleDiv').hide();
-    $(ex_obj.pfx + '#structural_costs_units_div').hide();
-    $(ex_obj.pfx + '#nonstructural_costs_units_div').hide();
-    $(ex_obj.pfx + '#contents_costs_units_div').hide();
-    $(ex_obj.pfx + '#busi_inter_costs_units_div').hide();
+    ex_obj.o.find('#retrofittingSelect').hide();
+    ex_obj.o.find('#limitDiv').hide();
+    ex_obj.o.find('#deductibleDiv').hide();
+    ex_obj.o.find('#structural_costs_units_div').hide();
+    ex_obj.o.find('#nonstructural_costs_units_div').hide();
+    ex_obj.o.find('#contents_costs_units_div').hide();
+    ex_obj.o.find('#busi_inter_costs_units_div').hide();
     ex_updateTable();
-    $(ex_obj.pfx + '#new_row_add').click(function() {
+    ex_obj.o.find('#new_row_add').click(function() {
         ex_obj.tbl.alter('insert_row');
     });
-    $(ex_obj.pfx + '#outputDiv').hide();
+    ex_obj.o.find('#outputDiv').hide();
     $('#absoluteSpinner').hide();
     // tag events 'itemAddedOnInit', 'beforeItemAdd' and 'beforeItemRemove' are not still managed
-    $(ex_obj.pfx + '#tags').on('beforeItemAdd', exposure_tags_cb);
-    $(ex_obj.pfx + '#tags').on('itemAdded', exposure_tags_cb);
-    $(ex_obj.pfx + '#tags').on('itemRemoved', exposure_tags_cb);
+    ex_obj.o.find('#tags').on('beforeItemAdd', exposure_tags_cb);
+    ex_obj.o.find('#tags').on('itemAdded', exposure_tags_cb);
+    ex_obj.o.find('#tags').on('itemRemoved', exposure_tags_cb);
 });
