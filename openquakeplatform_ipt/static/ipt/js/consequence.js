@@ -17,6 +17,7 @@
 
 var co_obj = {
     pfx: "div.co_gid ",
+    o: $('div.co_gid'),
     damage_states: null,
     tbl: null,
     tbl_file: null,
@@ -34,12 +35,12 @@ var co_obj = {
     ctx_get: function(obj) {
         var ctx = obj.ctx;
 
-        ctx.assetCat = $(obj.pfx + 'input[name="asset-cat"]').val();
-        ctx.lossCategory = $(obj.pfx + 'select#lossCategory').val();
-        ctx.descr = $(obj.pfx + 'textarea[name="descr"]').val();
-        ctx.damageStates = $(obj.pfx + 'input[name="damage-states"]').val();
-        ctx.probDistrib = $(obj.pfx + 'input[name="asset-cat"]').val();
-        ctx.table = $(obj.pfx + '#table').handsontable('getInstance').getData();
+        ctx.assetCat = obj.o.find('input[name="asset-cat"]').val();
+        ctx.lossCategory = obj.o.find('select#lossCategory').val();
+        ctx.descr = obj.o.find('textarea[name="descr"]').val();
+        ctx.damageStates = obj.o.find('input[name="damage-states"]').val();
+        ctx.probDistrib = obj.o.find('input[name="asset-cat"]').val();
+        ctx.table = obj.o.find('#table').handsontable('getInstance').getData();
     },
 
     ctx_save: function (obj) {
@@ -72,37 +73,37 @@ var co_obj = {
             while (changed == false) {
                 switch(step_cur) {
                 case 0:
-                    if ($(obj.pfx + 'input[name="asset-cat"]').val() != ctx.assetCat) {
-                        $(obj.pfx + 'input[name="asset-cat"]').val(ctx.assetCat).change();
+                    if (obj.o.find('input[name="asset-cat"]').val() != ctx.assetCat) {
+                        obj.o.find('input[name="asset-cat"]').val(ctx.assetCat).change();
                         changed = true;
                     }
                     break;
                 case 1:
-                    if ($(obj.pfx + 'select#lossCategory').val() != ctx.lossCategory) {
-                        $(obj.pfx + 'select#lossCategory').val(ctx.lossCategory).change();
+                    if (obj.o.find('select#lossCategory').val() != ctx.lossCategory) {
+                        obj.o.find('select#lossCategory').val(ctx.lossCategory).change();
                         changed = true;
                     }
                     break;
                 case 2:
-                    if ($(obj.pfx + 'textarea[name="descr"]').val() != ctx.descr) {
-                        $(obj.pfx + 'textarea[name="descr"]').val(ctx.descr).change();
+                    if (obj.o.find('textarea[name="descr"]').val() != ctx.descr) {
+                        obj.o.find('textarea[name="descr"]').val(ctx.descr).change();
                         changed = true;
                     }
                     break;
                 case 3:
-                    if ($(obj.pfx + 'input[name="damage-states"]').val() != ctx.damageStates) {
-                        $(obj.pfx + 'input[name="damage-states"]').val(ctx.damageStates).change();
+                    if (obj.o.find('input[name="damage-states"]').val() != ctx.damageStates) {
+                        obj.o.find('input[name="damage-states"]').val(ctx.damageStates).change();
                         changed = true;
                     }
                     break;
                 case 4:
-                    if ($(obj.pfx + 'input[name="asset-cat"]').val() != ctx.probDistrib) {
-                        $(obj.pfx + 'input[name="asset-cat"]').val(ctx.probDistrib).change();
+                    if (obj.o.find('input[name="asset-cat"]').val() != ctx.probDistrib) {
+                        obj.o.find('input[name="asset-cat"]').val(ctx.probDistrib).change();
                         changed = true;
                     }
                     break;
                 case 5:
-                    $(obj.pfx + '#table').handsontable('getInstance').loadData(ctx.table);
+                    obj.o.find('#table').handsontable('getInstance').loadData(ctx.table);
                     changed = true;
                     break;
                 default:
@@ -137,12 +138,12 @@ var co_obj = {
 
 // tab initialization
 function co_updateTable() {
-    $(co_obj.pfx + '#table_file').val("");
+    co_obj.o.find('#table_file').val("");
     co_obj.tbl_file = null;
 
     // Remove any existing table, if already exists
-    if ($(co_obj.pfx + '#table').handsontable('getInstance') !== undefined) {
-        $(co_obj.pfx + '#table').handsontable('destroy');
+    if (co_obj.o.find('#table').handsontable('getInstance') !== undefined) {
+        co_obj.o.find('#table').handsontable('destroy');
     }
 
     // Default columns
@@ -162,7 +163,7 @@ function co_updateTable() {
     ///////////////////////////////
     /// Exposure Table Settings ///
     ///////////////////////////////
-    $(co_obj.pfx + '#table').handsontable({
+    co_obj.o.find('#table').handsontable({
         colHeaders: co_obj.header,
         rowHeaders: true,
         contextMenu: true,
@@ -171,37 +172,37 @@ function co_updateTable() {
         maxCols: headerLength,
         className: "htRight"
     });
-    co_obj.tbl = $(co_obj.pfx + '#table').handsontable('getInstance');
+    co_obj.tbl = co_obj.o.find('#table').handsontable('getInstance');
     setTimeout(function() {
-        return gem_tableHeightUpdate($(co_obj.pfx + '#table'));
+        return gem_tableHeightUpdate(co_obj.o.find('#table'));
     }, 0);
 
     co_obj.tbl.addHook('afterCreateRow', function() {
-        return gem_tableHeightUpdate($(co_obj.pfx + '#table'));
+        return gem_tableHeightUpdate(co_obj.o.find('#table'));
     });
 
     co_obj.tbl.addHook('afterRemoveRow', function() {
-        return gem_tableHeightUpdate($(co_obj.pfx + '#table'));
+        return gem_tableHeightUpdate(co_obj.o.find('#table'));
     });
     co_obj.tbl.addHook('afterChange', function(changes, source) {
         // when loadData is used, for performace reasons, changes are 'null'
         if (changes != null || source != 'loadData') {
-            $(co_obj.pfx + '#table_file').val("");
+            co_obj.o.find('#table_file').val("");
             co_obj.tbl_file = null;
         }
     });
 
-    $(co_obj.pfx + '#outputText').empty();
-    $(co_obj.pfx + '#convertBtn').show();
+    co_obj.o.find('#outputText').empty();
+    co_obj.o.find('#convertBtn').show();
 }
 
-$(co_obj.pfx + '#downloadBtn').click(function() {
+co_obj.o.find('#downloadBtn').click(function() {
     sendbackNRML(co_obj.nrml, 'co');
 });
 
-$(co_obj.pfx + '#convertBtn').click(function() {
+co_obj.o.find('#convertBtn').click(function() {
     var data = null
-    if ($(co_obj.pfx + 'input#table_file')[0].files.length > 0) {
+    if (co_obj.o.find('input#table_file')[0].files.length > 0) {
         data = co_obj.tbl_file;
     }
     else {
@@ -261,16 +262,16 @@ $(co_obj.pfx + '#convertBtn').click(function() {
 
 $(document).ready(function () {
 
-    $(co_obj.pfx + 'input#table_file').on(
+    co_obj.o.find('input#table_file').on(
         'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, co_obj, 1, null, null); });
 
     co_updateTable();
-    $(co_obj.pfx + '#new_row_add').click(function() {
+    co_obj.o.find('#new_row_add').click(function() {
         co_obj.tbl.alter('insert_row');
     });
 
     $(co_obj.pfx + "input[name='damage-states']").on('change', co_updateTable);
 
-    $(co_obj.pfx + '#outputDiv').hide();
+    co_obj.o.find('#outputDiv').hide();
     $('#absoluteSpinner').hide();
 });
