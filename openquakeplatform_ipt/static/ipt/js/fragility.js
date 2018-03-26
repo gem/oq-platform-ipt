@@ -109,23 +109,28 @@ var ff_obj = {
                     changed = true;
                     break;
                 case 1:
-                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="id"]').val(table['id']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="id"]').val(
+                        table['id']).change();
                     changed = true;
                     break;
                 case 2:
-                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="imt"]').val(table['imt']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="imt"]').val(
+                        table['imt']).change();
                     changed = true;
                     break;
                 case 3:
-                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="no-damage-limit"]').val(table['no-damage-limit']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="no-damage-limit"]').val(
+                        table['no-damage-limit']).change();
                     changed = true;
                     break;
                 case 4:
-                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="min-impls"]').val(table['min-impls']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="min-impls"]').val(
+                        table['min-impls']).change();
                     changed = true;
                     break;
                 case 5:
-                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="max-impls"]').val(table['max-impls']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="max-impls"]').val(
+                        table['max-impls']).change();
                     changed = true;
                     break;
                 case 6:
@@ -164,15 +169,18 @@ var ff_obj = {
                     changed = true;
                     break;
                 case 1:
-                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="id"]').val(table['id']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="id"]').val(
+                        table['id']).change();
                     changed = true;
                     break;
                 case 2:
-                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="imt"]').val(table['imt']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="imt"]').val(
+                        table['imt']).change();
                     changed = true;
                     break;
                 case 3:
-                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="no-damage-limit"]').val(table['no-damage-limit']);
+                    ff_obj.o.find('div.tables_gid:last input[type="text"][name="no-damage-limit"]').val(
+                        table['no-damage-limit']).change();
                     changed = true;
                     break;
                 case 4:
