@@ -16,11 +16,372 @@
 */
 
 var er_obj = {
-    pfx: "div.er_gid ",
+    pfx: 'div.er_gid ',
+    o: $('div.er_gid'),
+
+    ctx: {
+        magitude: null,
+        rake: null,
+        hypo_lon: null,
+        hypo_lat: null,
+        hypo_depth: null,
+        rupture_type: null,
+        rupture: null
+    },
+
+    ctx_rupture_get: function(obj, ty) {
+        var rupture = {};
+        if (ty == 'arbitrary') {
+            // example:
+            // {"magitude":"7.0","rake":"6","hypo_lon":"5","hypo_lat":"4","hypo_depth":"3","rupture_type":"arbitrary","rupture":{"strike":"2","dip":"1","geometry":[["4.93000","3.73750","2.88229"],["4.94849","4.26673","2.88229"],["5.05148","3.73326","3.11771"],["5.07005","4.26250","3.11771"]]}}
+            rupture.strike = obj.o.find('div[name="rupture"] > div[name="arbitrary"] input[name="strike"]').val();
+            rupture.dip = obj.o.find('div[name="rupture"] > div[name="arbitrary"] input[name="dip"]').val();
+            var $table_id = er_obj.o.find('div[name="rupture"] > div[name="arbitrary"] div[name="geometry"]');
+            rupture.geometry = $table_id.handsontable('getInstance').getData();
+        }
+        else if (ty == 'simple') {
+            // example:
+            // {"magitude":"8.0","rake":"7","hypo_lon":"6","hypo_lat":"5","hypo_depth":"4","rupture_type":"simple","rupture":{"dip":"3","upper_ses_dep":"2","lower_ses_dep":"1","geometry":[["11","22"],["12","23"],["13","24"],["14","25"]]}}
+            rupture.dip = obj.o.find('div[name="rupture"] > div[name="simple"] input[name="dip"]').val();
+            rupture.upper_ses_dep = obj.o.find('div[name="rupture"] > div[name="simple"] input[name="upper_ses_dep"]').val();
+            rupture.lower_ses_dep = obj.o.find('div[name="rupture"] > div[name="simple"] input[name="lower_ses_dep"]').val();
+            var $table_id = er_obj.o.find('div[name="rupture"] > div[name="simple"] div[name="geometry"]');
+            rupture.geometry = $table_id.handsontable('getInstance').getData();
+        }
+        else if (ty == 'planar') {
+            // {"magitude":"1","rake":"2","hypo_lon":"3","hypo_lat":"4","hypo_depth":"5","rupture_type":"planar","rupture":{"planars":[{"strike":"2","dip":"3","geometry":[["1","2","3"],["4","5","6"],["7","8","9"],["10","11","12"]]},{"strike":"4","dip":"5","geometry":[["11","2","3"],["4","5","6"],["7","8","9"],["10","11","22"]]}]}}
+            rupture.planars = [];
+            var $planars = obj.o.find('div[name="rupture"] > div[name="planar"] div[name^="planar-"]');
+            for (var i = 0 ; i < $planars.length ; i++) {
+                var planar = {};
+                var $planar = $($planars[i]);
+                planar.strike = $planar.find('input[name="strike"]').val();
+                planar.dip = $planar.find('input[name="dip"]').val();
+                $geometry = $planar.find('div[name^="geometry-"]');
+                planar.geometry = $geometry.handsontable('getInstance').getData();
+                rupture.planars.push(planar);
+            }
+        }
+        else if (ty == 'complex') {
+
+        }
+        else {
+            console.log('Unknown type ' + ty);
+            return false;
+        }
+        return rupture;
+    },
+
+    ctx_get: function(obj) {
+        var ctx = obj.ctx;
+        ctx.magitude = obj.o.find('input[name="magnitude"]').val();
+        ctx.rake = obj.o.find('input[name="rake"]').val();
+        ctx.hypo_lon = obj.o.find('input[name="hypo_lon"]').val();
+        ctx.hypo_lat = obj.o.find('input[name="hypo_lat"]').val();
+        ctx.hypo_depth = obj.o.find('input[name="hypo_depth"]').val();
+        ctx.rupture_type = obj.o.find('input[name="rupture_type"]:checked').val();
+
+        ctx.rupture = obj.ctx_rupture_get(obj, ctx.rupture_type);
+    },
+
+    ctx_save: function (obj) {
+        if (window.localStorage == undefined) {
+            return false;
+        }
+        obj.ctx_get(obj);
+        var ser = JSON.stringify(obj.ctx);
+        window.localStorage.setItem('gem_ipt_earthquakerupture', ser);
+        console.log(ser);
+    },
+
+    ctx_load_planar_rupture_step_gen: function (obj, load_step, load_geometry_planar_step, step_cur, ctx)
+    {
+        function ctx_load_planar_rupture_step()
+        {
+            var changed = false;
+            var planar = ctx.rupture.planars[load_geometry_planar_step];
+
+            if (load_geometry_planar_step == 0 && step_cur == 0) {
+                // skip button step for first planar curve
+                step_cur = 1;
+            }
+
+            while (changed == false) {
+                switch(step_cur) {
+                case 0:
+                    obj.o.find('div[name="planar"] button[name="planar_surface_add"]').click();
+                    changed = true;
+                    break;
+                case 1:
+                    obj.o.find('div[name="planar"] div[name^="planar-"]:last' +
+                               ' input[name="strike"]').val(planar.strike).change();
+                    changed = true;
+                    break;
+                case 2:
+                    obj.o.find('div[name="planar"] div[name^="planar-"]:last' +
+                               ' input[name="dip"]').val(planar.dip).change();
+                    changed = true;
+                    break;
+                case 3:
+                    var htable = obj.o.find('div[name="planar"] div[name^="planar-"]:last' +
+                                            ' div[name^="geometry-"]').handsontable("getInstance");
+                    htable.loadData(planar.geometry);
+
+                    changed = true;
+                    break;
+                default:
+                    var ctx_load_geometry_step = obj.ctx_load_geometry_step_gen(
+                        obj, load_step, load_geometry_planar_step + 1, ctx);
+                    ctx_load_geometry_step();
+                    return;
+                    break;
+                }
+
+                step_cur++;
+            }
+            setTimeout(ctx_load_planar_rupture_step, 0);
+        }
+
+        return ctx_load_planar_rupture_step;
+    },
+
+    ctx_load_geometry_step_gen: function (obj, load_step, step_cur, ctx) {
+        var ty = ctx.rupture_type;
+
+        if (ty == 'arbitrary') {
+            function ctx_load_geometry_arbitrary_step()
+            {
+                var changed = false;
+
+                while (changed == false) {
+                    switch(step_cur) {
+                    case 0:
+                        if (obj.o.find('div[name="rupture"] > div[name="arbitrary"] input[name="strike"]'
+                                      ).val() != ctx.rupture.strike) {
+                            obj.o.find('div[name="rupture"] > div[name="arbitrary"] input[name="strike"]'
+                                      ).val(ctx.rupture.strike);
+                        }
+                        changed = true;
+                        break;
+                    case 1:
+                        if (obj.o.find('div[name="rupture"] > div[name="arbitrary"] input[name="dip"]'
+                                      ).val() != ctx.rupture.dip) {
+                            obj.o.find('div[name="rupture"] > div[name="arbitrary"] input[name="dip"]'
+                                      ).val(ctx.rupture.dip);
+                        }
+                        break;
+                    case 2:
+                        var $table = obj.o.find(
+                            'div[name="rupture"] > div[name="arbitrary"] div[name="geometry"]'
+                        ).handsontable("getInstance");
+                        $table.loadData(ctx.rupture.geometry);
+                        changed = true;
+                        break;
+                    default:
+                        // return to ctx_load
+                        var ctx_load_step = obj.ctx_load_step_gen(obj, load_step + 1, ctx);
+                        ctx_load_step();
+                        return;
+                        break;
+                    }
+
+                    step_cur++;
+                }
+                setTimeout(ctx_load_geometry_arbitrary_step, 0);
+            }
+            return ctx_load_geometry_arbitrary_step;
+        }
+        else if (ty == 'simple') {
+            function ctx_load_geometry_simple_step()
+            {
+                var changed = false;
+
+                while (changed == false) {
+                    switch(step_cur) {
+                    case 0:
+                        if (obj.o.find('div[name="rupture"] > div[name="simple"] input[name="dip"]'
+                                      ).val() != ctx.rupture.dip) {
+                            obj.o.find('div[name="rupture"] > div[name="simple"] input[name="dip"]'
+                                      ).val(ctx.rupture.dip);
+                            changed = true;
+                        }
+                        break;
+                    case 1:
+                        if (obj.o.find('div[name="rupture"] > div[name="simple"] input[name="upper_ses_dep"]'
+                                      ).val() != ctx.rupture.upper_ses_dep) {
+                            obj.o.find('div[name="rupture"] > div[name="simple"] input[name="upper_ses_dep"]'
+                                      ).val(ctx.rupture.upper_ses_dep).change();
+                            changed = true;
+                        }
+                        break;
+                    case 2:
+                        if (obj.o.find('div[name="rupture"] > div[name="simple"] input[name="lower_ses_dep"]'
+                                      ).val() != ctx.rupture.lower_ses_dep) {
+                            obj.o.find('div[name="rupture"] > div[name="simple"] input[name="lower_ses_dep"]'
+                                      ).val(ctx.rupture.lower_ses_dep).change();
+                            changed = true;
+                        }
+                        break;
+                    case 3:
+                        var $table = obj.o.find(
+                            'div[name="rupture"] > div[name="simple"] div[name="geometry"]'
+                        ).handsontable("getInstance");
+                        $table.loadData(ctx.rupture.geometry);
+                        changed = true;
+                        break;
+                    default:
+                        // return to ctx_load
+                        var ctx_load_step = obj.ctx_load_step_gen(obj, load_step + 1, ctx);
+                        ctx_load_step();
+                        return;
+                        break;
+                    }
+
+                    step_cur++;
+                }
+                setTimeout(ctx_load_geometry_simple_step, 0);
+            }
+            return ctx_load_geometry_simple_step;
+        }
+        else if (ty == 'planar') {
+            // var $ruptures = er_obj.o.find('div[name="rupture"] > div[name="planar"] div[name^="planar-"]')
+            var ruptures = ctx.rupture.planars;
+            console.log('ruptures: ' + ruptures.length);
+            function ctx_load_geometry_planar_step() {
+                wrapping4load(obj.pfx + '*', true);
+
+                if (gl_wrapping4load_counter != 0) {
+                    // console.log("ctx_load_funcs_step: gl_wrapping4load_counter != 0 (" + gl_wrapping4load_counter + ")");
+                    gl_wrapping4load_counter = 0;
+                    setTimeout(ctx_load_geometry_planar_step, 0);
+                    // console.log('retry later');
+                    return;
+                }
+
+                if (step_cur < ruptures.length) {
+                    var ctx_load_planar_rupture_step = obj.ctx_load_planar_rupture_step_gen(
+                        obj, load_step, step_cur, 0, ctx);
+                    ctx_load_planar_rupture_step();
+                    return;
+                }
+                else {
+                    // return to ctx_load
+                    var ctx_load_step = obj.ctx_load_step_gen(obj, load_step + 1, ctx);
+                    ctx_load_step();
+                }
+            }
+            return ctx_load_geometry_planar_step;
+        }
+        else if (ty == 'complex') {
+
+        }
+        else {
+            console.log('Unknown type ' + ty);
+            return false;
+        }
+        return true;
+    },
+
+    ctx_load_step_gen: function(obj, step_cur, ctx) {
+
+        function ctx_load_step() {
+            console.log('step pre');
+            wrapping4load(obj.pfx + '*', true);
+
+            if (gl_wrapping4load_counter != 0) {
+                // console.log("ctx_load_step: gl_wrapping4load_counter != 0 (" + gl_wrapping4load_counter + ")");
+                gl_wrapping4load_counter = 0;
+                setTimeout(ctx_load_step, 0);
+                // console.log('retry later');
+                return;
+            }
+            // else {
+            //     console.log('ctx_load_step: advance');
+            // }
+            var changed = false;
+
+            while (changed == false) {
+                switch(step_cur) {
+                case 0:
+                    if (obj.o.find('input[name="magnitude"]').val() != ctx.magitude) {
+                        obj.o.find('input[name="magnitude"]').val(ctx.magitude).change();
+                        changed = true;
+                    }
+                    break;
+                case 1:
+                    if (obj.o.find('input[name="rake"]').val() != ctx.rake) {
+                        obj.o.find('input[name="rake"]').val(ctx.rake).change();
+                        changed = true;
+                    }
+                    break;
+                case 2:
+                    if (obj.o.find('input[name="hypo_lon"]').val() != ctx.hypo_lon) {
+                        obj.o.find('input[name="hypo_lon"]').val(ctx.hypo_lon).change();
+                        changed = true;
+                    }
+                    break;
+                case 3:
+                    if (obj.o.find('input[name="hypo_lat"]').val() != ctx.hypo_lat) {
+                        obj.o.find('input[name="hypo_lat"]').val(ctx.hypo_lat).change();
+                        changed = true;
+                    }
+                    break;
+                case 4:
+                    if (obj.o.find('input[name="hypo_depth"]').val() != ctx.hypo_depth) {
+                        obj.o.find('input[name="hypo_depth"]').val(ctx.hypo_depth).change();
+                        changed = true;
+                    }
+                    break;
+                case 5:
+                    if (obj.o.find('input[name="rupture_type"]:checked').val() != ctx.rupture_type) {
+                        obj.o.find('input[name="rupture_type"][value="' + ctx.rupture_type + '"]').attr(
+                            'checked', 'checked').click();
+                    }
+                    break;
+                case 6:
+                    if (ctx.rupture_type == 'planar') {
+                        obj.o.find('button[name="delete_planar_surface"]').click();
+                        changed = true;
+                    }
+                    break;
+                case 7:
+                    var ctx_load_geometry_step = obj.ctx_load_geometry_step_gen(obj, step_cur, 0, ctx);
+                    ctx_load_geometry_step();
+                    return;
+                    break;
+                default:
+                    console.log('dewrapping');
+                    wrapping4load(obj.pfx + '*', false);
+                    obj.is_interactive = true;
+                    return;
+                    break;
+                }
+
+                step_cur++;
+            }
+            setTimeout(ctx_load_step, 0);
+        };
+        return ctx_load_step;
+    },
+
+    ctx_load: function (obj) {
+        if (window.localStorage == undefined) {
+            return false;
+        }
+        var ser = window.localStorage.getItem('gem_ipt_earthquakerupture');
+        if (ser == null)
+            return false;
+
+        var ctx = JSON.parse(ser);
+
+        ctx_load_step = obj.ctx_load_step_gen(obj, 0, ctx);
+        ctx_load_step();
+    },
+
     rupture_type_manager: function(evt) {
         var rupt_cur = $(evt.target).attr("value");
-        $(er_obj.pfx + ' div[name="rupture"] > div').hide();
-        $(er_obj.pfx + ' div[name="rupture"] > div[name="' + rupt_cur + '"').show();
+        er_obj.o.find('div[name="rupture"] > div').hide();
+        er_obj.o.find('div[name="rupture"] > div[name="' + rupt_cur + '"]').show();
     },
     simple_tbl: null,
     planar_tbl: {},
@@ -49,9 +410,9 @@ var er_obj = {
      *          *
      ************/
     planar_surface_del: function (obj) {
-        var id = obj.getAttribute("data_gem_id");
-        var item = $(er_obj.pfx + 'div[name="planars"] div[name="planar-' + id + '"]');
-        delete(this.planar_tbl[id]);
+        var id = obj.target.getAttribute("data_gem_id");
+        var item = er_obj.o.find('div[name="planars"] div[name="planar-' + id + '"]');
+        delete(er_obj.planar_tbl[id]);
         item.remove();
     },
 
@@ -61,7 +422,7 @@ var er_obj = {
       <div name="planar-' + ct + '">\n\
         <div class="menuItems" style="margin-top: 12px;">\n\
 <div style="display: inline-block; float: left;"><h4>Planar surface ' + (ct + 1) + '</h4></div>';
-        ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '<button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.planar_surface_del(this);">Delete Planar Surface</button>');
+        ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '<button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" name="delete_planar_surface">Delete Planar Surface</button>');
         ctx += '\
         </div>\n\
         <div class="menuItems">\n\
@@ -80,11 +441,12 @@ var er_obj = {
           </div>\n\
         </div>\n\
 </div>';
-        $(er_obj.pfx + 'div[name="planars"]').append(ctx);
+        er_obj.o.find('div[name="planars"]').append(ctx);
+        er_obj.o.find('div[name="planars"]').find('button[name="delete_planar_surface"]').on('click', er_obj.planar_surface_del);
 
-        var table_id = er_obj.pfx + 'div[name="rupture"] > div[name="planar"] div[name="geometry-' + ct + '"]';
+        var $table_id = er_obj.o.find('div[name="rupture"] > div[name="planar"] div[name="geometry-' + ct + '"]');
 
-        $(table_id).handsontable({
+        $table_id.handsontable({
             colHeaders: [ 'Longitude (°)', 'Latitude (°)', 'Depth (km)'],
             rowHeaders: ["topLeft", "topRight", "bottomLeft", "bottomRight"],
             startCols: 3,
@@ -93,7 +455,7 @@ var er_obj = {
             maxRows: 4,
             className: "htRight"
         });
-        er_obj.planar_tbl[ct] = $(table_id).handsontable('getInstance');
+        er_obj.planar_tbl[ct] = $table_id.handsontable('getInstance');
 
         er_obj.planar_tbl_cur++;
     },
@@ -106,7 +468,7 @@ var er_obj = {
     complex_surface_middle_del: function (obj) {
         var id = obj.getAttribute("data_gem_id");
         var mid_id = obj.getAttribute("data_gem_mid_id");
-        var $item = $(er_obj.pfx + 'div[name="complexes"] div[name="complex-' + id + '"] div[name="middle-' + mid_id + '"]');
+        var $item = er_obj.o.find('div[name="complexes"] div[name="complex-' + id + '"] div[name="middle-' + mid_id + '"]');
         delete(this.complex_tbl[id].middles[mid_id]);
         $item.remove();
     },
@@ -124,23 +486,23 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
               <div name="middle-geometry-' + id + '-' + mid_id + '" style="margin-left: auto; width: 240px; height: 90px; overflow: hidden;"></div>\n\
             </div>\n\
           </div>\n';
-        $(er_obj.pfx + 'div[name="complexes"] div[name="complex-' + id + '"] div[name="middles"]').append(ctx);
+        er_obj.o.find('div[name="complexes"] div[name="complex-' + id + '"] div[name="middles"]').append(ctx);
 
-        var middle_table_id = er_obj.pfx + 'div[name="rupture"] > div[name="complex"] div[name="complex-' + id + '"] div[name="middles"] div[name="middle-geometry-' + id + '-' + mid_id + '"]';
-        $(middle_table_id).handsontable(er_obj.tbl_complex_params);
-        er_obj.complex_tbl[id].middles[mid_id] = $(middle_table_id).handsontable('getInstance');
+        var $middle_table_id = er_obj.o.find('div[name="rupture"] > div[name="complex"] div[name="complex-' + id + '"] div[name="middles"] div[name="middle-geometry-' + id + '-' + mid_id + '"]');
+        $middle_table_id.handsontable(er_obj.tbl_complex_params);
+        er_obj.complex_tbl[id].middles[mid_id] = $middle_table_id.handsontable('getInstance');
 
         er_obj.complex_tbl[id].middles_cur++;
     },
 
     complex_surface_del: function (obj) {
         var id = obj.getAttribute("data_gem_id");
-        var $item = $(er_obj.pfx + 'div[name="complexes"] div[name="complex-' + id + '"]');
+        var $item = er_obj.o.find('div[name="complexes"] div[name="complex-' + id + '"]');
 
         for (var mid_id = 0 ; mid_id < this.complex_tbl[id].middles_cur ; mid_id++) {
             if (mid_id in this.complex_tbl[id].middles) {
-                var middle_table_id = er_obj.pfx + 'div[name="rupture"] > div[name="complex"] div[name="complex-' + id + '"] div[name="middles"] div[name="middle-geometry-' + id + '-' + mid_id + '"]';
-                $(middle_table_id).remove();
+                var $middle_table_id = er_obj.o.find('div[name="rupture"] > div[name="complex"] div[name="complex-' + id + '"] div[name="middles"] div[name="middle-geometry-' + id + '-' + mid_id + '"]');
+                $middle_table_id.remove();
                 delete(this.complex_tbl[id].middles[mid_id]);
             }
         }
@@ -175,18 +537,18 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
           </div>\n\
         </div>\n\
 </div>';
-        $(er_obj.pfx + 'div[name="complexes"]').append(ctx);
+        er_obj.o.find('div[name="complexes"]').append(ctx);
 
         er_obj.complex_tbl[ct] = { top: null, bottom: null, middles: {}, middles_cur: 0 };
 
-        var top_table_id = er_obj.pfx + 'div[name="rupture"] > div[name="complex"] div[name="top-geometry-' + ct + '"]';
+        var $top_table_id = er_obj.o.find('div[name="rupture"] > div[name="complex"] div[name="top-geometry-' + ct + '"]');
 
-        $(top_table_id).handsontable(er_obj.tbl_complex_params);
-        er_obj.complex_tbl[ct].top = $(top_table_id).handsontable('getInstance');
+        $top_table_id.handsontable(er_obj.tbl_complex_params);
+        er_obj.complex_tbl[ct].top = $top_table_id.handsontable('getInstance');
 
-        var bottom_table_id = er_obj.pfx + 'div[name="rupture"] > div[name="complex"] div[name="bottom-geometry-' + ct + '"]';
-        $(bottom_table_id).handsontable(er_obj.tbl_complex_params);
-        er_obj.complex_tbl[ct].bottom = $(bottom_table_id).handsontable('getInstance');
+        var $bottom_table_id = er_obj.o.find('div[name="rupture"] > div[name="complex"] div[name="bottom-geometry-' + ct + '"]');
+        $bottom_table_id.handsontable(er_obj.tbl_complex_params);
+        er_obj.complex_tbl[ct].bottom = $bottom_table_id.handsontable('getInstance');
 
         er_obj.complex_tbl_cur++;
     },
@@ -211,10 +573,10 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
             hypo_depth = header.hypo_depth;
 
             strike = gem_ipt.check_val(
-                "Strike", $(this.pfx + 'div[name="arbitrary"] input[name="strike"]').val(),
+                "Strike", this.o.find('div[name="arbitrary"] input[name="strike"]').val(),
                 'float-range-in-in', 0, 360);
             dip = gem_ipt.check_val(
-                "Dip", $(this.pfx + 'div[name="arbitrary"] input[name="dip"]').val(),
+                "Dip", this.o.find('div[name="arbitrary"] input[name="dip"]').val(),
                 'float-range-out-in', 0, 90);
         } catch(exc) {
             thiz.arbitrary_tbl.loadData(reset_data);
@@ -255,15 +617,15 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
     validate_header: function() {
         var mag, rake, hypo_lat, hypo_lon, hypo_depth;
 
-        mag = gem_ipt.check_val("Magnitude", $(this.pfx + 'input[name="magnitude"]').val(),
+        mag = gem_ipt.check_val("Magnitude", this.o.find('input[name="magnitude"]').val(),
                                 'float-gt', 0);
-        rake = gem_ipt.check_val("Rake", $(this.pfx + 'input[name="rake"]').val(),
+        rake = gem_ipt.check_val("Rake", this.o.find('input[name="rake"]').val(),
                                  'float-range-in-in', -180, 180);
-        hypo_lat = gem_ipt.check_val("Latitude of hypocenter", $(this.pfx + 'input[name="hypo_lat"]').val(),
+        hypo_lat = gem_ipt.check_val("Latitude of hypocenter", this.o.find('input[name="hypo_lat"]').val(),
                                      'float-range-in-in', -90, 90);
-        hypo_lon = gem_ipt.check_val("Longitude of hypocenter", $(this.pfx + 'input[name="hypo_lon"]').val(),
+        hypo_lon = gem_ipt.check_val("Longitude of hypocenter", this.o.find('input[name="hypo_lon"]').val(),
                                      'float-range-in-in', -180, 180);
-        hypo_depth = gem_ipt.check_val("Depth of hypocenter", $(this.pfx + 'input[name="hypo_depth"]').val(),
+        hypo_depth = gem_ipt.check_val("Depth of hypocenter", this.o.find('input[name="hypo_depth"]').val(),
                                        'float-ge', 0);
 
         return ({"mag": mag, "rake": rake, "hypo_lat": hypo_lat, "hypo_lon": hypo_lon, "hypo_depth": hypo_depth});
@@ -295,19 +657,19 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
             hypo_lon = header.hypo_lon;
             hypo_depth = header.hypo_depth;
 
-            rupture_type = $(this.pfx + ' input[type="radio"][name="rupture_type"]:checked').val();
+            rupture_type = this.o.find(' input[type="radio"][name="rupture_type"]:checked').val();
             if (rupture_type == 'simple') {
                 simple_tbl_data = this.simple_tbl.getData();
                 gem_ipt.check_val("Simple fault geometry", simple_tbl_data, "tab-check",
                                   [["Longitude", "float-range-in-in", -180, 180],
                                    ["Latitude", "float-range-in-in", -90, 90]]);
-                dip = gem_ipt.check_val("Dip", $(this.pfx + 'div[name="simple"] input[name="dip"]').val(),
+                dip = gem_ipt.check_val("Dip", this.o.find('div[name="simple"] input[name="dip"]').val(),
                                             'float-range-out-in', 0, 90);
                 upper_ses_dep = gem_ipt.check_val(
-                    "Upper seismogenic depth", $(this.pfx + 'div[name="simple"] input[name="upper_ses_dep"]').val(),
+                    "Upper seismogenic depth", this.o.find('div[name="simple"] input[name="upper_ses_dep"]').val(),
                     'float-ge', 0);
                 lower_ses_dep = gem_ipt.check_val(
-                    "Lower seismogenic depth", $(this.pfx + 'div[name="simple"] input[name="lower_ses_dep"]').val(),
+                    "Lower seismogenic depth", this.o.find('div[name="simple"] input[name="lower_ses_dep"]').val(),
                     'float-gt', upper_ses_dep );
             }
             else if (rupture_type == 'planar') {
@@ -318,10 +680,10 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
                         planar[i] = {};
 
                         planar[i].strike = gem_ipt.check_val(
-                            "Strike", $(this.pfx + 'div[name="planar"] div[name="planars"] div[name="planar-' + i
+                            "Strike", this.o.find('div[name="planar"] div[name="planars"] div[name="planar-' + i
                                         + '"] input[name="strike"]').val(), 'float-range-in-in', 0, 360);
                         planar[i].dip = gem_ipt.check_val(
-                            "Dip", $(this.pfx + 'div[name="planar"] div[name="planars"] div[name="planar-' + i
+                            "Dip", this.o.find('div[name="planar"] div[name="planars"] div[name="planar-' + i
                                      + '"] input[name="dip"]').val(), 'float-range-out-in', 0, 90);
 
                         planar[i].tbl_data = this.planar_tbl[i].getData();
@@ -395,10 +757,10 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
             }
             else if (rupture_type == 'arbitrary') {
                 strike = gem_ipt.check_val(
-                    "Strike", $(this.pfx + 'div[name="arbitrary"] input[name="strike"]').val(),
+                    "Strike", this.o.find('div[name="arbitrary"] input[name="strike"]').val(),
                     'float-range-in-in', 0, 360);
                 dip = gem_ipt.check_val(
-                    "Dip", $(this.pfx + 'div[name="arbitrary"] input[name="dip"]').val(),
+                    "Dip", this.o.find('div[name="arbitrary"] input[name="dip"]').val(),
                     'float-range-out-in', 0, 90);
 
                 var tbl_data = this.arbitrary_tbl.getData();
@@ -562,12 +924,12 @@ $(document).ready(function () {
     /////////////////////////////////////////////////////////
     // Manage the visibility of the perArea selection menu //
     /////////////////////////////////////////////////////////
-    $(er_obj.pfx + ' input[name="rupture_type"]').click(er_obj.rupture_type_manager);
+    er_obj.o.find('input[name="rupture_type"]').click(er_obj.rupture_type_manager);
 
     var header = ['Longitude', 'Latitude'];
-    var table_id = er_obj.pfx + 'div[name="rupture"] > div[name="simple"] > div > div > div[name="geometry"]';
+    var $table_id = er_obj.o.find('div[name="rupture"] > div[name="simple"] > div > div > div[name="geometry"]');
 
-    $(table_id).handsontable({
+    $table_id.handsontable({
         colHeaders: [ 'Longitude', 'Latitude'],
         rowHeaders: true,
         contextMenu: true,
@@ -576,38 +938,38 @@ $(document).ready(function () {
         maxCols: 2,
         className: "htRight"
     });
-    er_obj.simple_tbl = $(table_id).handsontable('getInstance');
+    er_obj.simple_tbl = $table_id.handsontable('getInstance');
 
     setTimeout(function() {
         return gem_tableHeightUpdate(
-            $(er_obj.pfx + 'div[name="rupture"] > div[name="simple"] > div > div > div[name="geometry"]'));
+            er_obj.o.find('div[name="rupture"] > div[name="simple"] > div > div > div[name="geometry"]'));
     }, 0);
 
     er_obj.simple_tbl.addHook('afterCreateRow', function() {
         return gem_tableHeightUpdate(
-            $(er_obj.pfx + 'div[name="rupture"] > div[name="simple"] > div > div > div[name="geometry"]'));
+            er_obj.o.find('div[name="rupture"] > div[name="simple"] > div > div > div[name="geometry"]'));
     });
 
     er_obj.simple_tbl.addHook('afterRemoveRow', function() {
         return gem_tableHeightUpdate(
-            $(er_obj.pfx + 'div[name="rupture"] > div[name="simple"] > div > div > div[name="geometry"]'));
+            er_obj.o.find('div[name="rupture"] > div[name="simple"] > div > div > div[name="geometry"]'));
     });
 
-    $(er_obj.pfx + 'div[name="rupture"] > div[name="simple"] > div > div > button[name="new_row_add"]').click(
+    er_obj.o.find('div[name="rupture"] > div[name="simple"] > div > div > button[name="new_row_add"]').click(
         function() { er_obj.simple_tbl.alter('insert_row'); });
 
-    $(er_obj.pfx + 'div[name="rupture"] > div[name="planar"] button[name="planar_surface_add"]').click(
+    er_obj.o.find('div[name="rupture"] > div[name="planar"] button[name="planar_surface_add"]').click(
         er_obj.planar_surface_add);
     er_obj.planar_surface_add();
 
-    $(er_obj.pfx + 'div[name="rupture"] > div[name="complex"] button[name="complex_surface_add"]').click(
+    er_obj.o.find('div[name="rupture"] > div[name="complex"] button[name="complex_surface_add"]').click(
         er_obj.complex_surface_add);
     er_obj.complex_surface_add();
 
     /* arbitrary */
-    var table_id = er_obj.pfx + 'div[name="rupture"] > div[name="arbitrary"] div[name="geometry"]';
+    var $table_id = er_obj.o.find('div[name="rupture"] > div[name="arbitrary"] div[name="geometry"]');
 
-    $(table_id).handsontable({
+    $table_id.handsontable({
         colHeaders: [ 'Longitude (°)', 'Latitude (°)', 'Depth (km)'],
         rowHeaders: ["topLeft", "topRight", "bottomLeft", "bottomRight"],
         startCols: 3,
@@ -615,10 +977,10 @@ $(document).ready(function () {
         readOnly: true,
         className: "htRight"
     });
-    er_obj.arbitrary_tbl = $(table_id).handsontable('getInstance');
+    er_obj.arbitrary_tbl = $table_id.handsontable('getInstance');
 
     /* converter */
-    $(er_obj.pfx + '#convertBtn').click(function(e) { er_obj.convert2nrml(e); });
+    er_obj.o.find('#convertBtn').click(function(e) { er_obj.convert2nrml(e); });
 
     $('.er_gid #downloadBtn').click(function() {
     sendbackNRML(er_obj.nrml, 'er');
