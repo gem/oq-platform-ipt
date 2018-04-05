@@ -756,7 +756,8 @@ def scenario_prepare(request, **kwargs):
                         jobini += "%s %s" % (el[0], el[1])
                         jobini += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
-            jobini += "sites = %s\n" % os.path.basename(data['list_of_sites'])
+            jobini += "sites_csv = %s\n" % os.path.basename(
+                data['list_of_sites'])
             z.write(get_full_path(userid, namespace, data['list_of_sites']),
                     os.path.basename(data['list_of_sites']))
         elif data['hazard_sites_choice'] == 'exposure-model':
