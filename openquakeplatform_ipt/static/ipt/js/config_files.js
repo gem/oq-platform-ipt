@@ -34,8 +34,8 @@ $(document).ready(function () {
         e.preventDefault();
         $(this).tab('show');
     });
-
-    function exposure_model_sect_manager(scope, enabled, with_constraints)
+//   <div name="inc_asset_haz_dist"
+    function exposure_model_sect_manager(scope, enabled, with_constraints, without_inc_asset)
     {
         $target = $(cf_obj[scope].pfx + ' div[name="exposure-model"]');
         if (enabled) {
@@ -60,6 +60,11 @@ $(document).ready(function () {
                     $subsubt.css('display', '');
                 else
                     $subsubt.css('display', 'none');
+                $subsubt = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="inc-asset-haz-dist"]');
+                if (without_inc_asset) {
+                    $subsubt.find('input[name="asset_hazard_distance_choice"]').prop('checked', false);
+                }
+                $subsubt.css('display', (without_inc_asset ? 'none' : ''));
             }
             else {
                 $subtarget.css('display', 'none');
@@ -722,11 +727,11 @@ $(document).ready(function () {
             hazard_sites_choice = $(cf_obj['scen'].pfx + ' input[type="radio"]'
                                     + '[name="hazard_sites"]:checked').val();
 
-            /* region grid opts callbacks */
-            region_grid = $(cf_obj['scen'].pfx + ' input[name="region_grid"]:checked').val();
+            /* region grid callbacks */
+            region_grid_choice = $(cf_obj['scen'].pfx + ' input[name="region_grid"]:checked').val();
 
             $subtarget = $(cf_obj['scen'].pfx + ' div[name="region-coordinates-table"]');
-            $subtarget.css('display', (region_grid == 'infer-from-exposure' ? 'none' : ''));
+            $subtarget.css('display', (region_grid_choice == 'infer-from-exposure' ? 'none' : ''));
 
             $target.css('display', '');
         }
@@ -766,8 +771,14 @@ $(document).ready(function () {
 
         // Exposure model (ui)
         exposure_model_sect_manager(
-            'scen', ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null),
-            (risk != null));
+            'scen', ((hazard != null && (
+                hazard_sites_choice == 'exposure-model'
+                    || (hazard_sites_choice == 'region-grid' && region_grid_choice == 'infer-from-exposure')
+            )) || risk != null),
+            (risk != null),
+            (hazard_sites_choice == 'exposure-model' ||
+             (hazard_sites_choice == 'region-grid' && region_grid_choice == 'infer-from-exposure'))
+        );
 
         // Fragility and vulnerability model (ui)
         if (risk == 'damage') {
@@ -1300,7 +1311,7 @@ $(document).ready(function () {
 
     function event_based_manager()
     {
-        exposure_model_sect_manager('e_b', true, true);
+        exposure_model_sect_manager('e_b', true, true, true);
         vulnerability_model_sect_manager('e_b', true);
 
         // Hazard model (UI)
