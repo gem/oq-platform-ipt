@@ -745,15 +745,16 @@ def scenario_prepare(request, **kwargs):
 
         if data['hazard_sites_choice'] == 'region-grid':
             jobini += "region_grid_spacing = %s\n" % data['grid_spacing']
-            is_first = True
-            jobini += "region = "
-            for el in data['reggrid_coords_data']:
-                if is_first:
-                    is_first = False
-                else:
-                    jobini += ", "
-                jobini += "%s %s" % (el[0], el[1])
-            jobini += "\n"
+            if data['region_grid_choice'] == 'region-coordinates':
+                is_first = True
+                jobini += "region = "
+                for el in data['reggrid_coords_data']:
+                    if is_first:
+                        is_first = False
+                    else:
+                        jobini += ", "
+                        jobini += "%s %s" % (el[0], el[1])
+                        jobini += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
             jobini += "sites = %s\n" % os.path.basename(data['list_of_sites'])
             z.write(get_full_path(userid, namespace, data['list_of_sites']),
