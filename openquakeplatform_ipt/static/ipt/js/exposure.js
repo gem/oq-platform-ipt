@@ -335,7 +335,8 @@ var ex_obj = {
 <div style="display: inline-block; float: left;"><h4>Exposure ' + (ct + 1) + ' </h4></div>';
         ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '<button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" name="delete_exposuretbl">Delete #' + (ct + 1 ) + '</button>');
         ctx += '\
-<div><input type="file" id="table_file" data_gem_id="' + ct + '" accept="text/csv,application/csv,csv"></div>\n\
+<div><input style="float: left;" type="file" id="table_file" data_gem_id="' + ct + '" accept="text/csv,application/csv,csv"></div>\n\
+<div style="clear: both;"></div>\n\
 <div style="overflow: hidden;">\n\
 <div name="table-' + ct + '" style="height: 100px; overflow=hidden;"></div>\n\
 </div>\n\
