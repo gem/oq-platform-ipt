@@ -1808,5 +1808,8 @@ $(document).ready(function () {
          + ' font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-weight: normal;'
          + ' border-radius: 8px; border: 1px solid #e0e0e0; max-width: 300px; width: 300px; margin: 0px;">'
          + '</div></div>', placement: 'bottom'});
+
+    $(cf_obj['scen'].pfx + ' input[name="hazard"]').prop('checked', true).triggerHandler('click');
+    $(cf_obj['e_b'].pfx + ' input[name="hazard"]').prop('checked', true).triggerHandler('click');
 });
 

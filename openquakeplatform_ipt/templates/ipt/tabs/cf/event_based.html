@@ -1,7 +1,29 @@
+<div class="alert alert-info" role="alert">Choose components of your configuration file and fill related fields.
+  <div class="menuItems" style="text-align: center;">
+    <form style="margin: 0px;">
+      <div class="chbox">
+        <input style="margin:0;" type="checkbox" name="hazard">
+        <span class="inlible">Hazard</span>
+      </div>
+      <div class="chbox">
+        <input style="margin:0;" type="checkbox" name="risk">
+        <span class="inlible">Risk</span>
+      </div>
+    </form>
+  </div>
+</div>
 <div class="menuItems">
   <label>Description:</label>
   <textarea id="description" rows="4" cols="10" name="description">Event based calculation</textarea>
 </div>
+
+<div name="hazard-sites">
+  {% include "ipt/tabs/cf/sect_hazard_sites.html" %}
+</div><!-- end div name="hazard-sites" -->
+
+<div style="min-height: 50px;" name="site-conditions"><!-- site conditions block -->
+  {% include "ipt/tabs/cf/sect_site_conditions.html" %}
+</div> <!-- end site conditions -->
 
 <div name="exposure-model">
   {% include "ipt/tabs/cf/sect_exposure_model.html" %}
@@ -86,10 +108,6 @@
     <label>Area source discretization (km) <span class="ui-icon ui-icon-help ipt_help" title='Level of discretization of the grid used to delineate the area sources.'></span>:</label>
     <input type="text" name="area_source_discretization" value="10.0">
   </div>
-</div>
-
-<div style="min-height: 50px;" name="site-conditions"><!-- site conditions block -->
-  {% include "ipt/tabs/cf/sect_site_conditions.html" %}
 </div>
 
 <div name="hazard-calculation">
