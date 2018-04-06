@@ -18,9 +18,9 @@
 var ex_obj = {
     pfx: "div.ex_gid ",
     o: $('div.ex_gid'),
-    tbl_file: null,
+    tbl_file: {},
     tbl: {},
-    tbl_idx: 0,
+    tbl_cur: 0,
     nrml: "",
     header: [],
     headerbase_len: 0,
@@ -44,7 +44,8 @@ var ex_obj = {
         occupants_night: null,
         occupants_transit: null,
         tags: null,
-        table: null
+        table: null,
+        table_file: null,
     },
 
     // perAreaRefCount is used to keep track of any time perArea is selected
@@ -109,7 +110,18 @@ var ex_obj = {
         ctx.occupants_night = obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="night"]').is(':checked');
         ctx.occupants_transit = obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="transit"]').is(':checked');
         ctx.tags = obj.o.find('#tags').tagsinput('items');
-        ctx.table = obj.o.find('#table').handsontable('getInstance').getData();
+        $tables = obj.o.find('div[name^="table-"]');
+        ctx.table = new Array($tables.length);
+        for (var tbl_id = 0 ; tbl_id < $tables.length ; tbl_id++) {
+            var $tbl = $($tables[tbl_id]);
+            ctx.table[tbl_id] = $tbl.handsontable('getInstance').getData();
+        }
+        $table_files = obj.o.find('input[id="table_file"]');
+        ctx.table_file = new Array($tables.length);
+        for (var tbl_id = 0 ; tbl_id < $table_files.length ; tbl_id++) {
+            var $tbl_file = $($table_files[tbl_id]);
+            ctx.table_file[tbl_id] = $tbl_file.val().replace(/.*[\/\\]/, '');
+        }    
     },
 
     ctx_save: function (obj) {
@@ -301,6 +313,60 @@ var ex_obj = {
         var ctx_load_step = obj.ctx_load_step_gen(obj, 0, ctx);
 
         setTimeout(ctx_load_step, 0);
+    },
+
+    /*****************
+     *               *
+     *  EXPOSURETAB  *
+     *               *
+     *****************/
+    exposuretbl_del: function (obj) {
+        var id = obj.target.getAttribute("data_gem_id");
+        var item = ex_obj.o.find('div[name="exposuretbls"] div[name="exposuretbl-' + id + '"]');
+        delete(ex_obj.tbl[id]);
+        item.remove();
+    },
+
+    exposuretbl_add: function () {
+        var ct = ex_obj.tbl_cur;
+        var ctx = '\
+<div name="exposuretbl-' + ct + '">\n\
+<div class="menuItems" style="margin-top: 12px;">\n\
+<div style="display: inline-block; float: left;"><h4>Exposure ' + (ct + 1) + ' </h4></div>';
+        ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '<button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" name="delete_exposuretbl">Delete #' + (ct + 1 ) + '</button>');
+        ctx += '\
+<div><input type="file" id="table_file" data_gem_id="' + ct + '" accept="text/csv,application/csv,csv"></div>\n\
+<div style="overflow: hidden;">\n\
+<div name="table-' + ct + '" style="height: 100px; overflow=hidden;"></div>\n\
+</div>\n\
+<button id="new_row_add" type="button" class="btn">New Row</button><br>\n\
+<br>\n\
+</div>\n\
+</div>\n';
+        ex_obj.o.find('div[name="exposuretbls"]').append(ctx);
+        $tbl_new = ex_obj.o.find('div[name="exposuretbls"] div[name="exposuretbl-' + ct + '"]');
+
+        $tbl_new.find('button[name="delete_exposuretbl"]').on('click', ex_obj.exposuretbl_del);
+
+        var $table_id = $tbl_new.find('div[name="table-' + ct + '"]');
+        var headerLength = ex_obj.header.length;
+        var ht_config = {
+            colHeaders: ex_obj.header.slice(),
+            rowHeaders: true,
+            contextMenu: true,
+            startRows: 3,
+            startCols: headerLength,
+            maxCols: headerLength + 50,
+            stretchH: 'all',
+            className: "htRight"
+        };
+        $table_id.handsontable(ht_config);
+        ex_obj.tbl[ct] = $table_id.handsontable('getInstance');
+        ex_obj.tbl_cur++;
+        $tbl_new.find('input#table_file').on(
+            'change', function ipt_table_vect_file_mgmt_cb(evt) {
+                ipt_table_vect_file_mgmt(evt, ex_obj, 1, -180, 180);
+            });
     }
 };
 
@@ -383,46 +449,44 @@ function checkForValueInHeader(header, argument) {
 
 function ex_updateTableTags(delta) {
     var tags = ex_obj.o.find('#tags').tagsinput('items');
-    var tbl = ex_obj.o.find('#table').handsontable('getInstance');
-    var cols_cur = tbl.countCols();
-    var cols_headers = tbl.getColHeader();
+    var $tbls = ex_obj.o.find('div[name^="table"]');
+    var tbl;
 
-    for (var i = ex_obj.headerbase_len, ti = 0 ; i < cols_cur ; i++, ti++) {
-        if (cols_headers[i] != "tag_" + tags[ti]) {
-            if (delta > 0)
-                gem_ipt.error_msg("WARNING: tag [" + tags[ti] + "] not found");
-            break;
+    for (var tbl_id in ex_obj.tbl) {
+        tbl = ex_obj.tbl[tbl_id];
+        var cols_cur = tbl.countCols();
+        var cols_headers = tbl.getColHeader();
+
+        for (var i = ex_obj.headerbase_len, ti = 0 ; i < cols_cur ; i++, ti++) {
+            if (cols_headers[i] != "tag_" + tags[ti]) {
+                if (delta > 0)
+                    gem_ipt.error_msg("WARNING: tag [" + tags[ti] + "] not found");
+                break;
+            }
         }
-    }
-    if (delta > 0) {
-        ex_obj.tbl.alter('insert_col', i);
-        cols_headers.push("tag_" + tags[ti]);
-        ex_obj.tbl.updateSettings({'colHeaders': false});
-        ex_obj.tbl.updateSettings({'colHeaders': cols_headers});
-    }
-    else {
-        if (i == cols_cur) {
-            gem_ipt.error_msg("WARNING: tag column to delete not found");
+        if (delta > 0) {
+            tbl.alter('insert_col', i);
+            cols_headers.push("tag_" + tags[ti]);
+            tbl.updateSettings({'colHeaders': false});
+            tbl.updateSettings({'colHeaders': cols_headers});
         }
         else {
-            ex_obj.tbl.alter('remove_col', i);
-            return true;
+            if (i == cols_cur) {
+                gem_ipt.error_msg("WARNING: tag column to delete not found");
+            }
+            else {
+                tbl.alter('remove_col', i);
+                continue;
+            }
         }
     }
 }
 
 function ex_updateTable() {
-    ex_obj.o.find('#table_file').val("");
-    ex_obj.tbl_file = null;
-
-    // Remove any existing table, if already exists
-    if (ex_obj.o.find('#table').handsontable('getInstance') !== undefined) {
-        ex_obj.o.find('#table').handsontable('destroy');
-    }
+    var $tbl, $table, tbl_id, tbls = ex_obj.o.find('div[name="exposuretbls"] div[name^="exposuretbl-"]');
 
     // Default columns
     ex_obj.header = ['id', 'longitude', 'latitude', 'taxonomy', 'number'];
-
     function checkForValue (argument, valueArg) {
         // Modify the table header only when the menu is altered
         // This constraint will allow Limit, Deductible and Occupant elements to be
@@ -431,8 +495,8 @@ function ex_updateTable() {
             if (checkForValueInHeader(ex_obj.header, argument) == -1) {
                 ex_obj.header.push(argument);
             }
-        // This constraint will allow structural, non-structural, contents and business
-        // costs to be added to the header
+            // This constraint will allow structural, non-structural, contents and business
+            // costs to be added to the header
         } else if (argument != 'none' && valueArg !== undefined) {
             if (checkForValueInHeader(ex_obj.header, valueArg) == -1) {
                 ex_obj.header.push(valueArg);
@@ -486,46 +550,59 @@ function ex_updateTable() {
 
     // manage tags
     var tags = ex_obj.o.find('#tags').tagsinput('items');
-    for (i = 0 ; i < tags.length ; i++) {
+    for (var i = 0 ; i < tags.length ; i++) {
         ex_obj.header.push("tag_" + tags[i]);
     }
-
     var headerLength = ex_obj.header.length;
 
-    // Create the table
-    ///////////////////////////////
-    /// Exposure Table Settings ///
-    ///////////////////////////////
-    ex_obj.o.find('#table').handsontable({
-        colHeaders: ex_obj.header,
-        rowHeaders: true,
-        contextMenu: true,
-        startRows: 3,
-        startCols: headerLength,
-        maxCols: headerLength + 50,
-        stretchH: 'all',
-        className: "htRight"
-    });
-    ex_obj.tbl = ex_obj.o.find('#table').handsontable('getInstance');
-    setTimeout(function() {
-        return gem_tableHeightUpdate(ex_obj.o.find('#table'));
-    }, 0);
+    for (tbl_id = 0 ; tbl_id < tbls.length ; tbl_id++) {
+        $tbl = $(tbls[tbl_id]);
+        var id = $tbl.attr('name').substring(12);
 
-    ex_obj.tbl.addHook('afterCreateRow', function() {
-        return gem_tableHeightUpdate(ex_obj.o.find('#table'));
-    });
+        $tbl.find('#table_file').val("");
+        ex_obj.tbl_file[id] = null;
 
-    ex_obj.tbl.addHook('afterRemoveRow', function() {
-        return gem_tableHeightUpdate(ex_obj.o.find('#table'));
-    });
-    ex_obj.tbl.addHook('afterChange', function(changes, source) {
-        // when loadData is used, for performace reasons, changes are 'null'
-        if (changes != null || source != 'loadData') {
-            ex_obj.o.find('#table_file').val("");
-            ex_obj.tbl_file = null;
+        $table = $tbl.find('div[name^="table"]');
+        // Remove any existing table, if already exists
+        if ($table.handsontable('getInstance') !== undefined) {
+            $table.handsontable('destroy');
         }
-    });
 
+        // Create the table
+        ///////////////////////////////
+        /// Exposure Table Settings ///
+        ///////////////////////////////
+        $table.handsontable({
+            colHeaders: ex_obj.header.slice(),
+            rowHeaders: true,
+            contextMenu: true,
+            startRows: 3,
+            startCols: headerLength,
+            maxCols: headerLength + 50,
+            stretchH: 'all',
+            className: "htRight"
+        });
+        ex_obj.tbl[id] = $table.handsontable('getInstance');
+        setTimeout(function() {
+            return gem_tableHeightUpdate($table);
+        }, 0);
+
+        ex_obj.tbl[id].addHook('afterCreateRow', function() {
+            return gem_tableHeightUpdate(ex_obj.o.find('div[name^="table-"]'));
+        });
+ 
+        ex_obj.tbl[id].addHook('afterRemoveRow', function() {
+            return gem_tableHeightUpdate(ex_obj.o.find('div[name^="table-"]'));
+        });
+
+        ex_obj.tbl[id].addHook('afterChange', function(changes, source) {
+            // when loadData is used, for performace reasons, changes are 'null'
+            if (changes != null || source != 'loadData') {
+                $tbl.find('#table_file').val("");
+                ex_obj.tbl_file[id] = null;
+            }
+        });
+    }
     ex_obj.o.find('#outputText').empty();
     ex_obj.o.find('#convertBtn').show();
 }
@@ -541,16 +618,21 @@ if (typeof gem_api != 'undefined') {
 }
 
 ex_obj.o.find('#convertBtn').click(function() {
-    var data = null;
+    var data = [];
 
-    if (ex_obj.o.find('input#table_file')[0].files.length > 0) {
-        data = ex_obj.tbl_file;
+    $tbls = ex_obj.o.find('div[name="exposuretbls"] div[name^="exposuretbl-"]');
+    for (var i = 0 ; i < $tbls.length ; i++) {
+        $tbl = $($tbls[i]);
+        if ($tbl.find('input#table_file')[0].files.length > 0) {
+            var id = $tbl.find('input#table_file').attr('data_gem_id');
+            data = data.concat(ex_obj.tbl_file[id]);
+        }
+        else {
+            // Get the values from the table
+            $tbl_tab = $tbl.find('div[name^="table-"]');
+            data = data.concat($tbl_tab.handsontable('getInstance').getData());
+        }
     }
-    else {
-        // Get the values from the table
-        data = ex_obj.tbl.getData();
-    }
-
     var not_empty_rows = not_empty_rows_get(data);
 
     // Check for null values
@@ -801,6 +883,7 @@ ex_obj.o.find('#convertBtn').click(function() {
 
 function exposure_tags_cb(event)
 {
+    var ret;
     if (event.type == 'beforeItemAdd') {
         if (event.item.search(/^[a-zA-Z_]\w*$/g) == -1) {
             event.cancel = true;
@@ -808,11 +891,13 @@ function exposure_tags_cb(event)
         }
     }
     else if (event.type == "itemAdded")
-        return ex_updateTableTags(+1);
+        ret = ex_updateTableTags(+1);
     else if (event.type == "itemRemoved")
-        return ex_updateTableTags(-1);
+        ret = ex_updateTableTags(-1);
     else
-        return false;
+        ret = false;
+    ex_updateTable();
+    return ret;
 }
 
 // tab initialization
@@ -822,9 +907,6 @@ $(document).ready(function () {
     /////////////////////////////////////////////////////////
     ex_obj.o.find('#perArea').hide();
 
-    ex_obj.o.find('input#table_file').on(
-        'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, ex_obj, 1, -180, 180); });
-
     ex_obj.o.find('#retrofittingSelect').hide();
     ex_obj.o.find('#limitDiv').hide();
     ex_obj.o.find('#deductibleDiv').hide();
@@ -832,14 +914,22 @@ $(document).ready(function () {
     ex_obj.o.find('#nonstructural_costs_units_div').hide();
     ex_obj.o.find('#contents_costs_units_div').hide();
     ex_obj.o.find('#busi_inter_costs_units_div').hide();
+
     ex_updateTable();
+    ex_obj.o.find('div[name="exposuretbl"] button#new_exposuretbl_add').click(
+        ex_obj.exposuretbl_add);
+    ex_obj.exposuretbl_add();
+
     ex_obj.o.find('#new_row_add').click(function() {
         ex_obj.tbl.alter('insert_row');
     });
     ex_obj.o.find('#outputDiv').hide();
-    $('#absoluteSpinner').hide();
     // tag events 'itemAddedOnInit', 'beforeItemAdd' and 'beforeItemRemove' are not still managed
     ex_obj.o.find('#tags').on('beforeItemAdd', exposure_tags_cb);
     ex_obj.o.find('#tags').on('itemAdded', exposure_tags_cb);
     ex_obj.o.find('#tags').on('itemRemoved', exposure_tags_cb);
+
+
+    $('#absoluteSpinner').hide();
+
 });
