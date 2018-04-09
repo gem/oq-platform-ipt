@@ -637,7 +637,8 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace):
     return jobini
 
 
-def vulnerability_model_prep_sect(data, z, userid, namespace):
+def vulnerability_model_prep_sect(data, z, userid, namespace,
+                                  with_ensloss=True):
     jobini = "\n[Vulnerability model]\n"
     #            #####################
     descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
@@ -652,11 +653,12 @@ def vulnerability_model_prep_sect(data, z, userid, namespace):
                                   data['vm_loss_%s' % losslist]),
                     os.path.basename(data['vm_loss_%s' % losslist]))
 
-    jobini += "insured_losses = %s\n" % (
-        "True" if data['insured_losses'] else "False")
+    if with_ensloss is True:
+        jobini += "insured_losses = %s\n" % (
+            "True" if data['insured_losses'] else "False")
 
-    if data['asset_correlation_choice']:
-        jobini += "asset_correlation = %s" % data['asset_correlation']
+        if data['asset_correlation_choice']:
+            jobini += "asset_correlation = %s" % data['asset_correlation']
 
     return jobini
 
@@ -905,107 +907,172 @@ def event_based_prepare(request, **kwargs):
     fzip = os.fdopen(fd, 'wb')
     z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
-    jobini = "# Generated automatically with IPT at %s\n" % (
-        "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
-    jobini += "[general]\n"
-    jobini += "description = %s\n" % data['description']
+    jobhaz = ""
+    jobris = ""
 
-    jobini += "calculation_mode = event_based_risk\n"
+    if data['hazard'] == 'hazard':
+        jobhaz += "# Generated automatically with IPT at %s\n" % (
+            "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
+        jobhaz += "[general]\n"
+        jobhaz += "description = %s\n" % data['description']
 
-    jobini += "random_seed = 113\n"
+        jobhaz += "calculation_mode = event_based\n"
+
+        jobhaz += "\n[Hazard sites]\n"
+        #            ##############
+
+        if data['hazard_sites_choice'] == 'region-grid':
+            jobhaz += "region_grid_spacing = %s\n" % data['grid_spacing']
+            if data['region_grid_choice'] == 'region-coordinates':
+                is_first = True
+                jobhaz += "region = "
+                for el in data['reggrid_coords_data']:
+                    if is_first:
+                        is_first = False
+                    else:
+                        jobhaz += ", "
+                        jobhaz += "%s %s" % (el[0], el[1])
+                        jobhaz += "\n"
+        elif data['hazard_sites_choice'] == 'list-of-sites':
+            jobhaz += "sites_csv = %s\n" % os.path.basename(
+                data['list_of_sites'])
+            z.write(get_full_path(userid, namespace, data['list_of_sites']),
+                    os.path.basename(data['list_of_sites']))
+        elif data['hazard_sites_choice'] == 'exposure-model':
+            pass
+        else:
+            ret['ret'] = 4
+            ret['msg'] = 'Unknown hazard_sites_choice.'
+            return HttpResponse(json.dumps(ret),
+                                content_type="application/json")
+
+        # Site conditions
+        jobhaz += site_conditions_prep_sect(data, z, userid, namespace)
+
+        # Hazard model
+        jobhaz += "source_model_logic_tree_file = %s\n" % os.path.basename(
+            data['source_model_logic_tree_file'])
+        z.write(get_full_path(userid, namespace,
+                              data['source_model_logic_tree_file']),
+                os.path.basename(data['source_model_logic_tree_file']))
+
+        for source_model_name in data['source_model_file']:
+            z.write(get_full_path(userid, namespace, source_model_name),
+                    os.path.basename(source_model_name))
+
+        jobhaz += "gsim_logic_tree_file = %s\n" % os.path.basename(
+            data['gsim_logic_tree_file'])
+        z.write(get_full_path(userid, namespace, data['gsim_logic_tree_file']),
+                os.path.basename(data['gsim_logic_tree_file']))
+
+        jobhaz += "\n[Hazard model]\n"
+        #            ##############
+        jobhaz += "width_of_mfd_bin = %s\n" % data['width_of_mfd_bin']
+
+        if data['rupture_mesh_spacing_choice'] is True:
+            jobhaz += ("rupture_mesh_spacing = %s\n" %
+                       data['rupture_mesh_spacing'])
+        if data['area_source_discretization_choice'] is True:
+            jobhaz += ("area_source_discretization = %s\n" %
+                       data['area_source_discretization'])
+        if data['complex_fault_mesh_choice'] is True:
+            jobhaz += ("complex_fault_mesh_spacing = %s\n" %
+                       data['complex_fault_mesh'])
+
+        jobhaz += "\n[Hazard calculation]\n"
+        #            ####################
+
+        if data['risk'] is None:
+            jobhaz += "intensity_measure_types = "
+            is_first = True
+            for imt in data['intensity_measure_types']:
+                if is_first:
+                    is_first = False
+                else:
+                    jobhaz += ", "
+                jobhaz += imt
+            if data['custom_imt'] != '':
+                if not is_first:
+                    jobhaz += ", "
+                jobhaz += data['custom_imt']
+            jobhaz += "\n"
+
+            if data['use_imt_from_vulnerability'] is True:
+                jobhaz += vulnerability_model_prep_sect(
+                    data, z, userid, namespace, with_ensloss=False)
+
+        jobhaz += ("ground_motion_correlation_model = %s\n" %
+                   data['ground_motion_correlation_model'])
+        if data['ground_motion_correlation_model'] == 'JB2009':
+            jobhaz += ("ground_motion_correlation_params = "
+                       "{\"vs30_clustering\": True}")
+        jobhaz += "maximum_distance = %s\n" % data['maximum_distance']
+        jobhaz += "truncation_level = %s\n" % data['truncation_level']
+        jobhaz += "investigation_time = %s\n" % data['investigation_time']
+        jobhaz += ("ses_per_logic_tree_path = %s\n" %
+                   data['ses_per_logic_tree_path'])
+        jobhaz += ("number_of_logic_tree_samples = %s\n" %
+                   data['number_of_logic_tree_samples'])
+
+        jobhaz += "\n[Hazard outputs]\n"
+        #             ################
+        jobhaz += "save_ruptures = %s\n" % data['save_ruptures']
+        jobhaz += ("ground_motion_fields = %s\n" %
+                   data['ground_motion_fields'])
+        jobhaz += ("hazard_curves_from_gmfs = %s\n" %
+                   data['hazard_curves_from_gmfs'])
+        if data['hazard_curves_from_gmfs']:
+            jobhaz += "mean_hazard_curves = %s\n" % False
+            if data['quantile_hazard_curves_choice']:
+                jobhaz += ("quantile_hazard_curves = %s\n" %
+                           data['quantile_hazard_curves'])
+        jobhaz += "hazard_maps = %s\n" % data['hazard_maps']
+        if data['hazard_maps']:
+            jobhaz += "poes = %s\n" % data['poes']
+        jobhaz += ("uniform_hazard_spectra = %s\n" %
+                   data['uniform_hazard_spectra'])
 
     # Exposure model
-    jobini += exposure_model_prep_sect(data, z, True, userid, namespace)
+    if (data['risk'] == 'risk' or
+        (data['hazard'] == 'hazard' and
+         data['hazard_sites_choice'] == 'exposure-model')):
+        jobris += exposure_model_prep_sect(
+            data, z, (data['risk'] is not None), userid, namespace)
 
-    # Vulnerability model
-    jobini += vulnerability_model_prep_sect(data, z, userid, namespace)
+    if data['risk'] == 'risk':
+        # Vulnerability model
+        jobris += vulnerability_model_prep_sect(data, z, userid, namespace)
 
-    # Hazard model
-    jobini += "source_model_logic_tree_file = %s\n" % os.path.basename(
-        data['source_model_logic_tree_file'])
-    z.write(get_full_path(userid, namespace,
-                          data['source_model_logic_tree_file']),
-            os.path.basename(data['source_model_logic_tree_file']))
+        jobris += "\n[Risk calculation]\n"
+        #            ##################
+        jobris += ("risk_investigation_time = %s\n" %
+                   data['risk_investigation_time'])
+        jobris += ("return_periods = [%s]\n" %
+                   data['ret_periods_for_aggr'])
 
-    for source_model_name in data['source_model_file']:
-        z.write(get_full_path(userid, namespace, source_model_name),
-                os.path.basename(source_model_name))
+        jobris += "\n[Risk outputs]\n"
+        #            ##############
+        jobris += "asset_loss_table = %s\n" % data['asset_loss_table']
+        if data['quantile_loss_curves_choice']:
+            jobris += ("quantile_loss_curves = %s\n" %
+                       data['quantile_loss_curves'])
+        if data['conditional_loss_poes_choice']:
+            jobris += ("conditional_loss_poes = %s\n" %
+                       data['conditional_loss_poes'])
 
-    jobini += "gsim_logic_tree_file = %s\n" % os.path.basename(
-        data['gsim_logic_tree_file'])
-    z.write(get_full_path(userid, namespace, data['gsim_logic_tree_file']),
-            os.path.basename(data['gsim_logic_tree_file']))
+    if data['hazard'] == 'hazard':
+        z.writestr('job_hazard.ini', encode(jobhaz))
 
-    jobini += "\n[Hazard model]\n"
-    #            ##############
-    jobini += "width_of_mfd_bin = %s\n" % data['width_of_mfd_bin']
+    if jobris != "":
+        jobris_head = "# Generated automatically with IPT at %s\n" % (
+            "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
+        jobris_head += "[general]\n"
+        jobris_head += "description = %s\n" % data['description']
 
-    if data['rupture_mesh_spacing_choice'] is True:
-        jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
-    if data['area_source_discretization_choice'] is True:
-        jobini += ("area_source_discretization = %s\n" %
-                   data['area_source_discretization'])
+        jobris_head += "calculation_mode = event_based_risk\n"
 
-    # Site conditions
-    jobini += site_conditions_prep_sect(data, z, userid, namespace)
-
-    jobini += "\n[Hazard calculation]\n"
-    #            ####################
-    jobini += "truncation_level = %s\n" % data['truncation_level']
-    jobini += "maximum_distance = %s\n" % data['maximum_distance']
-    jobini += "investigation_time = %s\n" % data['investigation_time']
-    jobini += ("ses_per_logic_tree_path = %s\n" %
-               data['ses_per_logic_tree_path'])
-    jobini += ("number_of_logic_tree_samples = %s\n" %
-               data['number_of_logic_tree_samples'])
-    jobini += ("ground_motion_correlation_model = %s\n" %
-               data['ground_motion_correlation_model'])
-    if data['ground_motion_correlation_model'] == 'JB2009':
-        jobini += ("ground_motion_correlation_params = "
-                   "{\"vs30_clustering\": True}")
-
-    jobini += "\n[Risk calculation]\n"
-    #            ##################
-    jobini += ("risk_investigation_time = %s\n" %
-               data['risk_investigation_time'])
-
-    jobini_hazard = jobini
-    jobini_hazard += "\n[Hazard outputs]\n"
-    #                   ################
-    jobini_hazard += ("ground_motion_fields = %s\n" %
-                      data['ground_motion_fields'])
-    jobini_hazard += ("hazard_curves_from_gmfs = %s\n" %
-                      data['hazard_curves_from_gmfs'])
-    if data['hazard_curves_from_gmfs']:
-        jobini_hazard += "mean_hazard_curves = %s\n" % False
-        if data['quantile_hazard_curves_choice']:
-            jobini_hazard += ("quantile_hazard_curves = %s\n" %
-                              data['quantile_hazard_curves'])
-    jobini_hazard += "hazard_maps = %s\n" % data['hazard_maps']
-    if data['hazard_maps']:
-        jobini_hazard += "poes = %s\n" % data['poes']
-    jobini_hazard += ("uniform_hazard_spectra = %s\n" %
-                      data['uniform_hazard_spectra'])
-
-    jobini_risk = jobini
-    jobini_risk += "\n[Risk outputs]\n"
-    #                 ##############
-    jobini_risk += "avg_losses = %s\n" % data['avg_losses']
-    jobini_risk += "asset_loss_table = %s\n" % data['asset_loss_table']
-    if data['quantile_loss_curves_choice']:
-        jobini_risk += ("quantile_loss_curves = %s\n" %
-                        data['quantile_loss_curves'])
-    if data['conditional_loss_poes_choice']:
-        jobini_risk += ("conditional_loss_poes = %s\n" %
-                        data['conditional_loss_poes'])
-
-    z.writestr('job.ini', encode(jobini_risk))
-
-    if (data['ground_motion_fields'] is True or
-            data['hazard_curves_from_gmfs'] is True or
-            data['hazard_maps'] is True or
-            data['uniform_hazard_spectra'] is True):
-        z.writestr('job_hazard.ini', encode(jobini_hazard))
+        jobris = jobris_head + jobris
+        z.writestr('job_risk.ini', encode(jobris))
 
     z.close()
 
