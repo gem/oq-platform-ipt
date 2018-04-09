@@ -1035,11 +1035,15 @@ def event_based_prepare(request, **kwargs):
                    data['uniform_hazard_spectra'])
 
     # Exposure model
-    if (data['risk'] == 'risk' or
-        (data['hazard'] == 'hazard' and
-         data['hazard_sites_choice'] == 'exposure-model')):
+    if data['risk'] == 'risk':
         jobris += exposure_model_prep_sect(
             data, z, (data['risk'] is not None), userid, namespace)
+
+    if (data['hazard'] == 'hazard' and
+        (data['hazard_sites_choice'] == 'exposure-model' or
+         data['region_grid_choice'] == 'infer-from-exposure')):
+        jobhaz += exposure_model_prep_sect(
+            data, z, False, userid, namespace)
 
     if data['risk'] == 'risk':
         # Vulnerability model
