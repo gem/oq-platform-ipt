@@ -333,7 +333,7 @@ var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
             that.tbl.loadData(data);
         }
         reader.onerror = function (evt) {
-            alert('import file failed');
+            alert('File import failed.');
             that.tbl_file = null;
             target.value = "";
         }
@@ -341,7 +341,84 @@ var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
     else {
         alert('File not found.');
     }
-}
+};
+
+var ipt_table_vect_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
+    var target = evt.target;
+    var tbl_id = $(target).attr("data_gem_id");
+
+    if (evt.target.files.length == 0) {
+        that.tbl_file[tbl_id] = null;
+        target.value = "";
+        return;
+    }
+
+    var file = evt.target.files[0];
+
+    if (file) {
+        var cols_n = that.tbl[tbl_id].countCols();
+        var reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (evt) {
+            that.tbl_file[tbl_id] = [];
+            var rows = evt.target.result.replace(/\r\n*/g, '\n').split('\n');
+            var separator = null;
+            for (var i = 0 ; i < rows.length ; i++) {
+                if (rows[i] == "") {
+                    continue;
+                }
+                that.tbl_file[tbl_id].push([]);
+                if (separator == null) {
+                    separator = separator_identify(rows[i]);
+                }
+                var cols = csvsplit(rows[i], separator);
+                if (cols.length != cols_n) {
+                    // row haven't correct number of columns
+                    alert("row #" + (i+1) + " haven't correct number of columns, received: " + cols.length + " expected: " + cols_n + "\n[" + rows[i] + "]");
+                    that.tbl_file[tbl_id] = null;
+                    target.value = "";
+                    return;
+                }
+
+                for (var e = 0 ; e < cols.length ; e++) {
+                    cols[e] = cols[e].toString().trim();
+                    that.tbl_file[tbl_id][i].push(cols[e]);
+                }
+            }
+
+            if (table_with_headers(that.tbl_file[tbl_id], field_idx, min_val, max_val)) {
+                that.tbl_file[tbl_id] = that.tbl_file[tbl_id].slice(1);
+            }
+
+            that.tbl[tbl_id].alter('remove_row', 1, 10000000);
+            var data = [];
+            for (var i = 0 ; i < (4 < that.tbl_file[tbl_id].length ? 4 : that.tbl_file[tbl_id].length)  ; i++) {
+                if (i > 0)
+                    that.tbl[tbl_id].alter('insert_row');
+                data.push(that.tbl_file[tbl_id][i]);
+            }
+
+            if (4 < that.tbl_file[tbl_id].length) {
+                that.tbl[tbl_id].alter('insert_row');
+                var points = data.push([]);
+                for (var e = 0 ; e < cols_n ; e++) {
+                    data[4][e] = "...";
+                }
+            }
+
+            that.tbl[tbl_id].loadData(data);
+        }
+        reader.onerror = function (evt) {
+            alert('import file failed');
+            that.tbl_file[tbl_id] = null;
+            target.value = "";
+        }
+    }
+    else {
+        alert('File not found.');
+    }
+};
+
 
 var _gem_api_ctx_index = 10000;
 function gem_api_ctx_get_object_id(object)
