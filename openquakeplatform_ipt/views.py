@@ -611,13 +611,15 @@ def get_full_path(userid, namespace, subdir_and_filename=""):
                             subdir_and_filename))
 
 
-def exposure_model_prep_sect(data, z, is_regcons, userid, namespace):
+def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
+                             save_files=True):
     jobini = "\n[Exposure model]\n"
     #           ################
 
     jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
-    z.write(get_full_path(userid, namespace, data['exposure_model']),
-            os.path.basename(data['exposure_model']))
+    if save_files is True:
+        z.write(get_full_path(userid, namespace, data['exposure_model']),
+                os.path.basename(data['exposure_model']))
     if is_regcons:
         if data['exposure_model_regcons_choice'] is True:
             is_first = True
@@ -637,7 +639,7 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace):
     return jobini
 
 
-def vulnerability_model_prep_sect(data, z, userid, namespace,
+def vulnerability_model_prep_sect(data, z, userid, namespace, save_files=True,
                                   with_ensloss=True):
     jobini = "\n[Vulnerability model]\n"
     #            #####################
@@ -649,9 +651,10 @@ def vulnerability_model_prep_sect(data, z, userid, namespace,
         if data['vm_loss_%s_choice' % losslist] is True:
             jobini += "%s_vulnerability_file = %s\n" % (
                 descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
-            z.write(get_full_path(userid, namespace,
-                                  data['vm_loss_%s' % losslist]),
-                    os.path.basename(data['vm_loss_%s' % losslist]))
+            if save_files is True:
+                z.write(get_full_path(userid, namespace,
+                                      data['vm_loss_%s' % losslist]),
+                        os.path.basename(data['vm_loss_%s' % losslist]))
 
     if with_ensloss is True:
         jobini += "insured_losses = %s\n" % (
@@ -807,7 +810,8 @@ def scenario_prepare(request, **kwargs):
                             os.path.basename(
                                 data['fm_loss_%s_cons' % losslist]))
     elif data['risk'] == 'losses':
-        jobini += vulnerability_model_prep_sect(data, z, userid, namespace)
+        jobini += vulnerability_model_prep_sect(data, z, userid, namespace,
+                                                save_files=True)
 
     if data['hazard'] == 'hazard':
         jobini += site_conditions_prep_sect(data, z, userid, namespace)
@@ -888,6 +892,8 @@ def scenario_prepare(request, **kwargs):
 
 def event_based_prepare(request, **kwargs):
     ret = {}
+    vuln_file_saved = False
+    expo_file_saved = False
 
     if request.POST.get('data', '') == '':
         ret['ret'] = 1
@@ -983,7 +989,9 @@ def event_based_prepare(request, **kwargs):
         if (data['risk'] is None and data['use_imt_from_vulnerability']
                 is True) or data['risk'] == 'risk':
             jobhaz += vulnerability_model_prep_sect(
-                data, z, userid, namespace, with_ensloss=False)
+                data, z, userid, namespace, save_files=(not vuln_file_saved),
+                with_ensloss=False)
+            vuln_file_saved = True
 
         jobhaz += "\n[Hazard calculation]\n"
         #            ####################
@@ -1037,17 +1045,23 @@ def event_based_prepare(request, **kwargs):
     # Exposure model
     if data['risk'] == 'risk':
         jobris += exposure_model_prep_sect(
-            data, z, (data['risk'] is not None), userid, namespace)
+            data, z, (data['risk'] is not None), userid, namespace,
+            save_files=(not expo_file_saved))
+        expo_file_saved = True
 
     if (data['hazard'] == 'hazard' and
         (data['hazard_sites_choice'] == 'exposure-model' or
          data['region_grid_choice'] == 'infer-from-exposure')):
         jobhaz += exposure_model_prep_sect(
-            data, z, False, userid, namespace)
+            data, z, False, userid, namespace,
+            save_files=(not expo_file_saved))
+        expo_file_saved = True
 
     if data['risk'] == 'risk':
         # Vulnerability model
-        jobris += vulnerability_model_prep_sect(data, z, userid, namespace)
+        jobris += vulnerability_model_prep_sect(
+            data, z, userid, namespace, save_files=(not vuln_file_saved))
+        vuln_file_saved = True
 
         jobris += "\n[Risk calculation]\n"
         #            ##################
