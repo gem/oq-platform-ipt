@@ -932,8 +932,8 @@ def event_based_prepare(request, **kwargs):
                         is_first = False
                     else:
                         jobhaz += ", "
-                        jobhaz += "%s %s" % (el[0], el[1])
-                        jobhaz += "\n"
+                    jobhaz += "%s %s" % (el[0], el[1])
+                jobhaz += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
             jobhaz += "sites_csv = %s\n" % os.path.basename(
                 data['list_of_sites'])
