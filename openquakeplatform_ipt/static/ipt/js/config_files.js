@@ -1874,36 +1874,35 @@ $(document).ready(function () {
 
         // Calculation parameters (get)
         if (obj.hazard == 'hazard') {
+            $target = $(cf_obj['e_b'].pfx + ' div[name="hazard-calculation"]');
             if (obj.risk == null) {
                 // if risk disabled imts fields must be shown
                 // calculation parameters -> specify-imt (get)
-                obj.intensity_measure_types = $(
-                    cf_obj['e_b'].pfx + ' div[name="hazard-imt_specify-imt"]'
+                obj.intensity_measure_types = $target.find('div[name="hazard-imt_specify-imt"]'
                         + ' input[type="checkbox"][name="imt"]:checked').map(function(_, el) {
                             return $(el).val();
                         }).get();
 
-                obj.custom_imt = $(cf_obj['e_b'].pfx + ' input[name="custom_imt"]').val();
+                obj.custom_imt = $target.find('input[name="custom_imt"]').val();
 
                 if (obj.intensity_measure_types.length < 1 && obj.custom_imt == "") {
                     ret.str += "IMT's not selected.\n";
                 }
             }
 
-            obj.use_imt_from_vulnerability = $(cf_obj['e_b'].pfx + ' input[name="use_imt_from_vulnerability"]').is(':checked');
+            obj.use_imt_from_vulnerability = $target.find('input[name="use_imt_from_vulnerability"]').is(':checked');
 
-            obj.ground_motion_correlation_model = $(
-                cf_obj['e_b'].pfx + ' select[name="ground-motion-correlation"]').val();
+            obj.ground_motion_correlation_model = $target.find('select[name="ground-motion-correlation"]').val();
 
             if (["", "JB2009"].indexOf(obj.ground_motion_correlation_model) == -1) {
                 ret.str += "'Ground Motion Correlation' field unknown.\n";
             }
 
-            obj.maximum_distance = $(cf_obj['e_b'].pfx + ' input[name="maximum_distance"]').val();
+            obj.maximum_distance = $target.find('input[name="maximum_distance"]').val();
             if (!gem_ipt.isFloat(obj.maximum_distance) || parseFloat(obj.maximum_distance) < 0.0) {
                 ret.str += "'Maximum source-to-site distance' field isn't positive float number (" + obj.maximum_distance + ").\n";
             }
-            obj.truncation_level = $(cf_obj['e_b'].pfx + ' input[name="truncation_level"]').val();
+            obj.truncation_level = $target.find('input[name="truncation_level"]').val();
             if (!gem_ipt.isFloat(obj.truncation_level) || parseFloat(obj.truncation_level) < 0.0) {
                 ret.str += "'Level of truncation' field isn't positive float number (" + obj.truncation_level + ").\n";
             }
