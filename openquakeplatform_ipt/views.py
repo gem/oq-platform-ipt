@@ -1048,8 +1048,9 @@ def event_based_prepare(request, **kwargs):
         #            ##################
         jobris += ("risk_investigation_time = %s\n" %
                    data['risk_investigation_time'])
-        jobris += ("return_periods = [%s]\n" %
-                   data['ret_periods_for_aggr'])
+        if data['ret_periods_for_aggr'] is not None:
+            jobris += ("return_periods = [%s]\n" %
+                       data['ret_periods_for_aggr'])
 
         jobris += "\n[Risk outputs]\n"
         #            ##############

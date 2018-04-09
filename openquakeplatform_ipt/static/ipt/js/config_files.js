@@ -1998,14 +1998,20 @@ $(document).ready(function () {
                     + obj.risk_investigation_time + ").\n";
             }
 
+
             obj.ret_periods_for_aggr = $(pfx + ' input[type="text"][name="ret_periods_for_aggr"]').val();
 
-            var arr = obj.ret_periods_for_aggr.split(',');
-            for (var k in arr) {
-                var cur = arr[k].trim(' ');
-                if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
-                    ret.str += "'Return periods for aggregate loss curve' field element #" + (parseInt(k)+1)
-                        + " isn't positive number (" + cur + ").\n";
+            if (obj.ret_periods_for_aggr == "") {
+                obj.ret_periods_for_aggr = null;
+            }
+            else {
+                var arr = obj.ret_periods_for_aggr.split(',');
+                for (var k in arr) {
+                    var cur = arr[k].trim(' ');
+                    if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
+                        ret.str += "'Return periods for aggregate loss curve' field element #" + (parseInt(k)+1)
+                            + " isn't positive number (" + cur + ").\n";
+                    }
                 }
             }
         }
