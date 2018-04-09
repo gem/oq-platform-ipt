@@ -998,9 +998,10 @@ def event_based_prepare(request, **kwargs):
                 jobhaz += data['custom_imt']
             jobhaz += "\n"
 
-            if data['use_imt_from_vulnerability'] is True:
-                jobhaz += vulnerability_model_prep_sect(
-                    data, z, userid, namespace, with_ensloss=False)
+        if (data['risk'] is None and data['use_imt_from_vulnerability']
+                is True) or data['risk'] == 'risk':
+            jobhaz += vulnerability_model_prep_sect(
+                data, z, userid, namespace, with_ensloss=False)
 
         jobhaz += ("ground_motion_correlation_model = %s\n" %
                    data['ground_motion_correlation_model'])
