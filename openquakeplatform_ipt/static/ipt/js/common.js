@@ -333,7 +333,7 @@ var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
             that.tbl.loadData(data);
         }
         reader.onerror = function (evt) {
-            alert('import file failed');
+            alert('File import failed.');
             that.tbl_file = null;
             target.value = "";
         }
