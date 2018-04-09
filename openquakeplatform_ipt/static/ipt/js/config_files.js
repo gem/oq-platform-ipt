@@ -34,7 +34,7 @@ $(document).ready(function () {
         e.preventDefault();
         $(this).tab('show');
     });
-//   <div name="inc_asset_haz_dist"
+
     function exposure_model_sect_manager(scope, enabled, with_constraints, without_inc_asset)
     {
         $target = $(cf_obj[scope].pfx + ' div[name="exposure-model"]');

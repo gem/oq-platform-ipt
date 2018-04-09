@@ -107,10 +107,9 @@ var co_obj = {
                     changed = true;
                     break;
                 default:
-                    console.log('dewrapping');
+                    // console.log('dewrapping');
                     wrapping4load(obj.pfx + '*', false);
                     return;
-                    break;
                 }
 
                 step_cur++;
@@ -125,8 +124,9 @@ var co_obj = {
             return false;
         }
         var ser = window.localStorage.getItem('gem_ipt_consequence');
-        if (ser == null)
+        if (ser == null) {
             return false;
+        }
 
         var ctx = JSON.parse(ser);
 
