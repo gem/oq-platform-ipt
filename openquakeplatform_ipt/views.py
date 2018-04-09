@@ -755,8 +755,8 @@ def scenario_prepare(request, **kwargs):
                         is_first = False
                     else:
                         jobini += ", "
-                        jobini += "%s %s" % (el[0], el[1])
-                        jobini += "\n"
+                    jobini += "%s %s" % (el[0], el[1])
+                jobini += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
             jobini += "sites_csv = %s\n" % os.path.basename(
                 data['list_of_sites'])
