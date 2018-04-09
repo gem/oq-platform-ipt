@@ -1999,7 +1999,7 @@ $(document).ready(function () {
                     + obj.risk_investigation_time + ").\n";
             }
 
-            obj.ret_periods_for_aggr = $target.find('input[type="text"][name="ret_periods_for_aggr"]').val();
+            obj.ret_periods_for_aggr = $(pfx + ' input[type="text"][name="ret_periods_for_aggr"]').val();
 
             var arr = obj.ret_periods_for_aggr.split(',');
             for (var k in arr) {
