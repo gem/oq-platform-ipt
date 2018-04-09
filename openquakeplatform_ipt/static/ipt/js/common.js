@@ -61,6 +61,7 @@ function not_empty_rows_get(data)
 }
 
 function gem_tableHeightUpdate($box) {
+    /* console.log('heightupdate'); */
     /* try { */
     var tbl = $box.handsontable('getInstance');
     tbl.render();
@@ -73,7 +74,7 @@ function gem_tableHeightUpdate($box) {
     var h_prev = $box.height();
     var h = $box.find('div.wtHolder').find('div.wtHider').height() + 30;
 
-    /* console.log('h_prev: ' + h_prev + 'h: ' + h); */
+    /* console.log('h_prev: ' + h_prev + 'h: ' + h + ' $box: ' + $box.find('div.wtHolder').find('div.wtHider').height()); */
     if (h_prev <= h_min && h > h_min ||
         h_prev > h_min && h_prev < h_max ||
         h_prev >= h_max && h < h_max) {
@@ -374,3 +375,50 @@ function ipt_cookie_builder(cookies)
     return ret;
 }
 
+var gl_wrapping4load_counter = 0;
+
+function wrapping4load(match, is_wrapping) {
+    var $items = $(match);
+
+    for (var id = 0 ; id < $items.length ; id++) {
+        var events = $._data($items[id], 'events');
+        if (events !== undefined) {
+            // console.log($items[id]);
+            // console.log(events);
+
+            // console.log('find one');
+            for (event_id in events) {
+                event_list = events[event_id];
+                for (var i = 0 ; i < event_list.length ; i++) {
+                    if (is_wrapping) {
+                        // console.log('set wrapper');
+                        if ('is_wrapper' in event_list[i].handler) {
+                            // console.log('already wrapped');
+                            continue;
+                        }
+                        function pre_wrapper() {
+                            var orig_handler = event_list[i].handler;
+                            function wrapper(ev) {
+                                gl_wrapping4load_counter++;
+                                // console.log('fired!');
+                                // console.log(this);
+                                orig_handler.call(this, ev);
+                                // console.log(orig_handler);
+                            }
+                            wrapper.is_wrapper = true;
+                            wrapper.orig_handler = event_list[i].handler;
+                            event_list[i].handler = wrapper;
+                        };
+                        pre_wrapper();
+                    }
+                    else {
+                        if ('is_wrapper' in event_list[i].handler) {
+                            // console.log('removed wrapper');
+                            event_list[i].handler = event_list[i].handler.orig_handler;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

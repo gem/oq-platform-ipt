@@ -47,6 +47,7 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
 </div><!-- end div name="rupture-information" -->
 <div name="hazard-sites">
+    <h3>Hazard Sites</h3>
   <div class="alert alert-info ipt-info" role="alert">
     Choose a method to input hazard sites:<br>
     <div style="text-align: center;">
@@ -59,15 +60,15 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
           <input type="radio" name="hazard_sites" value="list-of-sites">
           <span class="inlible">List of sites</span>
         </div>
-        <div style="clear: both;"></div>
         <div class="chbox">
           <input type="radio" name="hazard_sites" value="exposure-model">
           <span class="inlible">Exposure model <span class="ui-icon ui-icon-help ipt_help" title='In this case, the ground motion fields will be computed at each of the locations of the assets in the exposure model.'></span></span>
         </div>
+        <!-- 
         <div class="chbox">
           <input type="radio" name="hazard_sites" value="site-cond-model">
           <span class="inlible">Read locations from site conditions <span class="ui-icon ui-icon-help ipt_help" title='In this case, the ground motion fields will be computed at each of the locations specified in the site model file.'></span></span>
-        </div>
+        </div> -->
       </form>
     </div>
   </div>
@@ -75,11 +76,32 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 <div name="region-grid">
   <h3>Region grid</h3>
   <div class="menuItems">
-    <label>Grid spacing (km) <span class="ui-icon ui-icon-help ipt_help" title='A parameter used to discretize the polygon area.'></span>
-:</label>
-    <input type="text" name="grid_spacing" value="5.0">
+    <label>Grid spacing (km) <span class="ui-icon ui-icon-help ipt_help" title='A parameter used to discretize the polygon area.'></span> :</label>
+    <input type="text" name="grid_spacing" placeholder="5.0">
   </div>
-  <div class="menuItems" style="/* background-color: green; */ ">
+
+
+  <div class="alert alert-info ipt-info" role="alert">
+    <div style="text-align: center;">
+      <form style="margin: 0px;">
+        <div class="chbox">
+          <input type="radio" name="region_grid" value="region-coordinates">
+          <span class="inlible">
+            Region coordinates
+          </span>
+        </div>
+        <div class="chbox">
+          <input type="radio" name="region_grid" value="infer-from-exposure">
+          <span class="inlible">
+            Infer region coordinates from exposure model
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  
+  <div name="region-coordinates-table" class="menuItems" style="/* background-color: green; */ ">
     <div style="display: inline-block; /* background-color: pink; */ float: left;">
       <label>Coordinates <span class="ui-icon ui-icon-help ipt_help" title='Polygon used to specify the area where the hazard will be computed.'></span>
 :</label>

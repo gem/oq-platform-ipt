@@ -35,7 +35,7 @@ $(document).ready(function () {
         $(this).tab('show');
     });
 
-    function exposure_model_sect_manager(scope, enabled, with_constraints)
+    function exposure_model_sect_manager(scope, enabled, with_constraints, without_inc_asset)
     {
         $target = $(cf_obj[scope].pfx + ' div[name="exposure-model"]');
         if (enabled) {
@@ -60,6 +60,11 @@ $(document).ready(function () {
                     $subsubt.css('display', '');
                 else
                     $subsubt.css('display', 'none');
+                $subsubt = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="inc-asset-haz-dist"]');
+                if (without_inc_asset) {
+                    $subsubt.find('input[name="asset_hazard_distance_choice"]').prop('checked', false);
+                }
+                $subsubt.css('display', (without_inc_asset ? 'none' : ''));
             }
             else {
                 $subtarget.css('display', 'none');
@@ -700,7 +705,8 @@ $(document).ready(function () {
         var hazard = null; // null or 'hazard'
         var risk = null;   // null, 'damage' or 'loss'
         var hazard_sites_choice = null; // null, region-grid, list-of-sites, exposure-model, site-cond-model
-
+        var region_grid_choice = null; // null, region-coordinates, infer-from-exposure
+        var $target, $subtarget;
         if ($(cf_obj['scen'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
             hazard = 'hazard';
         }
@@ -720,6 +726,13 @@ $(document).ready(function () {
         if (hazard != null) {
             hazard_sites_choice = $(cf_obj['scen'].pfx + ' input[type="radio"]'
                                     + '[name="hazard_sites"]:checked').val();
+
+            /* region grid callbacks */
+            region_grid_choice = $(cf_obj['scen'].pfx + ' input[name="region_grid"]:checked').val();
+
+            $subtarget = $(cf_obj['scen'].pfx + ' div[name="region-coordinates-table"]');
+            $subtarget.css('display', (region_grid_choice == 'infer-from-exposure' ? 'none' : ''));
+
             $target.css('display', '');
         }
         else {
@@ -758,8 +771,14 @@ $(document).ready(function () {
 
         // Exposure model (ui)
         exposure_model_sect_manager(
-            'scen', ((hazard != null && hazard_sites_choice == 'exposure-model') || risk != null),
-            (risk != null));
+            'scen', ((hazard != null && (
+                hazard_sites_choice == 'exposure-model'
+                    || (hazard_sites_choice == 'region-grid' && region_grid_choice == 'infer-from-exposure')
+            )) || risk != null),
+            (risk != null),
+            (hazard_sites_choice == 'exposure-model' ||
+             (hazard_sites_choice == 'region-grid' && region_grid_choice == 'infer-from-exposure'))
+        );
 
         // Fragility and vulnerability model (ui)
         if (risk == 'damage') {
@@ -966,7 +985,7 @@ $(document).ready(function () {
             $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
             if (window.gem_not_interactive == undefined) {
                 $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
-            }    
+            }
         }
     }
 
@@ -975,6 +994,12 @@ $(document).ready(function () {
         scenario_manager);
     $(cf_obj['scen'].pfx + ' input[name="hazard_sites"][value="region-grid"]'
      ).prop('checked', true); // .triggerHandler('click');
+
+    /* region grid opts callbacks */
+    $(cf_obj['scen'].pfx + ' input[name="region_grid"]').click(
+        scenario_manager);
+    $(cf_obj['scen'].pfx + ' input[name="region_grid"][value="region-coordinates"]'
+     ).prop('checked', true).triggerHandler('click');
 
     function scenario_getData()
     {
@@ -991,6 +1016,8 @@ $(document).ready(function () {
             description: null,
 
             hazard_sites_choice: null,
+
+            region_grid: null,
 
             // hazard sites
             grid_spacing: null,
@@ -1105,15 +1132,19 @@ $(document).ready(function () {
                     ret.str += "'Grid spacing' field isn't greater than 0 float number (" + obj.grid_spacing + ").\n";
                 }
 
-                obj.reggrid_coords_data = cf_obj['scen'].regGrid_coords.getData();
-                // Check for invalid value (get)
-                for (var i = 0; i < obj.reggrid_coords_data.length; i++) {
-                    var lon = obj.reggrid_coords_data[i][0], lat = obj.reggrid_coords_data[i][1];
-                    if (lon === null || lat === null || !gem_ipt.isFloat(lon) || !gem_ipt.isFloat(lat) ||
-                        parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
-                        parseFloat(lat) < -90.0  || parseFloat(lat) > 90.0) {
-                        ret.str += "Entry #" + (i+1) + " of region grid 'Coordinates'"
-                            + " field is invalid (" + lon + ", " + lat + ").\n";
+                obj.region_grid_choice = $(cf_obj['scen'].pfx + ' input[type="radio"]'
+                                           + '[name="region_grid"]:checked').val();
+                if (obj.region_grid_choice == "region-coordinates") {
+                    obj.reggrid_coords_data = cf_obj['scen'].regGrid_coords.getData();
+                    // Check for invalid value (get)
+                    for (var i = 0; i < obj.reggrid_coords_data.length; i++) {
+                        var lon = obj.reggrid_coords_data[i][0], lat = obj.reggrid_coords_data[i][1];
+                        if (lon === null || lat === null || !gem_ipt.isFloat(lon) || !gem_ipt.isFloat(lat) ||
+                            parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
+                            parseFloat(lat) < -90.0  || parseFloat(lat) > 90.0) {
+                            ret.str += "Entry #" + (i+1) + " of region grid 'Coordinates'"
+                                + " field is invalid (" + lon + ", " + lat + ").\n";
+                        }
                     }
                 }
             }
@@ -1280,7 +1311,7 @@ $(document).ready(function () {
 
     function event_based_manager()
     {
-        exposure_model_sect_manager('e_b', true, true);
+        exposure_model_sect_manager('e_b', true, true, true);
         vulnerability_model_sect_manager('e_b', true);
 
         // Hazard model (UI)
