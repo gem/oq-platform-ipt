@@ -821,7 +821,8 @@ def scenario_prepare(request, **kwargs):
         for i in range(0, (gsim_n - 1)):
             gsim_w[i] = "%1.3f" % (1.0 / float(gsim_n))
 
-        gsim_w[gsim_n - 1] = 1.0 - (float(gsim_w[0]) * (gsim_n - 1))
+        gsim_w[gsim_n - 1] = "%1.3f" % (1.0 - (float(
+            gsim_w[0]) * (gsim_n - 1)))
 
         jobini += "gsim_logic_tree_file = gmpe.xml\n"
 
