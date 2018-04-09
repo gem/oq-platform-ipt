@@ -468,27 +468,38 @@ $(document).ready(function () {
         var hazard = null, risk = null, plus_hazard = '', plus_risk = '';
 
         if (scope == 'scen') {
-            if ($(cf_obj['scen'].pfx + ' input[type="checkbox"]' +
-                  '[name="hazard"]').is(':checked')) {
-                hazard = 'hazard';
-            }
-            if ($(cf_obj['scen'].pfx + ' input[type="checkbox"]' +
-                  '[name="risk"]').is(':checked')) {
-                risk = $(cf_obj['scen'].pfx + ' input[type="radio"]' +
-                         '[name="risk-type"]:checked').val();
-            }
-
-            if (hazard == 'hazard') {
-                plus_hazard = "Hazard";
-            }
-            if (risk != null) {
-                plus_risk = gem_capitalize(risk);
-            }
-            dest_name = "Scenario" + plus_hazard + plus_risk;
+            base_name = 'Scenario';
         }
         else if (scope == 'e_b') {
-            dest_name = "EventBased";
+            base_name = 'EventBased';
         }
+        else {
+            base_name = 'Unknown';
+        }
+
+        if ($(cf_obj[scope].pfx + ' input[type="checkbox"]' +
+              '[name="hazard"]').is(':checked')) {
+            hazard = 'hazard';
+        }
+        if ($(cf_obj[scope].pfx + ' input[type="checkbox"]' +
+              '[name="risk"]').is(':checked')) {
+            if (scope == 'scen') {
+                risk = $(cf_obj[scope].pfx + ' input[type="radio"]' +
+                         '[name="risk-type"]:checked').val();
+            }
+            else {
+                risk = "risk";
+            }
+        }
+
+        if (hazard == 'hazard') {
+            plus_hazard = "Hazard";
+        }
+        if (risk != null) {
+            plus_risk = gem_capitalize(risk);
+        }
+
+        dest_name = base_name + plus_hazard + plus_risk;
 
         return dest_name;
     };
