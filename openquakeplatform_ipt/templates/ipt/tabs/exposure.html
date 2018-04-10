@@ -98,12 +98,12 @@
       <div><input id="tags" type="text" placeholder="for each tag: type its name and press enter" data-role="tagsinput"></div>
     </div>
     <div class="alert alert-info" role="alert">2. Copy and paste values from a spreadsheet into the table below OR upload a CSV file with the same columns number.</div>
-    <div><input type="file" id="table_file" accept="text/csv,application/csv,csv"></div>
-    <div style="overflow: hidden;">
-      <div id="table" style="height: 100px; overflow=hidden;"></div>
+
+    <div name="exposuretbl">
+      <div name="exposuretbls">
+      </div>
+      <button id="new_exposuretbl_add" type="button" class="btn btn-primary">Add New Table</button>
     </div>
-    <button id="new_row_add" type="button" class="btn">New Row</button><br>
-    <br>
     <div>
       <button id="convertBtn" type="button" style="display:none;" class="btn btn-primary">Convert to NRML</button>
     </div>
