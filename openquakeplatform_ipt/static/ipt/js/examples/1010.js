@@ -499,7 +499,7 @@ $(document).ready(function () {
     ['med_35a_S1', '-75.57674113', '6.273158193', 'MUR/H:3', '711', '32160' ],
     ];
 
-    var table = $('.ex_gid div[name="table0"]').handsontable('getInstance');
+    var table = $('.ex_gid div[name="table-0"]').handsontable('getInstance');
     table.loadData(data);
 
     $('.ex_gid #convertBtn').trigger('click');

@@ -46,7 +46,7 @@ $(document).ready(function () {
     $('.ex_gid #tags').tagsinput('add', 'second');
     $('.ex_gid #tags').tagsinput('add', 'third');
 
-    var table = $('.ex_gid #table').handsontable('getInstance');
+    var table = $('.ex_gid div[name="table-0"]').handsontable('getInstance');
 
     var data = [];
 

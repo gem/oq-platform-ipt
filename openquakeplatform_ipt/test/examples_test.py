@@ -97,7 +97,7 @@ imt_examples = {
              'zipfile': 'ScenarioHazard.zip',
              'sfx': 'zip'},
             {'exa_id': 99, 'subtab_id': 3,
-             'zipfile': 'EventBased.zip',
+             'zipfile': 'EventBasedHazard.zip',
              'sfx': 'zip'}
         ]
     }
@@ -233,10 +233,6 @@ class IptUploadTest(unittest.TestCase):
             "@type='button' and normalize-space(text())='Yes']")
         confirm.click()
 
-        hazard_cbx = pla.xpath_finduniq(
-            common + "//input[@type='checkbox' and @name='hazard']")
-        hazard_cbx.click()
-
         # show div with upload file
         up_file = os.path.join(os.path.dirname(__file__), 'data',
                                'rupture_file', 'rupture_model.xml')
@@ -244,6 +240,8 @@ class IptUploadTest(unittest.TestCase):
         butt_upload_file = pla.xpath_finduniq(
             "//button[@name='rupture-file-new'"
             " and normalize-space(text())='Upload']")
+        # import pdb ; pdb.set_trace()
+        # pla.scroll_into_view(butt_upload_file)
         butt_upload_file.click()
 
         upload_file = pla.xpath_finduniq(

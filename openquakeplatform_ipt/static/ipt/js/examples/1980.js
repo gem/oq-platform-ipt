@@ -42,7 +42,7 @@ $(document).ready(function () {
     $('.ex_gid #occupantsCheckBoxes [value="night"]').trigger('change');
 
     var data = [[]];
-    var table = $('.ex_gid #table').handsontable('getInstance');
+    var table = $('.ex_gid div[name="table-0"]').handsontable('getInstance');
 
     // for each column add a calculated value
     for (var i = 0 ; i < table.countCols() ; i++) {
