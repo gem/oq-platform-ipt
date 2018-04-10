@@ -7,6 +7,15 @@ $(document).ready(function () {
     $(cf_obj['e_b'].pfx + " div[name='source-model-file-new'] input[name='file_upload']").submit();
     $(cf_obj['e_b'].pfx + " div[name='gsim-logic-tree-file-new'] input[name='file_upload']").submit();
 
+    $(cf_obj['e_b'].pfx + " div[name='region-grid'] input[name='grid_spacing']").val("5.0");
+
+    var data = [
+        [ "40", "40" ], ["30", "30"], ["20", "20" ]
+    ];
+
+    var table = $(cf_obj['e_b'].pfx + ' div[name="table"]').handsontable('getInstance');
+    table.loadData(data);
+
     setTimeout(function () {
         $(cf_obj['e_b'].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val('exposure_model/exposure_model.xml');
         $(cf_obj['e_b'].pfx + ' div[name="vm-structural-html"] select[name="file_html"]').val('vulnerability_model/vulnerability_model_BOG.xml');
