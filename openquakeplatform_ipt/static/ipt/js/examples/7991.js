@@ -5,6 +5,8 @@ $(document).ready(function () {
 
     $(cf_obj['scen'].pfx + " div[name='rupture-file-new'] input[name='file_upload']").submit();
 
+    $(cf_obj['scen'].pfx + " div[name='region-grid'] input[name='grid_spacing']").val("5.0");
+
     var data = [
         [ "40", "40" ], ["30", "30"], ["20", "20" ]
     ];
