@@ -211,9 +211,8 @@ class IptUploadTest(unittest.TestCase):
         pla.driver.execute_script(
             "window.gem_not_interactive = true;")
 
-        # hide footer
-        footer = pla.xpath_finduniq(
-            "//footer[@id='footer' and @class='footer']")
+        # hide footer - works just for old platform [@id='footer' and @class='footer']
+        footer = pla.xpath_finduniq("//footer")
         # hide
         pla.driver.execute_script(
             "$(arguments[0]).attr('style','display:none;')", footer)
@@ -273,9 +272,8 @@ class IptExamplesTest(unittest.TestCase):
         pla = platform_get()
         pla.get('/ipt/?tab_id=7&subtab_id=1')
 
-        # hide footer
-        footer = pla.xpath_finduniq(
-            "//footer[@id='footer' and @class='footer']")
+        # hide footer - works just for old platform [@id='footer' and @class='footer']
+        footer = pla.xpath_finduniq("//footer")
         # hide
         pla.driver.execute_script(
             "$(arguments[0]).attr('style','display:none;')", footer)
