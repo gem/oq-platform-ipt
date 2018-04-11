@@ -212,12 +212,11 @@ class IptUploadTest(unittest.TestCase):
             "window.gem_not_interactive = true;")
 
         # hide footer
-        if STANDALONE is True:
-            footer = pla.xpath_finduniq(
-                "//footer[@id='footer' and @class='footer']")
-            # hide
-            pla.driver.execute_script(
-                "$(arguments[0]).attr('style','display:none;')", footer)
+        footer = pla.xpath_finduniq(
+            "//footer[@id='footer' and @class='footer']")
+        # hide
+        pla.driver.execute_script(
+            "$(arguments[0]).attr('style','display:none;')", footer)
 
         common = (
             "//div[starts-with(@id, 'tabs-')"
