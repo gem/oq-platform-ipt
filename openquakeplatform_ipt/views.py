@@ -36,6 +36,7 @@ from django.http import (HttpResponse,
 from django.conf import settings
 from django import forms
 
+from openquakeplatform import __version__ as oqp_version
 from openquakeplatform.settings import WEBUIURL, TIME_INVARIANT_OUTPUTS
 from openquakeplatform.python3compat import unicode, encode, decode
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
@@ -417,6 +418,7 @@ def view(request, **kwargs):
         request,
         "ipt/ipt.html",
         dict(
+            oqp_version_maj=oqp_version.split('.')[0],
             g_gmpe=json.dumps(gmpe),
             rupture_file_html=rupture_file_html,
             rupture_file_upload=rupture_file_upload,

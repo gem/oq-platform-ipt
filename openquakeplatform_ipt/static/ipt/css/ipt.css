@@ -87,6 +87,7 @@ textarea {
 
 input, .uneditable-input {
     height: 30px;
+    width: 220px;
 }
 
 .destroyTable {
