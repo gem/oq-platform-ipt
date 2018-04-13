@@ -239,7 +239,9 @@ class IptUploadTest(unittest.TestCase):
             "//button[@name='rupture-file-new'"
             " and normalize-space(text())='Upload']")
         # import pdb ; pdb.set_trace()
-        # pla.scroll_into_view(butt_upload_file)
+
+        time.sleep(8)
+        pla.scroll_into_view(butt_upload_file)
         butt_upload_file.click()
 
         upload_file = pla.xpath_finduniq(
