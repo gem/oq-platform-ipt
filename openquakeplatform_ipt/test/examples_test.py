@@ -241,7 +241,7 @@ class IptUploadTest(unittest.TestCase):
         # import pdb ; pdb.set_trace()
 
         time.sleep(8)
-        pla.scroll_into_view(butt_upload_file)
+        # pla.scroll_into_view(butt_upload_file)
         butt_upload_file.click()
 
         upload_file = pla.xpath_finduniq(
