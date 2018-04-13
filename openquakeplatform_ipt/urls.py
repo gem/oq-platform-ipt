@@ -24,6 +24,7 @@ from openquakeplatform_ipt import views
 # from django.contrib import admin
 # admin.autodiscover()
 
+app_name = 'ipt'
 urlpatterns = [
     url(r'^(?P<tab_id>\d+)?$', views.view, name='home'),
     url(r'^upload/(?P<target>[^?]*)', views.upload, name='upload'),
