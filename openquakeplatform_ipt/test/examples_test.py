@@ -242,13 +242,13 @@ class IptUploadTest(unittest.TestCase):
         download = pla.xpath_finduniq(
             common + "button[@id='downloadBtn']")
 
-        time.sleep(1)
         convert.click()
         for ct in range(0, 20):
             try:
                 pla.wait_visibility(download, timeout=0.1)
                 break
             except TimeoutError:
+                convert.click()
                 continue
         else:
             raise TimeoutError
@@ -292,13 +292,13 @@ class IptUploadTest(unittest.TestCase):
         download = pla.xpath_finduniq(
             common + "button[@id='downloadBtn']")
 
-        time.sleep(1)
         convert.click()
         for ct in range(0, 20):
             try:
                 pla.wait_visibility(download, timeout=0.1)
                 break
             except TimeoutError:
+                convert.click()
                 continue
         else:
             raise TimeoutError
