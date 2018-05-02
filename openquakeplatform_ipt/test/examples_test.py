@@ -242,6 +242,7 @@ class IptUploadTest(unittest.TestCase):
         download = pla.xpath_finduniq(
             common + "button[@id='downloadBtn']")
 
+        time.sleep(1)
         convert.click()
         for ct in range(0, 20):
             try:
@@ -291,6 +292,7 @@ class IptUploadTest(unittest.TestCase):
         download = pla.xpath_finduniq(
             common + "button[@id='downloadBtn']")
 
+        time.sleep(1)
         convert.click()
         for ct in range(0, 20):
             try:
