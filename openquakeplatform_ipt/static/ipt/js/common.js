@@ -28,7 +28,7 @@ function table_with_headers(arr, field_idx, min_val, max_val)
 {
     var spy = arr[0][field_idx];
 
-    if (spy.match(/[^.\d]/)) {
+    if (spy.match(/[^.\d+-]/)) {
         return true;
     }
 
