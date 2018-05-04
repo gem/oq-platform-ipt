@@ -360,6 +360,8 @@ class IptUploadTest(unittest.TestCase):
         pla.driver.execute_script(
             "$(arguments[0]).attr('style','visibility:visible;')", upload_file)
 
+        time.sleep(1)
+
         upload_file.send_keys(up_file)
 
         upload_file.submit()
