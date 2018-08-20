@@ -614,7 +614,10 @@ ex_obj.o.find('#downloadBtn').click(function() {
 
 if (typeof gem_api != 'undefined') {
     ex_obj.o.find('#delegateDownloadBtn').click(function() {
-        delegate_downloadNRML(ex_obj.nrml, 'ex');
+        // delegate_downloadNRML(ex_obj.nrml, 'ex');
+        var uu = gem_api.send({'command': 'ext_app_open', 'args': ["here we are"]},
+                              on_cmd_cb);
+        console.log("FIRED CMD WITH UUID: " + uu);
     });
 }
 
