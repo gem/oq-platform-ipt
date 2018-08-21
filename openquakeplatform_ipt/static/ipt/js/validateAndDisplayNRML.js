@@ -64,6 +64,8 @@ function delegate_downloadNRML(nrml, sfx)
     if (typeof gem_api == 'undefined')
         return false;
 
+    var spli_url = getLocation(window.location.href);
+
     var funcType = sfx2name(sfx);
     var csrf_name = $(csrf_token).attr('name');
     var csrf_value = $(csrf_token).attr('value');
@@ -78,9 +80,13 @@ function delegate_downloadNRML(nrml, sfx)
     //               data (list of dictionaries {name (string), value(string)}
     //               delegate_downloadNRML_cb == function(obj_suffix, ... )
 
+    var spli_url = getLocation(window.location.href);
+    var pathname = spli_url['pathname'];
+    pathname = pathname.substr(0, pathname.lastIndexOf('/')) + '/';
+    var base_url = spli_url['protocol'] + '//' + spli_url['host'] + pathname;
 
     var uu = gem_api.send({'command': 'delegate_download',
-                           'args': [SENDBACK_URL, 'POST', dd_headers, dd_data]},
+                           'args': [base_url + SENDBACK_URL, 'POST', dd_headers, dd_data]},
                           delegate_downloadNRML_cb);
 
     return uu;
