@@ -69,7 +69,9 @@ function delegate_downloadNRML(nrml, sfx)
     var funcType = sfx2name(sfx);
     var csrf_name = $(csrf_token).attr('name');
     var csrf_value = $(csrf_token).attr('value');
-    var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
+    // FIXME: take csrf cookie from headers
+    // var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
+    var cookie_csrf = {'name': 'csrftoken', 'value': csrf_value};
     var cookies = [cookie_csrf];
     var dd_headers = [ipt_cookie_builder(cookies)];
     var dd_data = [{'name': 'csrfmiddlewaretoken', 'value': csrf_value},
