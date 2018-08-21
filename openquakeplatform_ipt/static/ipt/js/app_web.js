@@ -41,7 +41,11 @@ function on_cmd_cb(uu, msg)
 var track_status_ct = 0;
 function track_status(uuid, msg)
 {
+    console.log('track_status of QGIS connection (no UI at the moment): ' + (msg.success ? '' : 'NOT ') + 'CONNECTED');
     track_status_ct++;
+    return;
+
+    // TO MANAGE UI PROPERLY USE CODE BELOW
     if (msg.success) {
         document.getElementById("track").style.backgroundColor = 'green';
     }
