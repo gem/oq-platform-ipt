@@ -51,7 +51,42 @@ dd_obj.prototype = {
     }
 };
 
-function delegate_downloadNRML_gacb(object_id, file_name, success, reason)
+function delegate_downloadNRML_cb(uuid, msg)
+{
+    console.log("delegate_downloadNRML_cb BEGIN");
+    console.log(uuid);
+    console.log(msg);
+    console.log("delegate_downloadNRML_cb END");
+}
+
+function delegate_downloadNRML(nrml, sfx)
+{
+    if (typeof gem_api == 'undefined')
+        return false;
+
+    var funcType = sfx2name(sfx);
+    var csrf_name = $(csrf_token).attr('name');
+    var csrf_value = $(csrf_token).attr('value');
+    var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
+    var cookies = [cookie_csrf];
+    var dd_headers = [ipt_cookie_builder(cookies)];
+    var dd_data = [{'name': 'csrfmiddlewaretoken', 'value': csrf_value},
+                   {'name': 'xml_text', 'value': nrml },
+                   {'name': 'func_type', 'value': funcType }];
+
+    // action (url), method (string like 'POST'), headers (list of strings),
+    //               data (list of dictionaries {name (string), value(string)}
+    //               delegate_downloadNRML_cb == function(obj_suffix, ... )
+
+
+    var uu = gem_api.send({'command': 'delegate_download',
+                           'args': [SENDBACK_URL, 'POST', dd_headers, dd_data]},
+                          delegate_downloadNRML_cb);
+
+    return uu;
+}
+
+function delegate_downloadNRML_gacb_old(object_id, file_name, success, reason)
 {
     var obj = gem_api_ctx_get_object(object_id);
 
@@ -62,7 +97,7 @@ function delegate_downloadNRML_gacb(object_id, file_name, success, reason)
     return ret;
 }
 
-function delegate_downloadNRML(nrml, sfx)
+function delegate_downloadNRML_old(nrml, sfx)
 {
     var funcType = sfx2name(sfx);
     var csrf_name = $(csrf_token).attr('name');
