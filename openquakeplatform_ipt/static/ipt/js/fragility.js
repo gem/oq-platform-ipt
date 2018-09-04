@@ -538,6 +538,13 @@ ff_obj.o.find('#downloadBtn').click(function() {
     sendbackNRML(ff_obj.nrml, 'ff');
 });
 
+if (typeof gem_api != 'undefined') {
+    ff_obj.o.find('#delegateDownloadBtn').click(function() {
+        var uu = delegate_downloadNRML(ff_obj.nrml, 'ff');
+        console.log("fired cmd with uuid: " + uu);
+    });
+}
+
 ff_obj.o.find('#convertBtn').click(function() {
     var tabs_data = {};
 
