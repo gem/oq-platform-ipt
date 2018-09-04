@@ -1746,8 +1746,6 @@ $(document).ready(function () {
             ret_periods_for_aggr: null,
 
             // risk outputs
-            asset_loss_table: false,
-
             quantile_loss_curves_choice: false,
             quantile_loss_curves: null,
 
@@ -2032,8 +2030,6 @@ $(document).ready(function () {
             var $target = $(cf_obj['e_b'].pfx + ' div[name="risk-outputs"]');
             var pfx_riscal = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
 
-            obj.asset_loss_table = $target.find('input[type="checkbox"][name="asset_loss_table"]').is(':checked');
-
             obj.quantile_loss_curves_choice = $target.find('input[type="checkbox"][name="quantile_loss_curves_choice"]').is(':checked');
             if (obj.quantile_loss_curves_choice) {
                 obj.quantile_loss_curves = $target.find('input[type="text"][name="quantile_loss_curves"]'
@@ -2051,22 +2047,15 @@ $(document).ready(function () {
 
             obj.conditional_loss_poes_choice = $target.find('input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked');
 
-            if ((!obj.asset_loss_table) && obj.conditional_loss_poes_choice) {
-                // Was: "To include 'Loss maps' you must enable 'Loss ratios' in 'Risk calculation' section"
-                ret.str += "To include 'Loss maps' you must enable 'Asset loss table' in 'Risk calculation' section.\n";
-            }
+            if (obj.conditional_loss_poes_choice) {
+                obj.conditional_loss_poes = $target.find('input[type="text"][name="conditional_loss_poes"]').val();
 
-            if (!obj.asset_loss_table) {
-                if (obj.conditional_loss_poes_choice) {
-                    obj.conditional_loss_poes = $target.find('input[type="text"][name="conditional_loss_poes"]').val();
-
-                    var arr = obj.conditional_loss_poes.split(',');
-                    for (var k in arr) {
-                        var cur = arr[k].trim(' ');
-                        if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
-                            ret.str += "'Loss maps' field element #" + (parseInt(k)+1)
-                                + " isn't positive number (" + cur + ").\n";
-                        }
+                var arr = obj.conditional_loss_poes.split(',');
+                for (var k in arr) {
+                    var cur = arr[k].trim(' ');
+                    if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
+                        ret.str += "'Loss maps' field element #" + (parseInt(k)+1)
+                            + " isn't positive number (" + cur + ").\n";
                     }
                 }
             }
