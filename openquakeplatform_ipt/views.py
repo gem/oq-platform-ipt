@@ -1075,7 +1075,6 @@ def event_based_prepare(request, **kwargs):
 
         jobris += "\n[Risk outputs]\n"
         #            ##############
-        jobris += "asset_loss_table = %s\n" % data['asset_loss_table']
         if data['quantile_loss_curves_choice']:
             jobris += ("quantile_loss_curves = %s\n" %
                        data['quantile_loss_curves'])
