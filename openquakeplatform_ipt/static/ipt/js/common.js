@@ -285,7 +285,7 @@ var gem_ipt = {
 
     qgis_msg_close: function() {
         console.log("qgis_msg_close");
-        if ($("#qgis-message").dialog("instance") != undefined) {
+        if ($("#qgis-message").hasClass('ui-dialog-content')) {
             if ($("#qgis-message").dialog("isOpen")) {
                 $("#qgis-message").dialog("close");
             }
