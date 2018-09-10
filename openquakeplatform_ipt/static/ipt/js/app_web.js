@@ -50,7 +50,7 @@ function track_status_cb(uuid, msg)
     }
     else {
         console.log("msg_open ...");
-        gem_ipt.qgis_msg_open('The web-application was required by a browser with an enable OpenQuake extension but a QGis application currently is not running, please:\nTurn on QGis application - OR - disable the OpenQuake extension clicking its icon on the browser and reloading the page.');
+        gem_ipt.qgis_msg_open('The web-application was required by a browser with an enabled OpenQuake extension but no QGIS application is currently running, please:\nLaunch QGIS - OR - disable the OpenQuake extension clicking its icon on the browser and reloading the page.');
     }
 }
 
