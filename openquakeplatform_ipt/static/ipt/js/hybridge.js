@@ -86,6 +86,13 @@ HyBridge.prototype = {
                     return false;
                 }
 
+                // special case to manage early disconnection
+                if (app_msg['command'] == 'conn_status') {
+                    this.app['conn_status'].apply(
+                    this.app, app_msg.args);
+                    return (false);
+                }
+
                 if (this.app.allowed_meths.indexOf(
                     app_msg.command) == -1) {
                        // FIXME reply error properly2

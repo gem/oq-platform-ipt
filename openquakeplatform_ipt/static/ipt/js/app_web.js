@@ -39,20 +39,19 @@ function on_cmd_cb(uu, msg)
 
 
 var track_status_ct = 0;
-function track_status(uuid, msg)
+function track_status_cb(uuid, msg)
 {
     console.log('track_status of QGIS connection (no UI at the moment): ' + (msg.success ? '' : 'NOT ') + 'CONNECTED');
     track_status_ct++;
-    return;
 
-    // TO MANAGE UI PROPERLY USE CODE BELOW
     if (msg.success) {
-        document.getElementById("track").style.backgroundColor = 'green';
+        console.log("msg_close ...");
+        gem_ipt.qgis_msg_close();
     }
     else {
-        document.getElementById("track").style.backgroundColor = 'red';
+        console.log("msg_open ...");
+        gem_ipt.qgis_msg_open('The web-application was required by a browser with an enable OpenQuake extension but a QGis application currently is not running, please:\nTurn on QGis application - OR - disable the OpenQuake extension clicking its icon on the browser and reloading the page.');
     }
-    document.getElementById("track").innerHTML = track_status_ct;
 }
 
 function AppWeb(name)
@@ -65,7 +64,7 @@ function AppWeb(name)
     console.log('before');
 
     this.track_uuid = this.hybridge.send(
-        {'command': 'hybridge_track_status'}, track_status);
+        {'command': 'hybridge_track_status'}, track_status_cb);
 
     // bg-side it register cb in on_open, on_close and fire back the current
     // connection status

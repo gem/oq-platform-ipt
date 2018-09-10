@@ -266,6 +266,30 @@ var gem_ipt = {
                 }
             }
         });
+    },
+
+    qgis_msg_open: function(msg) {
+        console.log("qgis_msg_open");
+        $( "#qgis-message" ).html(msg.replace(/\n/g, "<br/>"));
+        $( "#qgis-message" ).dialog({
+            dialogClass: 'gem-jqueryui-dialog',
+            modal: true,
+            width: '600px',
+            buttons: {
+                Ok: function() {
+                    $(this).dialog( "close" );
+                }
+            }
+        });
+    },
+
+    qgis_msg_close: function() {
+        console.log("qgis_msg_close");
+        if ($("#qgis-message").dialog("instance") != undefined) {
+            if ($("#qgis-message").dialog("isOpen")) {
+                $("#qgis-message").dialog("close");
+            }
+        }
     }
 }
 
