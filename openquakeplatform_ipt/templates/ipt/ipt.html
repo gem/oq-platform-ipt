@@ -101,14 +101,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 
 {% block extra_script %}
     {{block.super}}
-    <script>
-{% include "ipt/ipt.js" %}
-    </script>
     <script src="{{ STATIC_URL }}openquakeplatform/js/utils/utils.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/uuid-random.min.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/hybridge_key.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/hybridge.js"></script>
-    <script src="{{ STATIC_URL }}ipt/js/app_web.js"></script>
     <script src="{{ STATIC_URL }}js/handsontable.full.min.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/bootstrap-tagsinput.min.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/common.js"></script>
@@ -122,6 +118,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     <script src="{{ STATIC_URL }}ipt/js/selectTextareaLine.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/selectAllTextareaText.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/validateAndDisplayNRML.js"></script>
+    <script src="{{ STATIC_URL }}ipt/js/app_web.js"></script>
+    <script>
+{% include "ipt/ipt.js" %}
+    </script>
     {% with subtab_semi=request.GET.subtab_id|default:0 %}
         {% if request.GET.example_id|add:"0" > 0 and request.GET.example_id|add:"0" < 100 and request.GET.tab_id|add:"0" > 0 and request.GET.tab_id|add:"0" < 8 and subtab_semi|add:"0" >= 0 and subtab_semi|add:"0" < 4 %}
             <script src="{{ STATIC_URL }}ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}{{subtab_semi|add:"0"|stringformat:"01d" }}.js"></script>

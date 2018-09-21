@@ -34,8 +34,9 @@ var SENDBACK_URL = 'sendback';
 var g_gmpe = {{ g_gmpe|safe }};
 var g_gmpe_options = [];
 
-{%if gem_qgis != None %}
+{% if gem_qgis != None %}
 var gem_api = null;
+var allowed_dirs = {{ allowed_dir|safe }};
 {% endif %}
 
 for (var i = 0 ; i < g_gmpe.length ; i++) {

@@ -41,16 +41,6 @@ function sendbackNRML(nrml, sfx)
     $form[0].submit();
 }
 
-function dd_obj()
-{
-}
-
-dd_obj.prototype = {
-    delegate_downloadNRML_cb: function(file_name, success, reason) {
-        return true;
-    }
-};
-
 function delegate_downloadNRML_cb(uuid, msg)
 {
     console.log("delegate_downloadNRML_cb BEGIN");
@@ -87,49 +77,11 @@ function delegate_downloadNRML(nrml, sfx)
     pathname = pathname.substr(0, pathname.lastIndexOf('/')) + '/';
     var base_url = spli_url['protocol'] + '//' + spli_url['host'] + pathname;
 
-    var uu = gem_api.send({'command': 'delegate_download',
-                           'args': [base_url + SENDBACK_URL, 'POST', dd_headers, dd_data]},
-                          delegate_downloadNRML_cb);
+    var uu = gem_api.delegate_download(delegate_downloadNRML_cb, base_url + SENDBACK_URL,
+                                       'POST', dd_headers, dd_data);
 
     return uu;
 }
-
-function delegate_downloadNRML_gacb_old(object_id, file_name, success, reason)
-{
-    var obj = gem_api_ctx_get_object(object_id);
-
-    var ret = obj.delegate_downloadNRML_cb(file_name, success, reason);
-
-    gem_api_ctx_del(object_id);
-
-    return ret;
-}
-
-function delegate_downloadNRML_old(nrml, sfx)
-{
-    var funcType = sfx2name(sfx);
-    var csrf_name = $(csrf_token).attr('name');
-    var csrf_value = $(csrf_token).attr('value');
-
-    if (typeof gem_api == 'undefined')
-        return false;
-
-    var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
-    var cookies = [cookie_csrf];
-    var dd_headers = [ipt_cookie_builder(cookies)];
-    var dd_data = [{'name': 'csrfmiddlewaretoken', 'value': csrf_value},
-                   {'name': 'xml_text', 'value': nrml },
-                   {'name': 'func_type', 'value': funcType }];
-
-    // action (url), method (string like 'POST'), headers (list of strings),
-    //               data (list of dictionaries {name (string), value(string)}
-    //               delegate_downloadNRML_cb == function(obj_suffix, ... )
-    cb_obj = new dd_obj();
-    var cb_obj_id = gem_api_ctx_get_object_id(cb_obj);
-    gem_api.delegate_download(SENDBACK_URL, 'POST', dd_headers, dd_data,
-                              "delegate_downloadNRML_gacb", cb_obj_id);
-}
-
 
 function validationErrorShow(funcType, error_msg){
     $('.' + funcType + '_gid #validationErrorMsg').text(

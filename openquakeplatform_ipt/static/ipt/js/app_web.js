@@ -45,6 +45,31 @@ function track_status_cb(uuid, msg)
     track_status_ct++;
 
     if (msg.success) {
+        if (typeof gem_api != 'undefined') {
+            // set folders to save collected files
+            function init_ls_cb(uuid, msg) {
+                if (msg.success != true) {
+                    console.log("FIXME PUT A PROPER MSG:");
+                    console.log(msg);
+                    return;
+                }
+                for (var i = 0 ; i < allowed_dirs.length ; i++) {
+                    all_dir = allowed_dirs[i];
+
+                    if (msg.content.indexOf(all_dir + '/') == -1) {
+                        // folder not found, create it
+                        function init_mkdir_cb(uuid, msg)
+                        {
+                            var new_dir = all_dir;
+                            console.log(msg);
+                        }
+                        gem_api.mkdir(init_mkdir_cb, all_dir);
+                    }
+                }
+            }
+            gem_api.ls(init_ls_cb);
+        }
+
         console.log("msg_close ...");
         gem_ipt.qgis_msg_close();
     }
@@ -97,5 +122,44 @@ AppWeb.prototype = {
 
     send: function(msg, cmd_cb) {
         return this.hybridge.send(msg, cmd_cb);
+    },
+
+    delegate_download: function(cb, url, action, headers, data)
+    {
+        var uu = this.send({'command': 'delegate_download',
+                            'args': [url, action, headers, data]}, cb);
+        return uu;
+    },
+
+    ls: function(cb) {
+        var uu = this.send({'command': 'ls_ipt_dir',
+                            'args': []}, cb);
+        return uu;
+    },
+
+    mkdir: function(cb, dirname) {
+        var uu = this.send({'command': 'mkdir_in_ipt_dir',
+                            'args': [dirname]}, cb);
+        return uu;
+    },
+
+    select_file: function(cb) {
+        var args = [];
+        for (var i = 1 ; i < arguments.length ; i++) {
+            args.push(arguments[i]);
+        }
+        var uu = this.send({'command': 'select_file',
+                            'args': args}, cb);
+        return uu;
+    },
+
+    select_and_copy_file_to_ipt_dir: function(cb) {
+        var args = [];
+        for (var i = 1 ; i < arguments.length ; i++) {
+            args.push(arguments[i]);
+        }
+        var uu = this.send({'command': 'select_and_copy_file_to_ipt_dir',
+                            'args': args}, cb);
+        return uu;
     }
 }

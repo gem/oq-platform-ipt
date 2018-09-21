@@ -15,6 +15,31 @@
       along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 */
 
+function populate_file_html_cb(uuid, reply)
+{
+    var old_sel = [];
+    var $sel = null;
+
+    $sel = $('select[name="file_html"]');
+    for (var i = 0 ; i < $sel.length ; i++) {
+        old_sel[i] = $($sel[i]).val();
+    }
+
+    $sel.empty();
+    for (var i = 0 ; i < old_sel.length ; i++) {
+        if ( !$($sel[i]).is("[multiple]")) {
+            $("<option />", {value: '', text: '---------'}).appendTo($($sel[i]));
+        }
+    }
+    for (var i = 0 ; i < reply.content.length ; i++) {
+        $("<option />", {value: reply.content[i], text: reply.content[i]}).appendTo($sel);
+    }
+    for (var i = 0 ; i < old_sel.length ; i++) {
+        $($sel[i]).val(old_sel[i]);
+    }
+}
+
+
 var cf_obj = {
     scen: {
         pfx: '.cf_gid div[name="scenario"]',
@@ -307,6 +332,37 @@ $(document).ready(function () {
         return;
     }
 
+    function generic_fileNew_collect(scope, event, collected)
+    {
+        event.preventDefault();
+        var name = $(event.target.parentElement).attr("name").slice(0,-5)
+
+        function cb_newlist(uuid, reply) {
+            var $sel;
+            var gem_group = null;
+            var old_sel = [];
+
+            if (reply.success == true) {
+                /* file names scope temporary disabled
+                if ($(cf_obj[scope].pfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data_gem_group')) {
+                    gem_group = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"]').attr('data_gem_group');
+                    // find elements of groups around all the config_file tab
+                    $sel = $('.cf_gid div[data_gem_group="' + gem_group + '"] select[name="file_html"]');
+                    for (var i = 0 ; i < $sel.length ; i++) {
+                        old_sel[i] = $($sel[i]).val();
+                    }
+                }
+                else {
+                    $sel = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]');
+                }
+                */
+                populate_file_html_cb(uuid, reply);
+                $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(collected);
+            }
+        }
+
+        gem_api.ls_ipt_dir(cb_newlist);
+    }
 
     /* form widgets and previous remote list select element must follow precise
        naming schema with '<name>-html' and '<name>-new', see config_files.html */
@@ -341,8 +397,10 @@ $(document).ready(function () {
                     }
 
                     $sel.empty();
-                    if (! $sel.is("[multiple]")) {
-                        $("<option />", {value: '', text: '---------'}).appendTo($sel);
+                    for (var i = 0 ; i < old_sel.length ; i++) {
+                        if (! $($sel[i]).is("[multiple]")) {
+                            $("<option />", {value: '', text: '---------'}).appendTo($($sel[i]));
+                        }
                     }
                     for (var i = 0 ; i < data.items.length ; i++) {
                         $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
@@ -988,15 +1046,41 @@ $(document).ready(function () {
         return generic_fileNew_upload('scen', form, event);
     }
 
+    function scenario_fileNew_collect(event, collected)
+    {
+        return generic_fileNew_collect('scen', event, collected);
+    }
 
-    /* generic callback to show upload div (init) */
+
     function scenario_fileNew_cb(e) {
-        $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
-        if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
-            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
-            if (window.gem_not_interactive == undefined) {
-                $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+        if (typeof gem_api == 'undefined') {
+            console.log('here we are');
+            /* generic callback to show upload div (init) */
+            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+            if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+                $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
+                if (window.gem_not_interactive == undefined) {
+                    $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+                }
             }
+        }
+        else { // if (gem_api == null
+            var event = e;
+            var $msg = $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] div[name="msg"]');
+            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+            function cb(uuid, reply) {
+                if (reply.success) {
+                    $msg.html("File '" + reply.content[0] + "' collected correctly.");
+                    scenario_fileNew_collect(event, reply.content);
+                }
+                else {
+                    $msg.html(reply.reason);
+                }
+                $(cf_obj['scen'].pfx + ' div[name="' + event.target.name + '"]').delay(3000).slideUp();
+
+                console.log('CB end');
+            }
+            gem_api.select_and_copy_file_to_ipt_dir(cb);
         }
     }
 

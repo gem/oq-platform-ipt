@@ -39,8 +39,8 @@ from django import forms
 from openquakeplatform import __version__ as oqp_version
 from openquakeplatform.settings import WEBUIURL, TIME_INVARIANT_OUTPUTS
 from openquakeplatform.python3compat import unicode, encode, decode
+from openquakeplatform.utils import oq_is_qgis_browser
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
-
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
                'fragility_model', 'fragility_cons',
@@ -326,6 +326,8 @@ def _get_available_gsims():
 
 
 def view(request, **kwargs):
+    is_qgis_bowser = oq_is_qgis_browser(request)
+
     if getattr(settings, 'STANDALONE', False):
         userid = ''
     else:
@@ -414,67 +416,68 @@ def view(request, **kwargs):
         'source_model_file', userid, namespace, is_multiple=True)
     source_model_file_upload = FileUpload()
 
-    return render(
-        request,
-        "ipt/ipt.html",
-        dict(
-            oqp_version_maj=oqp_version.split('.')[0],
-            g_gmpe=json.dumps(gmpe),
-            rupture_file_html=rupture_file_html,
-            rupture_file_upload=rupture_file_upload,
-            list_of_sites_html=list_of_sites_html,
-            list_of_sites_upload=list_of_sites_upload,
-            gmf_file_html=gmf_file_html,
-            gmf_file_upload=gmf_file_upload,
-            exposure_model_html=exposure_model_html,
-            exposure_model_upload=exposure_model_upload,
-            site_model_html=site_model_html,
-            site_model_upload=site_model_upload,
+    render_dict = dict(
+        oqp_version_maj=oqp_version.split('.')[0],
+        g_gmpe=json.dumps(gmpe),
+        rupture_file_html=rupture_file_html,
+        rupture_file_upload=rupture_file_upload,
+        list_of_sites_html=list_of_sites_html,
+        list_of_sites_upload=list_of_sites_upload,
+        gmf_file_html=gmf_file_html,
+        gmf_file_upload=gmf_file_upload,
+        exposure_model_html=exposure_model_html,
+        exposure_model_upload=exposure_model_upload,
+        site_model_html=site_model_html,
+        site_model_upload=site_model_upload,
 
-            fm_structural_html=fm_structural_html,
-            fm_structural_upload=fm_structural_upload,
-            fm_nonstructural_html=fm_nonstructural_html,
-            fm_nonstructural_upload=fm_nonstructural_upload,
-            fm_contents_html=fm_contents_html,
-            fm_contents_upload=fm_contents_upload,
-            fm_businter_html=fm_businter_html,
-            fm_businter_upload=fm_businter_upload,
+        fm_structural_html=fm_structural_html,
+        fm_structural_upload=fm_structural_upload,
+        fm_nonstructural_html=fm_nonstructural_html,
+        fm_nonstructural_upload=fm_nonstructural_upload,
+        fm_contents_html=fm_contents_html,
+        fm_contents_upload=fm_contents_upload,
+        fm_businter_html=fm_businter_html,
+        fm_businter_upload=fm_businter_upload,
 
-            fm_structural_cons_html=fm_structural_cons_html,
-            fm_structural_cons_upload=fm_structural_cons_upload,
-            fm_nonstructural_cons_html=fm_nonstructural_cons_html,
-            fm_nonstructural_cons_upload=fm_nonstructural_cons_upload,
-            fm_contents_cons_html=fm_contents_cons_html,
-            fm_contents_cons_upload=fm_contents_cons_upload,
-            fm_businter_cons_html=fm_businter_cons_html,
-            fm_businter_cons_upload=fm_businter_cons_upload,
+        fm_structural_cons_html=fm_structural_cons_html,
+        fm_structural_cons_upload=fm_structural_cons_upload,
+        fm_nonstructural_cons_html=fm_nonstructural_cons_html,
+        fm_nonstructural_cons_upload=fm_nonstructural_cons_upload,
+        fm_contents_cons_html=fm_contents_cons_html,
+        fm_contents_cons_upload=fm_contents_cons_upload,
+        fm_businter_cons_html=fm_businter_cons_html,
+        fm_businter_cons_upload=fm_businter_cons_upload,
 
-            vm_structural_html=vm_structural_html,
-            vm_structural_upload=vm_structural_upload,
-            vm_nonstructural_html=vm_nonstructural_html,
-            vm_nonstructural_upload=vm_nonstructural_upload,
-            vm_contents_html=vm_contents_html,
-            vm_contents_upload=vm_contents_upload,
-            vm_businter_html=vm_businter_html,
-            vm_businter_upload=vm_businter_upload,
-            vm_occupants_html=vm_occupants_html,
-            vm_occupants_upload=vm_occupants_upload,
+        vm_structural_html=vm_structural_html,
+        vm_structural_upload=vm_structural_upload,
+        vm_nonstructural_html=vm_nonstructural_html,
+        vm_nonstructural_upload=vm_nonstructural_upload,
+        vm_contents_html=vm_contents_html,
+        vm_contents_upload=vm_contents_upload,
+        vm_businter_html=vm_businter_html,
+        vm_businter_upload=vm_businter_upload,
+        vm_occupants_html=vm_occupants_html,
+        vm_occupants_upload=vm_occupants_upload,
 
-            site_conditions_html=site_conditions_html,
-            site_conditions_upload=site_conditions_upload,
-            imt_html=imt_html,
-            imt_upload=imt_upload,
-            gsim_logic_tree_file_html=gsim_logic_tree_file_html,
-            gsim_logic_tree_file_upload=gsim_logic_tree_file_upload,
+        site_conditions_html=site_conditions_html,
+        site_conditions_upload=site_conditions_upload,
+        imt_html=imt_html,
+        imt_upload=imt_upload,
+        gsim_logic_tree_file_html=gsim_logic_tree_file_html,
+        gsim_logic_tree_file_upload=gsim_logic_tree_file_upload,
 
-            source_model_logic_tree_file_html=(
-                source_model_logic_tree_file_html),
-            source_model_logic_tree_file_upload=(
-                source_model_logic_tree_file_upload),
+        source_model_logic_tree_file_html=(
+            source_model_logic_tree_file_html),
+        source_model_logic_tree_file_upload=(
+            source_model_logic_tree_file_upload),
 
-            source_model_file_html=source_model_file_html,
-            source_model_file_upload=source_model_file_upload
-        ))
+        source_model_file_html=source_model_file_html,
+        source_model_file_upload=source_model_file_upload)
+
+    if is_qgis_bowser:
+        render_dict.update({'allowed_dir': ALLOWED_DIR})
+
+    return render(request, "ipt/ipt.html", render_dict)
 
 
 def upload(request, **kwargs):
