@@ -361,7 +361,7 @@ $(document).ready(function () {
             }
         }
 
-        gem_api.ls_ipt_dir(cb_newlist);
+        gem_api.ls(cb_newlist);
     }
 
     /* form widgets and previous remote list select element must follow precise
@@ -1080,7 +1080,7 @@ $(document).ready(function () {
 
                 console.log('CB end');
             }
-            gem_api.select_and_copy_file_to_ipt_dir(cb);
+            gem_api.select_and_copy_file(cb);
         }
     }
 

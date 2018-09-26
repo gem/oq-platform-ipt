@@ -29,14 +29,83 @@
  *
  */
 
-/* callback fired when when a web-app generated command is finished */
-function on_cmd_cb(uu, msg)
+function manage_error_cb(uuid, msg)
 {
-    console.log('MSG rec: ');
-    console.log(uu);
+    console.log('gem_api error');
     console.log(msg);
+    return false;
 }
 
+function select_update(sel, options)
+{
+    var $sel = $(sel);
+    var old_sel;
+
+    old_sel = $sel.val();
+
+    var ct = $sel.attr('data-gem-counter');
+    if (typeof(ct) == 'undefined')
+        ct = 0;
+    else
+        ct = parseInt(ct);
+    ct += 1;
+    $sel.attr('data-gem-counter', ct);
+    $sel.empty();
+    if (! $sel.is("[multiple]")) {
+        $("<option />", {value: '', text: '---------'}).appendTo($sel);
+    }
+
+    for (var ii = 0 ; ii < options.length ; ii++) {
+        $("<option />", {value: options[ii][0], text: options[ii][1]}).appendTo($sel);
+    }
+    $sel.val(old_sel);
+}
+
+function populate_selects()
+{
+    var el, families = {};
+    var $sel = $("select[name='file_html']");
+
+    for (var i = 0 ; i < $sel.length ; i++) {
+        el = $sel[i];
+        subdir = $(el).attr('data-gem-subdir');
+        if (subdir in families) {
+            families[subdir].push(el);
+        }
+        else {
+            families[subdir] = [el];
+        }
+    }
+
+    function subdir_ls_cbgen(k, family_ext)
+    {
+        var family = family_ext.slice();
+
+        return function subdir_ls_cb(uuid, msg) {
+            var options = [];
+
+            for (var i = 0 ; i < msg.content.length ; i++) {
+                var v = msg.content[i];
+                options.push([k + '/' + v, v]);
+            }
+            for (var i = 0 ; i < family.length ; i++) {
+                select_update(family[i], options);
+            }
+        }
+    }
+
+     for (var k in families) {
+        if (families.hasOwnProperty(k)) {
+            var family_ = families[k].slice();
+            {
+                var family = family_;
+
+                subdir_ls_cb = subdir_ls_cbgen(k, family);
+            }
+            gem_api.ls(subdir_ls_cb, k);
+        }
+    }
+}
 
 var track_status_ct = 0;
 function track_status_cb(uuid, msg)
@@ -48,11 +117,12 @@ function track_status_cb(uuid, msg)
         if (typeof gem_api != 'undefined') {
             // set folders to save collected files
             function init_ls_cb(uuid, msg) {
-                if (msg.success != true) {
-                    console.log("FIXME PUT A PROPER MSG:");
-                    console.log(msg);
-                    return;
-                }
+                console.log('init_ls_cb');
+                if (msg.success != true)
+                    return manage_error_cb(uuid, msg);
+
+                var ct_sync = allowed_dirs.length;
+
                 for (var i = 0 ; i < allowed_dirs.length ; i++) {
                     all_dir = allowed_dirs[i];
 
@@ -60,10 +130,18 @@ function track_status_cb(uuid, msg)
                         // folder not found, create it
                         function init_mkdir_cb(uuid, msg)
                         {
-                            var new_dir = all_dir;
-                            console.log(msg);
+                            ct_sync--;
+                            if (ct_sync == 0) {
+                                populate_selects();
+                            }
                         }
                         gem_api.mkdir(init_mkdir_cb, all_dir);
+                    }
+                    else {
+                        ct_sync--;
+                        if (ct_sync == 0) {
+                            populate_selects();
+                        }
                     }
                 }
             }
@@ -132,13 +210,16 @@ AppWeb.prototype = {
     },
 
     ls: function(cb) {
-        var uu = this.send({'command': 'ls_ipt_dir',
-                            'args': []}, cb);
+        var uu = this.send(
+            {'command': 'ls',
+             'args': (arguments.length > 1 ? [arguments[1]] : [])
+            }, cb);
+
         return uu;
     },
 
     mkdir: function(cb, dirname) {
-        var uu = this.send({'command': 'mkdir_in_ipt_dir',
+        var uu = this.send({'command': 'mkdir',
                             'args': [dirname]}, cb);
         return uu;
     },
@@ -153,12 +234,12 @@ AppWeb.prototype = {
         return uu;
     },
 
-    select_and_copy_file_to_ipt_dir: function(cb) {
+    select_and_copy_file: function(cb) {
         var args = [];
         for (var i = 1 ; i < arguments.length ; i++) {
             args.push(arguments[i]);
         }
-        var uu = this.send({'command': 'select_and_copy_file_to_ipt_dir',
+        var uu = this.send({'command': 'select_and_copy_file',
                             'args': args}, cb);
         return uu;
     }

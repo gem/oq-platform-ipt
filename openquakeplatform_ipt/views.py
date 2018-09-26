@@ -214,10 +214,11 @@ class FileUpload(forms.Form):
 
 
 class FilePathFieldByUser(forms.ChoiceField):
-    def __init__(self, userid, subdir, namespace, match=None,
+    def __init__(self, is_bridged, userid, subdir, namespace, match=None,
                  recursive=False, allow_files=True,
                  allow_folders=False, required=True, widget=None, label=None,
                  initial=None, help_text=None, *args, **kwargs):
+        self.is_bridged = is_bridged
         self.match, self.recursive = match, recursive
         self.subdir = subdir
         self.userid = str(userid)
@@ -231,6 +232,11 @@ class FilePathFieldByUser(forms.ChoiceField):
             self.choices = []
         else:
             self.choices = [("", "---------")]
+
+        if self.is_bridged is True:
+            self.widget.choices = self.choices
+            self.widget.attrs['data-gem-subdir'] = self.subdir
+            return
 
         if self.match is not None:
             self.match_re = re.compile(self.match)
@@ -276,31 +282,33 @@ class FilePathFieldByUser(forms.ChoiceField):
         self.widget.choices = self.choices
 
 
-def filehtml_create(suffix, userid, namespace, dirnam=None,
+def filehtml_create(is_bridged, suffix, userid, namespace, dirnam=None,
                     match=".*\.xml", is_multiple=False):
     if dirnam is None:
         dirnam = suffix
     if (dirnam not in ALLOWED_DIR):
         raise KeyError("dirnam (%s) not in allowed list" % dirnam)
 
-    normalized_path = get_full_path(userid, namespace, dirnam)
-    user_allowed_path = get_full_path(userid, namespace)
-    if not normalized_path.startswith(user_allowed_path):
-        raise LookupError('Unauthorized path: "%s"' % normalized_path)
-    if not os.path.isdir(normalized_path):
-        try:
-            os.makedirs(normalized_path)
-        except OSError as excp:
-            fullpa = normalized_path
-            print("makedirs failed, full path: [%s]" % fullpa)
-            while fullpa != "/":
-                print("  in while: [%s]" % fullpa)
-                os.system("ls -ld '%s' 1>&2" % fullpa)
-                fullpa = os.path.dirname(fullpa)
-            raise
+    if not is_bridged:
+        normalized_path = get_full_path(userid, namespace, dirnam)
+        user_allowed_path = get_full_path(userid, namespace)
+        if not normalized_path.startswith(user_allowed_path):
+            raise LookupError('Unauthorized path: "%s"' % normalized_path)
+        if not os.path.isdir(normalized_path):
+            try:
+                os.makedirs(normalized_path)
+            except OSError as excp:
+                fullpa = normalized_path
+                print("makedirs failed, full path: [%s]" % fullpa)
+                while fullpa != "/":
+                    print("  in while: [%s]" % fullpa)
+                    os.system("ls -ld '%s' 1>&2" % fullpa)
+                    fullpa = os.path.dirname(fullpa)
+                raise
 
     class FileHtml(forms.Form):
         file_html = FilePathFieldByUser(
+            is_bridged=is_bridged,
             userid=userid,
             subdir=dirnam,
             namespace=namespace,
@@ -326,7 +334,7 @@ def _get_available_gsims():
 
 
 def view(request, **kwargs):
-    is_qgis_bowser = oq_is_qgis_browser(request)
+    is_qgis_browser = oq_is_qgis_browser(request)
 
     if getattr(settings, 'STANDALONE', False):
         userid = ''
@@ -336,84 +344,94 @@ def view(request, **kwargs):
     gmpe = _get_available_gsims()
 
     rupture_file_html = filehtml_create(
-        'rupture_file', userid, namespace)
+        is_qgis_browser, 'rupture_file', userid, namespace)
     rupture_file_upload = FileUpload()
 
     list_of_sites_html = filehtml_create(
-        'list_of_sites', userid, namespace, match=".*\.csv")
+        is_qgis_browser, 'list_of_sites', userid, namespace, match=".*\.csv")
     list_of_sites_upload = FileUpload()
 
     gmf_file_html = filehtml_create(
-        'gmf_file', userid, namespace)
+        is_qgis_browser, 'gmf_file', userid, namespace)
     gmf_file_upload = FileUpload()
 
     exposure_model_html = filehtml_create(
-        'exposure_model', userid, namespace)
+        is_qgis_browser, 'exposure_model', userid, namespace)
     exposure_model_upload = FileUpload()
 
     site_model_html = filehtml_create(
-        'site_model', userid, namespace)
+        is_qgis_browser, 'site_model', userid, namespace)
     site_model_upload = FileUpload()
 
     fm_structural_html = filehtml_create(
-        'fm_structural', userid, namespace, dirnam='fragility_model')
+        is_qgis_browser, 'fm_structural', userid, namespace,
+        dirnam='fragility_model')
     fm_structural_upload = FileUpload()
     fm_nonstructural_html = filehtml_create(
-        'fm_nonstructural', userid, namespace, dirnam='fragility_model')
+        is_qgis_browser, 'fm_nonstructural', userid, namespace,
+        dirnam='fragility_model')
     fm_nonstructural_upload = FileUpload()
     fm_contents_html = filehtml_create(
-        'fm_contents', userid, namespace, dirnam='fragility_model')
+        is_qgis_browser, 'fm_contents', userid, namespace,
+        dirnam='fragility_model')
     fm_contents_upload = FileUpload()
     fm_businter_html = filehtml_create(
-        'fm_businter', userid, namespace, dirnam='fragility_model')
+        is_qgis_browser, 'fm_businter', userid, namespace,
+        dirnam='fragility_model')
     fm_businter_upload = FileUpload()
 
     fm_structural_cons_html = filehtml_create(
-        'fragility_cons', userid, namespace)
+        is_qgis_browser, 'fragility_cons', userid, namespace)
     fm_structural_cons_upload = FileUpload()
     fm_nonstructural_cons_html = filehtml_create(
-        'fragility_cons', userid, namespace)
+        is_qgis_browser, 'fragility_cons', userid, namespace)
     fm_nonstructural_cons_upload = FileUpload()
     fm_contents_cons_html = filehtml_create(
-        'fragility_cons', userid, namespace)
+        is_qgis_browser, 'fragility_cons', userid, namespace)
     fm_contents_cons_upload = FileUpload()
     fm_businter_cons_html = filehtml_create(
-        'fragility_cons', userid, namespace)
+        is_qgis_browser, 'fragility_cons', userid, namespace)
     fm_businter_cons_upload = FileUpload()
 
     vm_structural_html = filehtml_create(
-        'vm_structural', userid, namespace, dirnam='vulnerability_model')
+        is_qgis_browser, 'vm_structural', userid, namespace,
+        dirnam='vulnerability_model')
     vm_structural_upload = FileUpload()
     vm_nonstructural_html = filehtml_create(
-        'vm_nonstructural', userid, namespace, dirnam='vulnerability_model')
+        is_qgis_browser, 'vm_nonstructural', userid, namespace,
+        dirnam='vulnerability_model')
     vm_nonstructural_upload = FileUpload()
     vm_contents_html = filehtml_create(
-        'vm_contents', userid, namespace, dirnam='vulnerability_model')
+        is_qgis_browser, 'vm_contents', userid, namespace,
+        dirnam='vulnerability_model')
     vm_contents_upload = FileUpload()
     vm_businter_html = filehtml_create(
-        'vm_businter', userid, namespace, dirnam='vulnerability_model')
+        is_qgis_browser, 'vm_businter', userid, namespace,
+        dirnam='vulnerability_model')
     vm_businter_upload = FileUpload()
     vm_occupants_html = filehtml_create(
-        'vm_occupants', userid, namespace, dirnam='vulnerability_model')
+        is_qgis_browser, 'vm_occupants', userid, namespace,
+        dirnam='vulnerability_model')
     vm_occupants_upload = FileUpload()
 
     site_conditions_html = filehtml_create(
-        'site_conditions', userid, namespace)
+        is_qgis_browser, 'site_conditions', userid, namespace)
     site_conditions_upload = FileUpload()
 
-    imt_html = filehtml_create('imt', userid, namespace)
+    imt_html = filehtml_create(is_qgis_browser, 'imt', userid, namespace)
     imt_upload = FileUpload()
 
     gsim_logic_tree_file_html = filehtml_create(
-        'gsim_logic_tree_file', userid, namespace)
+        is_qgis_browser, 'gsim_logic_tree_file', userid, namespace)
     gsim_logic_tree_file_upload = FileUpload()
 
     source_model_logic_tree_file_html = filehtml_create(
-        'source_model_logic_tree_file', userid, namespace)
+        is_qgis_browser, 'source_model_logic_tree_file', userid, namespace)
     source_model_logic_tree_file_upload = FileUpload()
 
     source_model_file_html = filehtml_create(
-        'source_model_file', userid, namespace, is_multiple=True)
+        is_qgis_browser, 'source_model_file', userid, namespace,
+        is_multiple=True)
     source_model_file_upload = FileUpload()
 
     render_dict = dict(
@@ -474,7 +492,7 @@ def view(request, **kwargs):
         source_model_file_html=source_model_file_html,
         source_model_file_upload=source_model_file_upload)
 
-    if is_qgis_bowser:
+    if is_qgis_browser:
         render_dict.update({'allowed_dir': ALLOWED_DIR})
 
     return render(request, "ipt/ipt.html", render_dict)
@@ -548,6 +566,7 @@ def upload(request, **kwargs):
 
                     class FileHtml(forms.Form):
                         file_html = FilePathFieldByUser(
+                            is_bridged=False,
                             userid=userid,
                             subdir=suffix,
                             namespace=namespace,
@@ -588,6 +607,7 @@ def upload(request, **kwargs):
 
                 class FileHtml(forms.Form):
                     file_html = FilePathFieldByUser(
+                        is_bridged=False,
                         userid=userid,
                         subdir=suffix,
                         namespace=namespace,
