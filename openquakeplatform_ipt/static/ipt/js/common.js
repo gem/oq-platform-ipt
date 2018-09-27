@@ -369,7 +369,7 @@ var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
 
 var ipt_table_vect_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
     var target = evt.target;
-    var tbl_id = $(target).attr("data_gem_id");
+    var tbl_id = $(target).attr("data-gem-id");
 
     if (evt.target.files.length == 0) {
         that.tbl_file[tbl_id] = null;

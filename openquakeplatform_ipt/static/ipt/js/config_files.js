@@ -344,10 +344,10 @@ $(document).ready(function () {
 
             if (reply.success == true) {
                 /* file names scope temporary disabled
-                if ($(cf_obj[scope].pfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data_gem_group')) {
-                    gem_group = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"]').attr('data_gem_group');
+                if ($(cf_obj[scope].pfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data-gem-group')) {
+                    gem_group = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"]').attr('data-gem-group');
                     // find elements of groups around all the config_file tab
-                    $sel = $('.cf_gid div[data_gem_group="' + gem_group + '"] select[name="file_html"]');
+                    $sel = $('.cf_gid div[data-gem-group="' + gem_group + '"] select[name="file_html"]');
                     for (var i = 0 ; i < $sel.length ; i++) {
                         old_sel[i] = $($sel[i]).val();
                     }
@@ -384,10 +384,10 @@ $(document).ready(function () {
                 var gem_group = null;
                 var old_sel = [];
                 if (data.ret == 0) {
-                    if ($(cf_obj[scope].pfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data_gem_group')) {
-                        gem_group = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"]').attr('data_gem_group');
+                    if ($(cf_obj[scope].pfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data-gem-group')) {
+                        gem_group = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"]').attr('data-gem-group');
                         // find elements of groups around all the config_file tab
-                        $sel = $('.cf_gid div[data_gem_group="' + gem_group + '"] select[name="file_html"]');
+                        $sel = $('.cf_gid div[data-gem-group="' + gem_group + '"] select[name="file_html"]');
                         for (var i = 0 ; i < $sel.length ; i++) {
                             old_sel[i] = $($sel[i]).val();
                         }
