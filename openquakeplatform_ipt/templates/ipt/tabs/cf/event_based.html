@@ -31,7 +31,8 @@
   <div class="menuItems">
     <div name="source-model-logic-tree-file-html">
       <label>Source model logic tree file <span class="ui-icon ui-icon-help ipt_help" title='File that contains a list of source models.'></span>:</label>
-      {{ source_model_logic_tree_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="source-model-logic-tree-file-new">Upload</button>
+      {{ source_model_logic_tree_file_html.file_html }}
+      {{ source_model_logic_tree_file_html.new_btn }}
     </div>
     <div class="menuItems" name="source-model-logic-tree-file-new" style="margin-right: 0px; display: none;">
       <div name="msg"><br></div>
@@ -45,7 +46,8 @@
   <div class="menuItems">
     <div name="source-model-file-html">
       <label>Source model files <span class="ui-icon ui-icon-help ipt_help" title='Selection of source model files that contain a list of the sources used characterised the seismicity in a region.'></span>:</label>
-      {{ source_model_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="source-model-file-new">Upload</button>
+      {{ source_model_file_html.file_html }}
+      {{ source_model_file_html.new_btn }}
     </div>
     <div class="menuItems" name="source-model-file-new" style="margin-right: 0px; display: none;">
       <div name="msg"><br></div>
@@ -59,7 +61,8 @@
   <div class="menuItems">
     <div name="gsim-logic-tree-file-html" data_gem_group="gsim">
       <label>GMPE logic tree file <span class="ui-icon ui-icon-help ipt_help" title='File that contains a list of ground-motion prediction equations for each tectonic region used to characterise the sources in the PSHA model.'></span>:</label>
-      {{ gsim_logic_tree_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="gsim-logic-tree-file-new">Upload</button>
+      {{ gsim_logic_tree_file_html.file_html }}
+      {{ gsim_logic_tree_file_html.new_btn }}
     </div>
     <div class="menuItems" name="gsim-logic-tree-file-new" style="margin-right: 0px; display: none;">
       <div name="msg"><br></div>

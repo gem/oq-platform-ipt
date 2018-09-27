@@ -35,6 +35,7 @@ from django.http import (HttpResponse,
                          )
 from django.conf import settings
 from django import forms
+from django.forms import widgets
 
 from openquakeplatform import __version__ as oqp_version
 from openquakeplatform.settings import WEBUIURL, TIME_INVARIANT_OUTPUTS
@@ -207,6 +208,27 @@ def sendback_er_rupture_surface(request):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
+class ButtonWidget(forms.widgets.TextInput):
+    template_name = 'widgets/button_widget.html'
+
+    def __init__(self, is_bridged=False, name=None, *args, **kwargs):
+        super(ButtonWidget, self).__init__(*args, **kwargs)
+        self.gem_is_bridged = is_bridged
+        self.gem_name = name
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['gem_name'] = self.gem_name
+        context['widget']['gem_is_bridged'] = self.gem_is_bridged
+        return context
+
+
+class ButtonField(forms.Field):
+    def __init__(self, is_bridged=False, name=None, *args, **kwargs):
+        super(ButtonField, self).__init__(*args, **kwargs)
+        self.widget = ButtonWidget(is_bridged, name)
+
+
 class FileUpload(forms.Form):
     file_upload = forms.FileField(
         allow_empty_file=True, widget=forms.ClearableFileInput(
@@ -283,11 +305,15 @@ class FilePathFieldByUser(forms.ChoiceField):
 
 
 def filehtml_create(is_bridged, suffix, userid, namespace, dirnam=None,
-                    match=".*\.xml", is_multiple=False):
+                    match=".*\.xml", is_multiple=False, name=None):
     if dirnam is None:
         dirnam = suffix
     if (dirnam not in ALLOWED_DIR):
         raise KeyError("dirnam (%s) not in allowed list" % dirnam)
+
+    if name is None:
+        name = suffix
+    name = name.replace('_', '-')
 
     if not is_bridged:
         normalized_path = get_full_path(userid, namespace, dirnam)
@@ -297,7 +323,7 @@ def filehtml_create(is_bridged, suffix, userid, namespace, dirnam=None,
         if not os.path.isdir(normalized_path):
             try:
                 os.makedirs(normalized_path)
-            except OSError as excp:
+            except OSError:
                 fullpa = normalized_path
                 print("makedirs failed, full path: [%s]" % fullpa)
                 while fullpa != "/":
@@ -316,6 +342,7 @@ def filehtml_create(is_bridged, suffix, userid, namespace, dirnam=None,
             recursive=True,
             required=is_multiple,
             widget=(forms.fields.SelectMultiple if is_multiple else None))
+        new_btn = ButtonField(is_bridged=is_bridged, name=name)
     fh = FileHtml()
 
     return fh
@@ -381,16 +408,20 @@ def view(request, **kwargs):
     fm_businter_upload = FileUpload()
 
     fm_structural_cons_html = filehtml_create(
-        is_qgis_browser, 'fragility_cons', userid, namespace)
+        is_qgis_browser, 'fragility_cons', userid, namespace,
+        name='fm_structural_cons')
     fm_structural_cons_upload = FileUpload()
     fm_nonstructural_cons_html = filehtml_create(
-        is_qgis_browser, 'fragility_cons', userid, namespace)
+        is_qgis_browser, 'fragility_cons', userid, namespace,
+        name='fm_nonstructural_cons')
     fm_nonstructural_cons_upload = FileUpload()
     fm_contents_cons_html = filehtml_create(
-        is_qgis_browser, 'fragility_cons', userid, namespace)
+        is_qgis_browser, 'fragility_cons', userid, namespace,
+        name='fm_contents_cons')
     fm_contents_cons_upload = FileUpload()
     fm_businter_cons_html = filehtml_create(
-        is_qgis_browser, 'fragility_cons', userid, namespace)
+        is_qgis_browser, 'fragility_cons', userid, namespace,
+        name='fm_businter_cons')
     fm_businter_cons_upload = FileUpload()
 
     vm_structural_html = filehtml_create(

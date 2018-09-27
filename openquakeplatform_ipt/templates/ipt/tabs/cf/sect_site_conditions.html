@@ -48,7 +48,8 @@
   <div class="menuItems" name="site-conditions-html" data_gem_group="site-conditions">
     <label>Site conditions file <span class="ui-icon ui-icon-help ipt_help" title='File that contains a list of sites with the corresponding local soil conditions.'></span>
 :</label>
-    {{ site_conditions_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="site-conditions-new">Upload</button>
+    {{ site_conditions_html.file_html }}
+    {{ site_conditions_html.new_btn }}
   </div>
   <div class="menuItems" name="site-conditions-new" style="display: none;">
     <div name="msg"><br></div>
