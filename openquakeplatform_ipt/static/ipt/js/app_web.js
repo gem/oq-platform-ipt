@@ -31,8 +31,8 @@
 
 function manage_error_cb(uuid, msg)
 {
-    console.log('gem_api error');
-    console.log(msg);
+    gem_ipt.error_msg(ret.str);
+
     return false;
 }
 
@@ -239,7 +239,7 @@ AppWeb.prototype = {
         for (var i = 1 ; i < arguments.length ; i++) {
             args.push(arguments[i]);
         }
-        var uu = this.send({'command': 'select_and_copy_file',
+        var uu = this.send({'command': 'select_and_copy_file_to_dir',
                             'args': args}, cb);
         return uu;
     }
