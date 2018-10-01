@@ -18,6 +18,8 @@
 
 import os
 import re
+import random
+import string
 import json
 import zipfile
 import tempfile
@@ -667,15 +669,32 @@ def get_full_path(userid, namespace, subdir_and_filename=""):
                             subdir_and_filename))
 
 
+def zwrite_or_collect(z, userid, namespace, fname, file_collect):
+    """if z is None add the couple full_pathname, filename to a list,
+    else append the file to the z zip object"""
+    if z is None:
+        file_collect.append(["file", fname, os.path.basename(fname)])
+    else:
+        z.write(get_full_path(userid, namespace, fname),
+                decode(os.path.basename(fname)))
+
+
+def zwrite_or_collect_str(z, fname, content, file_collect):
+    if z is None:
+        file_collect.append(["string", fname, encode(content)])
+    else:
+        z.writestr(fname, encode(content))
+
+
 def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
-                             save_files=True):
+                             file_collect, save_files=True):
     jobini = "\n[Exposure model]\n"
     #           ################
 
     jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
     if save_files is True:
-        z.write(get_full_path(userid, namespace, data['exposure_model']),
-                os.path.basename(data['exposure_model']))
+        zwrite_or_collect(z, userid, namespace, data['exposure_model'],
+                          file_collect)
     if is_regcons:
         if data['exposure_model_regcons_choice'] is True:
             is_first = True
@@ -695,8 +714,8 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
     return jobini
 
 
-def vulnerability_model_prep_sect(data, z, userid, namespace, save_files=True,
-                                  with_ensloss=True):
+def vulnerability_model_prep_sect(data, z, userid, namespace, file_collect,
+                                  save_files=True, with_ensloss=True):
     jobini = "\n[Vulnerability model]\n"
     #            #####################
     descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
@@ -708,9 +727,9 @@ def vulnerability_model_prep_sect(data, z, userid, namespace, save_files=True,
             jobini += "%s_vulnerability_file = %s\n" % (
                 descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
             if save_files is True:
-                z.write(get_full_path(userid, namespace,
-                                      data['vm_loss_%s' % losslist]),
-                        os.path.basename(data['vm_loss_%s' % losslist]))
+                zwrite_or_collect(z, userid, namespace,
+                                  data['vm_loss_%s' % losslist],
+                                  file_collect)
 
     if with_ensloss is True:
         jobini += "insured_losses = %s\n" % (
@@ -722,15 +741,15 @@ def vulnerability_model_prep_sect(data, z, userid, namespace, save_files=True,
     return jobini
 
 
-def site_conditions_prep_sect(data, z, userid, namespace):
+def site_conditions_prep_sect(data, z, userid, namespace, file_collect):
     jobini = "\n[Site conditions]\n"
     #           #################
 
     if data['site_conditions_choice'] == 'from-file':
         jobini += ("site_model_file = %s\n" %
                    os.path.basename(data['site_model_file']))
-        z.write(get_full_path(userid, namespace, data['site_model_file']),
-                os.path.basename(data['site_model_file']))
+        zwrite_or_collect(z, userid, namespace, data['site_model_file'],
+                          file_collect)
     elif data['site_conditions_choice'] == 'uniform-param':
         jobini += "reference_vs30_value = %s\n" % data['reference_vs30_value']
         jobini += "reference_vs30_type = %s\n" % data['reference_vs30_type']
@@ -754,14 +773,23 @@ def scenario_prepare(request, **kwargs):
     else:
         userid = str(request.user.id)
 
+    is_qgis_browser = oq_is_qgis_browser(request)
+
     namespace = request.resolver_match.namespace
 
     data = json.loads(request.POST.get('data'))
 
-    (fd, fname) = tempfile.mkstemp(
-        suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
-    fzip = os.fdopen(fd, 'wb')
-    z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
+    if not is_qgis_browser:
+        (fd, fname) = tempfile.mkstemp(
+            suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
+        fzip = os.fdopen(fd, 'wb')
+        z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
+        file_collect = None
+    else:
+        z = None
+        fname = 'ipt_' + ''.join(random.choice(
+            string.ascii_lowercase + string.digits) for _ in range(8)) + '.zip'
+        file_collect = []
 
     jobini = "# Generated automatically with IPT at %s\n" % (
         "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
@@ -786,8 +814,7 @@ def scenario_prepare(request, **kwargs):
         jobini += "\n[hazard]\n"
         jobini += ("gmfs_file = %s\n" %
                    os.path.basename(data['gmf_file']))
-        z.write(get_full_path(userid, namespace, data['gmf_file']),
-                os.path.basename(data['gmf_file']))
+        zwrite_or_collect(z, userid, namespace, data['gmf_file'], file_collect)
 
     if data['hazard'] == 'hazard':
         jobini += "\n[Rupture information]\n"
@@ -795,8 +822,8 @@ def scenario_prepare(request, **kwargs):
 
         jobini += ("rupture_model_file = %s\n" %
                    os.path.basename(data['rupture_model_file']))
-        z.write(get_full_path(userid, namespace, data['rupture_model_file']),
-                decode(os.path.basename(data['rupture_model_file'])))
+        zwrite_or_collect(z, userid, namespace, data['rupture_model_file'],
+                          file_collect)
 
         jobini += "rupture_mesh_spacing = %s\n" % data['rupture_mesh_spacing']
 
@@ -819,8 +846,9 @@ def scenario_prepare(request, **kwargs):
         elif data['hazard_sites_choice'] == 'list-of-sites':
             jobini += "sites_csv = %s\n" % os.path.basename(
                 data['list_of_sites'])
-            z.write(get_full_path(userid, namespace, data['list_of_sites']),
-                    os.path.basename(data['list_of_sites']))
+            zwrite_or_collect(z, userid, namespace, data['list_of_sites'],
+                              file_collect)
+
         elif data['hazard_sites_choice'] == 'exposure-model':
             pass
         elif data['hazard_sites_choice'] == 'site-cond-model':
@@ -854,23 +882,22 @@ def scenario_prepare(request, **kwargs):
                 jobini += "%s_fragility_file = %s\n" % (
                     descr[losslist],
                     os.path.basename(data['fm_loss_' + losslist]))
-                z.write(get_full_path(userid, namespace,
-                                      data['fm_loss_' + losslist]),
-                        os.path.basename(data['fm_loss_' + losslist]))
+                zwrite_or_collect(z, userid, namespace,
+                                  data['fm_loss_' + losslist], file_collect)
                 if with_cons is True:
                     jobini += "%s_consequence_file = %s\n" % (
                         descr[losslist],
                         os.path.basename(data['fm_loss_%s_cons' % losslist]))
-                    z.write(get_full_path(userid, namespace,
-                                          data['fm_loss_%s_cons' % losslist]),
-                            os.path.basename(
-                                data['fm_loss_%s_cons' % losslist]))
+                    zwrite_or_collect(z, userid, namespace,
+                                      data['fm_loss_%s_cons' % losslist],
+                                      file_collect)
     elif data['risk'] == 'losses':
         jobini += vulnerability_model_prep_sect(data, z, userid, namespace,
-                                                save_files=True)
+                                                file_collect, save_files=True)
 
     if data['hazard'] == 'hazard':
-        jobini += site_conditions_prep_sect(data, z, userid, namespace)
+        jobini += site_conditions_prep_sect(data, z, userid, namespace,
+                                            file_collect)
 
     if data['hazard'] == 'hazard':
         jobini += "\n[Calculation parameters]\n"
@@ -907,7 +934,7 @@ def scenario_prepare(request, **kwargs):
 </logicTree>\n\
 </nrml>\n"
 
-        z.writestr('gmpe.xml', encode(gmpe))
+        zwrite_or_collect_str(z, 'gmpe.xml', gmpe, file_collect)
 
         if data['risk'] is None:
             jobini += "intensity_measure_types = "
@@ -937,12 +964,19 @@ def scenario_prepare(request, **kwargs):
 
     print(encode(jobini))
 
-    z.writestr('job.ini', encode(jobini))
-    z.close()
+    zwrite_or_collect_str(z, 'job.ini', jobini, file_collect)
 
-    ret['ret'] = 0
-    ret['msg'] = 'Success, download it.'
+    if is_qgis_browser:
+        ret['ret'] = 0
+        ret['msg'] = 'Success, scenario prepared correctly.'
+        ret['content'] = file_collect
+    else:
+        z.close()
+        ret['ret'] = 0
+        ret['msg'] = 'Success, download it.'
+
     ret['zipname'] = os.path.basename(fname)
+
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
@@ -961,14 +995,23 @@ def event_based_prepare(request, **kwargs):
     else:
         userid = str(request.user.id)
 
+    is_qgis_browser = oq_is_qgis_browser(request)
+
     namespace = request.resolver_match.namespace
 
     data = json.loads(request.POST.get('data'))
 
-    (fd, fname) = tempfile.mkstemp(
-        suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
-    fzip = os.fdopen(fd, 'wb')
-    z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
+    if not is_qgis_browser:
+        (fd, fname) = tempfile.mkstemp(
+            suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
+        fzip = os.fdopen(fd, 'wb')
+        z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
+        file_collect = None
+    else:
+        z = None
+        fname = 'ipt_' + ''.join(random.choice(
+            string.ascii_lowercase + string.digits) for _ in range(8)) + '.zip'
+        file_collect = []
 
     jobhaz = ""
     jobris = ""
@@ -999,8 +1042,8 @@ def event_based_prepare(request, **kwargs):
         elif data['hazard_sites_choice'] == 'list-of-sites':
             jobhaz += "sites_csv = %s\n" % os.path.basename(
                 data['list_of_sites'])
-            z.write(get_full_path(userid, namespace, data['list_of_sites']),
-                    os.path.basename(data['list_of_sites']))
+            zwrite_or_collect(z, userid, namespace, data['list_of_sites'],
+                              file_collect)
         elif data['hazard_sites_choice'] == 'exposure-model':
             pass
         else:
@@ -1010,23 +1053,24 @@ def event_based_prepare(request, **kwargs):
                                 content_type="application/json")
 
         # Site conditions
-        jobhaz += site_conditions_prep_sect(data, z, userid, namespace)
+        jobhaz += site_conditions_prep_sect(data, z, userid, namespace,
+                                            file_collect)
 
         # Hazard model
         jobhaz += "source_model_logic_tree_file = %s\n" % os.path.basename(
             data['source_model_logic_tree_file'])
-        z.write(get_full_path(userid, namespace,
-                              data['source_model_logic_tree_file']),
-                os.path.basename(data['source_model_logic_tree_file']))
+        zwrite_or_collect(z, userid, namespace,
+                          data['source_model_logic_tree_file'],
+                          file_collect)
 
         for source_model_name in data['source_model_file']:
-            z.write(get_full_path(userid, namespace, source_model_name),
-                    os.path.basename(source_model_name))
+            zwrite_or_collect(z, userid, namespace, source_model_name,
+                              file_collect)
 
         jobhaz += "gsim_logic_tree_file = %s\n" % os.path.basename(
             data['gsim_logic_tree_file'])
-        z.write(get_full_path(userid, namespace, data['gsim_logic_tree_file']),
-                os.path.basename(data['gsim_logic_tree_file']))
+        zwrite_or_collect(z, userid, namespace, data['gsim_logic_tree_file'],
+                          file_collect)
 
         jobhaz += "\n[Hazard model]\n"
         #            ##############
@@ -1045,8 +1089,8 @@ def event_based_prepare(request, **kwargs):
         if (data['risk'] is None and data['use_imt_from_vulnerability']
                 is True) or data['risk'] == 'risk':
             jobhaz += vulnerability_model_prep_sect(
-                data, z, userid, namespace, save_files=(not vuln_file_saved),
-                with_ensloss=False)
+                data, z, userid, namespace, file_collect,
+                save_files=(not vuln_file_saved), with_ensloss=False)
             vuln_file_saved = True
 
         jobhaz += "\n[Hazard calculation]\n"
@@ -1102,21 +1146,22 @@ def event_based_prepare(request, **kwargs):
     if data['risk'] == 'risk':
         jobris += exposure_model_prep_sect(
             data, z, (data['risk'] is not None), userid, namespace,
-            save_files=(not expo_file_saved))
+            file_collect, save_files=(not expo_file_saved))
         expo_file_saved = True
 
     if (data['hazard'] == 'hazard' and
         (data['hazard_sites_choice'] == 'exposure-model' or
          data['region_grid_choice'] == 'infer-from-exposure')):
         jobhaz += exposure_model_prep_sect(
-            data, z, False, userid, namespace,
+            data, z, False, userid, namespace, file_collect,
             save_files=(not expo_file_saved))
         expo_file_saved = True
 
     if data['risk'] == 'risk':
         # Vulnerability model
         jobris += vulnerability_model_prep_sect(
-            data, z, userid, namespace, save_files=(not vuln_file_saved))
+            data, z, userid, namespace, file_collect,
+            save_files=(not vuln_file_saved))
         vuln_file_saved = True
 
         jobris += "\n[Risk calculation]\n"
@@ -1137,7 +1182,7 @@ def event_based_prepare(request, **kwargs):
                        data['conditional_loss_poes'])
 
     if data['hazard'] == 'hazard':
-        z.writestr('job_hazard.ini', encode(jobhaz))
+        zwrite_or_collect_str(z, 'job_hazard.ini', jobhaz, file_collect)
 
     if jobris != "":
         jobris_head = "# Generated automatically with IPT at %s\n" % (
@@ -1148,13 +1193,19 @@ def event_based_prepare(request, **kwargs):
         jobris_head += "calculation_mode = event_based_risk\n"
 
         jobris = jobris_head + jobris
-        z.writestr('job_risk.ini', encode(jobris))
+        zwrite_or_collect_str(z, 'job_risk.ini', jobris, file_collect)
 
-    z.close()
+    if is_qgis_browser:
+        ret['ret'] = 0
+        ret['msg'] = 'Success, event based prepared correctly.'
+        ret['content'] = file_collect
+    else:
+        z.close()
+        ret['ret'] = 0
+        ret['msg'] = 'Success, download it.'
 
-    ret['ret'] = 0
-    ret['msg'] = 'Success, download it.'
     ret['zipname'] = os.path.basename(fname)
+
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
