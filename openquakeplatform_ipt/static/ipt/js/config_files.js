@@ -579,12 +579,11 @@ $(document).ready(function () {
         return dest_name;
     };
 
-    function generic_prepare_download_postcb(data, scope)
+    function generic_prepare_download_normal_postcb(data, scope)
     {
         var $form = $(cf_obj[scope].pfx + ' form[name="downloadForm"]');
         var dest_name;
         var $new_input;
-
         $form.empty();
         $form.append(csrf_token);
         $form.attr({'action': 'download'});
@@ -599,6 +598,17 @@ $(document).ready(function () {
         $form.append($new_input);
 
         $form.submit();
+    }
+
+    function generic_prepare_download_gemapi_postcb(reply, scope)
+    {
+        // FIXME
+        function build_zip_cb(uuid, reply) {
+            console.log('=== build_zip_cb ===');
+            console.log(reply);
+        }
+
+        gem_api.build_zip(build_zip_cb, reply.content, reply.zipname);
     }
 
     function runcalc_obj()
@@ -621,7 +631,7 @@ $(document).ready(function () {
         return ret;
     }
 
-    function generic_prepare_runcalc_postcb(data, scope)
+    function generic_prepare_runcalc_normal_postcb(data, scope)
     {
         var dest_name;
         var $new_input;
@@ -647,6 +657,33 @@ $(document).ready(function () {
         var cb_obj_id = gem_api_ctx_get_object_id(cb_obj);
         gem_api.delegate_download('download', 'POST', dd_headers, dd_data,
                                   'runcalc_gacb', cb_obj_id);
+    }
+
+    function generic_prepare_runcalc_gemapi_postcb(reply, scope)
+    {
+        // FIXME
+        function build_zip_cb(uuid, reply) {
+            console.log('=== build_zip_cb ===');
+            console.log(reply);
+            if (reply.success == false) {
+                gem_ipt.error_msg(reply.reason);
+                return;
+            }
+            function runcalc_cb(uuid, reply) {
+                if (reply.success == false) {
+                    gem_ipt.error_msg(reply.reason);
+                    return;
+                }
+                else {
+                    // FIXME: implement a notify_msg
+                    gem_ipt.error_msg(reply.reason);
+                }
+                return;
+            }
+            gem_api.run_oq_engine_calc(runcalc_cb, reply.content);
+        }
+
+        gem_api.build_zip(build_zip_cb, reply.content, reply.zipname);
     }
 
     /*
@@ -1397,12 +1434,18 @@ $(document).ready(function () {
 
     function scenario_download_cb(e)
     {
+        var generic_prepare_download_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_download_normal_postcb : generic_prepare_download_gemapi_postcb;
+
         return generic_prepare_cb('scen', this, generic_prepare_download_postcb, e);
     }
     $(cf_obj['scen'].pfx + ' button[name="download"]').click(scenario_download_cb);
 
     function scenario_runcalc_cb(e)
     {
+        var generic_prepare_runcalc_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_runcalc_normal_postcb : generic_prepare_runcalc_gemapi_postcb;
+
         return generic_prepare_cb('scen', this, generic_prepare_runcalc_postcb, e);
     }
     $(cf_obj['scen'].pfx + ' button[name="run-calc-btn"]').click(scenario_runcalc_cb);
@@ -1759,12 +1802,18 @@ $(document).ready(function () {
     $(cf_obj['e_b'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
     function event_based_download_cb(e)
     {
+        var generic_prepare_download_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_download_normal_postcb : generic_prepare_download_gemapi_postcb;
+
         return generic_prepare_cb('e_b', this, generic_prepare_download_postcb, e);
     }
     $(cf_obj['e_b'].pfx + ' button[name="download"]').on('click', event_based_download_cb);
 
     function event_based_runcalc_cb(e)
     {
+        var generic_prepare_runcalc_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_runcalc_normal_postcb : generic_prepare_runcalc_gemapi_postcb;
+
         return generic_prepare_cb('e_b', this, generic_prepare_runcalc_postcb, e);
     }
     $(cf_obj['e_b'].pfx + ' button[name="run-calc-btn"]').click(event_based_runcalc_cb);

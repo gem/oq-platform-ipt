@@ -61,14 +61,15 @@ def _get_error_line(exc_msg):
     return error_line
 
 
+JSON = 'application/json'
+
+
 def _make_response(error_msg, error_line, valid):
     response_data = dict(error_msg=error_msg,
                          error_line=error_line,
                          valid=valid)
     return HttpResponse(
         content=json.dumps(response_data), content_type=JSON)
-
-JSON = 'application/json'
 
 
 def _do_validate_nrml(xml_text):
@@ -673,7 +674,7 @@ def zwrite_or_collect(z, userid, namespace, fname, file_collect):
     """if z is None add the couple full_pathname, filename to a list,
     else append the file to the z zip object"""
     if z is None:
-        file_collect.append(["file", fname, os.path.basename(fname)])
+        file_collect.append(["file", os.path.basename(fname), fname])
     else:
         z.write(get_full_path(userid, namespace, fname),
                 decode(os.path.basename(fname)))
@@ -681,7 +682,7 @@ def zwrite_or_collect(z, userid, namespace, fname, file_collect):
 
 def zwrite_or_collect_str(z, fname, content, file_collect):
     if z is None:
-        file_collect.append(["string", fname, encode(content)])
+        file_collect.append(["string", fname, content])
     else:
         z.writestr(fname, encode(content))
 
@@ -977,7 +978,8 @@ def scenario_prepare(request, **kwargs):
 
     ret['zipname'] = os.path.basename(fname)
 
-    return HttpResponse(json.dumps(ret), content_type="application/json")
+    return HttpResponse(json.dumps(ret),
+                        content_type="application/json")
 
 
 def event_based_prepare(request, **kwargs):

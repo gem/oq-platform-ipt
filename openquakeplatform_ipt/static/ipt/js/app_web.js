@@ -242,5 +242,18 @@ AppWeb.prototype = {
         var uu = this.send({'command': 'select_and_copy_file_to_dir',
                             'args': args}, cb);
         return uu;
+    },
+
+    build_zip: function(cb, content, zipname) {
+        var uu = this.send({'command': 'build_zip',
+                            'args': [content, zipname]}, cb);
+        return uu;
+    },
+
+    run_oq_engine_calc: function(cb, zipname) {
+        var uu = this.send({'command': 'run_oq_engine_calc',
+                            'args': [[zipname]]}, cb);
+        return uu;
     }
+
 }
