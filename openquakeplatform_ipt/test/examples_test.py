@@ -75,6 +75,26 @@ imt_examples = {
              'sfx': 'xml'}
         ]
     },
+    'Earthquake Rupture': {
+        'tab_id': 5,
+        'exams': [
+            {'exa_id': 1, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-5']//div[@id='"
+                       "validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textarear']"],
+             'sfx': 'xml'},
+            {'exa_id': 2, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-5']//div[@id='"
+                       "validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textarear']"],
+             'sfx': 'xml'},
+            {'exa_id': 3, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-5']//div[@id='"
+                       "validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textarear']"],
+             'sfx': 'xml'},
+        ]
+    },
     'SiteConditions': {
         'tab_id': 6,
         'exams': [
