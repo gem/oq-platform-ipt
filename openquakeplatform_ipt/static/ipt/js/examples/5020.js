@@ -22,5 +22,4 @@ $(document).ready(function () {
     $('.er_gid #convertBtn').trigger('click');
 
     window.gem_example_completed = true;
-    return;
 });
