@@ -75,7 +75,7 @@ imt_examples = {
              'sfx': 'xml'}
         ]
     },
-    'Earthquake Rupture': {
+    'EarthquakeRupture': {
         'tab_id': 5,
         'exams': [
             {'exa_id': 1, 'subtab_id': 0,
