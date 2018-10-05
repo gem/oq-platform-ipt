@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <nrml xmlns:gml="http://www.opengis.net/gml" xmlns="http://openquake.org/xmlns/nrml/0.4">
-    <complexFaultRupture>
-        <magnitude>6.65</magnitude>
-        <rake>45</rake>
-        <hypocenter lat="3.482826188" lon="-76.65862517" depth="7.132923867"/>
-        <complexFaultGeometry>
-            <faultTopEdge>
-                <gml:LineString>
-                    <gml:posList>
-                        -76.66883 3.37929 0
-                        -76.67236844 3.424117133 0
-                        -76.67590722 3.46894425 0
-                        -76.67944633 3.513771361 0
-                        -76.68298578 3.55859845 0
-                        -76.68652557 3.60342553 0
-                    </gml:posList>
-                </gml:LineString>
-            </faultTopEdge>
-            <intermediateEdge>
-                <gml:LineString>
-                    <gml:posList>
-                        -76.65613003 3.373602382 4.755282578
-                        -76.65966788 3.418429515 4.755282578
-                        -76.66320606 3.463256634 4.755282578
-                        -76.66674456 3.50808374 4.755282578
-                        -76.6702834 3.552910832 4.755282578
-                        -76.67382257 3.597737911 4.755282578
-                    </gml:posList>
-                </gml:LineString>
-            </intermediateEdge>
-            <intermediateEdge>
-                <gml:LineString>
-                    <gml:posList>
-                        -76.6434302 3.367914599 9.510565156
-                        -76.64696746 3.412741728 9.510565156
-                    </gml:posList>
-                </gml:LineString>
-            </intermediateEdge>
-            <faultBottomEdge>
-                <gml:LineString>
-                    <gml:posList>
-                        -76.63073052 3.36222651 14.2658
-                        -76.6342672 3.407053775 14.2658
-                    </gml:posList>
-                </gml:LineString>
-            </faultBottomEdge>
-        </complexFaultGeometry>
-    </complexFaultRupture>
+	<complexFaultRupture>
+		<magnitude>6.65</magnitude>
+		<rake>45</rake>
+		<hypocenter lat="3.482826188" lon="-76.65862517" depth="7.132923867"/>
+		<complexFaultGeometry>
+			<faultTopEdge>
+				<gml:LineString>
+					<gml:posList>
+						-76.66883 3.37929 0
+						-76.67236844 3.424117133 0
+						-76.67590722 3.46894425 0
+						-76.67944633 3.513771361 0
+						-76.68298578 3.55859845 0
+						-76.68652557 3.60342553 0
+					</gml:posList>
+				</gml:LineString>
+			</faultTopEdge>
+			<intermediateEdge>
+				<gml:LineString>
+					<gml:posList>
+						-76.65613003 3.373602382 4.755282578
+						-76.65966788 3.418429515 4.755282578
+						-76.66320606 3.463256634 4.755282578
+						-76.66674456 3.50808374 4.755282578
+						-76.6702834 3.552910832 4.755282578
+						-76.67382257 3.597737911 4.755282578
+					</gml:posList>
+				</gml:LineString>
+			</intermediateEdge>
+			<intermediateEdge>
+				<gml:LineString>
+					<gml:posList>
+						-76.6434302 3.367914599 9.510565156
+						-76.64696746 3.412741728 9.510565156
+					</gml:posList>
+				</gml:LineString>
+			</intermediateEdge>
+			<faultBottomEdge>
+				<gml:LineString>
+					<gml:posList>
+						-76.63073052 3.36222651 14.2658
+						-76.6342672 3.407053775 14.2658
+					</gml:posList>
+				</gml:LineString>
+			</faultBottomEdge>
+		</complexFaultGeometry>
+	</complexFaultRupture>
 </nrml>
