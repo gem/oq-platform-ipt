@@ -43,10 +43,26 @@ function sendbackNRML(nrml, sfx)
 
 function delegate_downloadNRML_cb(uuid, msg)
 {
-    console.log("delegate_downloadNRML_cb BEGIN");
-    console.log(uuid);
-    console.log(msg);
-    console.log("delegate_downloadNRML_cb END");
+    if (msg.complete) {
+        var res = msg.result;
+        if (res.success == false) {
+            gem_ipt.error_msg(res.reason);
+            return;
+        }
+
+        function save_as_cb(uuid, msg)
+        {
+            function dumb_cb(uuid) {
+                return;
+            }
+
+            if (msg.complete) {
+                gem_api.delete_file(dumb_cb, res.realpath);
+            }
+        }
+
+        gem_api.save_as(save_as_cb, res.realpath, res.content);
+    }
 }
 
 function delegate_downloadNRML(nrml, sfx)

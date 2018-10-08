@@ -254,6 +254,17 @@ AppWeb.prototype = {
         var uu = this.send({'command': 'run_oq_engine_calc',
                             'args': [[zipname]]}, cb);
         return uu;
-    }
+    },
 
+    save_as: function(cb, file_src, suggested_name) {
+        var uu = this.send({'command': 'save_as',
+                            'args': [file_src, suggested_name]}, cb);
+        return uu;
+    },
+
+    delete_file: function(cb, file_path) {
+        var uu = this.send({'command': 'delete_file',
+                            'args': [file_path]}, cb);
+        return uu;
+    }
 }

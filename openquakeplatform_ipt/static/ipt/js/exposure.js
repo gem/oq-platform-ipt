@@ -617,6 +617,10 @@ if (typeof gem_api != 'undefined') {
         var uu = delegate_downloadNRML(ex_obj.nrml, 'ex');
         console.log("fired cmd with uuid: " + uu);
     });
+    ex_obj.o.find('#delegateCollectBtn').click(function() {
+        var uu = delegate_collectNRML(ex_obj.nrml, 'ex');
+        console.log("fired cmd with uuid: " + uu);
+    });
 }
 
 ex_obj.o.find('#convertBtn').click(function() {
