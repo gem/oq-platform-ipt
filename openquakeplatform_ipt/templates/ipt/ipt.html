@@ -101,6 +101,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 
 {% block extra_script %}
     {{block.super}}
+    <script>
+      {% if gem_qgis != None %}
+      var gem_api = null;
+      var allowed_dirs = {{ allowed_dir|safe }};
+      {% endif %}
+    </script>
     <script src="{{ STATIC_URL }}openquakeplatform/js/utils/utils.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/uuid-random.min.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/hybridge_key.js"></script>
