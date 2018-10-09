@@ -268,6 +268,34 @@ var gem_ipt = {
         });
     },
 
+    warn_msg: function(msg) {
+        $( "#warning-message" ).html(msg.replace(/\n/g, "<br/>"));
+        $( "#warning-message" ).dialog({
+            dialogClass: 'gem-jqueryui-dialog',
+            modal: true,
+            width: '600px',
+            buttons: {
+                Ok: function() {
+                    $(this).dialog( "close" );
+                }
+            }
+        });
+    },
+
+    info_msg: function(msg) {
+        $( "#info-message" ).html(msg.replace(/\n/g, "<br/>"));
+        $( "#info-message" ).dialog({
+            dialogClass: 'gem-jqueryui-dialog',
+            modal: true,
+            width: '600px',
+            buttons: {
+                Ok: function() {
+                    $(this).dialog( "close" );
+                }
+            }
+        });
+    },
+
     qgis_msg_open: function(msg) {
         console.log("qgis_msg_open");
         $( "#qgis-message" ).html(msg.replace(/\n/g, "<br/>"));

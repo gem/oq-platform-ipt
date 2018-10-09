@@ -1,6 +1,16 @@
+function dumb_cb(uuid, msg)
+{
+    return;
+}
+
 function sfx2name(sfx)
 {
-    var map = { 'ex': 'exposure', 'ff': 'fragility', 'co': 'consequence', 'vf': 'vulnerability', 'sc': 'site', 'er': 'earthquake_rupture' };
+    var map = { 'ex': 'exposure',
+                'ff': 'fragility',
+                'co': 'consequence',
+                'vf': 'vulnerability',
+                'sc': 'site',
+                'er': 'earthquake_rupture' };
 
     return map[sfx];
 }
@@ -52,9 +62,6 @@ function delegate_downloadNRML_cb(uuid, msg)
 
         function save_as_cb(uuid, msg)
         {
-            function dumb_cb(uuid) {
-                return;
-            }
 
             if (msg.complete) {
                 gem_api.delete_file(dumb_cb, res.realpath);
@@ -65,7 +72,53 @@ function delegate_downloadNRML_cb(uuid, msg)
     }
 }
 
-function delegate_downloadNRML(nrml, sfx)
+function delegate_collectNRML_cb(uuid, msg)
+{
+
+    var dir_mapping = {
+        'exposure_model.xml': 'exposure_model',
+        'fragility_model.xml': 'fragility_model',
+        'consequence_model.xml': 'fragility_cons',
+        'vulnerability_model.xml': 'vulnerability_model',
+        'site_model.xml': 'site_conditions',
+        'earthquake_rupture_model.xml': 'rupture_file'
+    };
+
+    if (msg.complete) {
+        var res = msg.result;
+        if (res.success == false) {
+            gem_ipt.error_msg(res.reason);
+            return;
+        }
+
+        if (!(res.content in dir_mapping)) {
+            gem_api.delete_file(dumb_cb, res.realpath);
+            gem_ipt.error_msg('File [' + res.content + '] type not collectable');
+            return;
+        }
+
+        var target_file = dir_mapping[res.content] + '/' + res.content;
+
+        function move_file_cb(uuid, msg)
+        {
+            var res = msg.result;
+
+            if (msg.complete) {
+                if (res.success) {
+                    console.log(msg);
+                    gem_ipt.info_msg('File collected as "' + target_file + '"');
+                    return;
+                }
+                else {
+                    gem_api.delete_file(dumb_cb, res.realpath);
+                }
+            }
+        }
+        gem_api.move_file(move_file_cb, res.realpath, target_file);
+    }
+}
+
+function delegate_downloadNRML(nrml, sfx, cb)
 {
     if (typeof gem_api == 'undefined')
         return false;
@@ -93,8 +146,8 @@ function delegate_downloadNRML(nrml, sfx)
     pathname = pathname.substr(0, pathname.lastIndexOf('/')) + '/';
     var base_url = spli_url['protocol'] + '//' + spli_url['host'] + pathname;
 
-    var uu = gem_api.delegate_download(delegate_downloadNRML_cb, base_url + SENDBACK_URL,
-                                       'POST', dd_headers, dd_data);
+    var uu = gem_api.delegate_download(
+        cb, base_url + SENDBACK_URL, 'POST', dd_headers, dd_data);
 
     return uu;
 }

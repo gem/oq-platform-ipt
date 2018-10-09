@@ -614,11 +614,11 @@ ex_obj.o.find('#downloadBtn').click(function() {
 
 if (typeof gem_api != 'undefined') {
     ex_obj.o.find('#delegateDownloadBtn').click(function() {
-        var uu = delegate_downloadNRML(ex_obj.nrml, 'ex');
+        var uu = delegate_downloadNRML(ex_obj.nrml, 'ex', delegate_downloadNRML_cb);
         console.log("fired cmd with uuid: " + uu);
     });
     ex_obj.o.find('#delegateCollectBtn').click(function() {
-        var uu = delegate_collectNRML(ex_obj.nrml, 'ex');
+        var uu = delegate_downloadNRML(ex_obj.nrml, 'ex', delegate_collectNRML_cb);
         console.log("fired cmd with uuid: " + uu);
     });
 }

@@ -31,9 +31,19 @@
 
 function manage_error_cb(uuid, msg)
 {
-    gem_ipt.error_msg(ret.str);
-
-    return false;
+    if ('result' in msg) {
+        if ('reason' in msg.result) {
+            gem_ipt.error_msg(msg.result.reason);
+            return;
+        }
+    }
+    if (type(console) !== 'undefined') {
+        if ('log' in console) {
+            console.log('manage_error_cb');
+            console.log(msg);
+            gem_ipt.error_msg('A command executed by QGIS returned a malformed reply, take a look to  console.log for more informations');
+        }
+    }
 }
 
 function select_update(sel, options)
@@ -83,9 +93,11 @@ function populate_selects()
 
         return function subdir_ls_cb(uuid, msg) {
             var options = [];
+            var app_msg;
 
-            for (var i = 0 ; i < msg.content.length ; i++) {
-                var v = msg.content[i];
+            app_msg = msg.result;
+            for (var i = 0 ; i < app_msg.content.length ; i++) {
+                var v = app_msg.content[i];
                 options.push([k + '/' + v, v]);
             }
             for (var i = 0 ; i < family.length ; i++) {
@@ -118,17 +130,22 @@ function track_status_cb(uuid, msg)
             // set folders to save collected files
             function init_ls_cb(uuid, msg) {
                 console.log('init_ls_cb');
-                if (msg.success != true)
-                    return manage_error_cb(uuid, msg);
+                if (!msg.complete) {
+                    return;
+                }
+
+                app_msg = msg.result;
+                if (app_msg.success != true)
+                    return manage_error_cb(uuid, app_msg);
 
                 var ct_sync = allowed_dirs.length;
 
                 for (var i = 0 ; i < allowed_dirs.length ; i++) {
                     all_dir = allowed_dirs[i];
 
-                    if (msg.content.indexOf(all_dir + '/') == -1) {
+                    if (app_msg.content.indexOf(all_dir + '/') == -1) {
                         // folder not found, create it
-                        function init_mkdir_cb(uuid, msg)
+                        function init_mkdir_cb(uuid, app_msg)
                         {
                             ct_sync--;
                             if (ct_sync == 0) {
@@ -266,5 +283,12 @@ AppWeb.prototype = {
         var uu = this.send({'command': 'delete_file',
                             'args': [file_path]}, cb);
         return uu;
+    },
+
+    move_file: function(cb, old_path, new_path) {
+        var uu = this.send({'command': 'move_file',
+                            'args': [old_path, new_path]}, cb);
+        return uu;
     }
+
 }
