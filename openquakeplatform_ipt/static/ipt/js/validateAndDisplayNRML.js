@@ -97,7 +97,8 @@ function delegate_collectNRML_cb(uuid, msg)
             return;
         }
 
-        var target_file = dir_mapping[res.content] + '/' + res.content;
+        var target_subdir = dir_mapping[res.content];
+        var target_file = target_subdir + '/' + res.content;
 
         function move_file_cb(uuid, msg)
         {
@@ -105,7 +106,7 @@ function delegate_collectNRML_cb(uuid, msg)
 
             if (msg.complete) {
                 if (res.success) {
-                    console.log(msg);
+                    populate_selects(target_subdir);
                     gem_ipt.info_msg('File collected as "' + target_file + '"');
                     return;
                 }

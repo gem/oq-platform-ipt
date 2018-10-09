@@ -74,8 +74,12 @@ function select_update(sel, options)
 function populate_selects()
 {
     var el, families = {};
-    var $sel = $("select[name='file_html']");
-
+    if (arguments.length == 0) {
+        var $sel = $("select[name='file_html']");
+    }
+    else {
+        var $sel = $("select[name='file_html'][data-gem-subdir='" + arguments[0] + "']");
+    }
     for (var i = 0 ; i < $sel.length ; i++) {
         el = $sel[i];
         subdir = $(el).attr('data-gem-subdir');
