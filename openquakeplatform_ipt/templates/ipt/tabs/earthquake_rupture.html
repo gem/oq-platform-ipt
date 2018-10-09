@@ -128,9 +128,11 @@
   <div id="infoMsg" class="alert alert-info" role="alert">3. Download the NRML file for use in the OpenQuake Engine.</div>
   <div id="validationErrorMsg" class="alert alert-warning" role="alert" style="display: none;">Error message</div>
   <div id="downloadLink" style="display: none;">
-    <button class="btn" id="downloadBtn">Download</button>
     {%if gem_qgis != None %}
-    <button id="delegateDownloadBtn" type="button" class="btn">Collect</button>
+    <button id="delegateDownloadBtn" type="button" class="btn">Download</button>
+    <button id="delegateCollectBtn" type="button" class="btn">Collect</button>
+    {% else %}
+    <button id="downloadBtn" type="button" class="btn">Download</button>
     {% endif %}
     <form id="downloadForm" method="post">{% csrf_token %}</form></div>
   <div id="outputText" style="width:600px; margin: auto;"></div>

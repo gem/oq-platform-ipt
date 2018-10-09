@@ -982,8 +982,18 @@ $(document).ready(function () {
     /* converter */
     er_obj.o.find('#convertBtn').click(function(e) { er_obj.convert2nrml(e); });
 
-    $('.er_gid #downloadBtn').click(function() {
-    sendbackNRML(er_obj.nrml, 'er');
-});
+    er_obj.o.find('#downloadBtn').click(function() {
+        sendbackNRML(er_obj.nrml, 'er');
+    });
 
+    if (typeof gem_api != 'undefined') {
+        er_obj.o.find('#delegateDownloadBtn').click(function() {
+            var uu = delegate_downloadNRML(er_obj.nrml, 'er', delegate_downloadNRML_cb);
+            console.log("fired cmd with uuid: " + uu);
+        });
+        er_obj.o.find('#delegateCollectBtn').click(function() {
+            var uu = delegate_downloadNRML(er_obj.nrml, 'er', delegate_collectNRML_cb);
+            console.log("fired cmd with uuid: " + uu);
+        });
+    }
 });
