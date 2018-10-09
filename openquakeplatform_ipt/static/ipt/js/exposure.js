@@ -16,7 +16,7 @@
 */
 
 var ex_obj = {
-    pfx: "div.ex_gid ",
+    pfx: 'div.ex_gid ',
     o: $('div.ex_gid'),
     tbl_file: {},
     tbl: {},

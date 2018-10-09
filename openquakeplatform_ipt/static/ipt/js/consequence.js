@@ -16,7 +16,7 @@
 */
 
 var co_obj = {
-    pfx: "div.co_gid ",
+    pfx: 'div.co_gid ',
     o: $('div.co_gid'),
     damage_states: null,
     tbl: null,
@@ -200,6 +200,17 @@ co_obj.o.find('#downloadBtn').click(function() {
     sendbackNRML(co_obj.nrml, 'co');
 });
 
+if (typeof gem_api != 'undefined') {
+    co_obj.o.find('#delegateDownloadBtn').click(function() {
+        var uu = delegate_downloadNRML(co_obj.nrml, 'co', delegate_downloadNRML_cb);
+        console.log("fired cmd with uuid: " + uu);
+    });
+    co_obj.o.find('#delegateCollectBtn').click(function() {
+        var uu = delegate_downloadNRML(co_obj.nrml, 'co', delegate_collectNRML_cb);
+        console.log("fired cmd with uuid: " + uu);
+    });
+}
+
 co_obj.o.find('#convertBtn').click(function() {
     var data = null
     if (co_obj.o.find('input#table_file')[0].files.length > 0) {
@@ -217,7 +228,7 @@ co_obj.o.find('#convertBtn').click(function() {
         for (var j = 0; j < data[i].length; j++) {
             var s = data[i][j] + " ";
             if (data[i][j] === null || data[i][j].toString().trim() == "" || parseInt(data[i][j]) < 0.0) {
-                output_manager('ex', "empty or negative cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
+                output_manager('co', "empty or negative cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
                 return;
             }
         }
@@ -263,7 +274,7 @@ co_obj.o.find('#convertBtn').click(function() {
 $(document).ready(function () {
 
     co_obj.o.find('input#table_file').on(
-        'change', function ex_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, co_obj, 1, null, null); });
+        'change', function co_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, co_obj, 1, null, null); });
 
     co_updateTable();
     co_obj.o.find('#new_row_add').click(function() {
