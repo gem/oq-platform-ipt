@@ -389,10 +389,6 @@ def view(request, **kwargs):
         is_qgis_browser, 'exposure_model', userid, namespace)
     exposure_model_upload = FileUpload()
 
-    site_model_html = filehtml_create(
-        is_qgis_browser, 'site_model', userid, namespace)
-    site_model_upload = FileUpload()
-
     fm_structural_html = filehtml_create(
         is_qgis_browser, 'fm_structural', userid, namespace,
         dirnam='fragility_model')
@@ -452,9 +448,6 @@ def view(request, **kwargs):
         is_qgis_browser, 'site_conditions', userid, namespace)
     site_conditions_upload = FileUpload()
 
-    imt_html = filehtml_create(is_qgis_browser, 'imt', userid, namespace)
-    imt_upload = FileUpload()
-
     gsim_logic_tree_file_html = filehtml_create(
         is_qgis_browser, 'gsim_logic_tree_file', userid, namespace)
     gsim_logic_tree_file_upload = FileUpload()
@@ -479,8 +472,6 @@ def view(request, **kwargs):
         gmf_file_upload=gmf_file_upload,
         exposure_model_html=exposure_model_html,
         exposure_model_upload=exposure_model_upload,
-        site_model_html=site_model_html,
-        site_model_upload=site_model_upload,
 
         fm_structural_html=fm_structural_html,
         fm_structural_upload=fm_structural_upload,
@@ -513,8 +504,6 @@ def view(request, **kwargs):
 
         site_conditions_html=site_conditions_html,
         site_conditions_upload=site_conditions_upload,
-        imt_html=imt_html,
-        imt_upload=imt_upload,
         gsim_logic_tree_file_html=gsim_logic_tree_file_html,
         gsim_logic_tree_file_upload=gsim_logic_tree_file_upload,
 
