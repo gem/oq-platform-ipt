@@ -361,7 +361,7 @@ class IptUploadTest(unittest.TestCase):
 
         # show div with upload file
         up_file = os.path.join(os.path.dirname(__file__), 'data',
-                               'rupture_file', 'rupture_model.xml')
+                               'rupture_file', 'earthquake_rupture_model.xml')
 
         butt_upload_file = pla.xpath_finduniq(
             "//button[@name='rupture-file-new'"
@@ -393,7 +393,7 @@ class IptUploadTest(unittest.TestCase):
             common + "//div[@name='rupture-file-html']"
             "//select[@name='file_html']"))
 
-        assert list_files.first_selected_option.text == "rupture_model.xml"
+        assert list_files.first_selected_option.text == "earthquake_rupture_model.xml"
 
 
 class IptExamplesTest(unittest.TestCase):

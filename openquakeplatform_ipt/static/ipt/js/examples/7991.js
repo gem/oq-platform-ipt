@@ -16,7 +16,7 @@ $(document).ready(function () {
     
     $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] input[type="text"]').focus();
     setTimeout(function () {
-        $(cf_obj['scen'].pfx + ' div[name="rupture-file-html"] select[name="file_html"]').val('rupture_file/rupture_model.xml');
+        $(cf_obj['scen'].pfx + ' div[name="rupture-file-html"] select[name="file_html"]').val('rupture_file/earthquake_rupture_model.xml');
         // waiting for gmpe list population
         $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] div.sol-label-text:contains("AbrahamsonEtAl2014RegCHN")'
          ).click()
