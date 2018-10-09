@@ -16,6 +16,8 @@
 */
 
 var sc_obj = {
+    pfx: 'div.sc_gid ',
+    o: $('div.sc_gid'),
     tbl_file: null,
     tbl: {},
     nrml: "",
@@ -250,9 +252,20 @@ function sc_updateTable() {
     $('.sc_gid #convertBtn').show();
 }
 
-$('.sc_gid #downloadBtn').click(function() {
+sc_obj.o.find('#downloadBtn').click(function() {
     sendbackNRML(sc_obj.nrml, 'sc');
 });
+
+if (typeof gem_api != 'undefined') {
+    sc_obj.o.find('#delegateDownloadBtn').click(function() {
+        var uu = delegate_downloadNRML(sc_obj.nrml, 'sc', delegate_downloadNRML_cb);
+        console.log("fired cmd with uuid: " + uu);
+    });
+    sc_obj.o.find('#delegateCollectBtn').click(function() {
+        var uu = delegate_downloadNRML(sc_obj.nrml, 'sc', delegate_collectNRML_cb);
+        console.log("fired cmd with uuid: " + uu);
+    });
+}
 
 $('.sc_gid #convertBtn').click(function() {
     var tab_data = null;
