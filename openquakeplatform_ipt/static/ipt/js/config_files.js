@@ -661,26 +661,34 @@ $(document).ready(function () {
 
     function generic_prepare_runcalc_gemapi_postcb(reply, scope)
     {
-        // FIXME
-        function build_zip_cb(uuid, reply) {
+        function build_zip_cb(uuid, msg) {
             console.log('=== build_zip_cb ===');
-            console.log(reply);
-            if (reply.success == false) {
-                gem_ipt.error_msg(reply.reason);
+            console.log(msg);
+            if (! msg.complete) {
                 return;
             }
-            function runcalc_cb(uuid, reply) {
-                if (reply.success == false) {
-                    gem_ipt.error_msg(reply.reason);
+
+            var cmd_msg = msg.result;
+            if (cmd_msg.success == false) {
+                gem_ipt.error_msg(cmd_msg.reason);
+                return;
+            }
+            function runcalc_cb(uuid, msg) {
+                if (! msg.complete) {
                     return;
                 }
-                else {
-                    // FIXME: implement a notify_msg
-                    gem_ipt.error_msg(reply.reason);
+
+                var cmd_msg = msg.result;
+                if (! cmd_msg.success) {
+                    gem_ipt.error_msg(cmd_msg.reason);
+                    return;
                 }
+
+                gem_ipt.info_msg('Calculation started.')
+
                 return;
             }
-            gem_api.run_oq_engine_calc(runcalc_cb, reply.content);
+            gem_api.run_oq_engine_calc(runcalc_cb, cmd_msg.content);
         }
 
         gem_api.build_zip(build_zip_cb, reply.content, reply.zipname);
