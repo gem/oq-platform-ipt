@@ -690,6 +690,8 @@ $(document).ready(function () {
                 gem_ipt.error_msg(cmd_msg.reason);
                 return;
             }
+            var zip_filename = cmd_msg.content;
+
             function runcalc_cb(uuid, msg) {
                 if (! msg.complete) {
                     return;
@@ -702,6 +704,8 @@ $(document).ready(function () {
                 }
 
                 gem_ipt.info_msg('Calculation started.')
+
+                gem_api.delete_file(dumb_cb, zip_filename);
 
                 return;
             }
