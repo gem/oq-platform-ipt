@@ -317,12 +317,16 @@ $(document).ready(function () {
         var subdir = $sibling.attr('data-gem-subdir');
         var collected_reply = reply;
 
-        function ls_subdir_cb(uuid, reply) {
-            if (reply.success == true) {
+        function ls_subdir_cb(uuid, app_msg) {
+            if (! app_msg.complete)
+                return;
+            var cmd_msg = app_msg.result;
+
+            if (cmd_msg.success == true) {
                 var options = [];
                 var old_sel = [];
-                for (var i = 0 ; i < reply.content.length ; i++) {
-                    var v = reply.content[i];
+                for (var i = 0 ; i < cmd_msg.content.length ; i++) {
+                    var v = cmd_msg.content[i];
                     options.push([subdir + '/' + v, v]);
                 }
 
@@ -1155,13 +1159,18 @@ $(document).ready(function () {
             var sel_grp = $sibling.attr('data-gem-group');
             var is_multiple = $sibling.is("[multiple]");
 
-            function cb(uuid, reply) {
-                if (reply.success) {
-                    $msg.html("File '" + reply.content[0] + "' collected correctly.");
-                    scenario_fileNew_collect(event, reply);
+            function cb(uuid, app_msg) {
+                if (! app_msg.complete)
+                    return;
+
+                var cmd_msg = app_msg.result;
+                debugger;
+                if (cmd_msg.success) {
+                    $msg.html("File '" + cmd_msg.content[0] + "' collected correctly.");
+                    scenario_fileNew_collect(event, cmd_msg);
                 }
                 else {
-                    $msg.html(reply.reason);
+                    $msg.html(cmd_msg.reason);
                 }
                 $(cf_obj['scen'].pfx + ' div[name="' + event.target.name + '"]').delay(3000).slideUp();
             }
