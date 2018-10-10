@@ -109,11 +109,11 @@
     </div>
     <br>
     <div id="outputDiv">
-      <div id="infoMsg" class="alert alert-info" role="alert">3. Download the NRML file for use in the OpenQuake Engine.</div>
+      <div id="infoMsg" class="alert alert-info" role="alert">3. {%if gem_qgis != None %}'Save As' or Collect{% else %}Download{% endif %} the NRML file for use in the OpenQuake Engine.</div>
       <div id="validationErrorMsg" class="alert alert-warning" role="alert" style="display: none;">Error message</div>
       <div id="downloadLink" style="display: none;">
         {%if gem_qgis != None %}
-        <button id="delegateDownloadBtn" type="button" class="btn">Download</button>
+        <button id="delegateDownloadBtn" type="button" class="btn">Save As</button>
         <button id="delegateCollectBtn" type="button" class="btn">Collect</button>
         {% else %}
         <button id="downloadBtn" type="button" class="btn">Download</button>

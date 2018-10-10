@@ -320,7 +320,7 @@
   <hr>
   <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="clean_all">Clean all</button>
 
-  <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button>
+  <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">{%if gem_qgis != None %}'Save As'{% else %}Download{% endif %} Zip File</button>
   {%if gem_qgis != None %}
   <button name="run-calc-btn" type="button" style="vertical-align: top; margin: auto;" class="btn btn-primary">Run Calculation</button>
   {% endif %}
