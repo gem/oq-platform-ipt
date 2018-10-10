@@ -537,10 +537,13 @@ function ff_addTable (funcType) {
 ff_obj.o.find('#downloadBtn').click(function() {
     sendbackNRML(ff_obj.nrml, 'ff');
 });
-
 if (typeof gem_api != 'undefined') {
     ff_obj.o.find('#delegateDownloadBtn').click(function() {
-        var uu = delegate_downloadNRML(ff_obj.nrml, 'ff');
+        var uu = delegate_downloadNRML(ff_obj.nrml, 'ff', delegate_downloadNRML_cb);
+        console.log("fired cmd with uuid: " + uu);
+    });
+    ff_obj.o.find('#delegateCollectBtn').click(function() {
+        var uu = delegate_downloadNRML(ff_obj.nrml, 'ff', delegate_collectNRML_cb);
         console.log("fired cmd with uuid: " + uu);
     });
 }
