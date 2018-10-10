@@ -602,10 +602,27 @@ $(document).ready(function () {
 
     function generic_prepare_download_gemapi_postcb(reply, scope)
     {
-        // FIXME
-        function build_zip_cb(uuid, reply) {
-            console.log('=== build_zip_cb ===');
-            console.log(reply);
+        var dest_name = cf_obj.generate_dest_name(scope);
+
+        function build_zip_cb(uuid, msg)
+        {
+            if (msg.complete) {
+                var res = msg.result;
+                if (res.success == false) {
+                    gem_ipt.error_msg(res.reason);
+                    return;
+                }
+
+                function save_as_cb(uuid, msg)
+                {
+
+                    if (msg.complete) {
+                        gem_api.delete_file(dumb_cb, res.content);
+                    }
+                }
+                debugger;
+                gem_api.save_as(save_as_cb, res.content, dest_name + '.zip');
+            }
         }
 
         gem_api.build_zip(build_zip_cb, reply.content, reply.zipname);
