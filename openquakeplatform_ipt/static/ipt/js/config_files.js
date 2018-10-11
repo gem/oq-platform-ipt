@@ -624,7 +624,6 @@ $(document).ready(function () {
                         gem_api.delete_file(dumb_cb, res.content);
                     }
                 }
-                debugger;
                 gem_api.save_as(save_as_cb, res.content, dest_name + '.zip');
             }
         }
@@ -1164,7 +1163,6 @@ $(document).ready(function () {
                     return;
 
                 var cmd_msg = app_msg.result;
-                debugger;
                 if (cmd_msg.success) {
                     $msg.html("File '" + cmd_msg.content[0] + "' collected correctly.");
                     scenario_fileNew_collect(event, cmd_msg);
