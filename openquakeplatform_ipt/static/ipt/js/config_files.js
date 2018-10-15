@@ -1707,17 +1707,21 @@ $(document).ready(function () {
             var sel_grp = $sibling.attr('data-gem-group');
             var is_multiple = $sibling.is("[multiple]");
 
-            function ls_subdir_cb(uuid, reply) {
-                if (reply.success) {
-                    $msg.html("File '" + reply.content[0] + "' collected correctly.");
-                    event_based_fileNew_collect(event, reply);
+            function cb(uuid, app_msg) {
+                if (! app_msg.complete)
+                    return;
+
+                var cmd_msg = app_msg.result;
+                if (cmd_msg.success) {
+                    $msg.html("File '" + cmd_msg.content[0] + "' collected correctly.");
+                    event_based_fileNew_collect(event, cmd_msg);
                 }
                 else {
-                    $msg.html(reply.reason);
+                    $msg.html(cmd_msg.reason);
                 }
                 $(cf_obj['e_b'].pfx + ' div[name="' + event.target.name + '"]').delay(3000).slideUp();
             }
-            gem_api.select_and_copy_file(ls_subdir_cb, subdir, is_multiple);
+            gem_api.select_and_copy_file(cb, subdir, is_multiple);
         }
     }
 
