@@ -528,7 +528,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
         </div>\n\
         <div name="middles"></div>\n\
         <div class="menuItems" style="margin-top: 12px; text-align: center;">\n\
-          <button type="button" name="add_interm_edge" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.complex_surface_middle_add(this);">Add intermediate edge</button>\n\
+          <button type="button" name="add_interm_edge" data-gem-id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.complex_surface_middle_add(this);">Add intermediate edge</button>\n\
         </div>\n\
         <div class="menuItems complex_geometry">\n\
           <label>Fault bottom edge:</label>\n\
