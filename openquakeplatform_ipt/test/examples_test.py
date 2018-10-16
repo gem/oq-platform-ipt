@@ -458,7 +458,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
         pla.get('/ipt/?tab_id=%d&subtab_id=%d&example_id=%d' % (
             tab_id, example['subtab_id'], example['exa_id']))
 
-        pla.waituntil_js(10, ("try { return (window.gem_example_completed"
+        pla.waituntil_js(50, ("try { return (window.gem_example_completed"
                               " == true); } catch (exc) { return false; }"))
 
         if 'xpath' in example:
