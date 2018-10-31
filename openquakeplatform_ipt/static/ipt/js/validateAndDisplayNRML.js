@@ -1,6 +1,16 @@
+function dumb_cb(uuid, msg)
+{
+    return;
+}
+
 function sfx2name(sfx)
 {
-    var map = { 'ex': 'exposure', 'ff': 'fragility', 'co': 'consequence', 'vf': 'vulnerability', 'sc': 'site', 'er': 'earthquake_rupture' };
+    var map = { 'ex': 'exposure',
+                'ff': 'fragility',
+                'co': 'consequence',
+                'vf': 'vulnerability',
+                'sc': 'site',
+                'er': 'earthquake_rupture' };
 
     return map[sfx];
 }
@@ -41,37 +51,88 @@ function sendbackNRML(nrml, sfx)
     $form[0].submit();
 }
 
-function dd_obj()
+function delegate_downloadNRML_cb(uuid, msg)
 {
-}
+    if (msg.complete) {
+        var res = msg.result;
+        if (res.success == false) {
+            gem_ipt.error_msg(res.reason);
+            return;
+        }
 
-dd_obj.prototype = {
-    delegate_downloadNRML_cb: function(file_name, success, reason) {
-        return true;
+        function save_as_cb(uuid, msg)
+        {
+
+            if (msg.complete) {
+                gem_api.delete_file(dumb_cb, res.realpath);
+            }
+        }
+
+        gem_api.save_as(save_as_cb, res.realpath, res.content);
     }
-};
-
-function delegate_downloadNRML_gacb(object_id, file_name, success, reason)
-{
-    var obj = gem_api_ctx_get_object(object_id);
-
-    var ret = obj.delegate_downloadNRML_cb(file_name, success, reason);
-
-    gem_api_ctx_del(object_id);
-
-    return ret;
 }
 
-function delegate_downloadNRML(nrml, sfx)
+function delegate_collectNRML_cb(uuid, msg)
 {
-    var funcType = sfx2name(sfx);
-    var csrf_name = $(csrf_token).attr('name');
-    var csrf_value = $(csrf_token).attr('value');
 
+    var dir_mapping = {
+        'exposure_model.xml': 'exposure_model',
+        'fragility_model.xml': 'fragility_model',
+        'consequence_model.xml': 'fragility_cons',
+        'vulnerability_model.xml': 'vulnerability_model',
+        'site_model.xml': 'site_conditions',
+        'earthquake_rupture_model.xml': 'rupture_file'
+    };
+
+    if (msg.complete) {
+        var res = msg.result;
+        if (res.success == false) {
+            gem_ipt.error_msg(res.reason);
+            return;
+        }
+
+        if (!(res.content in dir_mapping)) {
+            gem_api.delete_file(dumb_cb, res.realpath);
+            gem_ipt.error_msg('File [' + res.content + '] type not collectable');
+            return;
+        }
+
+        var target_subdir = dir_mapping[res.content];
+        var target_file = target_subdir + '/' + res.content;
+
+        function move_file_cb(uuid, msg)
+        {
+            var res = msg.result;
+
+            if (msg.complete) {
+                if (res.success) {
+                    populate_selects(target_subdir);
+                    gem_ipt.info_msg('File collected as "' + target_file + '"');
+                    return;
+                }
+                else {
+                    gem_ipt.error_msg('Move file to [' + target_file + '] failed with the reason: ' + res.content + '.');
+                    gem_api.delete_file(dumb_cb, res.realpath);
+                }
+            }
+        }
+        gem_api.move_file(move_file_cb, res.realpath, target_file);
+    }
+}
+
+function delegate_downloadNRML(nrml, sfx, cb)
+{
     if (typeof gem_api == 'undefined')
         return false;
 
-    var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
+    var spli_url = getLocation(window.location.href);
+
+    var funcType = sfx2name(sfx);
+    var csrf_name = $(csrf_token).attr('name');
+    var csrf_value = $(csrf_token).attr('value');
+    // FIXME: take csrf cookie from headers
+    // var cookie_csrf = {'name': csrf_name, 'value': csrf_value};
+    var cookie_csrf = {'name': 'csrftoken', 'value': csrf_value};
     var cookies = [cookie_csrf];
     var dd_headers = [ipt_cookie_builder(cookies)];
     var dd_data = [{'name': 'csrfmiddlewaretoken', 'value': csrf_value},
@@ -81,12 +142,17 @@ function delegate_downloadNRML(nrml, sfx)
     // action (url), method (string like 'POST'), headers (list of strings),
     //               data (list of dictionaries {name (string), value(string)}
     //               delegate_downloadNRML_cb == function(obj_suffix, ... )
-    cb_obj = new dd_obj();
-    var cb_obj_id = gem_api_ctx_get_object_id(cb_obj);
-    gem_api.delegate_download(SENDBACK_URL, 'POST', dd_headers, dd_data,
-                              "delegate_downloadNRML_gacb", cb_obj_id);
-}
 
+    var spli_url = getLocation(window.location.href);
+    var pathname = spli_url['pathname'];
+    pathname = pathname.substr(0, pathname.lastIndexOf('/')) + '/';
+    var base_url = spli_url['protocol'] + '//' + spli_url['host'] + pathname;
+
+    var uu = gem_api.delegate_download(
+        cb, base_url + SENDBACK_URL, 'POST', dd_headers, dd_data);
+
+    return uu;
+}
 
 function validationErrorShow(funcType, error_msg){
     $('.' + funcType + '_gid #validationErrorMsg').text(

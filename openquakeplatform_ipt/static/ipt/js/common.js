@@ -266,6 +266,58 @@ var gem_ipt = {
                 }
             }
         });
+    },
+
+    warn_msg: function(msg) {
+        $( "#warning-message" ).html(msg.replace(/\n/g, "<br/>"));
+        $( "#warning-message" ).dialog({
+            dialogClass: 'gem-jqueryui-dialog',
+            modal: true,
+            width: '600px',
+            buttons: {
+                Ok: function() {
+                    $(this).dialog( "close" );
+                }
+            }
+        });
+    },
+
+    info_msg: function(msg) {
+        $( "#info-message" ).html(msg.replace(/\n/g, "<br/>"));
+        $( "#info-message" ).dialog({
+            dialogClass: 'gem-jqueryui-dialog',
+            modal: true,
+            width: '600px',
+            buttons: {
+                Ok: function() {
+                    $(this).dialog( "close" );
+                }
+            }
+        });
+    },
+
+    qgis_msg_open: function(msg) {
+        console.log("qgis_msg_open");
+        $( "#qgis-message" ).html(msg.replace(/\n/g, "<br/>"));
+        $( "#qgis-message" ).dialog({
+            dialogClass: 'gem-jqueryui-dialog',
+            modal: true,
+            width: '600px',
+            buttons: {
+                Ok: function() {
+                    $(this).dialog( "close" );
+                }
+            }
+        });
+    },
+
+    qgis_msg_close: function() {
+        console.log("qgis_msg_close");
+        if ($("#qgis-message").hasClass('ui-dialog-content')) {
+            if ($("#qgis-message").dialog("isOpen")) {
+                $("#qgis-message").dialog("close");
+            }
+        }
     }
 }
 
@@ -345,7 +397,7 @@ var ipt_table_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
 
 var ipt_table_vect_file_mgmt = function(evt, that, field_idx, min_val, max_val) {
     var target = evt.target;
-    var tbl_id = $(target).attr("data_gem_id");
+    var tbl_id = $(target).attr("data-gem-id");
 
     if (evt.target.files.length == 0) {
         that.tbl_file[tbl_id] = null;

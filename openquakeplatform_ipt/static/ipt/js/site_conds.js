@@ -16,6 +16,8 @@
 */
 
 var sc_obj = {
+    pfx: 'div.sc_gid ',
+    o: $('div.sc_gid'),
     tbl_file: null,
     tbl: {},
     nrml: "",
@@ -56,13 +58,13 @@ var sc_obj = {
         this.perAreaUpdate(selectedValue, element);
 
         if (this.perAreaIsVisible())
-            $('.sc_gid #perArea').show();
+            sc_obj.o.find('#perArea').show();
         else
-            $('.sc_gid #perArea').hide();
+            sc_obj.o.find('#perArea').hide();
     }
 };
 
-$('.sc_gid #costStruc').change(function() {
+sc_obj.o.find('#costStruc').change(function() {
     // There is a bug in the handsontable lib where one can not
     // paste values into the table when the user has made a selection
     // from a dropdown menu. The reason for this error is that the focus
@@ -72,66 +74,66 @@ $('.sc_gid #costStruc').change(function() {
     $(this).blur();
     sc_obj.perAreaManager($(this).val(), $(this).context.id);
     if ($(this).val() != 'none') {
-        $('.sc_gid #structural_costs_units_div').show();
-        $('.sc_gid #retrofittingSelect').show();
-        $('.sc_gid #limitDiv').show();
-        $('.sc_gid #deductibleDiv').show();
+        sc_obj.o.find('#structural_costs_units_div').show();
+        sc_obj.o.find('#retrofittingSelect').show();
+        sc_obj.o.find('#limitDiv').show();
+        sc_obj.o.find('#deductibleDiv').show();
     } else {
-        $('.sc_gid #structural_costs_units_div').hide();
-        $('.sc_gid #retrofittingSelect').hide();
-        $('.sc_gid #limitDiv').hide();
-        $('.sc_gid #deductibleDiv').hide();
+        sc_obj.o.find('#structural_costs_units_div').hide();
+        sc_obj.o.find('#retrofittingSelect').hide();
+        sc_obj.o.find('#limitDiv').hide();
+        sc_obj.o.find('#deductibleDiv').hide();
         // Uncheck retrofitting
-        $('.sc_gid #retroChbx').attr('checked', false);
+        sc_obj.o.find('#retroChbx').attr('checked', false);
         // Unselect the limit & deductible
-        $(".sc_gid #limitSelect").val('0');
-        $(".sc_gid #deductibleSelect").val('0');
+        sc_obj.o.find('#limitSelect').val('0');
+        sc_obj.o.find('#deductibleSelect').val('0');
     }
 });
 
-$('.sc_gid #costNonStruc').change(function() {
+sc_obj.o.find('#costNonStruc').change(function() {
     // unfocus the selection menu, see the note at the costStruc change event
     $(this).blur();
 
     if ($(this).val() != 'none') {
-        $('.sc_gid #nonstructural_costs_units_div').show();
+        sc_obj.o.find('#nonstructural_costs_units_div').show();
     }
     else {
-        $('.sc_gid #nonstructural_costs_units_div').hide();
+        sc_obj.o.find('#nonstructural_costs_units_div').hide();
     }
     sc_obj.perAreaManager($(this).val(), $(this).context.id);
 });
 
-$('.sc_gid #costContent').change(function() {
+sc_obj.o.find('#costContent').change(function() {
     if ($(this).val() != 'none') {
-        $('.sc_gid #contents_costs_units_div').show();
+        sc_obj.o.find('#contents_costs_units_div').show();
     }
     else {
-        $('.sc_gid #contents_costs_units_div').hide();
+        sc_obj.o.find('#contents_costs_units_div').hide();
     }
-    // unfocus the selection menu, see the note at the costStruc change event
-    $(this).blur();
-    sc_obj.perAreaManager($(this).val(), $(this).context.id);
-});
-
-$('.sc_gid #costBusiness').change(function() {
-    if ($(this).val() != 'none') {
-        $('.sc_gid #busi_inter_costs_units_div').show();
-    }
-    else {
-        $('.sc_gid #busi_inter_costs_units_div').hide();
-    }
-
     // unfocus the selection menu, see the note at the costStruc change event
     $(this).blur();
     sc_obj.perAreaManager($(this).val(), $(this).context.id);
 });
 
-$('.sc_gid #form').change(function() {
+sc_obj.o.find('#costBusiness').change(function() {
+    if ($(this).val() != 'none') {
+        sc_obj.o.find('#busi_inter_costs_units_div').show();
+    }
+    else {
+        sc_obj.o.find('#busi_inter_costs_units_div').hide();
+    }
+
+    // unfocus the selection menu, see the note at the costStruc change event
+    $(this).blur();
+    sc_obj.perAreaManager($(this).val(), $(this).context.id);
+});
+
+sc_obj.o.find('#form').change(function() {
     // unfocus the selection menu, see the note at the costStruc change event
     $(this).blur();
     sc_updateTable();
-    $('.sc_gid #outputDiv').hide();
+    sc_obj.o.find('#outputDiv').hide();
 });
 
 function checkForValueInHeader(header, argument) {
@@ -141,11 +143,11 @@ function checkForValueInHeader(header, argument) {
 
 function sc_updateTable() {
     // Remove any existing table, if already exists
-    if ($('.sc_gid #table').handsontable('getInstance') !== undefined) {
-        $('.sc_gid #table').handsontable('destroy');
+    if (sc_obj.o.find('#table').handsontable('getInstance') !== undefined) {
+        sc_obj.o.find('#table').handsontable('destroy');
     }
 
-    $('.sc_gid #table_file').val("");
+    sc_obj.o.find('#table_file').val("");
     sc_obj.tbl_file = null;
 
     // Default columns
@@ -169,42 +171,42 @@ function sc_updateTable() {
     }
 
     // Get info from the expsure form and use it to build the table header
-    $('.sc_gid #costStruc option:selected').each(function() {
+    sc_obj.o.find('#costStruc option:selected').each(function() {
         checkForValue($(this).attr('value'), 'structural');
     });
 
-    $('.sc_gid #costNonStruc option:selected').each(function() {
+    sc_obj.o.find('#costNonStruc option:selected').each(function() {
         checkForValue($(this).attr('value'), 'non-structural');
     });
 
-    $('.sc_gid #costContent option:selected').each(function() {
+    sc_obj.o.find('#costContent option:selected').each(function() {
         checkForValue($(this).attr('value'), 'contents');
     });
 
-    $('.sc_gid #costBusiness option:selected').each(function() {
+    sc_obj.o.find('#costBusiness option:selected').each(function() {
         checkForValue($(this).attr('value'), 'business');
     });
 
-    $('.sc_gid #limitSelect option:selected').each(function() {
+    sc_obj.o.find('#limitSelect option:selected').each(function() {
         checkForValue($(this).attr('value'), 'limit');
     });
 
-    $('.sc_gid #deductibleSelect option:selected').each(function() {
+    sc_obj.o.find('#deductibleSelect option:selected').each(function() {
         checkForValue($(this).attr('value'), 'deductible');
     });
 
-    var perAreaVisible = $('.sc_gid #perArea:visible').length;
+    var perAreaVisible = sc_obj.o.find('#perArea:visible').length;
     if (perAreaVisible === 1) {
         sc_obj.header.push('area');
     }
 
-    $('.sc_gid #occupantsCheckBoxes input:checked').each(function() {
+    sc_obj.o.find('#occupantsCheckBoxes input:checked').each(function() {
         sc_obj.header.push($(this).attr('value'));
         // unfocus the selection menu, see the note at the exposure costStruc change event
         $(this).blur();
     });
 
-    $('.sc_gid #retrofittingSelect input:checked').each(function() {
+    sc_obj.o.find('#retrofittingSelect input:checked').each(function() {
         sc_obj.header.push($(this).attr('value'));
         // unfocus the selection menu, see the note at the exposure costStruc change event
         $(this).blur();
@@ -216,7 +218,7 @@ function sc_updateTable() {
     ///////////////////////////////
     /// Exposure Table Settings ///
     ///////////////////////////////
-    $('.sc_gid #table').handsontable({
+    sc_obj.o.find('#table').handsontable({
         colHeaders: sc_obj.header,
         rowHeaders: true,
         contextMenu: true,
@@ -225,40 +227,51 @@ function sc_updateTable() {
         maxCols: headerLength,
         className: "htRight"
     });
-    sc_obj.tbl = $('.sc_gid #table').handsontable('getInstance');
+    sc_obj.tbl = sc_obj.o.find('#table').handsontable('getInstance');
     setTimeout(function() {
-        return gem_tableHeightUpdate($('.sc_gid #table'));
+        return gem_tableHeightUpdate(sc_obj.o.find('#table'));
     }, 0);
 
     sc_obj.tbl.addHook('afterCreateRow', function() {
-        return gem_tableHeightUpdate($('.sc_gid #table'));
+        return gem_tableHeightUpdate(sc_obj.o.find('#table'));
     });
 
     sc_obj.tbl.addHook('afterRemoveRow', function() {
-        return gem_tableHeightUpdate($('.sc_gid #table'));
+        return gem_tableHeightUpdate(sc_obj.o.find('#table'));
     });
 
     sc_obj.tbl.addHook('afterChange', function(changes, source) {
         // when loadData is used, for performace reasons, changes are 'null'
         if (changes != null || source != 'loadData') {
-            $('.sc_gid #table_file').val("");
+            sc_obj.o.find('#table_file').val("");
             sc_obj.tbl_file = null;
         }
     });
 
-    $('.sc_gid #outputText').empty();
-    $('.sc_gid #convertBtn').show();
+    sc_obj.o.find('#outputText').empty();
+    sc_obj.o.find('#convertBtn').show();
 }
 
-$('.sc_gid #downloadBtn').click(function() {
+sc_obj.o.find('#downloadBtn').click(function() {
     sendbackNRML(sc_obj.nrml, 'sc');
 });
 
-$('.sc_gid #convertBtn').click(function() {
+if (typeof gem_api != 'undefined') {
+    sc_obj.o.find('#delegateDownloadBtn').click(function() {
+        var uu = delegate_downloadNRML(sc_obj.nrml, 'sc', delegate_downloadNRML_cb);
+        console.log("fired cmd with uuid: " + uu);
+    });
+    sc_obj.o.find('#delegateCollectBtn').click(function() {
+        var uu = delegate_downloadNRML(sc_obj.nrml, 'sc', delegate_collectNRML_cb);
+        console.log("fired cmd with uuid: " + uu);
+    });
+}
+
+sc_obj.o.find('#convertBtn').click(function() {
     var tab_data = null;
 
     // Get the values from the table
-    if ($('.sc_gid input#table_file')[0].files.length > 0) {
+    if (sc_obj.o.find('input#table_file')[0].files.length > 0) {
         tab_data = sc_obj.tbl_file;
     }
     else {
@@ -300,11 +313,11 @@ $(document).ready(function () {
     // Manage the visibility of the perArea selection menu //
     /////////////////////////////////////////////////////////
     sc_updateTable();
-    $('.sc_gid input#table_file').on(
+    sc_obj.o.find('input#table_file').on(
         'change', function sc_table_file_mgmt(evt) { ipt_table_file_mgmt(evt, sc_obj, 0, -180, 180); });
-    $('.sc_gid #new_row_add').click(function() {
+    sc_obj.o.find('#new_row_add').click(function() {
         sc_obj.tbl.alter('insert_row');
     });
-    $('.sc_gid #outputDiv').hide();
+    sc_obj.o.find('#outputDiv').hide();
     $('#absoluteSpinner').hide();
 });

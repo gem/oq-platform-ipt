@@ -37,3 +37,19 @@ var g_gmpe_options = [];
 for (var i = 0 ; i < g_gmpe.length ; i++) {
     g_gmpe_options[i] = { type: "option", value: g_gmpe[i], label: g_gmpe[i] };
 }
+
+{
+    var gem_onload_parent = window.onload;
+    window.onload = function() {
+        if (gem_onload_parent != null) {
+            gem_onload_parent();
+        }
+{%if gem_qgis != None %}
+        gem_api = new AppWeb('ipt');
+        console.log("create gem_api");
+        console.log(gem_api);
+{% endif %}
+    }
+}
+console.log("window.onload");
+console.log(window.onload);

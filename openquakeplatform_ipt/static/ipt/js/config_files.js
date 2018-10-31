@@ -307,6 +307,83 @@ $(document).ready(function () {
         return;
     }
 
+    function generic_fileNew_collect(scope, reply, event)
+    {
+        // called if reply.success == true only
+
+        event.preventDefault();
+        var name = $(event.target.parentElement).attr("name").slice(0,-5)
+        var $sibling = $(event.target).siblings("select[name='file_html']");
+        var subdir = $sibling.attr('data-gem-subdir');
+        var collected_reply = reply;
+
+        function ls_subdir_cb(uuid, app_msg) {
+            if (! app_msg.complete)
+                return;
+            var cmd_msg = app_msg.result;
+
+            if (cmd_msg.success == true) {
+                var options = [];
+                var old_sel = [];
+                for (var i = 0 ; i < cmd_msg.content.length ; i++) {
+                    var v = cmd_msg.content[i];
+                    options.push([subdir + '/' + v, v]);
+                }
+
+                if ($(cf_obj[scope].pfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data-gem-group')) {
+                    gem_group = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"]').attr('data-gem-group');
+                    // find elements of groups around all the config_file tab
+                    $sel = $('.cf_gid div[data-gem-group="' + gem_group + '"] select[name="file_html"]');
+                    for (var i = 0 ; i < $sel.length ; i++) {
+                        old_sel[i] = $($sel[i]).val();
+                    }
+                }
+                else {
+                    $sel = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]');
+                    old_sel[0] = $sel.val();
+                }
+
+                $sel.empty();
+                for (var i = 0 ; i < old_sel.length ; i++) {
+                    if (! $($sel[i]).is("[multiple]")) {
+                        $("<option />", {value: '', text: '---------'}).appendTo($($sel[i]));
+                    }
+                }
+                for (var i = 0 ; i < options.length ; i++) {
+                    $("<option />", {value: options[i][0], text: options[i][1]}).appendTo($sel);
+                }
+
+                // set old options of all select of the same group except current select
+                for (var i = 0 ; i < old_sel.length ; i++) {
+                    if ($($sel[i]).attr('name') == name) {
+                        continue;
+                    }
+                    $($sel[i]).val(old_sel[i]);
+                }
+
+                var set_opt = [];
+                for (var i = 0 ; i < collected_reply.content.length ; i++) {
+                    var v = collected_reply.content[i];
+                    set_opt.push([subdir + '/' + v]);
+                }
+
+                $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(
+                    set_opt);
+
+                collected_reply.reason = collected_reply.content.length > 1 ? 'Files ' : 'File ';
+                for (var i = 0 ; i < collected_reply.content.length ; i++) {
+                    collected_reply.reason += (i > 0 ? ', ' : '');
+                    collected_reply.reason += "'" + collected_reply.content[i] + "'";
+                }
+                collected_reply.reason += ' added correctly.';
+            }
+            $(cf_obj[scope].pfx + ' div[name="' + name + '-new"] div[name="msg"]').html(collected_reply.reason);
+            $(cf_obj[scope].pfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
+        }
+        gem_api.ls(ls_subdir_cb, subdir);
+    }
+
+
 
     /* form widgets and previous remote list select element must follow precise
        naming schema with '<name>-html' and '<name>-new', see config_files.html */
@@ -328,10 +405,10 @@ $(document).ready(function () {
                 var gem_group = null;
                 var old_sel = [];
                 if (data.ret == 0) {
-                    if ($(cf_obj[scope].pfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data_gem_group')) {
-                        gem_group = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"]').attr('data_gem_group');
+                    if ($(cf_obj[scope].pfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data-gem-group')) {
+                        gem_group = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"]').attr('data-gem-group');
                         // find elements of groups around all the config_file tab
-                        $sel = $('.cf_gid div[data_gem_group="' + gem_group + '"] select[name="file_html"]');
+                        $sel = $('.cf_gid div[data-gem-group="' + gem_group + '"] select[name="file_html"]');
                         for (var i = 0 ; i < $sel.length ; i++) {
                             old_sel[i] = $($sel[i]).val();
                         }
@@ -341,8 +418,10 @@ $(document).ready(function () {
                     }
 
                     $sel.empty();
-                    if (! $sel.is("[multiple]")) {
-                        $("<option />", {value: '', text: '---------'}).appendTo($sel);
+                    for (var i = 0 ; i < old_sel.length ; i++) {
+                        if (! $($sel[i]).is("[multiple]")) {
+                            $("<option />", {value: '', text: '---------'}).appendTo($($sel[i]));
+                        }
                     }
                     for (var i = 0 ; i < data.items.length ; i++) {
                         $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
@@ -504,12 +583,11 @@ $(document).ready(function () {
         return dest_name;
     };
 
-    function generic_prepare_download_postcb(data, scope)
+    function generic_prepare_download_normal_postcb(data, scope)
     {
         var $form = $(cf_obj[scope].pfx + ' form[name="downloadForm"]');
         var dest_name;
         var $new_input;
-
         $form.empty();
         $form.append(csrf_token);
         $form.attr({'action': 'download'});
@@ -524,6 +602,35 @@ $(document).ready(function () {
         $form.append($new_input);
 
         $form.submit();
+    }
+
+    function generic_prepare_download_gemapi_postcb(reply, scope)
+    {
+        var dest_name = cf_obj.generate_dest_name(scope);
+
+        function build_zip_cb(uuid, msg)
+        {
+            if (! msg.complete) {
+                return;
+            }
+
+            var res = msg.result;
+            if (res.success == false) {
+                gem_ipt.error_msg(res.reason);
+                return;
+            }
+
+            function save_as_cb(uuid, msg)
+            {
+
+                if (msg.complete) {
+                    gem_api.delete_file(dumb_cb, res.content);
+                }
+            }
+            gem_api.save_as(save_as_cb, res.content, dest_name + '.zip');
+        }
+
+        gem_api.build_zip(build_zip_cb, reply.content, reply.zipname);
     }
 
     function runcalc_obj()
@@ -546,7 +653,7 @@ $(document).ready(function () {
         return ret;
     }
 
-    function generic_prepare_runcalc_postcb(data, scope)
+    function generic_prepare_runcalc_normal_postcb(data, scope)
     {
         var dest_name;
         var $new_input;
@@ -572,6 +679,45 @@ $(document).ready(function () {
         var cb_obj_id = gem_api_ctx_get_object_id(cb_obj);
         gem_api.delegate_download('download', 'POST', dd_headers, dd_data,
                                   'runcalc_gacb', cb_obj_id);
+    }
+
+    function generic_prepare_runcalc_gemapi_postcb(reply, scope)
+    {
+        function build_zip_cb(uuid, msg) {
+            console.log('=== build_zip_cb ===');
+            console.log(msg);
+            if (! msg.complete) {
+                return;
+            }
+
+            var cmd_msg = msg.result;
+            if (cmd_msg.success == false) {
+                gem_ipt.error_msg(cmd_msg.reason);
+                return;
+            }
+            var zip_filename = cmd_msg.content;
+
+            function runcalc_cb(uuid, msg) {
+                if (! msg.complete) {
+                    return;
+                }
+
+                var cmd_msg = msg.result;
+                if (! cmd_msg.success) {
+                    gem_ipt.info_msg(cmd_msg.reason);
+                }
+                else {
+                    gem_ipt.info_msg('Calculation started.');
+                }
+
+                gem_api.delete_file(dumb_cb, zip_filename);
+
+                return;
+            }
+            gem_api.run_oq_engine_calc(runcalc_cb, cmd_msg.content);
+        }
+
+        gem_api.build_zip(build_zip_cb, reply.content, reply.zipname);
     }
 
     /*
@@ -988,15 +1134,47 @@ $(document).ready(function () {
         return generic_fileNew_upload('scen', form, event);
     }
 
+    function scenario_fileNew_collect(event, reply)
+    {
+        return generic_fileNew_collect('scen', reply, event);
+    }
 
-    /* generic callback to show upload div (init) */
     function scenario_fileNew_cb(e) {
-        $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
-        if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
-            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
-            if (window.gem_not_interactive == undefined) {
-                $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+        if (typeof gem_api == 'undefined') {
+            /* generic callback to show upload div (init) */
+            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+            if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+                $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
+                if (window.gem_not_interactive == undefined) {
+                    $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+                }
             }
+        }
+        else { // if (typeof gem_api == 'undefined') {
+            var event = e;
+            var $msg = $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] div[name="msg"]');
+            $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+
+            var $sibling = $(e.target).siblings("select[name='file_html']");
+            var subdir = $sibling.attr('data-gem-subdir');
+            var sel_grp = $sibling.attr('data-gem-group');
+            var is_multiple = $sibling.is("[multiple]");
+
+            function cb(uuid, app_msg) {
+                if (! app_msg.complete)
+                    return;
+
+                var cmd_msg = app_msg.result;
+                if (cmd_msg.success) {
+                    $msg.html("File '" + cmd_msg.content[0] + "' collected correctly.");
+                    scenario_fileNew_collect(event, cmd_msg);
+                }
+                else {
+                    $msg.html(cmd_msg.reason);
+                }
+                $(cf_obj['scen'].pfx + ' div[name="' + event.target.name + '"]').delay(3000).slideUp();
+            }
+            gem_api.select_and_copy_file(cb, subdir, is_multiple);
         }
     }
 
@@ -1294,12 +1472,18 @@ $(document).ready(function () {
 
     function scenario_download_cb(e)
     {
+        var generic_prepare_download_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_download_normal_postcb : generic_prepare_download_gemapi_postcb;
+
         return generic_prepare_cb('scen', this, generic_prepare_download_postcb, e);
     }
     $(cf_obj['scen'].pfx + ' button[name="download"]').click(scenario_download_cb);
 
     function scenario_runcalc_cb(e)
     {
+        var generic_prepare_runcalc_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_runcalc_normal_postcb : generic_prepare_runcalc_gemapi_postcb;
+
         return generic_prepare_cb('scen', this, generic_prepare_runcalc_postcb, e);
     }
     $(cf_obj['scen'].pfx + ' button[name="run-calc-btn"]').click(scenario_runcalc_cb);
@@ -1315,6 +1499,11 @@ $(document).ready(function () {
     {
         form = $(event.target).parent('form').get(0);
         return generic_fileNew_upload('e_b', form, event);
+    }
+
+    function event_based_fileNew_collect(event, reply)
+    {
+        return generic_fileNew_collect('e_b', reply, event);
     }
 
     function event_based_manager()
@@ -1500,10 +1689,41 @@ $(document).ready(function () {
 
     /* generic callback to show upload div */
     function event_based_fileNew_cb(e) {
-        $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
-        if ($(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
-            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(event_based_fileNew_upload);
-            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+        if (typeof gem_api == 'undefined') {
+            /* generic callback to show upload div (init) */
+            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+            if ($(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+                $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(event_based_fileNew_upload);
+                if (window.gem_not_interactive == undefined) {
+                    $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+                }
+            }
+        }
+        else { // if (gem_api == null
+            var event = e;
+            var $msg = $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] div[name="msg"]');
+            $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+
+            var $sibling = $(e.target).siblings("select[name='file_html']");
+            var subdir = $sibling.attr('data-gem-subdir');
+            var sel_grp = $sibling.attr('data-gem-group');
+            var is_multiple = $sibling.is("[multiple]");
+
+            function cb(uuid, app_msg) {
+                if (! app_msg.complete)
+                    return;
+
+                var cmd_msg = app_msg.result;
+                if (cmd_msg.success) {
+                    $msg.html("File '" + cmd_msg.content[0] + "' collected correctly.");
+                    event_based_fileNew_collect(event, cmd_msg);
+                }
+                else {
+                    $msg.html(cmd_msg.reason);
+                }
+                $(cf_obj['e_b'].pfx + ' div[name="' + event.target.name + '"]').delay(3000).slideUp();
+            }
+            gem_api.select_and_copy_file(cb, subdir, is_multiple);
         }
     }
 
@@ -1624,12 +1844,18 @@ $(document).ready(function () {
     $(cf_obj['e_b'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
     function event_based_download_cb(e)
     {
+        var generic_prepare_download_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_download_normal_postcb : generic_prepare_download_gemapi_postcb;
+
         return generic_prepare_cb('e_b', this, generic_prepare_download_postcb, e);
     }
     $(cf_obj['e_b'].pfx + ' button[name="download"]').on('click', event_based_download_cb);
 
     function event_based_runcalc_cb(e)
     {
+        var generic_prepare_runcalc_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_runcalc_normal_postcb : generic_prepare_runcalc_gemapi_postcb;
+
         return generic_prepare_cb('e_b', this, generic_prepare_runcalc_postcb, e);
     }
     $(cf_obj['e_b'].pfx + ' button[name="run-calc-btn"]').click(event_based_runcalc_cb);
@@ -1746,8 +1972,6 @@ $(document).ready(function () {
             ret_periods_for_aggr: null,
 
             // risk outputs
-            asset_loss_table: false,
-
             quantile_loss_curves_choice: false,
             quantile_loss_curves: null,
 
@@ -2032,8 +2256,6 @@ $(document).ready(function () {
             var $target = $(cf_obj['e_b'].pfx + ' div[name="risk-outputs"]');
             var pfx_riscal = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
 
-            obj.asset_loss_table = $target.find('input[type="checkbox"][name="asset_loss_table"]').is(':checked');
-
             obj.quantile_loss_curves_choice = $target.find('input[type="checkbox"][name="quantile_loss_curves_choice"]').is(':checked');
             if (obj.quantile_loss_curves_choice) {
                 obj.quantile_loss_curves = $target.find('input[type="text"][name="quantile_loss_curves"]'
@@ -2051,22 +2273,15 @@ $(document).ready(function () {
 
             obj.conditional_loss_poes_choice = $target.find('input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked');
 
-            if ((!obj.asset_loss_table) && obj.conditional_loss_poes_choice) {
-                // Was: "To include 'Loss maps' you must enable 'Loss ratios' in 'Risk calculation' section"
-                ret.str += "To include 'Loss maps' you must enable 'Asset loss table' in 'Risk calculation' section.\n";
-            }
+            if (obj.conditional_loss_poes_choice) {
+                obj.conditional_loss_poes = $target.find('input[type="text"][name="conditional_loss_poes"]').val();
 
-            if (!obj.asset_loss_table) {
-                if (obj.conditional_loss_poes_choice) {
-                    obj.conditional_loss_poes = $target.find('input[type="text"][name="conditional_loss_poes"]').val();
-
-                    var arr = obj.conditional_loss_poes.split(',');
-                    for (var k in arr) {
-                        var cur = arr[k].trim(' ');
-                        if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
-                            ret.str += "'Loss maps' field element #" + (parseInt(k)+1)
-                                + " isn't positive number (" + cur + ").\n";
-                        }
+                var arr = obj.conditional_loss_poes.split(',');
+                for (var k in arr) {
+                    var cur = arr[k].trim(' ');
+                    if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
+                        ret.str += "'Loss maps' field element #" + (parseInt(k)+1)
+                            + " isn't positive number (" + cur + ").\n";
                     }
                 }
             }
@@ -2098,4 +2313,3 @@ $(document).ready(function () {
 
     $(cf_obj['e_b'].pfx + ' input[name="hazard"]').prop('checked', true).triggerHandler('click');
 });
-

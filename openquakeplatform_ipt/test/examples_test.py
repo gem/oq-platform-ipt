@@ -75,6 +75,26 @@ imt_examples = {
              'sfx': 'xml'}
         ]
     },
+    'EarthquakeRupture': {
+        'tab_id': 5,
+        'exams': [
+            {'exa_id': 1, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-5']//div[@id='"
+                       "validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textareaer']"],
+             'sfx': 'xml'},
+            {'exa_id': 2, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-5']//div[@id='"
+                       "validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textareaer']"],
+             'sfx': 'xml'},
+            {'exa_id': 3, 'subtab_id': 0,
+             'xpath': ["//div[@id='tabs-5']//div[@id='"
+                       "validationErrorMsg'][@style='display: none;']",
+                       "//textarea[@id='textareaer']"],
+             'sfx': 'xml'},
+        ]
+    },
     'SiteConditions': {
         'tab_id': 6,
         'exams': [
@@ -341,7 +361,7 @@ class IptUploadTest(unittest.TestCase):
 
         # show div with upload file
         up_file = os.path.join(os.path.dirname(__file__), 'data',
-                               'rupture_file', 'rupture_model.xml')
+                               'rupture_file', 'earthquake_rupture_model.xml')
 
         butt_upload_file = pla.xpath_finduniq(
             "//button[@name='rupture-file-new'"
@@ -373,7 +393,7 @@ class IptUploadTest(unittest.TestCase):
             common + "//div[@name='rupture-file-html']"
             "//select[@name='file_html']"))
 
-        assert list_files.first_selected_option.text == "rupture_model.xml"
+        assert list_files.first_selected_option.text == "earthquake_rupture_model.xml"
 
 
 class IptExamplesTest(unittest.TestCase):
@@ -438,7 +458,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
         pla.get('/ipt/?tab_id=%d&subtab_id=%d&example_id=%d' % (
             tab_id, example['subtab_id'], example['exa_id']))
 
-        pla.waituntil_js(10, ("try { return (window.gem_example_completed"
+        pla.waituntil_js(50, ("try { return (window.gem_example_completed"
                               " == true); } catch (exc) { return false; }"))
 
         if 'xpath' in example:

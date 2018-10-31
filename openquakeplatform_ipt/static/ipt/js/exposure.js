@@ -16,7 +16,7 @@
 */
 
 var ex_obj = {
-    pfx: "div.ex_gid ",
+    pfx: 'div.ex_gid ',
     o: $('div.ex_gid'),
     tbl_file: {},
     tbl: {},
@@ -321,7 +321,7 @@ var ex_obj = {
      *               *
      *****************/
     exposuretbl_del: function (obj) {
-        var id = obj.target.getAttribute("data_gem_id");
+        var id = obj.target.getAttribute("data-gem-id");
         var item = ex_obj.o.find('div[name="exposuretbls"] div[name="exposuretbl-' + id + '"]');
         delete(ex_obj.tbl[id]);
         item.remove();
@@ -333,9 +333,9 @@ var ex_obj = {
 <div name="exposuretbl-' + ct + '">\n\
 <div class="menuItems" style="margin-top: 12px;">\n\
 <div style="display: inline-block; float: left;"><h4>Exposure ' + (ct + 1) + ' </h4></div>';
-        ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '<button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" name="delete_exposuretbl">Delete #' + (ct + 1 ) + '</button>');
+        ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '<button type="button" data-gem-id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" name="delete_exposuretbl">Delete #' + (ct + 1 ) + '</button>');
         ctx += '\
-<div><input style="float: left;" type="file" id="table_file" data_gem_id="' + ct + '" accept="text/csv,application/csv,csv"></div>\n\
+<div><input style="float: left;" type="file" id="table_file" data-gem-id="' + ct + '" accept="text/csv,application/csv,csv"></div>\n\
 <div style="clear: both;"></div>\n\
 <div style="overflow: hidden;">\n\
 <div name="table-' + ct + '" style="height: 100px; overflow=hidden;"></div>\n\
@@ -614,7 +614,12 @@ ex_obj.o.find('#downloadBtn').click(function() {
 
 if (typeof gem_api != 'undefined') {
     ex_obj.o.find('#delegateDownloadBtn').click(function() {
-        delegate_downloadNRML(ex_obj.nrml, 'ex');
+        var uu = delegate_downloadNRML(ex_obj.nrml, 'ex', delegate_downloadNRML_cb);
+        console.log("fired cmd with uuid: " + uu);
+    });
+    ex_obj.o.find('#delegateCollectBtn').click(function() {
+        var uu = delegate_downloadNRML(ex_obj.nrml, 'ex', delegate_collectNRML_cb);
+        console.log("fired cmd with uuid: " + uu);
     });
 }
 
@@ -625,7 +630,7 @@ ex_obj.o.find('#convertBtn').click(function() {
     for (var i = 0 ; i < $tbls.length ; i++) {
         $tbl = $($tbls[i]);
         if ($tbl.find('input#table_file')[0].files.length > 0) {
-            var id = $tbl.find('input#table_file').attr('data_gem_id');
+            var id = $tbl.find('input#table_file').attr('data-gem-id');
             data = data.concat(ex_obj.tbl_file[id]);
         }
         else {

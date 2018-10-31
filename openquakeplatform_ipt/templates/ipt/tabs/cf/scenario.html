@@ -30,17 +30,20 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 
   <div class="menuItems" name="rupture-file-html">
     <label>Rupture model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake rupture model file describing the scenario event.'></span>
-:</label>
-    {{ rupture_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="rupture-file-new">Upload</button>
+      :</label>
+    {{ rupture_file_html.file_html }}
+    {{ rupture_file_html.new_btn }}
   </div>
   <div class="menuItems" name="rupture-file-new" style="display: none;">
     <div name="msg"><br></div>
-    <form action="upload/rupture_file" method="post" id="file-upload-form" name="rupture-file" enctype="multipart/form-data">
+    {% if gem_qgis == None %}
+    <form action="upload/rupture_file" method="post" id="file-upload-form" name="rupture-file"
+          enctype="multipart/form-data">
       {% csrf_token %}
       {{ rupture_file_upload.file_upload }}
     </form>
+    {% endif %}
   </div>
-
   <div class="menuItems">
     <label>Rupture mesh spacing (km) <span class="ui-icon ui-icon-help ipt_help" title='A parameter used to specify the mesh size used by the OpenQuake-engine to discretize the rupture. Note that the smaller the mesh spacing, the greater will be (1) the precision in the calculation and (2) the computational demand.'></span>:</label>
     <input type="text" name="rupture_mesh_spacing" value="5.0">
@@ -58,7 +61,8 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
   <div class="menuItems" name="gmf-file-html">
     <label>Precalculated ground motion field <span class="ui-icon ui-icon-help ipt_help" title='File containing precomputed ground motion fields (GMFs), following the OpenQuake format.'></span>:</label>
-    {{ gmf_file_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="gmf-file-new">Upload</button>
+    {{ gmf_file_html.file_html }}
+    {{ gmf_file_html.new_btn }}
   </div>
 
   <div class="menuItems" name="gmf-file-new" style="display: none;">
@@ -101,9 +105,10 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
 
   <div name="fm-loss-structural">
-    <div class="menuItems" name="fm-structural-html" data_gem_group="fragility-model">
+    <div class="menuItems" name="fm-structural-html" data-gem-group="fragility-model">
       <label>Structural fragility model <span class="ui-icon ui-icon-help ipt_help" title='A fragility model defines a set of fragility functions, describing the probability of exceeding a set of limit, or damage, states. Note: it is necessary to define a fragility function for each building typology present in the exposure model.'></span>:</label>
-      {{ fm_structural_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-structural-new">Upload</button>
+      {{ fm_structural_html.file_html }}
+      {{ fm_structural_html.new_btn }}
     </div>
     <div class="menuItems" name="fm-structural-new" style="display: none;">
       <div name="msg"><br></div>
@@ -115,9 +120,10 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
 
   <div name="fm-loss-nonstructural">
-    <div class="menuItems" name="fm-nonstructural-html" data_gem_group="fragility-model">
+    <div class="menuItems" name="fm-nonstructural-html" data-gem-group="fragility-model">
       <label>Nonstructural fragility model <span class="ui-icon ui-icon-help ipt_help" title='A fragility model defines a set of fragility functions, describing the probability of exceeding a set of limit, or damage, states. Note: it is necessary to define a fragility function for each building typology present in the exposure model.'></span>:</label>
-      {{ fm_nonstructural_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-nonstructural-new">Upload</button>
+      {{ fm_nonstructural_html.file_html }}
+      {{ fm_nonstructural_html.new_btn }}
     </div>
     <div class="menuItems" name="fm-nonstructural-new" style="display: none;">
       <div name="msg"><br></div>
@@ -129,9 +135,10 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
 
   <div name="fm-loss-contents">
-    <div class="menuItems" name="fm-contents-html" data_gem_group="fragility-model">
+    <div class="menuItems" name="fm-contents-html" data-gem-group="fragility-model">
       <label>Contents fragility model <span class="ui-icon ui-icon-help ipt_help" title='A fragility model defines a set of fragility functions, describing the probability of exceeding a set of limit, or damage, states. Note: it is necessary to define a fragility function for each building typology present in the exposure model.'></span>:</label>
-      {{ fm_contents_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-contents-new">Upload</button>
+      {{ fm_contents_html.file_html }}
+      {{ fm_contents_html.new_btn }}
     </div>
     <div class="menuItems" name="fm-contents-new" style="display: none;">
       <div name="msg"><br></div>
@@ -143,9 +150,10 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
 
   <div name="fm-loss-businter">
-    <div class="menuItems" name="fm-businter-html" data_gem_group="fragility-model">
+    <div class="menuItems" name="fm-businter-html" data-gem-group="fragility-model">
       <label>Business interruption fragility model <span class="ui-icon ui-icon-help ipt_help" title='A fragility model defines a set of fragility functions, describing the probability of exceeding a set of limit, or damage, states. Note: it is necessary to define a fragility function for each building typology present in the exposure model.'></span>:</label>
-      {{ fm_businter_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-businter-new">Upload</button>
+      {{ fm_businter_html.file_html }}
+      {{ fm_businter_html.new_btn }}
     </div>
     <div class="menuItems" name="fm-businter-new" style="display: none;">
       <div name="msg"><br></div>
@@ -165,9 +173,10 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
 
   <!-- cons -->
   <div name="fm-loss-structural-cons">
-    <div class="menuItems" name="fm-structural-cons-html" data_gem_group="fragility-cons">
+    <div class="menuItems" name="fm-structural-cons-html" data-gem-group="fragility-cons">
       <label>Structural consequence model <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>:</label>
-      {{ fm_structural_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-structural-cons-new">Upload</button>
+      {{ fm_structural_cons_html.file_html }}
+      {{ fm_structural_cons_html.new_btn }}
     </div>
     <div class="menuItems" name="fm-structural-cons-new" style="display: none;">
       <div name="msg"><br></div>
@@ -179,9 +188,10 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
 
   <div name="fm-loss-nonstructural-cons">
-    <div class="menuItems" name="fm-nonstructural-cons-html" data_gem_group="fragility-cons">
+    <div class="menuItems" name="fm-nonstructural-cons-html" data-gem-group="fragility-cons">
       <label>Nonstructural consequence model <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>:</label>
-      {{ fm_nonstructural_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-nonstructural-cons-new">Upload</button>
+      {{ fm_nonstructural_cons_html.file_html }}
+      {{ fm_nonstructural_cons_html.new_btn }}
     </div>
     <div class="menuItems" name="fm-nonstructural-cons-new" style="display: none;">
       <div name="msg"><br></div>
@@ -193,9 +203,10 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
 
   <div name="fm-loss-contents-cons">
-    <div class="menuItems" name="fm-contents-cons-html" data_gem_group="fragility-cons">
+    <div class="menuItems" name="fm-contents-cons-html" data-gem-group="fragility-cons">
       <label>Contents consequence model <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>:</label>
-      {{ fm_contents_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-contents-cons-new">Upload</button>
+      {{ fm_contents_cons_html.file_html }}
+      {{ fm_contents_cons_html.new_btn }}
     </div>
     <div class="menuItems" name="fm-contents-cons-new" style="display: none;">
       <div name="msg"><br></div>
@@ -207,9 +218,10 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   </div>
 
   <div name="fm-loss-businter-cons">
-    <div class="menuItems" name="fm-businter-cons-html" data_gem_group="fragility-cons">
+    <div class="menuItems" name="fm-businter-cons-html" data-gem-group="fragility-cons">
       <label>Business interruption consequence model <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>:</label>
-      {{ fm_businter_cons_html.file_html }} <button type="submit" style="vertical-align: top;" class="btn btn-primary" name="fm-businter-cons-new">Upload</button>
+      {{ fm_businter_cons_html.file_html }}
+      {{ fm_businter_cons_html.new_btn }}
     </div>
     <div class="menuItems" name="fm-businter-cons-new" style="display: none;">
       <div name="msg"><br></div>
@@ -278,10 +290,9 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   <hr>
   <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="clean_all">Clean all</button>
 
-  <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">Download Zip File</button>
+  <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">{%if gem_qgis != None %}'Save As'{% else %}Download{% endif %} Zip File</button>
   {%if gem_qgis != None %}
       <button name="run-calc-btn" type="button" style="vertical-align: top; margin: auto;" class="btn btn-primary">Run Calculation</button>
   {% endif %}
-
   <form style="display: inline-block;" name="downloadForm" method="post">{% csrf_token %}</form>
 </div>

@@ -410,7 +410,7 @@ var er_obj = {
      *          *
      ************/
     planar_surface_del: function (obj) {
-        var id = obj.target.getAttribute("data_gem_id");
+        var id = obj.target.getAttribute("data-gem-id");
         var item = er_obj.o.find('div[name="planars"] div[name="planar-' + id + '"]');
         delete(er_obj.planar_tbl[id]);
         item.remove();
@@ -422,7 +422,7 @@ var er_obj = {
       <div name="planar-' + ct + '">\n\
         <div class="menuItems" style="margin-top: 12px;">\n\
 <div style="display: inline-block; float: left;"><h4>Planar surface ' + (ct + 1) + '</h4></div>';
-        ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '<button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" name="delete_planar_surface">Delete Planar Surface</button>');
+        ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '<button type="button" data-gem-id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" name="delete_planar_surface">Delete Planar Surface</button>');
         ctx += '\
         </div>\n\
         <div class="menuItems">\n\
@@ -466,21 +466,21 @@ var er_obj = {
      *           *
      *************/
     complex_surface_middle_del: function (obj) {
-        var id = obj.getAttribute("data_gem_id");
-        var mid_id = obj.getAttribute("data_gem_mid_id");
+        var id = obj.getAttribute("data-gem-id");
+        var mid_id = obj.getAttribute("data-gem-mid-id");
         var $item = er_obj.o.find('div[name="complexes"] div[name="complex-' + id + '"] div[name="middle-' + mid_id + '"]');
         delete(this.complex_tbl[id].middles[mid_id]);
         $item.remove();
     },
 
     complex_surface_middle_add: function (obj) {
-        var id = obj.getAttribute("data_gem_id");
+        var id = obj.getAttribute("data-gem-id");
         var mid_id = er_obj.complex_tbl[id].middles_cur;
 
         var ctx = '\
           <div class="menuItems" name="middle-' + mid_id + '">\n\
             <label>Fault intermediate edge ' + (mid_id + 1) + ':</label>\n\
-            <button style="margin-bottom: 8px;" data_gem_id="' + id + '" data_gem_mid_id="'+ mid_id + '" \
+            <button style="margin-bottom: 8px;" data-gem-id="' + id + '" data-gem-mid-id="'+ mid_id + '" \
 onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</button>\n\
             <div style="margin-left: auto;">\n\
               <div name="middle-geometry-' + id + '-' + mid_id + '" style="margin-left: auto; width: 240px; height: 90px; overflow: hidden;"></div>\n\
@@ -496,7 +496,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
     },
 
     complex_surface_del: function (obj) {
-        var id = obj.getAttribute("data_gem_id");
+        var id = obj.getAttribute("data-gem-id");
         var $item = er_obj.o.find('div[name="complexes"] div[name="complex-' + id + '"]');
 
         for (var mid_id = 0 ; mid_id < this.complex_tbl[id].middles_cur ; mid_id++) {
@@ -517,7 +517,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
         <div class="menuItems" style="margin-top: 12px; margin-left: 100px;">\n\
             <div style="display: inline-block; float: left;"><h4>Complex surface ' + (ct + 1) + '</h4></div>';
 
-        ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '            <button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.complex_surface_del(this);">Delete Complex Surface</button>');
+        ctx += (ct == 0 ? '<div style="clear: both;"></div>' : '            <button type="button" data-gem-id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.complex_surface_del(this);">Delete Complex Surface</button>');
         ctx += '\n\
         </div>\n\
         <div class="menuItems complex_geometry">\n\
@@ -528,7 +528,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
         </div>\n\
         <div name="middles"></div>\n\
         <div class="menuItems" style="margin-top: 12px; text-align: center;">\n\
-          <button type="button" data_gem_id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.complex_surface_middle_add(this);">Add intermediate edge</button>\n\
+          <button type="button" name="add_interm_edge" data-gem-id="' + ct + '" class="btn" style="margin-top: 8px; margin-bottom: 8px;" onclick="er_obj.complex_surface_middle_add(this);">Add intermediate edge</button>\n\
         </div>\n\
         <div class="menuItems complex_geometry">\n\
           <label>Fault bottom edge:</label>\n\
@@ -783,7 +783,7 @@ onclick="er_obj.complex_surface_middle_del(this);">Delete intermediate edge</but
         /* NRML generation */
 
         var nrml = '<?xml version="1.0" encoding="utf-8"?>\n\
-<nrml xmlns:gml="http://www.opengis.net/gml" xmlns="http://openquake.org/xmlns/nrml/0.4">';
+<nrml xmlns:gml="http://www.opengis.net/gml" xmlns="http://openquake.org/xmlns/nrml/0.4">\n';
 
         if (rupture_type == 'simple') {
             nrml += '    <simpleFaultRupture>\n';
@@ -982,8 +982,18 @@ $(document).ready(function () {
     /* converter */
     er_obj.o.find('#convertBtn').click(function(e) { er_obj.convert2nrml(e); });
 
-    $('.er_gid #downloadBtn').click(function() {
-    sendbackNRML(er_obj.nrml, 'er');
-});
+    er_obj.o.find('#downloadBtn').click(function() {
+        sendbackNRML(er_obj.nrml, 'er');
+    });
 
+    if (typeof gem_api != 'undefined') {
+        er_obj.o.find('#delegateDownloadBtn').click(function() {
+            var uu = delegate_downloadNRML(er_obj.nrml, 'er', delegate_downloadNRML_cb);
+            console.log("fired cmd with uuid: " + uu);
+        });
+        er_obj.o.find('#delegateCollectBtn').click(function() {
+            var uu = delegate_downloadNRML(er_obj.nrml, 'er', delegate_collectNRML_cb);
+            console.log("fired cmd with uuid: " + uu);
+        });
+    }
 });
