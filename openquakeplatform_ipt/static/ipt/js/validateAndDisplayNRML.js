@@ -111,6 +111,7 @@ function delegate_collectNRML_cb(uuid, msg)
                     return;
                 }
                 else {
+                    gem_ipt.error_msg('Move file to [' + target_file + '] failed with the reason: ' + res.content + '.');
                     gem_api.delete_file(dumb_cb, res.realpath);
                 }
             }

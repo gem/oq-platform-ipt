@@ -375,7 +375,7 @@ $(document).ready(function () {
                     collected_reply.reason += (i > 0 ? ', ' : '');
                     collected_reply.reason += "'" + collected_reply.content[i] + "'";
                 }
-                collected_reply.reason += ' uploaded correctly.';
+                collected_reply.reason += ' added correctly.';
             }
             $(cf_obj[scope].pfx + ' div[name="' + name + '-new"] div[name="msg"]').html(collected_reply.reason);
             $(cf_obj[scope].pfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
@@ -610,22 +610,24 @@ $(document).ready(function () {
 
         function build_zip_cb(uuid, msg)
         {
-            if (msg.complete) {
-                var res = msg.result;
-                if (res.success == false) {
-                    gem_ipt.error_msg(res.reason);
-                    return;
-                }
-
-                function save_as_cb(uuid, msg)
-                {
-
-                    if (msg.complete) {
-                        gem_api.delete_file(dumb_cb, res.content);
-                    }
-                }
-                gem_api.save_as(save_as_cb, res.content, dest_name + '.zip');
+            if (! msg.complete) {
+                return;
             }
+
+            var res = msg.result;
+            if (res.success == false) {
+                gem_ipt.error_msg(res.reason);
+                return;
+            }
+
+            function save_as_cb(uuid, msg)
+            {
+
+                if (msg.complete) {
+                    gem_api.delete_file(dumb_cb, res.content);
+                }
+            }
+            gem_api.save_as(save_as_cb, res.content, dest_name + '.zip');
         }
 
         gem_api.build_zip(build_zip_cb, reply.content, reply.zipname);
@@ -702,11 +704,11 @@ $(document).ready(function () {
 
                 var cmd_msg = msg.result;
                 if (! cmd_msg.success) {
-                    gem_ipt.error_msg(cmd_msg.reason);
-                    return;
+                    gem_ipt.info_msg(cmd_msg.reason);
                 }
-
-                gem_ipt.info_msg('Calculation started.')
+                else {
+                    gem_ipt.info_msg('Calculation started.');
+                }
 
                 gem_api.delete_file(dumb_cb, zip_filename);
 
@@ -1148,7 +1150,7 @@ $(document).ready(function () {
                 }
             }
         }
-        else { // if (gem_api == null
+        else { // if (typeof gem_api == 'undefined') {
             var event = e;
             var $msg = $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] div[name="msg"]');
             $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();

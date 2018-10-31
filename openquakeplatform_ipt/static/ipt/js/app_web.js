@@ -41,7 +41,7 @@ function manage_error_cb(uuid, msg)
         if ('log' in console) {
             console.log('manage_error_cb');
             console.log(msg);
-            gem_ipt.error_msg('A command executed by QGIS returned a malformed reply, take a look to  console.log for more informations');
+            gem_ipt.error_msg('A command executed by QGIS returned a malformed reply, take a look to console.log for more information');
         }
     }
 }
