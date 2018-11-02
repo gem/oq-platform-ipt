@@ -47,13 +47,17 @@ from openquakeplatform.python3compat import unicode, encode, decode
 from openquakeplatform.utils import oq_is_qgis_browser
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
 from distutils.version import StrictVersion
+
+django_version = django.get_version()
+
+if StrictVersion(django_version) < StrictVersion('1.8'):
+    from django.template import Context
+
 ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
                'fragility_model', 'fragility_cons',
                'vulnerability_model', 'gsim_logic_tree_file',
                'source_model_logic_tree_file', 'source_model_file']
-
-django_version = django.get_version()
 
 
 def _get_error_line(exc_msg):
@@ -218,7 +222,6 @@ def sendback_er_rupture_surface(request):
 
 class ButtonWidget(forms.widgets.TextInput):
     template_name = 'widgets/button_widget.html'
-    django_version = StrictVersion(django_version) > StrictVersion('2.0')
 
     def __init__(self, is_bridged=False, name=None, *args, **kwargs):
         print("ButtonWidget init")
@@ -226,7 +229,7 @@ class ButtonWidget(forms.widgets.TextInput):
         self.gem_is_bridged = is_bridged
         self.gem_name = name
 
-    if django_version is True:
+    if StrictVersion(django_version) > StrictVersion('2.0'):
         def get_context(self, name, value, attrs):
             print("ButtonWidget get_context")
             context = super().get_context(name, value, attrs)
@@ -234,12 +237,18 @@ class ButtonWidget(forms.widgets.TextInput):
             context['widget']['gem_is_bridged'] = self.gem_is_bridged
             return context
 
-    if django_version is False:
+    else:
         def render(self, name, value, attrs=None):
             t = get_template(self.template_name)
-            html = t.render(
+            if StrictVersion(django_version) >= StrictVersion('1.8'):
+                html = t.render(
                     {'widget': {'gem_name': self.gem_name,
                                 'gem_is_bridged': self.gem_is_bridged}})
+            else:
+                html = t.render(Context(
+                    {'widget': {
+                        'gem_name': self.gem_name,
+                        'gem_is_bridged': self.gem_is_bridged}}))
             return html
 
 
