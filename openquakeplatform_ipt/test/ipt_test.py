@@ -30,13 +30,13 @@ class IptTest(unittest.TestCase):
             " and normalize-space(text())='Validation error:"
             " empty cell at coords (1, 1).']")
 
-    def add_rows_test(self):
+    def add_rows_tables_test(self):
         pla = platform_get()
         pla.get('/ipt')
 
         footer = pla.xpath_finduniq("//footer")
 
-        # hide
+        # hide footer
         pla.driver.execute_script(
             "$(arguments[0]).attr('style','display:none;')", footer)
 
@@ -45,9 +45,21 @@ class IptTest(unittest.TestCase):
             "//button[@name='new_row_add' and @class='btn'"
             "and @data-gem-id='0' and normalize-space(text())='New Row']")
 
-        for row in range(4, 5):
+        # Click add row and check if exists new rows
+        for row in range(4, 6):
             new_row_btn.click()
             pla.xpath_findfirst(
                 "//div[@class='relative']"
                 "//span[@class='rowHeader'"
                 " and normalize-space(text())='%s']" % row)
+
+        new_table_btn = pla.xpath_finduniq(
+            "//button[@id='new_exposuretbl_add'"
+            " and normalize-space(text())='Add New Table']")
+
+        # Click add row and check if exists new rows
+        for id_tbl in range(1, 3):
+            new_table_btn.click()
+
+            new_table_btn = pla.xpath_finduniq(
+                "//div[@name='exposuretbl-%s']" % id_tbl)
