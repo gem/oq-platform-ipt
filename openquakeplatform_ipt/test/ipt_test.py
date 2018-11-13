@@ -28,3 +28,12 @@ class IptTest(unittest.TestCase):
             "' ex_gid ')]//div[@id='outputDiv']//div[@id='validationErrorMsg'"
             " and normalize-space(text())='Validation error:"
             " empty cell at coords (1, 1).']")
+        
+        # Check add rows for exposure table
+        new_row_butt = pla.xpath_finduniq(
+            "//button[@id='new_row_add' and normalize-space(text())='New Row']")
+
+        for x in range(0, 5):
+            new_row_button.click()  
+            pla.xpath_finduniq(
+                "//span[@class='rowHeader' and normalize-space(text())='%s'" % x)
