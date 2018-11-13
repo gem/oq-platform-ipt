@@ -327,6 +327,17 @@ var ex_obj = {
         item.remove();
     },
 
+    exposuretbl_newrow: function (obj) {
+        var id = obj.target.getAttribute("data-gem-id");
+        ex_obj.tbl[id].alter('insert_row');
+        var tbl_box = $(obj.target).closest("div[name='exposuretbl-" + id + "']").find("div[name='table-" + id + "']");
+        
+        setTimeout(function() {
+            return gem_tableHeightUpdate(tbl_box);
+        }, 0);
+    },
+
+       
     exposuretbl_add: function () {
         var ct = ex_obj.tbl_cur;
         var ctx = '\
