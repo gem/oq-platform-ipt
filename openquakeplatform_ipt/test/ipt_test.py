@@ -8,7 +8,8 @@ class IptTest(unittest.TestCase):
         pla = platform_get()
         pla.get('/ipt')
 
-        # initially, we are in the exposure tab, and the handson table is empty
+        # initially, we are in the exposure tab
+        # and the handson table is empty
 
         # <button id="saveBtnEX" type="button" style="display: block;"
         #     class="btn btn-primary">Convert to NRML</button>
@@ -28,12 +29,25 @@ class IptTest(unittest.TestCase):
             "' ex_gid ')]//div[@id='outputDiv']//div[@id='validationErrorMsg'"
             " and normalize-space(text())='Validation error:"
             " empty cell at coords (1, 1).']")
-        
-        # Check add rows for exposure table
-        new_row_butt = pla.xpath_finduniq(
-            "//button[@id='new_row_add' and normalize-space(text())='New Row']")
 
-        for x in range(0, 5):
-            new_row_button.click()  
-            pla.xpath_finduniq(
-                "//span[@class='rowHeader' and normalize-space(text())='%s'" % x)
+    def add_rows_test(self):
+        pla = platform_get()
+        pla.get('/ipt')
+
+        footer = pla.xpath_finduniq("//footer")
+
+        # hide
+        pla.driver.execute_script(
+            "$(arguments[0]).attr('style','display:none;')", footer)
+
+        # Check add rows for exposure table
+        new_row_btn = pla.xpath_finduniq(
+            "//button[@name='new_row_add' and @class='btn'"
+            "and @data-gem-id='0' and normalize-space(text())='New Row']")
+
+        for row in range(4, 5):
+            new_row_btn.click()
+            pla.xpath_findfirst(
+                "//div[@class='relative']"
+                "//span[@class='rowHeader'"
+                " and normalize-space(text())='%s']" % row)
