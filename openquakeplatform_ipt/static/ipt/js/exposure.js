@@ -938,9 +938,6 @@ $(document).ready(function () {
         ex_obj.exposuretbl_add);
     ex_obj.exposuretbl_add();
 
-    ex_obj.o.find('#new_row_add').click(function() {
-        ex_obj.tbl.alter('insert_row');
-    });
     ex_obj.o.find('#outputDiv').hide();
     // tag events 'itemAddedOnInit', 'beforeItemAdd' and 'beforeItemRemove' are not still managed
     ex_obj.o.find('#tags').on('beforeItemAdd', exposure_tags_cb);
