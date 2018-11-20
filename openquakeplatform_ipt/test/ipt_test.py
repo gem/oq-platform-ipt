@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import unittest
 from openquake.moon import platform_get
+from selenium.webdriver.common.keys import Keys
 
 
 class IptTest(unittest.TestCase):
@@ -57,9 +58,24 @@ class IptTest(unittest.TestCase):
             "//button[@id='new_exposuretbl_add'"
             " and normalize-space(text())='Add New Table']")
 
-        # Click add row and check if exists new rows
-        for id_tbl in range(1, 3):
-            new_table_btn.click()
+        new_table_btn.send_keys(Keys.PAGE_DOWN)
 
+        # Click add row and check if exists new rows
+        for id_tbl in range(1, 2):
+            new_table_btn.click()
+            print('id table: %s' % id_tbl)
             new_table_btn = pla.xpath_finduniq(
                 "//div[@name='exposuretbl-%s']" % id_tbl)
+
+            # Check add rows for exposure table
+            new_row_new_table_btn = pla.xpath_finduniq(
+                "//button[@name='new_row_add' and @class='btn'"
+                "and @data-gem-id='1' and normalize-space(text())='New Row']")
+
+            # Click add row and check if exists new rows
+            for new_table_row in range(4, 6):
+                new_row_new_table_btn.click()
+                pla.xpath_findfirst(
+                    "//div[@class='relative']"
+                    "//span[@class='rowHeader'"
+                    " and normalize-space(text())='%s']" % new_table_row)
