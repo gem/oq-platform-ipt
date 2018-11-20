@@ -327,6 +327,17 @@ var ex_obj = {
         item.remove();
     },
 
+    exposuretbl_newrow: function (obj) {
+        var id = obj.target.getAttribute("data-gem-id");
+        ex_obj.tbl[id].alter('insert_row');
+        var tbl_box = $(obj.target).closest("div[name='exposuretbl-" + id + "']").find("div[name='table-" + id + "']");
+        
+        setTimeout(function() {
+            return gem_tableHeightUpdate(tbl_box);
+        }, 0);
+    },
+
+       
     exposuretbl_add: function () {
         var ct = ex_obj.tbl_cur;
         var ctx = '\
@@ -340,14 +351,15 @@ var ex_obj = {
 <div style="overflow: hidden;">\n\
 <div name="table-' + ct + '" style="height: 100px; overflow=hidden;"></div>\n\
 </div>\n\
-<button id="new_row_add" type="button" class="btn">New Row</button><br>\n\
+<button name="new_row_add" type="button" data-gem-id="' + ct + '" class="btn">New Row</button><br>\n\
 <br>\n\
 </div>\n\
 </div>\n';
         ex_obj.o.find('div[name="exposuretbls"]').append(ctx);
         $tbl_new = ex_obj.o.find('div[name="exposuretbls"] div[name="exposuretbl-' + ct + '"]');
 
-        $tbl_new.find('button[name="delete_exposuretbl"]').on('click', ex_obj.exposuretbl_del);
+        $tbl_new.find('button[name="delete_exposuretbl"]').click(ex_obj.exposuretbl_del);
+        $tbl_new.find('button[name="new_row_add"]').click(ex_obj.exposuretbl_newrow);
 
         var $table_id = $tbl_new.find('div[name="table-' + ct + '"]');
         var headerLength = ex_obj.header.length;
@@ -926,9 +938,6 @@ $(document).ready(function () {
         ex_obj.exposuretbl_add);
     ex_obj.exposuretbl_add();
 
-    ex_obj.o.find('#new_row_add').click(function() {
-        ex_obj.tbl.alter('insert_row');
-    });
     ex_obj.o.find('#outputDiv').hide();
     // tag events 'itemAddedOnInit', 'beforeItemAdd' and 'beforeItemRemove' are not still managed
     ex_obj.o.find('#tags').on('beforeItemAdd', exposure_tags_cb);

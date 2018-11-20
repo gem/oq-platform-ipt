@@ -51,5 +51,3 @@ for (var i = 0 ; i < g_gmpe.length ; i++) {
 {% endif %}
     }
 }
-console.log("window.onload");
-console.log(window.onload);
