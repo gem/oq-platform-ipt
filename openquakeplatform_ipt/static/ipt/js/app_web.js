@@ -240,7 +240,7 @@ AppWeb.prototype = {
     },
 
     mkdir: function(cb, dirname) {
-        var uu = this.send({'command': 'mkdir',
+        var uu = this.send({'command': 'create_dir',
                             'args': [dirname]}, cb);
         return uu;
     },
