@@ -225,3 +225,7 @@ div.bootstrap-tagsinput {
 .bootstrap-tagsinput input {
     width: 100% !important;
 }
+
+.gem-gen-descr {
+    width: 350px;
+}
