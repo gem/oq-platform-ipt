@@ -29,6 +29,8 @@ var cf_obj = {
     },
     vol: {
         pfx: '.cf_gid div[name="volcano"]'
+/*        , getData: null,
+          expModel_coords: null */
     }
 };
 
@@ -2320,6 +2322,25 @@ $(document).ready(function () {
      * - - - VOLCANO - - -
      */
 
+    function volcano_manager()
+    {
+        var $phen, $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']");
+        var $file_html, $file_new;
+
+        for (var i = 0 ; i < $phens.length ; i++) {
+            $phen = $($phens[i]);
+            $file_html = $(cf_obj['vol'].pfx + " div[name='" + $phen.attr('name') + "-file-html']");
+
+            if ($phen.is(':checked')) {
+                $file_html.show();
+            }
+            else {
+                $file_html.hide();
+            }
+        }
+    }
+
+    /* force to have at least one checkbox enabled */
     function volcano_phen_cb(event)
     {
         var $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']:checked");
@@ -2327,10 +2348,12 @@ $(document).ready(function () {
         if ($phens.length == 0) {
             event.preventDefault();
             event.stopPropagation();
+            return;
         }
+        volcano_manager();
     }
 
     $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']").click(volcano_phen_cb);
     $(cf_obj['vol'].pfx + ' input[name="ashfall"]').prop('checked', true).triggerHandler('click');
-
+    volcano_manager();
 });

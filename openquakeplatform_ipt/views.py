@@ -57,7 +57,9 @@ ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
                'site_model', 'site_conditions', 'imt',
                'fragility_model', 'fragility_cons',
                'vulnerability_model', 'gsim_logic_tree_file',
-               'source_model_logic_tree_file', 'source_model_file']
+               'source_model_logic_tree_file', 'source_model_file',
+               'ashfall_file', 'lavaflow_file', 'lahar_file',
+               'piroclasticflow_file']
 
 
 def _get_error_line(exc_msg):
@@ -487,6 +489,22 @@ def view(request, **kwargs):
         is_multiple=True)
     source_model_file_upload = FileUpload()
 
+    ashfall_file_html = filehtml_create(
+        is_qgis_browser, 'ashfall_file', userid, namespace)
+    ashfall_file_upload = FileUpload()
+
+    lavaflow_file_html = filehtml_create(
+        is_qgis_browser, 'lavaflow_file', userid, namespace)
+    lavaflow_file_upload = FileUpload()
+
+    lahar_file_html = filehtml_create(
+        is_qgis_browser, 'lahar_file', userid, namespace)
+    lahar_file_upload = FileUpload()
+
+    piroclasticflow_file_html = filehtml_create(
+        is_qgis_browser, 'piroclasticflow_file', userid, namespace)
+    piroclasticflow_file_upload = FileUpload()
+
     render_dict = dict(
         oqp_version_maj=oqp_version.split('.')[0],
         g_gmpe=json.dumps(gmpe),
@@ -539,7 +557,21 @@ def view(request, **kwargs):
             source_model_logic_tree_file_upload),
 
         source_model_file_html=source_model_file_html,
-        source_model_file_upload=source_model_file_upload)
+        source_model_file_upload=source_model_file_upload,
+
+        ashfall_file_html=ashfall_file_html,
+        ashfall_file_upload=ashfall_file_upload,
+
+        lavaflow_file_html=lavaflow_file_html,
+        lavaflow_file_upload=lavaflow_file_upload,
+
+        lahar_file_html=lahar_file_html,
+        lahar_file_upload=lahar_file_upload,
+
+        piroclasticflow_file_html=piroclasticflow_file_html,
+        piroclasticflow_file_upload=piroclasticflow_file_upload,
+
+    )
 
     if is_qgis_browser:
         render_dict.update({'allowed_dir': ALLOWED_DIR})
