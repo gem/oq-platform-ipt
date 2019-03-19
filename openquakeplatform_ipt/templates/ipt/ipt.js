@@ -18,7 +18,7 @@ var subtab_id_int = parseInt(subtab_id_s) - 1;
 switch (tab_id) {
     // just for config file case
 case 6:
-    if (subtab_id_int >= 0 && subtab_id_int < 3) {
+    if (subtab_id_int >= 0 && subtab_id_int < 4) {
         cf_subtab_id = subtab_id_int;
     }
     break;

@@ -26,6 +26,9 @@ var cf_obj = {
         pfx: '.cf_gid div[name="event-based"]',
         getData: null,
         expModel_coords: null
+    },
+    vol: {
+        pfx: '.cf_gid div[name="volcano"]'
     }
 };
 
@@ -2312,4 +2315,22 @@ $(document).ready(function () {
          + '</div></div>', placement: 'bottom'});
 
     $(cf_obj['e_b'].pfx + ' input[name="hazard"]').prop('checked', true).triggerHandler('click');
+
+    /*
+     * - - - VOLCANO - - -
+     */
+
+    function volcano_phen_cb(event)
+    {
+        var $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']:checked");
+
+        if ($phens.length == 0) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    }
+
+    $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']").click(volcano_phen_cb);
+    $(cf_obj['vol'].pfx + ' input[name="ashfall"]').prop('checked', true).triggerHandler('click');
+
 });
