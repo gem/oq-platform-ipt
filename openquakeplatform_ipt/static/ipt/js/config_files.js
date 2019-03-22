@@ -2324,19 +2324,40 @@ $(document).ready(function () {
 
     function volcano_manager()
     {
+        console.log('here');
         var $phen, $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']");
-        var $file_html, $file_new;
+        var $phen_input, $file_new;
+
+        var $expo_is_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-reg-constr']");
+        var $expo_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='region-constraint']");
+
+        var $expo_is_ass_haz_dist = $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-ass-haz-dist']");
+        var $expo_ass_haz_dist = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='ass-haz-dist']");
 
         for (var i = 0 ; i < $phens.length ; i++) {
             $phen = $($phens[i]);
-            $file_html = $(cf_obj['vol'].pfx + " div[name='" + $phen.attr('name') + "-file-html']");
+            $phen_input = $(cf_obj['vol'].pfx + " div[name='" + $phen.attr('name') + "-input']");
 
             if ($phen.is(':checked')) {
-                $file_html.show();
+                $phen_input.show();
             }
             else {
-                $file_html.hide();
+                $phen_input.hide();
             }
+        }
+
+        if ($expo_is_reg_const.is(':checked')) {
+            $expo_reg_const.show();
+        }
+        else {
+            $expo_reg_const.hide();
+        }
+
+        if ($expo_is_ass_haz_dist.is(':checked')) {
+            $expo_ass_haz_dist.show();
+        }
+        else {
+            $expo_ass_haz_dist.hide();
         }
     }
 
@@ -2355,5 +2376,8 @@ $(document).ready(function () {
 
     $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']").click(volcano_phen_cb);
     $(cf_obj['vol'].pfx + ' input[name="ashfall"]').prop('checked', true).triggerHandler('click');
+
+    $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-reg-constr']").click(volcano_manager);
+    $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-ass-haz-dist']").click(volcano_manager);
     volcano_manager();
 });

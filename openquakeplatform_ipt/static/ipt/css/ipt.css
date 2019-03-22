@@ -169,6 +169,10 @@ div.chbox > input {
     *overflow: hidden;
 }
 
+div.chbox_last {
+    border-right: 0px;
+}
+
 span.inlible {
     padding: 0 12px 0 0px;
     vertical-align: middle;

@@ -59,7 +59,7 @@ ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
                'vulnerability_model', 'gsim_logic_tree_file',
                'source_model_logic_tree_file', 'source_model_file',
                'ashfall_file', 'lavaflow_file', 'lahar_file',
-               'piroclasticflow_file']
+               'pyroclasticflow_file', 'exposure_file']
 
 
 def _get_error_line(exc_msg):
@@ -501,9 +501,13 @@ def view(request, **kwargs):
         is_qgis_browser, 'lahar_file', userid, namespace)
     lahar_file_upload = FileUpload()
 
-    piroclasticflow_file_html = filehtml_create(
-        is_qgis_browser, 'piroclasticflow_file', userid, namespace)
-    piroclasticflow_file_upload = FileUpload()
+    pyroclasticflow_file_html = filehtml_create(
+        is_qgis_browser, 'pyroclasticflow_file', userid, namespace)
+    pyroclasticflow_file_upload = FileUpload()
+
+    exposure_file_html = filehtml_create(
+        is_qgis_browser, 'exposure_file', userid, namespace)
+    exposure_file_upload = FileUpload()
 
     render_dict = dict(
         oqp_version_maj=oqp_version.split('.')[0],
@@ -568,9 +572,11 @@ def view(request, **kwargs):
         lahar_file_html=lahar_file_html,
         lahar_file_upload=lahar_file_upload,
 
-        piroclasticflow_file_html=piroclasticflow_file_html,
-        piroclasticflow_file_upload=piroclasticflow_file_upload,
+        pyroclasticflow_file_html=pyroclasticflow_file_html,
+        pyroclasticflow_file_upload=pyroclasticflow_file_upload,
 
+        exposure_file_html=exposure_file_html,
+        exposure_file_upload=exposure_file_upload,
     )
 
     if is_qgis_browser:

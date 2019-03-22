@@ -3,7 +3,6 @@ The OpenQuake volcano calculator can be used for the calculation of damage distr
 Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclastic flow.<br/><br/>
 
 <div name="phens" class="alert alert-info" role="alert">Choose at least one volcano phenomena.
-
   <div class="menuItems" style="text-align: center;">
     <form style="margin: 0px;">
       <div class="chbox">
@@ -18,83 +17,168 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
         <input style="margin:0;" type="checkbox" name="lahar">
         <span class="inlible">Lahar</span>
       </div>
-      <div class="chbox">
-        <input style="margin:0;" type="checkbox" name="piroclasticflow">
-        <span class="inlible">Piroclastic flow</span>
+      <div class="chbox chbox_last">
+        <input style="margin:0;" type="checkbox" name="pyroclasticflow">
+        <span class="inlible">Pyroclastic flow</span>
       </div>
     </form>
   </div>
 </div>
 
-<div class="menuItems">
-  <label>Description:</label>
-  <textarea id="description" rows="4" cols="10" name="description" class="gem-gen-descr">Volcano scenario calculation</textarea>
+<div>
+  <div class="menuItems">
+    <label>Description:</label>
+    <textarea id="description" rows="4" cols="10" name="description" class="gem-gen-descr">Volcano scenario calculation</textarea>
+  </div>
 </div>
 
-<div style="display: none;" class="menuItems" name="ashfall-file-html">
-  <label>Ashfall model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake ashfall model file describing the scenario event.'></span>
-    :</label>
-  {{ ashfall_file_html.file_html }}
-  {{ ashfall_file_html.new_btn }}
-</div>
-<div class="menuItems" name="ashfall-file-new" style="display: none;">
-  <div name="msg"><br></div>
-  {% if gem_qgis == None %}
-  <form action="upload/ashfall_file" method="post" id="file-upload-form" name="ashfall-file"
-        enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ ashfall_file_upload.file_upload }}
-  </form>
-  {% endif %}
+<div style="display: none;" name="ashfall-input">
+  <strong class='ffsTitle'>Ashfall</strong>
+    <div class="menuItems" name="ashfall-file-html">
+      <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake ashfall model file describing the scenario event.'></span>
+        :</label>
+      {{ ashfall_file_html.file_html }}
+      {{ ashfall_file_html.new_btn }}
+    </div>
+    <div class="menuItems" name="ashfall-file-new" style="display: none;">
+      <div name="msg"><br></div>
+      {% if gem_qgis == None %}
+      <form action="upload/ashfall_file" method="post" id="file-upload-form" name="ashfall-file"
+            enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ ashfall_file_upload.file_upload }}
+      </form>
+      {% endif %}
+    </div>
+    <div class="menuItems">
+      <label>Model EPSG code:</label><input type="text" name="ashfall-epsg"/>
+    </div>
+
+    <div class="menuItems">
+      <label>Units:</label><input type="text" name="ashfall-units"/>
+    </div>
+
+    <div class="menuItems">
+      <label>Humidity amplification factor:</label><input type="text" name="ashfall-hum-ampl" value="1.6"/>
+    </div>
 </div>
 
-<div style="display: none;" class="menuItems" name="lavaflow-file-html">
-  <label>Lavaflow model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake lavaflow model file describing the scenario event.'></span>
-    :</label>
-  {{ lavaflow_file_html.file_html }}
-  {{ lavaflow_file_html.new_btn }}
-</div>
-<div class="menuItems" name="lavaflow-file-new" style="display: none;">
-  <div name="msg"><br></div>
-  {% if gem_qgis == None %}
-  <form action="upload/lavaflow_file" method="post" id="file-upload-form" name="lavaflow-file"
-        enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ lavaflow_file_upload.file_upload }}
-  </form>
-  {% endif %}
-</div>
-
-<div style="display: none;" class="menuItems" name="lahar-file-html">
-  <label>Lahar model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake lahar model file describing the scenario event.'></span>
-    :</label>
-  {{ lahar_file_html.file_html }}
-  {{ lahar_file_html.new_btn }}
-</div>
-<div class="menuItems" name="lahar-file-new" style="display: none;">
-  <div name="msg"><br></div>
-  {% if gem_qgis == None %}
-  <form action="upload/lahar_file" method="post" id="file-upload-form" name="lahar-file"
-        enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ lahar_file_upload.file_upload }}
-  </form>
-  {% endif %}
+<div style="display: none;" name="lavaflow-input">
+  <strong class='ffsTitle'>Lava Flow</strong>
+  <div class="menuItems" name="lavaflow-file-html">
+    <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake lavaflow model file describing the scenario event.'></span>
+      :</label>
+    {{ lavaflow_file_html.file_html }}
+    {{ lavaflow_file_html.new_btn }}
+  </div>
+  <div class="menuItems" name="lavaflow-file-new" style="display: none;">
+    <div name="msg"><br></div>
+    {% if gem_qgis == None %}
+    <form action="upload/lavaflow_file" method="post" id="file-upload-form" name="lavaflow-file"
+          enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ lavaflow_file_upload.file_upload }}
+    </form>
+    {% endif %}
+  </div>
+  <div class="menuItems">
+    <label>Lavaflow model EPSG code:</label><input type="text" name="lavaflow-epsg"/>
+  </div>
 </div>
 
-<div style="display: none;" class="menuItems" name="piroclasticflow-file-html">
-  <label>Piroclasticflow model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake piroclasticflow model file describing the scenario event.'></span>
-    :</label>
-  {{ piroclasticflow_file_html.file_html }}
-  {{ piroclasticflow_file_html.new_btn }}
+<div style="display: none;" name="lahar-input">
+  <strong class='ffsTitle'>Lahar</strong>
+  <div class="menuItems" name="lahar-file-html">
+    <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake lahar model file describing the scenario event.'></span>
+      :</label>
+    {{ lahar_file_html.file_html }}
+    {{ lahar_file_html.new_btn }}
+  </div>
+  <div class="menuItems" name="lahar-file-new" style="display: none;">
+    <div name="msg"><br></div>
+    {% if gem_qgis == None %}
+    <form action="upload/lahar_file" method="post" id="file-upload-form" name="lahar-file"
+          enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ lahar_file_upload.file_upload }}
+    </form>
+    {% endif %}
+  </div>
+  <div class="menuItems">
+    <label>Model EPSG code:</label><input type="text" name="lahar-epsg"/>
+  </div>
 </div>
-<div class="menuItems" name="piroclasticflow-file-new" style="display: none;">
-  <div name="msg"><br></div>
-  {% if gem_qgis == None %}
-  <form action="upload/piroclasticflow_file" method="post" id="file-upload-form" name="piroclasticflow-file"
-        enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ piroclasticflow_file_upload.file_upload }}
-  </form>
-  {% endif %}
+
+<div style="display: none;" name="pyroclasticflow-input">
+  <strong class='ffsTitle'>Pyroclastic flow</strong>
+  <div class="menuItems" name="pyroclasticflow-file-html">
+    <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake pyroclasticflow model file describing the scenario event.'></span>
+      :</label>
+    {{ pyroclasticflow_file_html.file_html }}
+    {{ pyroclasticflow_file_html.new_btn }}
+  </div>
+  <div class="menuItems" name="pyroclasticflow-file-new" style="display: none;">
+    <div name="msg"><br></div>
+    {% if gem_qgis == None %}
+    <form action="upload/pyroclasticflow_file" method="post" id="file-upload-form" name="pyroclasticflow-file"
+          enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ pyroclasticflow_file_upload.file_upload }}
+    </form>
+    {% endif %}
+  </div>
+  <div class="menuItems">
+    <label>Model EPSG code:</label><input type="text" name="pyroclasticflow_epsg"/>
+  </div>
+</div>
+
+<div name="exposure">
+  <strong class='ffsTitle'>Exposure</strong>
+  <div class="menuItems" name="exposure-file-html">
+    <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='FIXME'></span>
+      :</label>
+    {{ exposure_file_html.file_html }}
+    {{ exposure_file_html.new_btn }}
+  </div>
+  <div class="menuItems" name="exposure-file-new" style="display: none;">
+    <div name="msg"><br></div>
+    {% if gem_qgis == None %}
+    <form action="upload/exposure_file" method="post" id="file-upload-form" name="exposure-file"
+          enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ exposure_file_upload.file_upload }}
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="alert alert-info" role="alert">
+    <div class="menuItems" style="text-align: center;">
+      <form style="margin: 0px;">
+        <div class="chbox chbox_last">
+          <input style="margin:0;" type="checkbox" name="is-reg-constr">
+          <span class="inlible">Include region constraint</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="menuItems" name="region-constraint" style="display: none;">
+    <label>Region constraint:</label>
+    <textarea name="region-constraint" style="width: 300px; height: 150px;"></textarea>
+  </div>
+
+  <div class="alert alert-info" role="alert">
+    <div class="menuItems" style="text-align: center;">
+      <form style="margin: 0px;">
+        <div class="chbox chbox_last">
+          <input style="margin:0;" type="checkbox" name="is-ass-haz-dist">
+          <span class="inlible">Include asset hazard distance</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="menuItems" name="ass-haz-dist" style="display: none;">
+    <label>Asset hazard distance:</label>
+    <input type="text" name="ass-haz-dist" value="5.0"/>
 </div>
