@@ -2322,9 +2322,59 @@ $(document).ready(function () {
      * - - - VOLCANO - - -
      */
 
+    /* generic callback to show upload div */
+    function volcano_fileNew_cb(e) {
+        if (typeof gem_api == 'undefined') {
+            /* generic callback to show upload div (init) */
+            $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+            if ($(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+                $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(volcano_fileNew_upload);
+                if (window.gem_not_interactive == undefined) {
+                    $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+                }
+            }
+        }
+        else { // if (gem_api == null
+            var event = e;
+            var $msg = $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"] div[name="msg"]');
+            $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+
+            var $sibling = $(e.target).siblings("select[name='file_html']");
+            var subdir = $sibling.attr('data-gem-subdir');
+            var sel_grp = $sibling.attr('data-gem-group');
+            var is_multiple = $sibling.is("[multiple]");
+
+            function cb(uuid, app_msg) {
+                if (! app_msg.complete)
+                    return;
+
+                var cmd_msg = app_msg.result;
+                if (cmd_msg.success) {
+                    $msg.html("File '" + cmd_msg.content[0] + "' collected correctly.");
+                    volcano_fileNew_collect(event, cmd_msg);
+                }
+                else {
+                    $msg.html(cmd_msg.reason);
+                }
+                $(cf_obj['vol'].pfx + ' div[name="' + event.target.name + '"]').delay(3000).slideUp();
+            }
+            gem_api.select_and_copy_file(cb, subdir, is_multiple);
+        }
+    }
+
+    function volcano_fileNew_upload(event)
+    {
+        form = $(event.target).parent('form').get(0);
+        return generic_fileNew_upload('vol', form, event);
+    }
+
+    function volcano_fileNew_collect(event, reply)
+    {
+        return generic_fileNew_collect('vol', reply, event);
+    }
+
     function volcano_manager()
     {
-        console.log('here');
         var $phen, $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']");
         var $phen_input, $file_new;
 
@@ -2379,5 +2429,14 @@ $(document).ready(function () {
 
     $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-reg-constr']").click(volcano_manager);
     $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-ass-haz-dist']").click(volcano_manager);
+
+    // List of sites (init)
+
+    $(cf_obj['vol'].pfx + ' button[name="ashfall-file-new"]').click(volcano_fileNew_cb);
+    $(cf_obj['vol'].pfx + ' button[name="lavaflow-file-new"]').click(volcano_fileNew_cb);
+    $(cf_obj['vol'].pfx + ' button[name="lahar-file-new"]').click(volcano_fileNew_cb);
+    $(cf_obj['vol'].pfx + ' button[name="pyroclasticflow-file-new"]').click(volcano_fileNew_cb);
+    $(cf_obj['vol'].pfx + ' button[name="exposure-file-new"]').click(volcano_fileNew_cb);
+
     volcano_manager();
 });
