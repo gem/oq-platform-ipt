@@ -53,13 +53,26 @@ django_version = django.get_version()
 if StrictVersion(django_version) < StrictVersion('1.8'):
     from django.template import Context
 
-ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
-               'site_model', 'site_conditions', 'imt',
-               'fragility_model', 'fragility_cons',
-               'vulnerability_model', 'gsim_logic_tree_file',
-               'source_model_logic_tree_file', 'source_model_file',
-               'ashfall_file', 'lavaflow_file', 'lahar_file',
-               'pyroclasticflow_file', 'exposure_file']
+ALLOWED_DIR = {
+    'rupture_file': ('.xml',),
+    'list_of_sites': ('.csv',),
+    'gmf_file': ('.xml', 'csv'),
+    'exposure_model': ('.xml',),
+    'site_model': ('.xml',),
+    'site_conditions': ('.xml',),
+    'imt': ('.xml',),
+    'fragility_model': ('.xml',),
+    'fragility_cons': ('.xml',),
+    'vulnerability_model': ('.xml',),
+    'gsim_logic_tree_file': ('.xml',),
+    'source_model_logic_tree_file': ('.xml',),
+    'source_model_file': ('.xml',),
+    'ashfall_file': ('.xml',),
+    'lavaflow_file': ('.xml',),
+    'lahar_file': ('.xml',),
+    'pyroclasticflow_file': ('.xml',),
+    'exposure_file': ('.xml',),
+}
 
 
 def _get_error_line(exc_msg):
@@ -336,7 +349,7 @@ class FilePathFieldByUser(forms.ChoiceField):
 
 
 def filehtml_create(is_bridged, suffix, userid, namespace, dirnam=None,
-                    match=".*\.xml", is_multiple=False, name=None):
+                    match=".*\\.xml", is_multiple=False, name=None):
     if dirnam is None:
         dirnam = suffix
     if (dirnam not in ALLOWED_DIR):
@@ -406,7 +419,7 @@ def view(request, **kwargs):
     rupture_file_upload = FileUpload()
 
     list_of_sites_html = filehtml_create(
-        is_qgis_browser, 'list_of_sites', userid, namespace, match=".*\.csv")
+        is_qgis_browser, 'list_of_sites', userid, namespace, match=".*\\.csv")
     list_of_sites_upload = FileUpload()
 
     gmf_file_html = filehtml_create(
@@ -580,7 +593,7 @@ def view(request, **kwargs):
     )
 
     if is_qgis_browser:
-        render_dict.update({'allowed_dir': ALLOWED_DIR})
+        render_dict.update({'allowed_dir': ALLOWED_DIR.keys()})
 
     return render(request, "ipt/ipt.html", render_dict)
 
@@ -604,78 +617,79 @@ def upload(request, **kwargs):
             class FileUpload(forms.Form):
                 file_upload = forms.FileField(allow_empty_file=True)
             form = FileUpload(request.POST, request.FILES)
-            exten2 = None
-            if target in ['list_of_sites']:
-                exten = "csv"
-            else:
-                exten = "xml"
-            if target in ['gmf_file']:
-                exten2 = 'csv'
 
             if form.is_valid():
-                if (request.FILES['file_upload'].name.endswith('.' + exten) or
-                        (exten2 is not None and request.FILES[
-                            'file_upload'].name.endswith('.' + exten2))):
-                    if getattr(settings, 'STANDALONE', False):
-                        userid = ''
-                    else:
-                        userid = str(request.user.id)
-                    namespace = request.resolver_match.namespace
-                    user_dir = get_full_path(userid, namespace)
-                    bname = os.path.join(user_dir, target)
-                    # check if the directory exists (or create it)
-                    if not os.path.exists(bname):
-                        os.makedirs(bname)
-                    full_path = os.path.join(
-                        bname, request.FILES['file_upload'].name)
-                    overwrite_existing_files = request.POST.get(
-                        'overwrite_existing_files', True)
-                    if not overwrite_existing_files:
-                        modified_path = full_path
-                        n = 0
-                        while os.path.isfile(modified_path):
-                            n += 1
-                            f_name, f_ext = os.path.splitext(full_path)
-                            modified_path = '%s_%s%s' % (f_name, n, f_ext)
-                        full_path = modified_path
-                    if not os.path.normpath(full_path).startswith(user_dir):
-                        ret['ret'] = 5
-                        ret['ret_msg'] = 'Not authorized to write the file.'
-                        return HttpResponse(json.dumps(ret),
-                                            content_type="application/json")
-                    with open(full_path, "wb") as f:
-                        f.write(encode(request.FILES['file_upload'].read()))
-
-                    suffix = target
-                    match = ".*\." + exten + "$"
-                    if exten2 is not None:
-                        match += "|.*\." + exten2 + "$"
-
-                    class FileHtml(forms.Form):
-                        file_html = FilePathFieldByUser(
-                            is_bridged=False,
-                            userid=userid,
-                            subdir=suffix,
-                            namespace=namespace,
-                            match=match,
-                            recursive=True)
-
-                    fileslist = FileHtml()
-
-                    ret['ret'] = 0
-                    ret['items'] = fileslist.fields['file_html'].choices
-                    orig_file_name = str(request.FILES['file_upload'])
-                    new_file_name = os.path.basename(full_path)
-                    ret['selected'] = os.path.join(target, new_file_name)
-                    changed_msg = ''
-                    if orig_file_name != new_file_name:
-                        changed_msg = ' (Renamed into %s)' % new_file_name
-                    ret['ret_msg'] = ('File %s uploaded successfully.%s' %
-                                      (orig_file_name, changed_msg))
-                else:
+                if (not request.FILES['file_upload'].name.endswith(
+                        ALLOWED_DIR[target])):
                     ret['ret'] = 1
-                    ret['ret_msg'] = ('File uploaded isn\'t an %s file.' %
-                                      exten.upper())
+                    if len(ALLOWED_DIR[target]) == 1:
+                        ret['ret_msg'] = ('File uploaded isn\'t an %s file.' %
+                                          ALLOWED_DIR[target][0].upper())
+                    else:
+                        ls = ', '.join(
+                            [ext.upper() for ext in ALLOWED_DIR[target]])
+                        ret['ret_msg'] = ('Type of uploaded file not in the '
+                                          'recognized list [%s].' % ls)
+
+                    # Redirect to the document list after POST
+                    return HttpResponse(json.dumps(ret),
+                                        content_type="application/json")
+
+                if getattr(settings, 'STANDALONE', False):
+                    userid = ''
+                else:
+                    userid = str(request.user.id)
+                namespace = request.resolver_match.namespace
+                user_dir = get_full_path(userid, namespace)
+                bname = os.path.join(user_dir, target)
+                # check if the directory exists (or create it)
+                if not os.path.exists(bname):
+                    os.makedirs(bname)
+                full_path = os.path.join(
+                    bname, request.FILES['file_upload'].name)
+                overwrite_existing_files = request.POST.get(
+                    'overwrite_existing_files', True)
+                if not overwrite_existing_files:
+                    modified_path = full_path
+                    n = 0
+                    while os.path.isfile(modified_path):
+                        n += 1
+                        f_name, f_ext = os.path.splitext(full_path)
+                        modified_path = '%s_%s%s' % (f_name, n, f_ext)
+                    full_path = modified_path
+                if not os.path.normpath(full_path).startswith(user_dir):
+                    ret['ret'] = 5
+                    ret['ret_msg'] = 'Not authorized to write the file.'
+                    return HttpResponse(json.dumps(ret),
+                                        content_type="application/json")
+                with open(full_path, "wb") as f:
+                    f.write(encode(request.FILES['file_upload'].read()))
+
+                suffix = target
+                match = "|".join(
+                    [".*\\%s$" % ext for ext in ALLOWED_DIR[target]])
+
+                class FileHtml(forms.Form):
+                    file_html = FilePathFieldByUser(
+                        is_bridged=False,
+                        userid=userid,
+                        subdir=suffix,
+                        namespace=namespace,
+                        match=match,
+                        recursive=True)
+
+                fileslist = FileHtml()
+
+                ret['ret'] = 0
+                ret['items'] = fileslist.fields['file_html'].choices
+                orig_file_name = str(request.FILES['file_upload'])
+                new_file_name = os.path.basename(full_path)
+                ret['selected'] = os.path.join(target, new_file_name)
+                changed_msg = ''
+                if orig_file_name != new_file_name:
+                    changed_msg = ' (Renamed into %s)' % new_file_name
+                ret['ret_msg'] = ('File %s uploaded successfully.%s' %
+                                  (orig_file_name, changed_msg))
 
                 # Redirect to the document list after POST
                 return HttpResponse(json.dumps(ret),
@@ -688,9 +702,8 @@ def upload(request, **kwargs):
                 namespace = request.resolver_match.namespace
 
                 suffix = target
-                match = ".*\." + exten + "$"
-                if exten2 is not None:
-                    match += "|.*\." + exten2 + "$"
+                match = "|".join(
+                    [".*\\%s$" % ext for ext in ALLOWED_DIR[target]])
 
                 class FileHtml(forms.Form):
                     file_html = FilePathFieldByUser(
