@@ -1123,6 +1123,27 @@ $(document).ready(function () {
             if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
                 if (typeof window.gem_not_interactive == 'undefined') {
                     $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+                    var name = e.target.name;
+
+                    function uploader_rollback() {
+                        if ($(cf_obj['scen'].pfx + ' div[name="' + name +
+                              '"] input[type="file"]').val().length > 0) {
+                            $(document.body).off('focusin', uploader_rollback);
+                            return;
+                        }
+
+                        var $msg = $(cf_obj['scen'].pfx + ' div[name="' + name + '"] div[name="msg"]');
+                        $msg.html("Upload file cancelled.");
+                        $(cf_obj['scen'].pfx + ' div[name="' + name + '"]').delay(3000).slideUp({
+                            done: function () {
+                                $(cf_obj['scen'].pfx + ' div[name="' + name + '"] div[name="msg"]').html('');
+                            }
+                        });
+                        $(document.body).off('focusin', uploader_rollback);
+                    }
+                    $(document.body).on('focusin', uploader_rollback);
+
+
                 }
             }
         }
@@ -1671,6 +1692,26 @@ $(document).ready(function () {
             if ($(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
                 if (typeof window.gem_not_interactive == 'undefined') {
                     $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+
+                    var name = e.target.name;
+
+                    function uploader_rollback() {
+                        if ($(cf_obj['e_b'].pfx + ' div[name="' + name +
+                              '"] input[type="file"]').val().length > 0) {
+                            $(document.body).off('focusin', uploader_rollback);
+                            return;
+                        }
+
+                        var $msg = $(cf_obj['e_b'].pfx + ' div[name="' + name + '"] div[name="msg"]');
+                        $msg.html("Upload file cancelled.");
+                        $(cf_obj['e_b'].pfx + ' div[name="' + name + '"]').delay(3000).slideUp({
+                            done: function () {
+                                $(cf_obj['e_b'].pfx + ' div[name="' + name + '"] div[name="msg"]').html('');
+                            }
+                        });
+                        $(document.body).off('focusin', uploader_rollback);
+                    }
+                    $(document.body).on('focusin', uploader_rollback);
                 }
             }
         }
@@ -2288,12 +2329,41 @@ $(document).ready(function () {
 
     /* generic callback to show upload div */
     function volcano_fileNew_cb(e) {
+        var name = $(e.target).attr('name');
+        var $epsg = $(e.target).parent().parent().find('input[name="' + name.slice(0, -9) + '-epsg"]');
+
+        if ($epsg.length > 0) {
+            if ($epsg.val()  == '') {
+                gem_ipt.error_msg('Associated coordinate reference system [EPSG] not properly set.');
+                return;
+            }
+        }
+
         if (typeof gem_api == 'undefined') {
             /* generic callback to show upload div (init) */
             $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
             if ($(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
                 if (typeof window.gem_not_interactive == 'undefined') {
                     $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+                    var name = e.target.name;
+
+                    function uploader_rollback() {
+                        if ($(cf_obj['vol'].pfx + ' div[name="' + name +
+                              '"] input[type="file"]').val().length > 0) {
+                            $(document.body).off('focusin', uploader_rollback);
+                            return;
+                        }
+
+                        var $msg = $(cf_obj['vol'].pfx + ' div[name="' + name + '"] div[name="msg"]');
+                        $msg.html("Upload file cancelled.");
+                        $(cf_obj['vol'].pfx + ' div[name="' + name + '"]').delay(3000).slideUp({
+                            done: function () {
+                                $(cf_obj['vol'].pfx + ' div[name="' + name + '"] div[name="msg"]').html('');
+                            }
+                        });
+                        $(document.body).off('focusin', uploader_rollback);
+                    }
+                    $(document.body).on('focusin', uploader_rollback);
                 }
             }
         }
