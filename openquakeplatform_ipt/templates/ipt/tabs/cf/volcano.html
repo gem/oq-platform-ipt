@@ -34,6 +34,10 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 
 <div style="display: none;" name="ashfall-input">
   <strong class='ffsTitle'>Ashfall</strong>
+    <div class="menuItems">
+      <label>Coordinate reference system [EPSG]:</label><input type="text" name="ashfall-epsg" placeholder="4326"/>
+    </div>
+
     <div class="menuItems" name="ashfall-file-html">
       <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake ashfall model file describing the scenario event.'></span>
         :</label>
@@ -50,9 +54,6 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
       </form>
       {% endif %}
     </div>
-    <div class="menuItems">
-      <label>Model EPSG code:</label><input type="text" name="ashfall-epsg"/>
-    </div>
 
     <div class="menuItems">
       <label>Units:</label><input type="text" name="ashfall-units" value="mm"/>
@@ -65,6 +66,9 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 
 <div style="display: none;" name="lavaflow-input">
   <strong class='ffsTitle'>Lava Flow</strong>
+  <div class="menuItems">
+    <label>Coordinate reference system [EPSG]:</label><input type="text" name="lavaflow-epsg" placeholder="4326"/>
+  </div>
   <div class="menuItems" name="lavaflow-file-html">
     <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake lavaflow model file describing the scenario event.'></span>
       :</label>
@@ -81,13 +85,13 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
     </form>
     {% endif %}
   </div>
-  <div class="menuItems">
-    <label>Lavaflow model EPSG code:</label><input type="text" name="lavaflow-epsg"/>
-  </div>
 </div>
 
 <div style="display: none;" name="lahar-input">
   <strong class='ffsTitle'>Lahar</strong>
+  <div class="menuItems">
+    <label>Coordinate reference system [EPSG]:</label><input type="text" name="lahar-epsg" placeholder="4326"/>
+  </div>
   <div class="menuItems" name="lahar-file-html">
     <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake lahar model file describing the scenario event.'></span>
       :</label>
@@ -104,13 +108,13 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
     </form>
     {% endif %}
   </div>
-  <div class="menuItems">
-    <label>Model EPSG code:</label><input type="text" name="lahar-epsg"/>
-  </div>
 </div>
 
 <div style="display: none;" name="pyroclasticflow-input">
   <strong class='ffsTitle'>Pyroclastic flow</strong>
+  <div class="menuItems">
+    <label>Coordinate reference system [EPSG]:</label><input type="text" name="pyroclasticflow-epsg" placeholder="4326"/>
+  </div>
   <div class="menuItems" name="pyroclasticflow-file-html">
     <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake pyroclasticflow model file describing the scenario event.'></span>
       :</label>
@@ -126,9 +130,6 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
       {{ pyroclasticflow_file_upload.file_upload }}
     </form>
     {% endif %}
-  </div>
-  <div class="menuItems">
-    <label>Model EPSG code:</label><input type="text" name="pyroclasticflow_epsg"/>
   </div>
 </div>
 
