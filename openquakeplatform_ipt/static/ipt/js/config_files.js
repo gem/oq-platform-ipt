@@ -40,6 +40,19 @@ $(document).ready(function () {
         $(this).tab('show');
     });
 
+    function file_uploader_init(scope, name, fn_cb, fn_up)
+    {
+        var $target;
+
+        if (typeof scope == 'string')
+            $target = $(cf_obj[scope].pfx);
+        else
+            $target = scope;
+
+        $target.find('button[name="' + name + '-new"]').click(fn_cb);
+        $target.find('div[name="' + name + '-new"] input[type="file"]').change(fn_up);
+    }
+
     function exposure_model_sect_manager(scope, enabled, with_constraints, without_inc_asset)
     {
         $target = $(cf_obj[scope].pfx + ' div[name="exposure-model"]');
@@ -394,9 +407,17 @@ $(document).ready(function () {
        naming schema with '<name>-html' and '<name>-new', see config_files.html */
     function generic_fileNew_upload(scope, obj, event)
     {
+        console.log('generic upload start here');
+
         event.preventDefault();
+
         var name = $(obj).attr('name');
         var data = new FormData($(obj).get(0));
+
+        if (scope == 'vol') {
+            var epsg = $(obj).parent().parent().find('input[name="' + name.slice(0, -5) + '-epsg"]').val();
+            console.log('EPSG: ' + epsg);
+        }
 
         $.ajax({
             url: $(obj).attr('action'),
@@ -437,7 +458,13 @@ $(document).ready(function () {
                     $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(data.selected);
                 }
                 $(cf_obj[scope].pfx + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
-                $(cf_obj[scope].pfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
+                $(cf_obj[scope].pfx + ' div[name="' + name + '-new"]').delay(3000).slideUp({
+                    done: function () {
+                        $(cf_obj[scope].pfx + ' div[name="' + name + '-new"] div[name="msg"]').html('');
+                    }
+                });
+
+                $(event.target).prop("value", "");
             }
         });
         return false;
@@ -445,10 +472,7 @@ $(document).ready(function () {
 
     function exposure_model_init(scope, fileNew_cb, fileNew_upload, manager)
     {
-        $(cf_obj[scope].pfx + ' button[name="exposure-model-new"]').click(
-            fileNew_cb);
-        $(cf_obj[scope].pfx + ' div[name="exposure-model-new"]' +
-          ' form[name="exposure-model"]').submit(fileNew_upload);
+        file_uploader_init(scope, 'exposure-model', fileNew_cb, fileNew_upload);
 
         // Exposure model: risk-only region constraint checkbox (init)
         $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
@@ -503,29 +527,19 @@ $(document).ready(function () {
         $target.find('input[type="checkbox"]').click(manager);
 
         // Vulnerability model: structural (init)
-        $target.find('button[name="vm-structural-new"]').click(fileNew_cb);
-        $target.find('div[name="vm-structural-new"]' +
-          ' form[name="vm-structural"]').submit(fileNew_upload);
+        file_uploader_init($target, 'vm-structural', fileNew_cb, fileNew_upload);
 
         // Vulnerability model: nonstructural (init)
-        $target.find('button[name="vm-nonstructural-new"]').click(fileNew_cb);
-        $target.find('div[name="vm-nonstructural-new"]' +
-          ' form[name="vm-nonstructural"]').submit(fileNew_upload);
+        file_uploader_init($target, 'vm-nonstructural', fileNew_cb, fileNew_upload);
 
         // Vulnerability model: contents (init)
-        $target.find('button[name="vm-contents-new"]').click(fileNew_cb);
-        $target.find('div[name="vm-contents-new"]' +
-          ' form[name="vm-contents"]').submit(fileNew_upload);
+        file_uploader_init($target, 'vm-contents', fileNew_cb, fileNew_upload);
 
         // Vulnerability model: businter (init)
-        $target.find('button[name="vm-businter-new"]').click(fileNew_cb);
-        $target.find('div[name="vm-businter-new"]' +
-          ' form[name="vm-businter"]').submit(fileNew_upload);
+        file_uploader_init($target, 'vm-businter', fileNew_cb, fileNew_upload);
 
         // Vulnerability model: occupants (init)
-        $target.find('button[name="vm-occupants-new"]').click(fileNew_cb);
-        $target.find('div[name="vm-occupants-new"]' +
-          ' form[name="vm-occupants"]').submit(fileNew_upload);
+        file_uploader_init($target, 'vm-occupants', fileNew_cb, fileNew_upload);
 
         $target.find('input[type="checkbox"]').click(manager);
         $target.find('input[name="insured_losses"]').prop('checked', false); // .triggerHandler('click');
@@ -540,10 +554,7 @@ $(document).ready(function () {
         $(cf_obj[scope].pfx + ' input[name="hazard_sitecond"][value="uniform-param"]'
          ).prop('checked', true);  // .triggerHandler('click');
 
-        $(cf_obj[scope].pfx + ' button[name="site-conditions-new"]').click(
-            fileNew_cb);
-        $(cf_obj[scope].pfx + ' div[name="site-conditions-new"]' +
-          ' form[name="site-conditions"]').submit(fileNew_upload);
+        file_uploader_init(scope, 'site-conditions', fileNew_cb, fileNew_upload);
     }
 
     cf_obj.generate_dest_name = function(scope)
@@ -979,10 +990,7 @@ $(document).ready(function () {
     /* - - - SCENARIO (INIT) - - - */
 
     // Rupture information (init)
-    $(cf_obj['scen'].pfx + ' button[name="rupture-file-new"]').click(scenario_fileNew_cb);
-
-    $(cf_obj['scen'].pfx + ' div[name="rupture-file-new"]' +
-      ' form[name="rupture-file"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'rupture-file', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Hazard site
     //   Hazard site Region Grid (init)
@@ -1024,18 +1032,13 @@ $(document).ready(function () {
     });
 
     // List of sites (init)
-    $(cf_obj['scen'].pfx + ' button[name="list-of-sites-new"]').click(scenario_fileNew_cb);
+    file_uploader_init('scen', 'list-of-sites', scenario_fileNew_cb, scenario_fileNew_upload);
 
-    $(cf_obj['scen'].pfx + ' div[name="list-of-sites-new"]' +
-      ' form[name="list-of-sites"]').submit(scenario_fileNew_upload);
 
     // GMF file upload (init)
     $(cf_obj['scen'].pfx + ' div[name="gmf-file"] input[name="use_gmf_file"]').click(scenario_manager);
 
-    $(cf_obj['scen'].pfx + ' div[name="gmf-file"] button[name="gmf-file-new"]').click(scenario_fileNew_cb);
-
-    $(cf_obj['scen'].pfx + ' div[name="gmf-file-new"]' +
-      ' form[name="gmf-file"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'gmf-file', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Exposure model (init)
     exposure_model_init('scen', scenario_fileNew_cb, scenario_fileNew_upload, scenario_manager);
@@ -1047,48 +1050,20 @@ $(document).ready(function () {
       + '[name="fm-loss-include-cons"]').click(scenario_manager);
 
     // Fragility model: structural (init)
-    $(cf_obj['scen'].pfx + ' button[name="fm-structural-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-structural-new"]' +
-      ' form[name="fm-structural"]').submit(scenario_fileNew_upload);
-
-    $(cf_obj['scen'].pfx + ' button[name="fm-structural-cons-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-structural-cons-new"]' +
-      ' form[name="fm-structural-cons"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-structural', scenario_fileNew_cb, scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-structural-cons', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Fragility model: nonstructural (init)
-    $(cf_obj['scen'].pfx + ' button[name="fm-nonstructural-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-nonstructural-new"]' +
-      ' form[name="fm-nonstructural"]').submit(scenario_fileNew_upload);
-
-    $(cf_obj['scen'].pfx + ' button[name="fm-nonstructural-cons-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-nonstructural-cons-new"]' +
-      ' form[name="fm-nonstructural-cons"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-nonstructural', scenario_fileNew_cb, scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-nonstructural-cons', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Fragility model: contents (init)
-    $(cf_obj['scen'].pfx + ' button[name="fm-contents-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-contents-new"]' +
-      ' form[name="fm-contents"]').submit(scenario_fileNew_upload);
-
-    $(cf_obj['scen'].pfx + ' button[name="fm-contents-cons-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-contents-cons-new"]' +
-      ' form[name="fm-contents-cons"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-contents', scenario_fileNew_cb, scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-contents-cons', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Fragility model: businter (init)
-    $(cf_obj['scen'].pfx + ' button[name="fm-businter-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-businter-new"]' +
-      ' form[name="fm-businter"]').submit(scenario_fileNew_upload);
-
-    $(cf_obj['scen'].pfx + ' button[name="fm-businter-cons-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-businter-cons-new"]' +
-      ' form[name="fm-businter-cons"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-businter', scenario_fileNew_cb, scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-businter-cons', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Vulnerability model (init)
     vulnerability_model_init('scen', scenario_fileNew_cb, scenario_fileNew_upload,
@@ -1101,10 +1076,7 @@ $(document).ready(function () {
     // Calculation parameters (init)
 
     // Calculation parameters: imt (init)
-    $(cf_obj['scen'].pfx + ' button[name="gmpe-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="gmpe-new"]' +
-      ' form[name="gmpe"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'gmpe', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Calculation parameters: gsim_logic_tree_file (init)
     $(cf_obj['scen'].pfx + ' select[name="gmpe"]').searchableOptionList(
@@ -1149,8 +1121,7 @@ $(document).ready(function () {
             /* generic callback to show upload div (init) */
             $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
             if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
-                $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
-                if (window.gem_not_interactive == undefined) {
+                if (typeof window.gem_not_interactive == 'undefined') {
                     $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
                 }
             }
@@ -1698,8 +1669,7 @@ $(document).ready(function () {
             /* generic callback to show upload div (init) */
             $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
             if ($(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
-                $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(event_based_fileNew_upload);
-                if (window.gem_not_interactive == undefined) {
+                if (typeof window.gem_not_interactive == 'undefined') {
                     $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
                 }
             }
@@ -1790,22 +1760,16 @@ $(document).ready(function () {
         var $target = $(cf_obj['e_b'].pfx + ' div[name="hazard-model"]');
 
         // Hazard model: source_model_logic_tree_file (init)
-        $target.find('button[name="source-model-logic-tree-file-new"]').click(
-            event_based_fileNew_cb);
-        $target.find('div[name="source-model-logic-tree-file-new"]' +
-          ' form[name="source-model-logic-tree-file"]').submit(event_based_fileNew_upload);
+        file_uploader_init($target, 'source-model-logic-tree-file',
+                           event_based_fileNew_cb, event_based_fileNew_upload)
 
         // Hazard model: source_tree_file (init)
-        $target.find('button[name="source-model-file-new"]').click(
-            event_based_fileNew_cb);
-        $target.find('div[name="source-model-file-new"]' +
-          ' form[name="source-model-file"]').submit(event_based_fileNew_upload);
+        file_uploader_init($target, 'source-model-file',
+                           event_based_fileNew_cb, event_based_fileNew_upload)
 
         // Hazard model: gsim_logic_tree_file (init)
-        $target.find('button[name="gsim-logic-tree-file-new"]').click(
-            event_based_fileNew_cb);
-        $target.find('div[name="gsim-logic-tree-file-new"]' +
-          ' form[name="gsim-logic-tree-file"]').submit(event_based_fileNew_upload);
+        file_uploader_init($target, 'gsim-logic-tree-file',
+                           event_based_fileNew_cb, event_based_fileNew_upload)
 
         $target.find('input[type="checkbox"][name="rupture_mesh_spacing_choice"]').click(
             event_based_manager);
@@ -2328,8 +2292,7 @@ $(document).ready(function () {
             /* generic callback to show upload div (init) */
             $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
             if ($(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
-                $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(volcano_fileNew_upload);
-                if (window.gem_not_interactive == undefined) {
+                if (typeof window.gem_not_interactive == 'undefined') {
                     $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
                 }
             }
@@ -2432,11 +2395,11 @@ $(document).ready(function () {
 
     // List of sites (init)
 
-    $(cf_obj['vol'].pfx + ' button[name="ashfall-file-new"]').click(volcano_fileNew_cb);
-    $(cf_obj['vol'].pfx + ' button[name="lavaflow-file-new"]').click(volcano_fileNew_cb);
-    $(cf_obj['vol'].pfx + ' button[name="lahar-file-new"]').click(volcano_fileNew_cb);
-    $(cf_obj['vol'].pfx + ' button[name="pyroclasticflow-file-new"]').click(volcano_fileNew_cb);
-    $(cf_obj['vol'].pfx + ' button[name="exposure-file-new"]').click(volcano_fileNew_cb);
+    file_uploader_init('vol', 'ashfall-file', volcano_fileNew_cb, volcano_fileNew_upload);
+    file_uploader_init('vol', 'lavaflow-file', volcano_fileNew_cb, volcano_fileNew_upload);
+    file_uploader_init('vol', 'lahar-file', volcano_fileNew_cb, volcano_fileNew_upload);
+    file_uploader_init('vol', 'pyroclasticflow-file', volcano_fileNew_cb, volcano_fileNew_upload);
+    file_uploader_init('vol', 'exposure-file', volcano_fileNew_cb, volcano_fileNew_upload);
 
     volcano_manager();
 });
