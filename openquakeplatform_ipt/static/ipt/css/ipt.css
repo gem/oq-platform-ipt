@@ -233,3 +233,7 @@ div.bootstrap-tagsinput {
 .gem-gen-descr {
     width: 350px;
 }
+
+.ui-dialog-titlebar-close {
+    visibility: hidden;
+}
