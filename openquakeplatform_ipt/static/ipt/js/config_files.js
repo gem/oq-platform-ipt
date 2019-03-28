@@ -29,8 +29,8 @@ var cf_obj = {
     },
     vol: {
         pfx: '.cf_gid div[name="volcano"]'
-/*        , getData: null,
-          expModel_coords: null */
+        getData: null
+        /*  expModel_coords: null */
     }
 };
 
@@ -2323,6 +2323,70 @@ $(document).ready(function () {
      * - - - VOLCANO - - -
      */
 
+    function volcano_fileNew_upload(event)
+    {
+        form = $(event.target).parent('form').get(0);
+        return generic_fileNew_upload('vol', form, event);
+    }
+
+    function volcano_fileNew_collect(event, reply)
+    {
+        return generic_fileNew_collect('vol', reply, event);
+    }
+
+    function volcano_manager()
+    {
+        var $phen, $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']");
+        var $phen_input, $file_new, is_ashfall, is_cons_model, $cons_model;
+
+        var $expo_is_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-reg-constr']");
+        var $expo_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='region-constraint']");
+
+        var $expo_is_ass_haz_dist = $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-ass-haz-dist']");
+        var $expo_ass_haz_dist = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='ass-haz-dist']");
+
+        for (var i = 0 ; i < $phens.length ; i++) {
+            is_ashfall = $($phens[i]).attr('name') == 'ashfall';
+
+            $phen = $($phens[i]);
+            $phen_input = $(cf_obj['vol'].pfx + " div[name='" + $phen.attr('name') + "-input']");
+
+            if ($phen.is(':checked')) {
+                $phen_input.show();
+                if (is_ashfall) {
+                    is_cons_model = $(cf_obj['vol'].pfx +
+                                      " div[name='fragility'] input[name='is-cons-models']").is(':checked');
+                    $cons_model = $(cf_obj['vol'].pfx + " div[name='fragility'] div[name='ashfall-cons']");
+                    if (is_cons_model)
+                        $cons_model.show();
+                    else
+                        $cons_model.hide();
+                    $(cf_obj['vol'].pfx + " div[name='fragility']").show();
+                }
+            }
+            else {
+                $phen_input.hide();
+                if (is_ashfall) {
+                    $(cf_obj['vol'].pfx + " div[name='fragility']").hide();
+                }
+            }
+        }
+
+        if ($expo_is_reg_const.is(':checked')) {
+            $expo_reg_const.show();
+        }
+        else {
+            $expo_reg_const.hide();
+        }
+
+        if ($expo_is_ass_haz_dist.is(':checked')) {
+            $expo_ass_haz_dist.show();
+        }
+        else {
+            $expo_ass_haz_dist.hide();
+        }
+    }
+
     /* generic callback to show upload div */
     function volcano_fileNew_cb(e) {
         var name = $(e.target).attr('name');
@@ -2391,70 +2455,6 @@ $(document).ready(function () {
         }
     }
 
-    function volcano_fileNew_upload(event)
-    {
-        form = $(event.target).parent('form').get(0);
-        return generic_fileNew_upload('vol', form, event);
-    }
-
-    function volcano_fileNew_collect(event, reply)
-    {
-        return generic_fileNew_collect('vol', reply, event);
-    }
-
-    function volcano_manager()
-    {
-        var $phen, $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']");
-        var $phen_input, $file_new, is_ashfall, is_cons_model, $cons_model;
-
-        var $expo_is_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-reg-constr']");
-        var $expo_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='region-constraint']");
-
-        var $expo_is_ass_haz_dist = $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-ass-haz-dist']");
-        var $expo_ass_haz_dist = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='ass-haz-dist']");
-
-        for (var i = 0 ; i < $phens.length ; i++) {
-            is_ashfall = $($phens[i]).attr('name') == 'ashfall';
-
-            $phen = $($phens[i]);
-            $phen_input = $(cf_obj['vol'].pfx + " div[name='" + $phen.attr('name') + "-input']");
-
-            if ($phen.is(':checked')) {
-                $phen_input.show();
-                if (is_ashfall) {
-                    is_cons_model = $(cf_obj['vol'].pfx +
-                                      " div[name='fragility'] input[name='is-cons-models']").is(':checked');
-                    $cons_model = $(cf_obj['vol'].pfx + " div[name='fragility'] div[name='ashfall-cons']");
-                    if (is_cons_model)
-                        $cons_model.show();
-                    else
-                        $cons_model.hide();
-                    $(cf_obj['vol'].pfx + " div[name='fragility']").show();
-                }
-            }
-            else {
-                $phen_input.hide();
-                if (is_ashfall) {
-                    $(cf_obj['vol'].pfx + " div[name='fragility']").hide();
-                }
-            }
-        }
-
-        if ($expo_is_reg_const.is(':checked')) {
-            $expo_reg_const.show();
-        }
-        else {
-            $expo_reg_const.hide();
-        }
-
-        if ($expo_is_ass_haz_dist.is(':checked')) {
-            $expo_ass_haz_dist.show();
-        }
-        else {
-            $expo_ass_haz_dist.hide();
-        }
-    }
-
     /* force to have at least one checkbox enabled */
     function volcano_phen_cb(event)
     {
@@ -2467,6 +2467,8 @@ $(document).ready(function () {
         }
         volcano_manager();
     }
+
+    /* - - - VOLCANO (INIT) - - - */
 
     $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']").click(volcano_phen_cb);
     $(cf_obj['vol'].pfx + ' input[name="ashfall"]').prop('checked', true).triggerHandler('click');
@@ -2485,6 +2487,7 @@ $(document).ready(function () {
     file_uploader_init('vol', 'ashfall-frag-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'ashfall-cons-file', volcano_fileNew_cb, volcano_fileNew_upload);
 
+    // Volcano outputs (init)
     $(cf_obj['vol'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
 
     volcano_manager();
