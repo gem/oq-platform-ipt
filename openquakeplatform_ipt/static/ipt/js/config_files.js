@@ -407,8 +407,6 @@ $(document).ready(function () {
        naming schema with '<name>-html' and '<name>-new', see config_files.html */
     function generic_fileNew_upload(scope, obj, event)
     {
-        console.log('generic upload start here');
-
         event.preventDefault();
 
         var name = $(obj).attr('name');
@@ -416,7 +414,7 @@ $(document).ready(function () {
 
         if (scope == 'vol') {
             var epsg = $(obj).parent().parent().find('input[name="' + name.slice(0, -5) + '-epsg"]').val();
-            console.log('EPSG: ' + epsg);
+            data.set('epsg', epsg);
         }
 
         $.ajax({
@@ -700,8 +698,6 @@ $(document).ready(function () {
     function generic_prepare_runcalc_gemapi_postcb(reply, scope)
     {
         function build_zip_cb(uuid, msg) {
-            console.log('=== build_zip_cb ===');
-            console.log(msg);
             if (! msg.complete) {
                 return;
             }
