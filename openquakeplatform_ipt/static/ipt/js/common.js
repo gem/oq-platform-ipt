@@ -296,6 +296,20 @@ var gem_ipt = {
         });
     },
 
+    help_msg: function(msg) {
+        $( "#help-message" ).html(msg.replace(/\n/g, "<br/>"));
+        $( "#help-message" ).dialog({
+            dialogClass: 'gem-jqueryui-dialog',
+            modal: true,
+            width: '600px',
+            buttons: {
+                Ok: function() {
+                    $(this).dialog( "close" );
+                }
+            }
+        });
+    },
+
     qgis_msg_open: function(msg) {
         console.log("qgis_msg_open");
         $( "#qgis-message" ).html(msg.replace(/\n/g, "<br/>"));
