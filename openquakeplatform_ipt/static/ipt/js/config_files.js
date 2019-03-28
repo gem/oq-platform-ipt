@@ -814,7 +814,7 @@ $(document).ready(function () {
             contentType: false,
             success: function(data) {
                 if (data.ret == 0) {
-                    var tabs = ['scen', 'e_b'];
+                    var tabs = ['scen', 'e_b', 'vol'];
                     for (var i = 0 ; i < tabs.length ; i++) {
                         tab = tabs[i];
 
@@ -2484,6 +2484,8 @@ $(document).ready(function () {
     file_uploader_init('vol', 'exposure-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'ashfall-frag-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'ashfall-cons-file', volcano_fileNew_cb, volcano_fileNew_upload);
+
+    $(cf_obj['vol'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
 
     volcano_manager();
 });
