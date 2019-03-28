@@ -72,7 +72,13 @@ ALLOWED_DIR = {
     'lahar_file': ('.xml',),
     'pyroclasticflow_file': ('.xml',),
     'exposure_file': ('.xml',),
+
+    'ashfall_frag_file': ('.xml',),
+    'ashfall_cons_file': ('.xml',),
 }
+
+NEEDS_EPSG = ['ashfall_file', 'lavaflow_file', 'lahar_file',
+              'pyroclasticflow_file']
 
 
 def _get_error_line(exc_msg):
@@ -619,6 +625,13 @@ def upload(request, **kwargs):
             form = FileUpload(request.POST, request.FILES)
 
             if form.is_valid():
+                if target in NEEDS_EPSG:
+                    if 'epsg' not in request.POST:
+                        ret['ret'] = 2
+                        ret['ret_msg'] = 'EPSG code not provided'
+                        return HttpResponse(json.dumps(ret),
+                                            content_type="application/json")
+
                 if (not request.FILES['file_upload'].name.endswith(
                         ALLOWED_DIR[target])):
                     ret['ret'] = 1
