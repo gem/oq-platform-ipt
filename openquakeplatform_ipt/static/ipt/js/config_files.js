@@ -2405,7 +2405,7 @@ $(document).ready(function () {
     function volcano_manager()
     {
         var $phen, $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']");
-        var $phen_input, $file_new;
+        var $phen_input, $file_new, is_ashfall, is_cons_model, $cons_model;
 
         var $expo_is_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-reg-constr']");
         var $expo_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='region-constraint']");
@@ -2414,14 +2414,29 @@ $(document).ready(function () {
         var $expo_ass_haz_dist = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='ass-haz-dist']");
 
         for (var i = 0 ; i < $phens.length ; i++) {
+            is_ashfall = $($phens[i]).attr('name') == 'ashfall';
+
             $phen = $($phens[i]);
             $phen_input = $(cf_obj['vol'].pfx + " div[name='" + $phen.attr('name') + "-input']");
 
             if ($phen.is(':checked')) {
                 $phen_input.show();
+                if (is_ashfall) {
+                    is_cons_model = $(cf_obj['vol'].pfx +
+                                      " div[name='fragility'] input[name='is-cons-models']").is(':checked');
+                    $cons_model = $(cf_obj['vol'].pfx + " div[name='fragility'] div[name='ashfall-cons']");
+                    if (is_cons_model)
+                        $cons_model.show();
+                    else
+                        $cons_model.hide();
+                    $(cf_obj['vol'].pfx + " div[name='fragility']").show();
+                }
             }
             else {
                 $phen_input.hide();
+                if (is_ashfall) {
+                    $(cf_obj['vol'].pfx + " div[name='fragility']").hide();
+                }
             }
         }
 
@@ -2458,6 +2473,7 @@ $(document).ready(function () {
 
     $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-reg-constr']").click(volcano_manager);
     $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-ass-haz-dist']").click(volcano_manager);
+    $(cf_obj['vol'].pfx + " div[name='fragility'] input[name='is-cons-models']").click(volcano_manager);
 
     // List of sites (init)
 
@@ -2466,6 +2482,8 @@ $(document).ready(function () {
     file_uploader_init('vol', 'lahar-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'pyroclasticflow-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'exposure-file', volcano_fileNew_cb, volcano_fileNew_upload);
+    file_uploader_init('vol', 'ashfall-frag-file', volcano_fileNew_cb, volcano_fileNew_upload);
+    file_uploader_init('vol', 'ashfall-cons-file', volcano_fileNew_cb, volcano_fileNew_upload);
 
     volcano_manager();
 });

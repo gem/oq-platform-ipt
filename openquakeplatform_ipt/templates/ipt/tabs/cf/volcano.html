@@ -138,7 +138,7 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 </div>
 
 <div name="exposure">
-  <strong class='ffsTitle'>Exposure</strong>
+  <strong class='ffsTitle'>Exposure model</strong>
   <div class="menuItems" name="exposure-file-html">
     <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='FIXME'></span>
       :</label>
@@ -186,4 +186,53 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
   <div class="menuItems" name="ass-haz-dist" style="display: none;">
     <label>Asset hazard distance:</label>
     <input type="text" name="ass-haz-dist" value="5.0"/>
+</div>
+
+<div name="fragility" style="display: none;">
+  <strong class='ffsTitle'>Fragility model</strong>
+  <div class="menuItems" name="ashfall-frag-file-html">
+    <label>Ash fall structural fragility model <span class="ui-icon ui-icon-help ipt_help" title='FIXME'></span>
+      :</label>
+    {{ ashfall_frag_file_html.file_html }}
+    {{ ashfall_frag_file_html.new_btn }}
+  </div>
+  <div class="menuItems" name="ashfall-frag-file-new" style="display: none;">
+    <div name="msg"><br></div>
+    {% if gem_qgis == None %}
+    <form action="upload/exposure_file" method="post" id="file-upload-form" name="ashfall-frag-file"
+          enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ ashfall_frag_file_upload.file_upload }}
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="alert alert-info" role="alert">
+    <div class="menuItems" style="text-align: center;">
+      <form style="margin: 0px;">
+        <div class="chbox chbox_last">
+          <input style="margin:0;" type="checkbox" name="is-cons-models">
+          <span class="inlible">Include consequence models</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div name="ashfall-cons" style="display: none;">
+    <div class="menuItems" name="ashfall-cons-file-html">
+      <label>Ash fall consequence model <span class="ui-icon ui-icon-help ipt_help" title='FIXME'></span>:</label>
+      {{ ashfall_cons_file_html.file_html }}
+      {{ ashfall_cons_file_html.new_btn }}
+    </div>
+    <div class="menuItems" name="ashfall-cons-file-new" style="display: none;">
+      <div name="msg"><br></div>
+      {% if gem_qgis == None %}
+      <form action="upload/exposure_file" method="post" id="file-upload-form" name="ashfall-cons-file"
+            enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ ashfall_cons_file_upload.file_upload }}
+      </form>
+      {% endif %}
+    </div>
+  </div>
 </div>

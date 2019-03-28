@@ -528,6 +528,14 @@ def view(request, **kwargs):
         is_qgis_browser, 'exposure_file', userid, namespace)
     exposure_file_upload = FileUpload()
 
+    ashfall_frag_file_html = filehtml_create(
+        is_qgis_browser, 'ashfall_frag_file', userid, namespace)
+    ashfall_frag_file_upload = FileUpload()
+
+    ashfall_cons_file_html = filehtml_create(
+        is_qgis_browser, 'ashfall_cons_file', userid, namespace)
+    ashfall_cons_file_upload = FileUpload()
+
     render_dict = dict(
         oqp_version_maj=oqp_version.split('.')[0],
         g_gmpe=json.dumps(gmpe),
@@ -596,6 +604,12 @@ def view(request, **kwargs):
 
         exposure_file_html=exposure_file_html,
         exposure_file_upload=exposure_file_upload,
+
+        ashfall_frag_file_html=ashfall_frag_file_html,
+        ashfall_frag_file_upload=ashfall_frag_file_upload,
+
+        ashfall_cons_file_html=ashfall_cons_file_html,
+        ashfall_cons_file_upload=ashfall_cons_file_upload,
     )
 
     if is_qgis_browser:
