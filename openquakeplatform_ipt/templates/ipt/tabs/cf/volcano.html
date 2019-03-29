@@ -199,7 +199,7 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
   <div class="menuItems" name="ashfall-frag-file-new" style="display: none;">
     <div name="msg"><br></div>
     {% if gem_qgis == None %}
-    <form action="upload/exposure_file" method="post" id="file-upload-form" name="ashfall-frag-file"
+    <form action="upload/ashfall_frag_file" method="post" id="file-upload-form" name="ashfall-frag-file"
           enctype="multipart/form-data">
       {% csrf_token %}
       {{ ashfall_frag_file_upload.file_upload }}

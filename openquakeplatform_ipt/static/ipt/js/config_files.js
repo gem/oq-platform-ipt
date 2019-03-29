@@ -28,7 +28,7 @@ var cf_obj = {
         expModel_coords: null
     },
     vol: {
-        pfx: '.cf_gid div[name="volcano"]'
+        pfx: '.cf_gid div[name="volcano"]',
         getData: null
         /*  expModel_coords: null */
     }
@@ -2489,6 +2489,173 @@ $(document).ready(function () {
 
     // Volcano outputs (init)
     $(cf_obj['vol'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
+
+    function volcano_download_cb(e)
+    {
+        var generic_prepare_download_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_download_normal_postcb : generic_prepare_download_gemapi_postcb;
+
+        return generic_prepare_cb('vol', this, generic_prepare_download_postcb, e);
+    }
+    $(cf_obj['vol'].pfx + ' button[name="download"]').click(volcano_download_cb);
+
+    function volcano_runcalc_cb(e)
+    {
+        var generic_prepare_runcalc_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_runcalc_normal_postcb : generic_prepare_runcalc_gemapi_postcb;
+
+        return generic_prepare_cb('vol', this, generic_prepare_runcalc_postcb, e);
+    }
+    $(cf_obj['vol'].pfx + ' button[name="run-calc-btn"]').click(volcano_runcalc_cb);
+
+    function volcano_getData()
+    {
+
+        var files_list = [];
+        var $tab = $(cf_obj['vol'].pfx);
+        var ret = {
+            ret: -1,
+            str: '',
+            obj: null
+        };
+        var obj = {
+            description: null,
+
+            ashfall_choice: false,
+            lavaflow_choice: false,
+            lahar_choice: false,
+            pyroclasticflow_choice: false,
+
+            ashfall_epsg: null,
+            ashfall_file: null,
+            ashfall_units: "",
+            ashfall_hum_ampl: "",
+
+            // fragility
+            ashfall_frag_file: null,
+            ashfall_cons_models_choice: false,
+            ashfall_cons_models_file: null,
+
+            lavaflow_epsg: null,
+            lavaflow_file: null,
+
+            lahar_epsg: null,
+            lahar_file: null,
+
+            pyroclasticflow_epsg: null,
+            pyroclasticflow_file: null,
+
+            // exposure
+            exposure_file: null,
+            reg_constr_choice: false,
+            reg_constr: "",
+
+            ass_haz_dist_choice: false,
+            ass_haz_dist: ""
+        };
+
+        obj.ashfall_choice = $tab.find(
+            'input[type="checkbox"][name="ashfall"]').is(':checked')
+        obj.lavaflow_choice = $tab.find(
+            'input[type="checkbox"][name="lavaflow"]').is(':checked')
+        obj.lahar_choice = $tab.find(
+            'input[type="checkbox"][name="lahar"]').is(':checked')
+        obj.pyroclasticflow_choice = $tab.find(
+            'input[type="checkbox"][name="pyroclasticflow"]').is(':checked')
+
+        obj.description = $tab.find('textarea[name="description"]').val();
+        obj.description = obj.description.replace(
+            new RegExp("\n", "g"), " ").replace(new RegExp("\r", "g"), " ").trim();
+        if (obj.description == '') {
+            ret.str += "'Description' field is empty.\n";
+        }
+
+        if (obj.ashfall_choice) {
+            obj.ashfall_epsg = $tab.find(
+                'div[name="ashfall-input"] input[type="text"][name="ashfall-epsg"]').val();
+            obj.ashfall_file = $tab.find('div[name="ashfall-input"] div[name="ashfall-file-html"]' +
+                                         ' select[name="file_html"]').val();
+
+            if (obj.ashfall_file == "")
+                ret.str += "Ash fall associated file not set.\n";
+
+            obj.ashfall_units = $tab.find(
+                'div[name="ashfall-input"] input[type="text"][name="ashfall-units"]').val();
+
+            obj.ashfall_hum_ampl = $tab.find(
+                'div[name="ashfall-input"] input[type="text"][name="ashfall-hum-ampl"]').val();
+
+            obj.ashfall_frag_file = $tab.find('div[name="fragility"] div[name="ashfall-frag-file-html"]' +
+                                          ' select[name="file_html"]').val();
+            if (obj.ashfall_frag_file == "")
+                ret.str += "Fragility function associated file not set.\n";
+
+
+            obj.ashfall_cons_models_choice = $tab.find(
+                'div[name="fragility"] div[name="ashfall-frag-file-html"]' +
+                    'input[type="checkbox"][name="is-cons-models"]').is(':checked');
+            if (obj.ashfall_cons_models_choice) {
+                obj.ashfall_cons_models_file = $tab.find(
+                    'div[name="fragility"] div[name="ashfall-cons-file-html"]' +
+                        ' select[name="file_html"]').val();
+                if (obj.ashfall_cons_models_file == "")
+                    ret.str += "Consequence models file not set.\n";
+
+            }
+        }
+
+        if (obj.lavaflow_choice) {
+            obj.lavaflow_epsg = $tab.find(
+                'div[name="lavaflow-input"] input[type="text"][name="lavaflow-epsg"]').val();
+            obj.lavaflow_file = $tab.find('div[name="lavaflow-input"] div[name="lavaflow-file-html"]' +
+                                         ' select[name="file_html"]').val();
+            if (obj.lavaflow_file == "")
+                ret.str += "Lava flow associated file not set.\n";
+        }
+
+        if (obj.lahar_choice) {
+            obj.lahar_epsg = $tab.find(
+                'div[name="lahar-input"] input[type="text"][name="lahar-epsg"]').val();
+            obj.lahar_file = $tab.find('div[name="lahar-input"] div[name="lahar-file-html"]' +
+                                         ' select[name="file_html"]').val();
+            if (obj.lahar_file == "")
+                ret.str += "Lahar associated file not set.\n";
+        }
+
+        if (obj.pyroclasticflow_choice) {
+            obj.pyroclasticflow_epsg = $tab.find(
+                'div[name="pyroclasticflow-input"] input[type="text"][name="pyroclasticflow-epsg"]').val();
+            obj.pyroclasticflow_file = $tab.find(
+                'div[name="pyroclasticflow-input"] div[name="pyroclasticflow-file-html"]' +
+                    ' select[name="file_html"]').val();
+            if (obj.pyroclastic_file == "")
+                ret.str += "Pyroclastic flow associated file not set.\n";
+        }
+
+        obj.exposure_file = $tab.find('div[name="exposure"] div[name="exposure-file-html"]' +
+                                      ' select[name="file_html"]').val();
+        if (obj.exposure_file == "")
+            ret.str += "Exposure associated file not set.\n";
+        obj.reg_constr_choice = $tab.find(
+            'div[name="exposure"] input[type="checkbox"][name="is-reg-constr"]').is(':checked');
+        if (obj.reg_constr_choice) {
+            obj.reg_constr = obj.reg_constr_choice = $tab.find(
+                'div[name="exposure"] textarea[name="region-constraint"]').value();
+        }
+        obj.ass_haz_dist_choice = $tab.find(
+            'div[name="exposure"] input[type="checkbox"][name="is-ass-haz-dist"]').is(':checked');
+        if (obj.ass_haz_dist_choice) {
+            obj.ass_haz_dist = $tab.find(
+                'div[name="exposure"] input[type="text"][name="ass-haz-dist"]').val();
+        }
+
+        if (ret.str == '') {
+            ret.ret = 0;
+            ret.obj = obj;
+        }
+        return ret;
+    }
+    cf_obj['vol'].getData = volcano_getData;
 
     volcano_manager();
 });
