@@ -36,6 +36,8 @@ urlpatterns = [
         views.scenario_prepare, name='scenario_prepare'),
     url(r'^prepare/event-based$',
         views.event_based_prepare, name='event_based_prepare'),
+    url(r'^prepare/volcano$',
+        views.volcano_prepare, name='volcano_prepare'),
     url(r'^download$', views.download, name='download'),
     url(r'^clean_all$', views.clean_all, name='clean_all'),
 ]

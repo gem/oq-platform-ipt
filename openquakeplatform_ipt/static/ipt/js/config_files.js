@@ -189,7 +189,7 @@ $(document).ready(function () {
     }
 
     // Exposure model (get)
-    // scope == 'scen' or 'e_b'
+    // scope == 'scen' or 'e_b' or 'vol'
     function exposure_model_getData(scope, ret, files_list, obj, enabled, with_constraints)
     {
         if (enabled) {
@@ -566,6 +566,9 @@ $(document).ready(function () {
         else if (scope == 'e_b') {
             base_name = 'EventBased';
         }
+        else if (scope == 'vol') {
+            base_name = 'Volcano';
+        }
         else {
             base_name = 'Unknown';
         }
@@ -755,7 +758,7 @@ $(document).ready(function () {
 
         var data = new FormData();
         data.append('data', JSON.stringify(ret.obj));
-        var url_suffix = { scen: "scenario", e_b: "event-based" };
+        var url_suffix = { scen: "scenario", e_b: "event-based", vol: "volcano" };
         $.ajax({
             url: 'prepare/' + url_suffix[scope],
             type: 'POST',
@@ -766,6 +769,9 @@ $(document).ready(function () {
             success: function (data) {
                 if (data.ret == 0) {
                     return on_success(data, scope);
+                }
+                else {
+                    gem_ipt.error_msg(data.msg);
                 }
             }
         });
@@ -2342,9 +2348,6 @@ $(document).ready(function () {
         var $expo_is_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-reg-constr']");
         var $expo_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='region-constraint']");
 
-        var $expo_is_ass_haz_dist = $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-ass-haz-dist']");
-        var $expo_ass_haz_dist = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='ass-haz-dist']");
-
         for (var i = 0 ; i < $phens.length ; i++) {
             is_ashfall = $($phens[i]).attr('name') == 'ashfall';
 
@@ -2372,19 +2375,8 @@ $(document).ready(function () {
             }
         }
 
-        if ($expo_is_reg_const.is(':checked')) {
-            $expo_reg_const.show();
-        }
-        else {
-            $expo_reg_const.hide();
-        }
-
-        if ($expo_is_ass_haz_dist.is(':checked')) {
-            $expo_ass_haz_dist.show();
-        }
-        else {
-            $expo_ass_haz_dist.hide();
-        }
+        // Exposure model (ui)
+        exposure_model_sect_manager('vol', true, true, false);
     }
 
     /* generic callback to show upload div */
@@ -2472,12 +2464,10 @@ $(document).ready(function () {
 
     $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']").click(volcano_phen_cb);
     $(cf_obj['vol'].pfx + ' input[name="ashfall"]').prop('checked', true).triggerHandler('click');
-
-    $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-reg-constr']").click(volcano_manager);
-    $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-ass-haz-dist']").click(volcano_manager);
     $(cf_obj['vol'].pfx + " div[name='fragility'] input[name='is-cons-models']").click(volcano_manager);
 
-    // List of sites (init)
+    // Exposure model (init)
+    exposure_model_init('vol', volcano_fileNew_cb, volcano_fileNew_upload, volcano_manager);
 
     file_uploader_init('vol', 'ashfall-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'lavaflow-file', volcano_fileNew_cb, volcano_fileNew_upload);
@@ -2489,24 +2479,6 @@ $(document).ready(function () {
 
     // Volcano outputs (init)
     $(cf_obj['vol'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
-
-    function volcano_download_cb(e)
-    {
-        var generic_prepare_download_postcb = (typeof gem_api == 'undefined') ?
-            generic_prepare_download_normal_postcb : generic_prepare_download_gemapi_postcb;
-
-        return generic_prepare_cb('vol', this, generic_prepare_download_postcb, e);
-    }
-    $(cf_obj['vol'].pfx + ' button[name="download"]').click(volcano_download_cb);
-
-    function volcano_runcalc_cb(e)
-    {
-        var generic_prepare_runcalc_postcb = (typeof gem_api == 'undefined') ?
-            generic_prepare_runcalc_normal_postcb : generic_prepare_runcalc_gemapi_postcb;
-
-        return generic_prepare_cb('vol', this, generic_prepare_runcalc_postcb, e);
-    }
-    $(cf_obj['vol'].pfx + ' button[name="run-calc-btn"]').click(volcano_runcalc_cb);
 
     function volcano_getData()
     {
@@ -2528,7 +2500,6 @@ $(document).ready(function () {
 
             ashfall_epsg: null,
             ashfall_file: null,
-            ashfall_units: "",
             ashfall_hum_ampl: "",
 
             // fragility
@@ -2546,12 +2517,12 @@ $(document).ready(function () {
             pyroclasticflow_file: null,
 
             // exposure
-            exposure_file: null,
-            reg_constr_choice: false,
-            reg_constr: "",
+            exposure_model: null,
+            exposure_model_regcons_choice: false,
+            exposure_model_regcons_coords_data: null,
 
-            ass_haz_dist_choice: false,
-            ass_haz_dist: ""
+            asset_hazard_distance_choice: false,
+            asset_hazard_distance: null,
         };
 
         obj.ashfall_choice = $tab.find(
@@ -2579,9 +2550,6 @@ $(document).ready(function () {
             if (obj.ashfall_file == "")
                 ret.str += "Ash fall associated file not set.\n";
 
-            obj.ashfall_units = $tab.find(
-                'div[name="ashfall-input"] input[type="text"][name="ashfall-units"]').val();
-
             obj.ashfall_hum_ampl = $tab.find(
                 'div[name="ashfall-input"] input[type="text"][name="ashfall-hum-ampl"]').val();
 
@@ -2592,15 +2560,14 @@ $(document).ready(function () {
 
 
             obj.ashfall_cons_models_choice = $tab.find(
-                'div[name="fragility"] div[name="ashfall-frag-file-html"]' +
-                    'input[type="checkbox"][name="is-cons-models"]').is(':checked');
+                'div[name="fragility"]' +
+                    ' input[type="checkbox"][name="is-cons-models"]').is(':checked');
             if (obj.ashfall_cons_models_choice) {
                 obj.ashfall_cons_models_file = $tab.find(
                     'div[name="fragility"] div[name="ashfall-cons-file-html"]' +
                         ' select[name="file_html"]').val();
                 if (obj.ashfall_cons_models_file == "")
                     ret.str += "Consequence models file not set.\n";
-
             }
         }
 
@@ -2632,22 +2599,8 @@ $(document).ready(function () {
                 ret.str += "Pyroclastic flow associated file not set.\n";
         }
 
-        obj.exposure_file = $tab.find('div[name="exposure"] div[name="exposure-file-html"]' +
-                                      ' select[name="file_html"]').val();
-        if (obj.exposure_file == "")
-            ret.str += "Exposure associated file not set.\n";
-        obj.reg_constr_choice = $tab.find(
-            'div[name="exposure"] input[type="checkbox"][name="is-reg-constr"]').is(':checked');
-        if (obj.reg_constr_choice) {
-            obj.reg_constr = obj.reg_constr_choice = $tab.find(
-                'div[name="exposure"] textarea[name="region-constraint"]').value();
-        }
-        obj.ass_haz_dist_choice = $tab.find(
-            'div[name="exposure"] input[type="checkbox"][name="is-ass-haz-dist"]').is(':checked');
-        if (obj.ass_haz_dist_choice) {
-            obj.ass_haz_dist = $tab.find(
-                'div[name="exposure"] input[type="text"][name="ass-haz-dist"]').val();
-        }
+        // Exposure model (get)
+        exposure_model_getData('vol', ret, files_list, obj, true, true);
 
         if (ret.str == '') {
             ret.ret = 0;
@@ -2656,6 +2609,24 @@ $(document).ready(function () {
         return ret;
     }
     cf_obj['vol'].getData = volcano_getData;
+
+    function volcano_download_cb(e)
+    {
+        var generic_prepare_download_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_download_normal_postcb : generic_prepare_download_gemapi_postcb;
+
+        return generic_prepare_cb('vol', this, generic_prepare_download_postcb, e);
+    }
+    $(cf_obj['vol'].pfx + ' button[name="download"]').click(volcano_download_cb);
+
+    function volcano_runcalc_cb(e)
+    {
+        var generic_prepare_runcalc_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_runcalc_normal_postcb : generic_prepare_runcalc_gemapi_postcb;
+
+        return generic_prepare_cb('vol', this, generic_prepare_runcalc_postcb, e);
+    }
+    $(cf_obj['vol'].pfx + ' button[name="run-calc-btn"]').click(volcano_runcalc_cb);
 
     volcano_manager();
 });
