@@ -366,10 +366,8 @@ class IptUploadTest(unittest.TestCase):
         butt_upload_file = pla.xpath_finduniq(
             "//button[@name='rupture-file-new'"
             " and normalize-space(text())='Upload']")
-        # import pdb ; pdb.set_trace()
 
         time.sleep(8)
-        # pla.scroll_into_view(butt_upload_file)
         butt_upload_file.click()
 
         upload_file = pla.xpath_finduniq(
@@ -384,8 +382,6 @@ class IptUploadTest(unittest.TestCase):
 
         upload_file.send_keys(up_file)
 
-        upload_file.submit()
-
         # wait for js upload callback to setup dropdown item properly
         time.sleep(8)
 
@@ -393,7 +389,8 @@ class IptUploadTest(unittest.TestCase):
             common + "//div[@name='rupture-file-html']"
             "//select[@name='file_html']"))
 
-        assert list_files.first_selected_option.text == "earthquake_rupture_model.xml"
+        assert (list_files.first_selected_option.text ==
+                "earthquake_rupture_model.xml")
 
 
 class IptExamplesTest(unittest.TestCase):
