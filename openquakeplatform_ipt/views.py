@@ -58,6 +58,7 @@ ALLOWED_DIR = {
     'rupture_file': ('.xml',),
     'list_of_sites': ('.csv',),
     'gmf_file': ('.xml', 'csv'),
+    'exposure_csv': ('.csv',),
     'exposure_model': ('.xml',),
     'site_model': ('.xml',),
     'site_conditions': ('.xml',),
@@ -441,6 +442,11 @@ def view(request, **kwargs):
         is_qgis_browser, 'exposure_model', userid, namespace)
     exposure_model_upload = FileUpload()
 
+    exposure_csv_html = filehtml_create(
+        is_qgis_browser, 'exposure_csv', userid, namespace,
+        is_multiple=True)
+    exposure_csv_upload = FileUpload()
+
     fm_structural_html = filehtml_create(
         is_qgis_browser, 'fm_structural', userid, namespace,
         dirnam='fragility_model')
@@ -553,7 +559,8 @@ def view(request, **kwargs):
         gmf_file_upload=gmf_file_upload,
         exposure_model_html=exposure_model_html,
         exposure_model_upload=exposure_model_upload,
-
+        exposure_csv_html=exposure_csv_html,
+        exposure_csv_upload=exposure_csv_upload,
         fm_structural_html=fm_structural_html,
         fm_structural_upload=fm_structural_upload,
         fm_nonstructural_html=fm_nonstructural_html,

@@ -40,19 +40,6 @@ $(document).ready(function () {
         $(this).tab('show');
     });
 
-    function file_uploader_init(scope, name, fn_cb, fn_up)
-    {
-        var $target;
-
-        if (typeof scope == 'string')
-            $target = $(cf_obj[scope].pfx);
-        else
-            $target = scope;
-
-        $target.find('button[name="' + name + '-new"]').click(fn_cb);
-        $target.find('div[name="' + name + '-new"] input[type="file"]').change(fn_up);
-    }
-
     function exposure_model_sect_manager(scope, enabled, with_constraints, without_inc_asset)
     {
         $target = $(cf_obj[scope].pfx + ' div[name="exposure-model"]');

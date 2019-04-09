@@ -121,7 +121,7 @@ var ex_obj = {
         for (var tbl_id = 0 ; tbl_id < $table_files.length ; tbl_id++) {
             var $tbl_file = $($table_files[tbl_id]);
             ctx.table_file[tbl_id] = $tbl_file.val().replace(/.*[\/\\]/, '');
-        }    
+        }
     },
 
     ctx_save: function (obj) {
@@ -331,13 +331,13 @@ var ex_obj = {
         var id = obj.target.getAttribute("data-gem-id");
         ex_obj.tbl[id].alter('insert_row');
         var tbl_box = $(obj.target).closest("div[name='exposuretbl-" + id + "']").find("div[name='table-" + id + "']");
-        
+
         setTimeout(function() {
             return gem_tableHeightUpdate(tbl_box);
         }, 0);
     },
 
-       
+
     exposuretbl_add: function () {
         var ct = ex_obj.tbl_cur;
         var ctx = '\
@@ -603,7 +603,7 @@ function ex_updateTable() {
         ex_obj.tbl[id].addHook('afterCreateRow', function() {
             return gem_tableHeightUpdate(ex_obj.o.find('div[name^="table-"]'));
         });
- 
+
         ex_obj.tbl[id].addHook('afterRemoveRow', function() {
             return gem_tableHeightUpdate(ex_obj.o.find('div[name^="table-"]'));
         });
@@ -918,8 +918,93 @@ function exposure_tags_cb(event)
     return ret;
 }
 
-// tab initialization
-$(document).ready(function () {
+function exposure_manager()
+{
+    console.log('exposure_manager');
+    var exp_type = ex_obj.o.find('input:radio[name="exposure-type"]:checked').val();
+
+    if (exp_type == 'xml') {
+        console.log('xml');
+        ex_obj.o.find('.exposure-type-xml').show();
+        ex_obj.o.find('.exposure-type-csv').hide();
+    }
+    else if (exp_type == 'csv') {
+        console.log('csv');
+        ex_obj.o.find('.exposure-type-xml').hide();
+        ex_obj.o.find('.exposure-type-csv').show();
+    }
+}
+
+function exposure_csv_fileNew_upload(event)
+{
+    form = $(event.target).parent('form').get(0);
+    return generic_fileNew_upload('ex', form, event);
+}
+
+function exposure_csv_fileNew_collect(event, reply)
+{
+    return generic_fileNew_collect('ex', reply, event);
+}
+
+function exposure_csv_fileNew_cb(e) {
+    if (typeof gem_api == 'undefined') {
+
+        /* generic callback to show upload div (init) */
+        $(ex_obj.pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+        if ($(ex_obj.pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+            if (typeof window.gem_not_interactive == 'undefined') {
+                $(ex_obj.pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+                var name = e.target.name;
+
+                function uploader_rollback() {
+                    if ($(ex_obj.pfx + ' div[name="' + name +
+                          '"] input[type="file"]').val().length > 0) {
+                        $(document.body).off('focusin', uploader_rollback);
+                        return;
+                    }
+
+                    var $msg = $(ex_obj.pfx + ' div[name="' + name + '"] div[name="msg"]');
+                    $msg.html("Upload file cancelled.");
+                    $(ex_obj.pfx + ' div[name="' + name + '"]').delay(3000).slideUp({
+                        done: function () {
+                            $(ex_obj.pfx + ' div[name="' + name + '"] div[name="msg"]').html('');
+                        }
+                    });
+                    $(document.body).off('focusin', uploader_rollback);
+                }
+                $(document.body).on('focusin', uploader_rollback);
+            }
+        }
+    }
+    else { // if (typeof gem_api == 'undefined') {
+        var event = e;
+        var $msg = $(ex_obj.pfx + ' div[name="' + e.target.name + '"] div[name="msg"]');
+        $(ex_obj.pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+
+        var $sibling = $(e.target).siblings("select[name='file_html']");
+        var subdir = $sibling.attr('data-gem-subdir');
+        var sel_grp = $sibling.attr('data-gem-group');
+        var is_multiple = $sibling.is("[multiple]");
+
+        function cb(uuid, app_msg) {
+            if (! app_msg.complete)
+                return;
+
+            var cmd_msg = app_msg.result;
+            if (cmd_msg.success) {
+                $msg.html("File '" + cmd_msg.content[0] + "' collected correctly.");
+                exposure_csv_fileNew_collect(event, cmd_msg);
+            }
+            else {
+                $msg.html(cmd_msg.reason);
+            }
+            $(ex_obj.pfx + ' div[name="' + event.target.name + '"]').delay(3000).slideUp();
+        }
+        gem_api.select_and_copy_file(cb, subdir, is_multiple);
+    }
+}
+
+function exposure_init() {
     /////////////////////////////////////////////////////////
     // Manage the visibility of the perArea selection menu //
     /////////////////////////////////////////////////////////
@@ -944,6 +1029,15 @@ $(document).ready(function () {
     ex_obj.o.find('#tags').on('itemAdded', exposure_tags_cb);
     ex_obj.o.find('#tags').on('itemRemoved', exposure_tags_cb);
 
+    ex_obj.o.find("input[name='exposure-type']").click(exposure_manager);
+    file_uploader_init(ex_obj.o, 'exposure-csv', exposure_csv_fileNew_cb, exposure_csv_fileNew_upload);
+
+    exposure_manager();
+}
+
+// tab initialization
+$(document).ready(function () {
+    exposure_init();
 
     $('#absoluteSpinner').hide();
 

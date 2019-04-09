@@ -97,13 +97,48 @@
       <label>Tags:</label>
       <div><input id="tags" type="text" placeholder="for each tag: type its name and press enter" data-role="tagsinput"></div>
     </div>
-    <div class="alert alert-info" role="alert">2. Copy and paste values from a spreadsheet into the table below OR upload a CSV file with the same columns number.</div>
 
-    <div name="exposuretbl">
+    <div name="exposure-type" class="alert alert-info" role="alert">Select type of exposure:
+      <div class="menuItems" style="text-align: center;">
+        <form style="margin: 0px;">
+          <div class="chbox">
+            <input style="margin:0;" type="radio" name="exposure-type" value="xml" checked>
+            <span class="inlible">XML Exposure (all in one file)</span>
+          </div>
+          <div class="chbox chbox_last">
+            <input style="margin:0;" type="radio" name="exposure-type" value="csv">
+            <span class="inlible">CSV Exposure (one XML plus one or more CSV files)</span>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div name="exposuretbl-descr" class="alert alert-info exposure-type-xml" role="alert">2. Copy and paste values from a spreadsheet into the table below OR upload a CSV file with the same columns number.</div>
+    <div name="exposuretbl" class="exposure-type-xml">
       <div name="exposuretbls">
       </div>
       <button id="new_exposuretbl_add" type="button" class="btn btn-primary">Add New Table</button>
     </div>
+
+    <div class="exposure-type-csv"  style="display: none;">
+      <div class="menuItems" name="exposure-csv-html">
+        <label>Exposure CSV file[s] <span class="ui-icon ui-icon-help ipt_help" title='FIXME.'></span></a>
+          :</label>
+        {{ exposure_csv_html.file_html }}
+        {{ exposure_csv_html.new_btn }}
+      </div>
+      <div class="menuItems" name="exposure-csv-new" style="display: none;">
+        <div name="msg"><br></div>
+        {% if gem_qgis == None %}
+        <form action="upload/exposure_csv" method="post" id="file-upload-form" name="exposure-csv"
+              enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ exposure_csv_upload.file_upload }}
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
     <div>
       <button id="convertBtn" type="button" style="display:none;" class="btn btn-primary">Convert to NRML</button>
     </div>
