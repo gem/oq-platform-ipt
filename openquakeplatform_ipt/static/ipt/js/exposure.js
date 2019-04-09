@@ -635,7 +635,8 @@ if (typeof gem_api != 'undefined') {
     });
 }
 
-ex_obj.o.find('#convertBtn').click(function() {
+function ex_convert2normal()
+{
     var data = [];
 
     $tbls = ex_obj.o.find('div[name="exposuretbls"] div[name^="exposuretbl-"]');
@@ -897,7 +898,9 @@ ex_obj.o.find('#convertBtn').click(function() {
         '</nrml>\n';
 
     validateAndDisplayNRML(nrml, 'ex', ex_obj);
-});
+}
+
+ex_obj.o.find('#convertBtn').click(ex_convert2normal);
 
 function exposure_tags_cb(event)
 {
