@@ -2065,7 +2065,7 @@ $(document).ready(function () {
                 for (f_id in obj.source_model_file) {
                     fname = obj.source_model_file[f_id];
                     uniqueness_add(files_list, 'source model: item #' + (parseInt(f_id) + 1), fname);
-                ret.str += uniqueness_check(files_list);
+                    ret.str += uniqueness_check(files_list);
                 }
             }
 

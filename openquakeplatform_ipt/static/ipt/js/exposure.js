@@ -635,9 +635,14 @@ if (typeof gem_api != 'undefined') {
     });
 }
 
-function ex_convert2normal()
+function ex_convert2nrml()
 {
     var data = [];
+    var files_list = [];
+    var ret = {
+        ret: -1,
+        str: ''
+    };
 
     $tbls = ex_obj.o.find('div[name="exposuretbls"] div[name^="exposuretbl-"]');
     for (var i = 0 ; i < $tbls.length ; i++) {
@@ -759,115 +764,134 @@ function ex_convert2normal()
     }
 
     var retrofittingSelect = ex_obj.o.find('#retrofittingSelect input:checked').val();
+    var exp_type = ex_obj.o.find('input:radio[name="exposure-type"]:checked').val();
+    if (exp_type == 'xml') {
+        // Create the asset
+        for (var i = 0; i < not_empty_rows ; i++) {
+            var costTypes = '\t\t\t<costTypes>\n';
+            var costs ='\t\t\t\t<costs>\n';
+            var occupancies = "";
 
-    // Create the asset
-    for (var i = 0; i < not_empty_rows ; i++) {
-        var costTypes = '\t\t\t<costTypes>\n';
-        var costs ='\t\t\t\t<costs>\n';
-        var occupancies = "";
-
-        if (numberInx > -1 ) {
-            number = 'number="'+ data[i][numberInx]+'"';
-        } else {
-            number = '';
-        }
-        if (latitudeInx > -1 ) {
-            latitude = 'lat="'+ data[i][latitudeInx]+'"';
-        } else {
-            latitude = '';
-        }
-        if (longitudeInx > -1 ) {
-            longitude = 'lon="'+ data[i][longitudeInx]+'"';
-        } else {
-            longitude = '';
-        }
-        if (taxonomyInx > -1 ) {
-            taxonomy = 'taxonomy="'+ data[i][taxonomyInx]+'"';
-        } else {
-            taxonomy = '';
-        }
-        if (areaInx > -1 ) {
-            area = 'area="'+ data[i][areaInx]+'"';
-        } else {
-            area = '';
-        }
-        if (assetIdInx > -1 ) {
-            id = data[i][assetIdInx];
-        } else {
-            id = '';
-        }
-
-        // Insurance Limit
-        var limitValue = '';
-        if (limitState == 'absolute') {
-            limitValue = ' insuranceLimit="'+data[i][limitInx]+'"';
-        } else if (limitState == 'relative') {
-            limitValue = ' insuranceLimit="'+data[i][limitInx]+'"';
-        }
-
-        // Retrofitted
-        if (retrofittingSelect == 'retrofitting') {
-            retrofitting = ' retrofitted="'+data[i][retrofittingInx]+'"';
-        }
-
-        // deductibleSelect
-        var deductibleValue = '';
-        if (deductibleState == 'absolute') {
-            deductibleValue = ' deductible="'+data[i][deductibleInx]+'"';
-        } else if (deductibleState == 'relative') {
-            deductibleValue = ' deductible="'+data[i][deductibleInx]+'"';
-        }
-
-        // Economic Cost
-        if (structuralInx > -1 ) {
-            costTypes += '\t\t\t\t<costType name="structural" type="per_asset" unit="USD" />\n';
-            costs += '\t\t\t\t\t<cost type="structural" value="'+ data[i][structuralInx]+'"'+retrofitting+deductibleValue+limitValue+'/>\n';
-        }
-        if (non_structuralInx > -1 ) {
-            costs += '\t\t\t\t\t<cost type="nonstructural" value="'+ data[i][non_structuralInx]+'"/>\n';
-        }
-        if (contentsInx > -1 ) {
-            costs += '\t\t\t\t\t<cost type="contents" value="'+ data[i][contentsInx]+'"/>\n';
-        }
-        if (businessInx > -1 ) {
-            costs += '\t\t\t\t\t<cost type="business_interruption" value="'+ data[i][businessInx]+'"/>\n';
-        }
-
-        // Occupancies
-        if (dayInx > -1 ) {
-            occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][dayInx]+'" period="day"/>\n';
-        }
-        if (nightInx > -1 ) {
-            occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][nightInx]+'" period="night"/>\n';
-        }
-        if (transitInx > -1 ) {
-            occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][transitInx]+'" period="transit"/>\n';
-        }
-
-        costs += '\t\t\t\t</costs>\n';
-        if (occupancies != "") {
-            occupancies = '\t\t\t\t<occupancies>\n' + occupancies + '\t\t\t\t</occupancies>\n';
-        }
-
-        asset_tags = "";
-        for (var t_id = 0, e = ex_obj.headerbase_len ; e < ex_obj.headerbase_len + tags.length ; e++, t_id++) {
-            if (data[i][e] !== null && data[i][e].length != 0) {
-                asset_tags += (asset_tags == "" ? "" : " ") + tags[t_id] + "=\"" + data[i][e] + "\"";
+            if (numberInx > -1 ) {
+                number = 'number="'+ data[i][numberInx]+'"';
+            } else {
+                number = '';
             }
-        }
-        if (asset_tags.length != 0) {
-            asset_tags = "\t\t\t\t<tags " + asset_tags + " />\n";
-        }
+            if (latitudeInx > -1 ) {
+                latitude = 'lat="'+ data[i][latitudeInx]+'"';
+            } else {
+                latitude = '';
+            }
+            if (longitudeInx > -1 ) {
+                longitude = 'lon="'+ data[i][longitudeInx]+'"';
+            } else {
+                longitude = '';
+            }
+            if (taxonomyInx > -1 ) {
+                taxonomy = 'taxonomy="'+ data[i][taxonomyInx]+'"';
+            } else {
+                taxonomy = '';
+            }
+            if (areaInx > -1 ) {
+                area = 'area="'+ data[i][areaInx]+'"';
+            } else {
+                area = '';
+            }
+            if (assetIdInx > -1 ) {
+                id = data[i][assetIdInx];
+            } else {
+                id = '';
+            }
 
-        asset +=
-            '\t\t\t<asset id="'+id+'" '+number+' '+area+' '+taxonomy+' >\n' +
+            // Insurance Limit
+            var limitValue = '';
+            if (limitState == 'absolute') {
+                limitValue = ' insuranceLimit="'+data[i][limitInx]+'"';
+            } else if (limitState == 'relative') {
+                limitValue = ' insuranceLimit="'+data[i][limitInx]+'"';
+            }
+
+            // Retrofitted
+            if (retrofittingSelect == 'retrofitting') {
+                retrofitting = ' retrofitted="'+data[i][retrofittingInx]+'"';
+            }
+
+            // deductibleSelect
+            var deductibleValue = '';
+            if (deductibleState == 'absolute') {
+                deductibleValue = ' deductible="'+data[i][deductibleInx]+'"';
+            } else if (deductibleState == 'relative') {
+                deductibleValue = ' deductible="'+data[i][deductibleInx]+'"';
+            }
+
+            // Economic Cost
+            if (structuralInx > -1 ) {
+                costTypes += '\t\t\t\t<costType name="structural" type="per_asset" unit="USD" />\n';
+                costs += '\t\t\t\t\t<cost type="structural" value="'+ data[i][structuralInx]+'"'+retrofitting+deductibleValue+limitValue+'/>\n';
+            }
+            if (non_structuralInx > -1 ) {
+                costs += '\t\t\t\t\t<cost type="nonstructural" value="'+ data[i][non_structuralInx]+'"/>\n';
+            }
+            if (contentsInx > -1 ) {
+                costs += '\t\t\t\t\t<cost type="contents" value="'+ data[i][contentsInx]+'"/>\n';
+            }
+            if (businessInx > -1 ) {
+                costs += '\t\t\t\t\t<cost type="business_interruption" value="'+ data[i][businessInx]+'"/>\n';
+            }
+
+            // Occupancies
+            if (dayInx > -1 ) {
+                occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][dayInx]+'" period="day"/>\n';
+            }
+            if (nightInx > -1 ) {
+                occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][nightInx]+'" period="night"/>\n';
+            }
+            if (transitInx > -1 ) {
+                occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][transitInx]+'" period="transit"/>\n';
+            }
+
+            costs += '\t\t\t\t</costs>\n';
+            if (occupancies != "") {
+                occupancies = '\t\t\t\t<occupancies>\n' + occupancies + '\t\t\t\t</occupancies>\n';
+            }
+
+            asset_tags = "";
+            for (var t_id = 0, e = ex_obj.headerbase_len ; e < ex_obj.headerbase_len + tags.length ; e++, t_id++) {
+                if (data[i][e] !== null && data[i][e].length != 0) {
+                    asset_tags += (asset_tags == "" ? "" : " ") + tags[t_id] + "=\"" + data[i][e] + "\"";
+                }
+            }
+            if (asset_tags.length != 0) {
+                asset_tags = "\t\t\t\t<tags " + asset_tags + " />\n";
+            }
+
+            asset +=
+                '\t\t\t<asset id="'+id+'" '+number+' '+area+' '+taxonomy+' >\n' +
                 '\t\t\t\t<location '+longitude+' '+latitude+' />\n' +
                 costs +
                 occupancies +
                 asset_tags +
-            '\t\t\t</asset>\n';
+                '\t\t\t</asset>\n';
+        }
     }
+    else if (exp_type == 'csv') {
+        var ex_csv = ex_obj.o.find('div[name="exposure-csv-html"] select').val();
 
+        if (ex_csv == null || ex_csv.length < 1) {
+            ret.str += "'Exposure csv files': at least one file must be selected.\n";
+        }
+        if (ex_csv != null) {
+            for (f_id in ex_csv) {
+                fname = ex_csv[f_id];
+                uniqueness_add(files_list, 'exposure csv model: item #' + (parseInt(f_id) + 1), fname);
+                ret.str += uniqueness_check(files_list);
+                asset += '\t\t\t' + basename(ex_csv[f_id]) + '\n';
+            }
+        }
+    }
+    else {
+        ret.str += 'Unknown type of exposure [' + exp_type + ']';
+    }
     var tagNames = "";
     if (tags.length > 0) {
         tagNames = "\t\t<tagNames>";
@@ -897,10 +921,16 @@ function ex_convert2normal()
             '\t</exposureModel>\n' +
         '</nrml>\n';
 
-    validateAndDisplayNRML(nrml, 'ex', ex_obj);
+    if (ret.str == '') {
+        ret.ret = 0;
+        validateAndDisplayNRML(nrml, 'ex', ex_obj);
+    }
+    else {
+        gem_ipt.error_msg(ret.str);
+    }
 }
 
-ex_obj.o.find('#convertBtn').click(ex_convert2normal);
+ex_obj.o.find('#convertBtn').click(ex_convert2nrml);
 
 function exposure_tags_cb(event)
 {
@@ -925,17 +955,28 @@ function exposure_manager()
 {
     console.log('exposure_manager');
     var exp_type = ex_obj.o.find('input:radio[name="exposure-type"]:checked').val();
+    var to_hide = false;
 
     if (exp_type == 'xml') {
-        console.log('xml');
+        if (ex_obj.o.find('.exposure-type-xml').is(":hidden")) {
+            to_hide = true;
+        }
         ex_obj.o.find('.exposure-type-xml').show();
         ex_obj.o.find('.exposure-type-csv').hide();
     }
     else if (exp_type == 'csv') {
-        console.log('csv');
+        if (ex_obj.o.find('.exposure-type-xml').is(":visible")) {
+            to_hide = true;
+        }
         ex_obj.o.find('.exposure-type-xml').hide();
         ex_obj.o.find('.exposure-type-csv').show();
     }
+
+    if (to_hide) {
+        $('.ex_gid #downloadLink').hide();
+        $('.ex_gid #outputDiv').hide();
+    }
+
 }
 
 function exposure_csv_fileNew_upload(event)
