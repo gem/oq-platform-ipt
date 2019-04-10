@@ -46,6 +46,8 @@ var ex_obj = {
         tags: null,
         table: null,
         table_file: null,
+
+        exposure_type: ''
     },
 
     // perAreaRefCount is used to keep track of any time perArea is selected

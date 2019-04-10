@@ -27,6 +27,7 @@ import tempfile
 import shutil
 import requests
 import django
+import xml.etree.ElementTree as etree
 
 try:
     from email.utils import formatdate
@@ -183,6 +184,7 @@ def sendback_nrml(request):
 
     :returns: an XML file, containing the given NRML text
     """
+    file_list = []
     xml_text = request.POST.get('xml_text')
     func_type = request.POST.get('func_type')
     if not xml_text:
@@ -194,19 +196,60 @@ def sendback_nrml(request):
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
+        if func_type == u'exposure':
+            ns = {'oq': 'http://openquake.org/xmlns/nrml/0.4'}
+
+            root = etree.fromstring(xml_text)
+            assets = root.findall('.//oq:assets/oq:asset', ns)
+
+            if not assets:
+                assets = root.findall('.//oq:assets', ns)
+                file_list = assets[0].text.strip().split()
+                file_list = [os.path.join('exposure_csv', f) for f
+                             in file_list]
     except:
         return HttpResponseBadRequest(
             'Invalid NRML')
-    else:
-        if func_type in known_func_types:
-            filename = func_type + '_model.xml'
+
+    if file_list:
+        if getattr(settings, 'STANDALONE', False):
+            userid = ''
         else:
-            filename = 'unknown_model.xml'
-        resp = HttpResponse(content=xml_text,
-                            content_type='application/xml')
-        resp['Content-Disposition'] = (
-            'attachment; filename="' + filename + '"')
-        return resp
+            userid = str(request.user.id)
+        namespace = request.resolver_match.namespace
+
+        ext = 'zip'
+        (fd, fname) = tempfile.mkstemp(
+            suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
+        fzip = os.fdopen(fd, 'wb')
+        file_collect = None
+        z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED,
+                            allowZip64=True)
+        for csv_fname in file_list:
+            print(csv_fname)
+            zwrite_or_collect(z, userid, namespace,
+                              csv_fname, file_collect)
+
+        zwrite_or_collect_str(z, 'job.ini', xml_text, file_collect)
+        z.close()
+        with open(fname, 'rb') as content_file:
+            content = content_file.read()
+    else:
+        content = xml_text
+        ext = 'xml'
+
+    if func_type in known_func_types:
+        filename = func_type + '_model.%s' % ext
+    else:
+        filename = 'unknown_model.%s' % ext
+
+    resp = HttpResponse(content=content,
+                        content_type='application/%s' % ext)
+    resp['Content-Description'] = 'File Transfer'
+    resp['Content-Length'] = len(content)
+    resp['Content-Disposition'] = (
+        'attachment; filename="' + filename + '"')
+    return resp
 
 
 def sendback_er_rupture_surface(request):
@@ -1416,7 +1459,6 @@ def volcano_prepare(request, **kwargs):
         ret['ret'] = 2
         ret['msg'] = err.message
         return HttpResponse(json.dumps(ret), content_type="application/json")
-
 
     if is_qgis_browser:
         ret['ret'] = 0
