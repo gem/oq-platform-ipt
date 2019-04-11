@@ -336,7 +336,8 @@ class FilePathFieldByUser(forms.ChoiceField):
                  allow_folders=False, required=True, widget=None, label=None,
                  initial=None, help_text=None, *args, **kwargs):
         self.is_bridged = is_bridged
-        self.match, self.recursive = match, recursive
+        self.match = match
+        self.recursive = recursive
         self.subdir = subdir
         self.userid = str(userid)
         self.namespace = namespace
