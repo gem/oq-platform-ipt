@@ -229,7 +229,7 @@ def sendback_nrml(request):
             zwrite_or_collect(z, userid, namespace,
                               csv_fname, file_collect)
 
-        zwrite_or_collect_str(z, 'job.ini', xml_text, file_collect)
+        zwrite_or_collect_str(z, 'exposure_model.xml', xml_text, file_collect)
         z.close()
         with open(fname, 'rb') as content_file:
             content = content_file.read()
