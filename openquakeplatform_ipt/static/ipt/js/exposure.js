@@ -646,30 +646,34 @@ function ex_convert2nrml()
         str: ''
     };
 
-    $tbls = ex_obj.o.find('div[name="exposuretbls"] div[name^="exposuretbl-"]');
-    for (var i = 0 ; i < $tbls.length ; i++) {
-        $tbl = $($tbls[i]);
-        if ($tbl.find('input#table_file')[0].files.length > 0) {
-            var id = $tbl.find('input#table_file').attr('data-gem-id');
-            data = data.concat(ex_obj.tbl_file[id]);
-        }
-        else {
-            // Get the values from the table
-            $tbl_tab = $tbl.find('div[name^="table-"]');
-            data = data.concat($tbl_tab.handsontable('getInstance').getData());
-        }
-    }
-    var not_empty_rows = not_empty_rows_get(data);
+    var exp_type = ex_obj.o.find('input:radio[name="exposure-type"]:checked').val();
 
-    // Check for null values
-    for (var i = 0; i < not_empty_rows ; i++) {
-        // tags columns can be empty
-        var no_tags_col = (data[i].length < ex_obj.headerbase_len ? data[i].length : ex_obj.headerbase_len);
-        for (var j = 0; j < no_tags_col ; j++) {
-            var s = data[i][j] + " ";
-            if (data[i][j] === null || data[i][j].toString().trim() == "") {
-                output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
-                return;
+    if (exp_type == 'xml') {
+        $tbls = ex_obj.o.find('div[name="exposuretbls"] div[name^="exposuretbl-"]');
+        for (var i = 0 ; i < $tbls.length ; i++) {
+            $tbl = $($tbls[i]);
+            if ($tbl.find('input#table_file')[0].files.length > 0) {
+                var id = $tbl.find('input#table_file').attr('data-gem-id');
+                data = data.concat(ex_obj.tbl_file[id]);
+            }
+            else {
+                // Get the values from the table
+                $tbl_tab = $tbl.find('div[name^="table-"]');
+                data = data.concat($tbl_tab.handsontable('getInstance').getData());
+        }
+        }
+        var not_empty_rows = not_empty_rows_get(data);
+
+        // Check for null values
+        for (var i = 0; i < not_empty_rows ; i++) {
+            // tags columns can be empty
+            var no_tags_col = (data[i].length < ex_obj.headerbase_len ? data[i].length : ex_obj.headerbase_len);
+            for (var j = 0; j < no_tags_col ; j++) {
+                var s = data[i][j] + " ";
+                if (data[i][j] === null || data[i][j].toString().trim() == "") {
+                    output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
+                    return;
+                }
             }
         }
     }
@@ -766,7 +770,6 @@ function ex_convert2nrml()
     }
 
     var retrofittingSelect = ex_obj.o.find('#retrofittingSelect input:checked').val();
-    var exp_type = ex_obj.o.find('input:radio[name="exposure-type"]:checked').val();
     if (exp_type == 'xml') {
         // Create the asset
         for (var i = 0; i < not_empty_rows ; i++) {
