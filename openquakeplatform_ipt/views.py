@@ -56,28 +56,28 @@ if StrictVersion(django_version) < StrictVersion('1.8'):
     from django.template import Context
 
 ALLOWED_DIR = {
-    'rupture_file': ('.xml',),
-    'list_of_sites': ('.csv',),
-    'gmf_file': ('.xml', 'csv'),
-    'exposure_csv': ('.csv',),
-    'exposure_model': ('.xml',),
-    'site_model': ('.xml',),
-    'site_conditions': ('.xml',),
-    'imt': ('.xml',),
-    'fragility_model': ('.xml',),
-    'fragility_cons': ('.xml',),
-    'vulnerability_model': ('.xml',),
-    'gsim_logic_tree_file': ('.xml',),
-    'source_model_logic_tree_file': ('.xml',),
-    'source_model_file': ('.xml',),
+    'rupture_file': ('xml',),
+    'list_of_sites': ('csv',),
+    'gmf_file': ('xml', 'csv'),
+    'exposure_csv': ('csv',),
+    'exposure_model': ('xml', 'zip'),
+    'site_model': ('xml',),
+    'site_conditions': ('xml',),
+    'imt': ('xml',),
+    'fragility_model': ('xml',),
+    'fragility_cons': ('xml',),
+    'vulnerability_model': ('xml',),
+    'gsim_logic_tree_file': ('xml',),
+    'source_model_logic_tree_file': ('xml',),
+    'source_model_file': ('xml',),
 
-    'ashfall_file': ('.csv',),
-    'lavaflow_file': ('.csv',),
-    'lahar_file': ('.csv',),
-    'pyroclasticflow_file': ('.csv',),
+    'ashfall_file': ('csv',),
+    'lavaflow_file': ('csv',),
+    'lahar_file': ('csv',),
+    'pyroclasticflow_file': ('csv',),
 
-    'ashfall_frag_file': ('.xml',),
-    'ashfall_cons_file': ('.xml',),
+    'ashfall_frag_file': ('xml',),
+    'ashfall_cons_file': ('xml',),
 }
 
 NEEDS_EPSG = ['ashfall_file', 'lavaflow_file', 'lahar_file',
@@ -429,7 +429,7 @@ def filehtml_create(is_bridged, suffix, userid, namespace, dirnam=None,
                 raise
 
     match = "|".join(
-        [".*\\%s$" % ext for ext in ALLOWED_DIR[dirnam]])
+        [".*\\.%s$" % ext for ext in ALLOWED_DIR[dirnam]])
 
     class FileHtml(forms.Form):
         file_html = FilePathFieldByUser(
@@ -696,14 +696,14 @@ def upload(request, **kwargs):
                                             content_type="application/json")
 
                 if (not request.FILES['file_upload'].name.endswith(
-                        ALLOWED_DIR[target])):
+                        tuple('.%s' % _ext for _ext in ALLOWED_DIR[target]))):
                     ret['ret'] = 1
                     if len(ALLOWED_DIR[target]) == 1:
-                        ret['ret_msg'] = ('File uploaded isn\'t an %s file.' %
+                        ret['ret_msg'] = ('File uploaded isn\'t an .%s file.' %
                                           ALLOWED_DIR[target][0].upper())
                     else:
-                        ls = ', '.join(
-                            [ext.upper() for ext in ALLOWED_DIR[target]])
+                        ls = ', '.join(['.%s' % ext.upper()
+                                        for ext in ALLOWED_DIR[target]])
                         ret['ret_msg'] = ('Type of uploaded file not in the '
                                           'recognized list [%s].' % ls)
 
@@ -743,7 +743,7 @@ def upload(request, **kwargs):
 
                 suffix = target
                 match = "|".join(
-                    [".*\\%s$" % ext for ext in ALLOWED_DIR[target]])
+                    [".*\\.%s$" % ext for ext in ALLOWED_DIR[target]])
 
                 class FileHtml(forms.Form):
                     file_html = FilePathFieldByUser(
@@ -779,7 +779,7 @@ def upload(request, **kwargs):
 
                 suffix = target
                 match = "|".join(
-                    [".*\\%s$" % ext for ext in ALLOWED_DIR[target]])
+                    [".*\\.%s$" % ext for ext in ALLOWED_DIR[target]])
 
                 class FileHtml(forms.Form):
                     file_html = FilePathFieldByUser(
