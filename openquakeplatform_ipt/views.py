@@ -1442,12 +1442,13 @@ def volcano_prepare(request, **kwargs):
                        basename(data['ashfall_frag_file']))
 
             if data['ashfall_cons_models_choice']:
-                zwrite_or_collect(z, userid, namespace,
-                                  data['ashfall_cons_models_file'], file_collect)
+                zwrite_or_collect(
+                    z, userid, namespace, data['ashfall_cons_models_file'],
+                    file_collect)
                 jobris += ("structural_consequence_file = '%s'\n" %
                            basename(data['ashfall_cons_models_file']))
 
-        zwrite_or_collect_str(z, 'job_risk.ini', jobris, file_collect)
+        zwrite_or_collect_str(z, 'job.ini', jobris, file_collect)
     except ValueError as err:
         ret['ret'] = 2
         ret['msg'] = err.message
