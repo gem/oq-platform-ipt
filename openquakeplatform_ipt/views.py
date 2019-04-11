@@ -75,7 +75,6 @@ ALLOWED_DIR = {
     'lavaflow_file': ('.csv',),
     'lahar_file': ('.csv',),
     'pyroclasticflow_file': ('.csv',),
-    'exposure_file': ('.xml',),
 
     'ashfall_frag_file': ('.xml',),
     'ashfall_cons_file': ('.xml',),
@@ -578,10 +577,6 @@ def view(request, **kwargs):
         is_qgis_browser, 'pyroclasticflow_file', userid, namespace)
     pyroclasticflow_file_upload = FileUpload()
 
-    exposure_file_html = filehtml_create(
-        is_qgis_browser, 'exposure_file', userid, namespace)
-    exposure_file_upload = FileUpload()
-
     ashfall_frag_file_html = filehtml_create(
         is_qgis_browser, 'ashfall_frag_file', userid, namespace)
     ashfall_frag_file_upload = FileUpload()
@@ -657,9 +652,6 @@ def view(request, **kwargs):
 
         pyroclasticflow_file_html=pyroclasticflow_file_html,
         pyroclasticflow_file_upload=pyroclasticflow_file_upload,
-
-        exposure_file_html=exposure_file_html,
-        exposure_file_upload=exposure_file_upload,
 
         ashfall_frag_file_html=ashfall_frag_file_html,
         ashfall_frag_file_upload=ashfall_frag_file_upload,

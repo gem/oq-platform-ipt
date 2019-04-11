@@ -2460,7 +2460,6 @@ $(document).ready(function () {
     file_uploader_init('vol', 'lavaflow-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'lahar-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'pyroclasticflow-file', volcano_fileNew_cb, volcano_fileNew_upload);
-    file_uploader_init('vol', 'exposure-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'ashfall-frag-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'ashfall-cons-file', volcano_fileNew_cb, volcano_fileNew_upload);
 
