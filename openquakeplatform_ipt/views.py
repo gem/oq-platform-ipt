@@ -501,10 +501,10 @@ def view(request, **kwargs):
         is_qgis_browser, 'fragility_model', userid, namespace,
         name='fm_businter')
     fm_businter_upload = FileUpload()
-    ashfall_frag_file_html = filehtml_create(
+    fm_ashfall_file_html = filehtml_create(
         is_qgis_browser, 'fragility_model', userid, namespace,
-        name='ashfall_frag_file')
-    ashfall_frag_file_upload = FileUpload()
+        name='fm_ashfall_file')
+    fm_ashfall_file_upload = FileUpload()
 
     fm_structural_cons_html = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
@@ -522,10 +522,10 @@ def view(request, **kwargs):
         is_qgis_browser, 'fragility_cons', userid, namespace,
         name='fm_businter_cons')
     fm_businter_cons_upload = FileUpload()
-    ashfall_cons_file_html = filehtml_create(
+    fm_ashfall_cons_html = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
-        name='ashfall_cons_file')
-    ashfall_cons_file_upload = FileUpload()
+        name='fm_ashfall_cons')
+    fm_ashfall_cons_upload = FileUpload()
 
     vm_structural_html = filehtml_create(
         is_qgis_browser, 'vulnerability_model', userid, namespace,
@@ -648,11 +648,11 @@ def view(request, **kwargs):
         pyroclasticflow_file_html=pyroclasticflow_file_html,
         pyroclasticflow_file_upload=pyroclasticflow_file_upload,
 
-        ashfall_frag_file_html=ashfall_frag_file_html,
-        ashfall_frag_file_upload=ashfall_frag_file_upload,
+        fm_ashfall_file_html=fm_ashfall_file_html,
+        fm_ashfall_file_upload=fm_ashfall_file_upload,
 
-        ashfall_cons_file_html=ashfall_cons_file_html,
-        ashfall_cons_file_upload=ashfall_cons_file_upload,
+        fm_ashfall_cons_html=fm_ashfall_cons_html,
+        fm_ashfall_cons_upload=fm_ashfall_cons_upload,
     )
 
     if is_qgis_browser:
@@ -1430,10 +1430,10 @@ def volcano_prepare(request, **kwargs):
         if data['ashfall_choice']:
             jobris += "\n[Fragility model]\n"
 
-            zwrite_or_collect(z, userid, namespace, data['ashfall_frag_file'],
+            zwrite_or_collect(z, userid, namespace, data['fm_ashfall_file'],
                               file_collect)
             jobris += ("structural_fragility_file = '%s'\n" %
-                       basename(data['ashfall_frag_file']))
+                       basename(data['fm_ashfall_file']))
 
             if data['ashfall_cons_models_choice']:
                 zwrite_or_collect(

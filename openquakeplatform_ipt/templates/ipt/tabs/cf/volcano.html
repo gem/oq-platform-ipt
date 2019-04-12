@@ -139,19 +139,19 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 
 <div name="fragility" style="display: none;">
   <h3>Fragility model</h3>
-  <div class="menuItems" name="ashfall-frag-file-html" data-gem-group="fragility-model">
+  <div class="menuItems" name="fm-ashfall-file-html" data-gem-group="fragility-model">
     <label>Ash fall structural fragility model <span class="ui-icon ui-icon-help ipt_help" title='FIXME'></span>
       :</label>
-    {{ ashfall_frag_file_html.file_html }}
-    {{ ashfall_frag_file_html.new_btn }}
+    {{ fm_ashfall_file_html.file_html }}
+    {{ fm_ashfall_file_html.new_btn }}
   </div>
-  <div class="menuItems" name="ashfall-frag-file-new" style="display: none;">
+  <div class="menuItems" name="fm-ashfall-file-new" style="display: none;">
     <div name="msg"><br></div>
     {% if gem_qgis == None %}
-    <form action="upload/fragility_model" method="post" id="file-upload-form" name="ashfall-frag-file"
+    <form action="upload/fragility_model" method="post" id="file-upload-form" name="fm-ashfall-file"
           enctype="multipart/form-data">
       {% csrf_token %}
-      {{ ashfall_frag_file_upload.file_upload }}
+      {{ fm_ashfall_file_upload.file_upload }}
     </form>
     {% endif %}
   </div>
@@ -168,18 +168,18 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
   </div>
 
   <div name="ashfall-cons" style="display: none;">
-    <div class="menuItems" name="ashfall-cons-file-html" data-gem-group="fragility-cons">
+    <div class="menuItems" name="fm-ashfall-cons-html" data-gem-group="fragility-cons">
       <label>Ash fall consequence model <span class="ui-icon ui-icon-help ipt_help" title='FIXME'></span>:</label>
-      {{ ashfall_cons_file_html.file_html }}
-      {{ ashfall_cons_file_html.new_btn }}
+      {{ fm_ashfall_cons_html.file_html }}
+      {{ fm_ashfall_cons_html.new_btn }}
     </div>
-    <div class="menuItems" name="ashfall-cons-file-new" style="display: none;">
+    <div class="menuItems" name="fm-ashfall-cons-new" style="display: none;">
       <div name="msg"><br></div>
       {% if gem_qgis == None %}
-      <form action="upload/fragility_cons" method="post" id="file-upload-form" name="ashfall-cons-file"
+      <form action="upload/fragility_cons" method="post" id="file-upload-form" name="fm-ashfall-cons"
             enctype="multipart/form-data">
         {% csrf_token %}
-        {{ ashfall_cons_file_upload.file_upload }}
+        {{ fm_ashfall_cons_upload.file_upload }}
       </form>
       {% endif %}
     </div>

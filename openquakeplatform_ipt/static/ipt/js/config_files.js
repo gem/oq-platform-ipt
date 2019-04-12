@@ -2460,8 +2460,8 @@ $(document).ready(function () {
     file_uploader_init('vol', 'lavaflow-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'lahar-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'pyroclasticflow-file', volcano_fileNew_cb, volcano_fileNew_upload);
-    file_uploader_init('vol', 'ashfall-frag-file', volcano_fileNew_cb, volcano_fileNew_upload);
-    file_uploader_init('vol', 'ashfall-cons-file', volcano_fileNew_cb, volcano_fileNew_upload);
+    file_uploader_init('vol', 'fm-ashfall-file', volcano_fileNew_cb, volcano_fileNew_upload);
+    file_uploader_init('vol', 'fm-ashfall-cons', volcano_fileNew_cb, volcano_fileNew_upload);
 
     // Volcano outputs (init)
     $(cf_obj['vol'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
@@ -2489,7 +2489,7 @@ $(document).ready(function () {
             ashfall_hum_ampl: "",
 
             // fragility
-            ashfall_frag_file: null,
+            fm_ashfall_file: null,
             ashfall_cons_models_choice: false,
             ashfall_cons_models_file: null,
 
@@ -2539,9 +2539,9 @@ $(document).ready(function () {
             obj.ashfall_hum_ampl = $tab.find(
                 'div[name="ashfall-input"] input[type="text"][name="ashfall-hum-ampl"]').val();
 
-            obj.ashfall_frag_file = $tab.find('div[name="fragility"] div[name="ashfall-frag-file-html"]' +
+            obj.fm_ashfall_file = $tab.find('div[name="fragility"] div[name="fm-ashfall-file-html"]' +
                                           ' select[name="file_html"]').val();
-            if (obj.ashfall_frag_file == "")
+            if (obj.fm_ashfall_file == "")
                 ret.str += "Fragility function associated file not set.\n";
 
 
@@ -2550,7 +2550,7 @@ $(document).ready(function () {
                     ' input[type="checkbox"][name="is-cons-models"]').is(':checked');
             if (obj.ashfall_cons_models_choice) {
                 obj.ashfall_cons_models_file = $tab.find(
-                    'div[name="fragility"] div[name="ashfall-cons-file-html"]' +
+                    'div[name="fragility"] div[name="fm-ashfall-cons-html"]' +
                         ' select[name="file_html"]').val();
                 if (obj.ashfall_cons_models_file == "")
                     ret.str += "Consequence models file not set.\n";
