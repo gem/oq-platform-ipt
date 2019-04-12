@@ -400,19 +400,17 @@ class FilePathFieldByUser(forms.ChoiceField):
         self.widget.choices = self.choices
 
 
-def filehtml_create(is_bridged, suffix, userid, namespace, dirnam=None,
+def filehtml_create(is_bridged, suffix, userid, namespace,
                     is_multiple=False, name=None):
-    if dirnam is None:
-        dirnam = suffix
-    if (dirnam not in ALLOWED_DIR):
-        raise KeyError("dirnam (%s) not in allowed list" % dirnam)
+    if (suffix not in ALLOWED_DIR):
+        raise KeyError("suffix (%s) not in allowed list" % suffix)
 
     if name is None:
         name = suffix
     name = name.replace('_', '-')
 
     if not is_bridged:
-        normalized_path = get_full_path(userid, namespace, dirnam)
+        normalized_path = get_full_path(userid, namespace, suffix)
         user_allowed_path = get_full_path(userid, namespace)
         if not normalized_path.startswith(user_allowed_path):
             raise LookupError('Unauthorized path: "%s"' % normalized_path)
@@ -429,13 +427,13 @@ def filehtml_create(is_bridged, suffix, userid, namespace, dirnam=None,
                 raise
 
     match = "|".join(
-        [".*\\.%s$" % ext for ext in ALLOWED_DIR[dirnam]])
+        [".*\\.%s$" % ext for ext in ALLOWED_DIR[suffix]])
 
     class FileHtml(forms.Form):
         file_html = FilePathFieldByUser(
             is_bridged=is_bridged,
             userid=userid,
-            subdir=dirnam,
+            subdir=suffix,
             namespace=namespace,
             match=match,
             recursive=True,
@@ -491,20 +489,20 @@ def view(request, **kwargs):
     exposure_csv_upload = FileUpload()
 
     fm_structural_html = filehtml_create(
-        is_qgis_browser, 'fm_structural', userid, namespace,
-        dirnam='fragility_model')
+        is_qgis_browser, 'fragility_model', userid, namespace,
+        name='fm_structural')
     fm_structural_upload = FileUpload()
     fm_nonstructural_html = filehtml_create(
-        is_qgis_browser, 'fm_nonstructural', userid, namespace,
-        dirnam='fragility_model')
+        is_qgis_browser, 'fragility_model', userid, namespace,
+        name='fm_nonstructural')
     fm_nonstructural_upload = FileUpload()
     fm_contents_html = filehtml_create(
-        is_qgis_browser, 'fm_contents', userid, namespace,
-        dirnam='fragility_model')
+        is_qgis_browser, 'fragility_model', userid, namespace,
+        name='fm_contents')
     fm_contents_upload = FileUpload()
     fm_businter_html = filehtml_create(
-        is_qgis_browser, 'fm_businter', userid, namespace,
-        dirnam='fragility_model')
+        is_qgis_browser, 'fragility_model', userid, namespace,
+        name='fm_businter')
     fm_businter_upload = FileUpload()
 
     fm_structural_cons_html = filehtml_create(
@@ -525,24 +523,24 @@ def view(request, **kwargs):
     fm_businter_cons_upload = FileUpload()
 
     vm_structural_html = filehtml_create(
-        is_qgis_browser, 'vm_structural', userid, namespace,
-        dirnam='vulnerability_model')
+        is_qgis_browser, 'vulnerability_model', userid, namespace,
+        name='vm_structural')
     vm_structural_upload = FileUpload()
     vm_nonstructural_html = filehtml_create(
-        is_qgis_browser, 'vm_nonstructural', userid, namespace,
-        dirnam='vulnerability_model')
+        is_qgis_browser, 'vulnerability_model', userid, namespace,
+        name='vm_nonstructural')
     vm_nonstructural_upload = FileUpload()
     vm_contents_html = filehtml_create(
-        is_qgis_browser, 'vm_contents', userid, namespace,
-        dirnam='vulnerability_model')
+        is_qgis_browser, 'vulnerability_model', userid, namespace,
+        name='vm_contents')
     vm_contents_upload = FileUpload()
     vm_businter_html = filehtml_create(
-        is_qgis_browser, 'vm_businter', userid, namespace,
-        dirnam='vulnerability_model')
+        is_qgis_browser, 'vulnerability_model', userid, namespace,
+        name='vm_businter')
     vm_businter_upload = FileUpload()
     vm_occupants_html = filehtml_create(
-        is_qgis_browser, 'vm_occupants', userid, namespace,
-        dirnam='vulnerability_model')
+        is_qgis_browser, 'vulnerability_model', userid, namespace,
+        name='vm_occupants')
     vm_occupants_upload = FileUpload()
 
     site_conditions_html = filehtml_create(
