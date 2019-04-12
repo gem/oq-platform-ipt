@@ -1432,14 +1432,14 @@ def volcano_prepare(request, **kwargs):
 
             zwrite_or_collect(z, userid, namespace, data['fm_ashfall_file'],
                               file_collect)
-            jobris += ("structural_fragility_file = '%s'\n" %
+            jobris += ("structural_fragility_file = %s\n" %
                        basename(data['fm_ashfall_file']))
 
             if data['ashfall_cons_models_choice']:
                 zwrite_or_collect(
                     z, userid, namespace, data['ashfall_cons_models_file'],
                     file_collect)
-                jobris += ("structural_consequence_file = '%s'\n" %
+                jobris += ("structural_consequence_file = %s\n" %
                            basename(data['ashfall_cons_models_file']))
 
         zwrite_or_collect_str(z, 'job.ini', jobris, file_collect)
