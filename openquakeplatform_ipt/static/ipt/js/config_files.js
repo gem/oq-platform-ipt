@@ -57,18 +57,8 @@ $(document).ready(function () {
                 else
                     $subsubt.css('display', 'none');
 
-                $subsubt = $(cf_obj[scope].pfx
-                             + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                             + ' div[name="asset-hazard-distance"]');
-                if ($(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                      + ' input[name="asset_hazard_distance_choice"]').is(':checked'))
-                    $subsubt.css('display', '');
-                else
-                    $subsubt.css('display', 'none');
-                $subsubt = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="inc-asset-haz-dist"]');
-                if (without_inc_asset) {
-                    $subsubt.find('input[name="asset_hazard_distance_choice"]').prop('checked', false);
-                }
+                $subsubt = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="asset-hazard-distance"]');
+                $subsubt.attr('data-gem-enabled', (without_inc_asset ? 'false' : 'true'));
                 $subsubt.css('display', (without_inc_asset ? 'none' : ''));
             }
             else {
@@ -209,11 +199,10 @@ $(document).ready(function () {
                     }
                 }
 
-                obj.asset_hazard_distance_choice = $(
+                obj.asset_hazard_distance_enabled = $(
                     cf_obj[scope].pfx + ' div[name="exposure-model"]'
-                    + ' input[type="checkbox"][name="asset_hazard_distance_choice"]'
-                ).is(':checked');
-                if (obj.asset_hazard_distance_choice) {
+                        + ' div[name="asset-hazard-distance"]').attr('data-gem-enabled') == 'true';
+                if (obj.asset_hazard_distance_enabled) {
                     obj.asset_hazard_distance = $(
                         cf_obj[scope].pfx + ' div[name="exposure-model"]'
                             + ' input[type="text"][name="asset_hazard_distance"]').val();
@@ -462,9 +451,6 @@ $(document).ready(function () {
         // Exposure model: risk-only region constraint checkbox (init)
         $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
           + ' input[name="region_constraint_choice"]').click(manager);
-
-        $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-          + ' input[name="asset_hazard_distance_choice"]').click(manager);
 
         // Exposure model: hazard content region-constr table handsontable (init)
         $(cf_obj[scope].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable({
@@ -1207,7 +1193,7 @@ $(document).ready(function () {
             exposure_model_regcons_choice: false,
             exposure_model_regcons_coords_data: null,
 
-            asset_hazard_distance_choice: false,
+            asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
 
             // rupture information
@@ -1937,7 +1923,7 @@ $(document).ready(function () {
             exposure_model_regcons_choice: false,
             exposure_model_regcons_coords_data: null,
 
-            asset_hazard_distance_choice: false,
+            asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
 
             // vulnerability model
@@ -2507,7 +2493,7 @@ $(document).ready(function () {
             exposure_model_regcons_choice: false,
             exposure_model_regcons_coords_data: null,
 
-            asset_hazard_distance_choice: false,
+            asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
         };
 

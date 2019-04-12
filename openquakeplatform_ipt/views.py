@@ -856,7 +856,7 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
                 jobini += "%s %s" % (el[0], el[1])
             jobini += "\n"
 
-        if data['asset_hazard_distance_choice'] is True:
+        if data['asset_hazard_distance_enabled'] is True:
             jobini += ("asset_hazard_distance = %s\n" %
                        data['asset_hazard_distance'])
 
