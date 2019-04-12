@@ -1400,7 +1400,7 @@ def volcano_prepare(request, **kwargs):
     jobris += "[general]\n"
     jobris += "description = %s\n" % data['description']
 
-    jobris += "calculation_mode = scenario_damage\n"
+    jobris += "calculation_mode = multi_risk\n"
 
     jobris += "\n[Volcano information]\n"
 
