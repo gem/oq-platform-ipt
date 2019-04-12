@@ -75,9 +75,6 @@ ALLOWED_DIR = {
     'lavaflow_file': ('csv',),
     'lahar_file': ('csv',),
     'pyroclasticflow_file': ('csv',),
-
-    'ashfall_frag_file': ('xml',),
-    'ashfall_cons_file': ('xml',),
 }
 
 NEEDS_EPSG = ['ashfall_file', 'lavaflow_file', 'lahar_file',
@@ -504,6 +501,10 @@ def view(request, **kwargs):
         is_qgis_browser, 'fragility_model', userid, namespace,
         name='fm_businter')
     fm_businter_upload = FileUpload()
+    ashfall_frag_file_html = filehtml_create(
+        is_qgis_browser, 'fragility_model', userid, namespace,
+        name='ashfall_frag_file')
+    ashfall_frag_file_upload = FileUpload()
 
     fm_structural_cons_html = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
@@ -521,6 +522,10 @@ def view(request, **kwargs):
         is_qgis_browser, 'fragility_cons', userid, namespace,
         name='fm_businter_cons')
     fm_businter_cons_upload = FileUpload()
+    ashfall_cons_file_html = filehtml_create(
+        is_qgis_browser, 'fragility_cons', userid, namespace,
+        name='ashfall_cons_file')
+    ashfall_cons_file_upload = FileUpload()
 
     vm_structural_html = filehtml_create(
         is_qgis_browser, 'vulnerability_model', userid, namespace,
@@ -575,15 +580,6 @@ def view(request, **kwargs):
     pyroclasticflow_file_html = filehtml_create(
         is_qgis_browser, 'pyroclasticflow_file', userid, namespace)
     pyroclasticflow_file_upload = FileUpload()
-
-    ashfall_frag_file_html = filehtml_create(
-        is_qgis_browser, 'ashfall_frag_file', userid, namespace)
-    ashfall_frag_file_upload = FileUpload()
-
-    ashfall_cons_file_html = filehtml_create(
-        is_qgis_browser, 'fragility_cons', userid, namespace,
-        name='ashfall_cons_file')
-    ashfall_cons_file_upload = FileUpload()
 
     render_dict = dict(
         oqp_version_maj=oqp_version.split('.')[0],
