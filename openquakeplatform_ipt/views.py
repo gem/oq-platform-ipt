@@ -683,9 +683,16 @@ def upload(request, **kwargs):
 
             if form.is_valid():
                 if target in NEEDS_EPSG:
-                    if 'epsg' not in request.POST:
+                    if ('epsg' not in request.POST or
+                            'in_type' not in request.POST):
                         ret['ret'] = 2
-                        ret['ret_msg'] = 'EPSG code not provided'
+                        ret['ret_msg'] = 'EPSG or IN_TYPE code not provided'
+                        return HttpResponse(json.dumps(ret),
+                                            content_type="application/json")
+                    if (request.POST['in_type'] != 'openquake' and
+                            request.POST['epsg'] == ''):
+                        ret['ret'] = 2
+                        ret['ret_msg'] = 'invalid EPSG value'
                         return HttpResponse(json.dumps(ret),
                                             content_type="application/json")
 
@@ -1399,24 +1406,41 @@ def volcano_prepare(request, **kwargs):
     jobris += "\n[Volcano information]\n"
 
     phenoms = {
-        'ASH': data['ashfall_file'] if data['ashfall_choice'] else None,
-        'LAVA': data['lavaflow_file'] if data['lavaflow_choice'] else None,
-        'LAHAR': data['lahar_file'] if data['lahar_choice'] else None,
-        'PYRO': (data['pyroclasticflow_file'] if data['pyroclasticflow_choice']
-                 else None)
+        'ASH': {
+            'name': 'ashfall',
+            'f': data['ashfall_file'] if data['ashfall_choice'] else None
+        },
+        'LAVA': {
+            'name': 'lavaflow',
+            'f': data['lavaflow_file'] if data['lavaflow_choice'] else None
+        },
+        'LAHAR': {
+            'name': 'lahar',
+            'f': data['lahar_file'] if data['lahar_choice'] else None
+        },
+        'PYRO': {
+            'name': 'pyroclasticflow',
+            'f': (data['pyroclasticflow_file'] if
+                  data['pyroclasticflow_choice'] else None)
+        }
     }
 
     try:
         phenom_arr = []
         for key in phenoms.keys():
-            if phenoms[key] is None:
+            if phenoms[key]['f'] is None:
                 continue
 
             # FIXME: here all conversions based on types
-            zwrite_or_collect(z, userid, namespace, phenoms[key],
+            zwrite_or_collect(z, userid, namespace, phenoms[key]['f'],
                               file_collect)
 
-            phenom_arr.append("'%s': '%s'" % (key, basename(phenoms[key])))
+            phenom_arr.append("'%s': '%s'" % (key, basename(
+                phenoms[key]['f'])))
+            if (data[phenoms[key]['name'] + '_in_type'] != 'openquake' and
+                    data[phenoms[key]['name'] + '_epsg'] == ''):
+                raise ValueError("Not valid EPSG value for '%s' input file" % (
+                    phenoms[key]['name'],))
 
         jobris += 'multi_peril_csv = {' + ', '.join(phenom_arr) + '}\n'
 

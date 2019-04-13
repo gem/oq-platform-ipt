@@ -29,6 +29,7 @@ var cf_obj = {
     },
     vol: {
         pfx: '.cf_gid div[name="volcano"]',
+        phenomena: ['ashfall', 'lavaflow', 'lahar', 'pyroclasticflow'],
         getData: null
         /*  expModel_coords: null */
     }
@@ -389,7 +390,11 @@ $(document).ready(function () {
         var data = new FormData($(obj).get(0));
 
         if (scope == 'vol') {
-            var epsg = $(obj).parent().parent().find('input[name="' + name.slice(0, -5) + '-epsg"]').val();
+            var in_type = $(obj).parent().parent().find(
+                "div[name='" + name.slice(0, -5) + "-input] select[name='in-type']").val();
+            var epsg = $(obj).parent().parent().find(
+                "div[name='" + name.slice(0, -5) + "-input] input[name='epsg']").val();
+            data.set('in_type', in_type);
             data.set('epsg', epsg);
         }
 
@@ -2329,6 +2334,13 @@ $(document).ready(function () {
 
             if ($phen.is(':checked')) {
                 $phen_input.show();
+                phen_type = $phen_input.find("select[name='in-type']").val();
+                $subt = $phen_input.find("div[name='epsg']");
+                if (phen_type == 'openquake')
+                    $subt.hide();
+                else
+                    $subt.show();
+
                 if (is_ashfall) {
                     is_cons_model = $(cf_obj['vol'].pfx +
                                       " div[name='fragility'] input[name='is-cons-models']").is(':checked');
@@ -2442,10 +2454,13 @@ $(document).ready(function () {
     // Exposure model (init)
     exposure_model_init('vol', volcano_fileNew_cb, volcano_fileNew_upload, volcano_manager);
 
-    file_uploader_init('vol', 'ashfall-file', volcano_fileNew_cb, volcano_fileNew_upload);
-    file_uploader_init('vol', 'lavaflow-file', volcano_fileNew_cb, volcano_fileNew_upload);
-    file_uploader_init('vol', 'lahar-file', volcano_fileNew_cb, volcano_fileNew_upload);
-    file_uploader_init('vol', 'pyroclasticflow-file', volcano_fileNew_cb, volcano_fileNew_upload);
+    var phenomena = cf_obj['vol'].phenomena;
+    for (var i = 0 ; i < phenomena.length ; i++) {
+        file_uploader_init('vol', phenomena[i] + '-file', volcano_fileNew_cb, volcano_fileNew_upload);
+        $(cf_obj['vol'].pfx + " div[name='" + phenomena[i] + "-input'] select[name='in-type']"
+         ).change(volcano_manager);
+    }
+
     file_uploader_init('vol', 'fm-ashfall-file', volcano_fileNew_cb, volcano_fileNew_upload);
     file_uploader_init('vol', 'fm-ashfall-cons', volcano_fileNew_cb, volcano_fileNew_upload);
 
@@ -2464,6 +2479,11 @@ $(document).ready(function () {
         };
         var obj = {
             description: null,
+
+            ashfall_in_type: false,
+            lavaflow_in_type: false,
+            lahar_in_type: false,
+            pyroclasticflow_in_type: false,
 
             ashfall_choice: false,
             lavaflow_choice: false,
@@ -2497,14 +2517,13 @@ $(document).ready(function () {
             asset_hazard_distance: null,
         };
 
-        obj.ashfall_choice = $tab.find(
-            'input[type="checkbox"][name="ashfall"]').is(':checked')
-        obj.lavaflow_choice = $tab.find(
-            'input[type="checkbox"][name="lavaflow"]').is(':checked')
-        obj.lahar_choice = $tab.find(
-            'input[type="checkbox"][name="lahar"]').is(':checked')
-        obj.pyroclasticflow_choice = $tab.find(
-            'input[type="checkbox"][name="pyroclasticflow"]').is(':checked')
+        var phenomena = cf_obj['vol'].phenomena;
+        for (var i = 0 ; i < phenomena.length ; i++) {
+            obj[phenomena[i] + "_choice"] = $tab.find(
+                "input[type='checkbox'][name='" + phenomena[i] + "']").is(':checked');
+            obj[phenomena[i] + "_in_type"] = $tab.find(
+                "div[name='" + phenomena[i] + "-input'] select[name='in-type']").val();
+        }
 
         obj.description = $tab.find('textarea[name="description"]').val();
         obj.description = obj.description.replace(

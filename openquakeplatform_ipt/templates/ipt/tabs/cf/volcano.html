@@ -35,6 +35,14 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 <div style="display: none;" name="ashfall-input">
   <h3>Ash fall</h3>
   <div class="menuItems">
+    <label>Type of input:</label>
+    <select name="in-type">
+      <option value="openquake">OpenQuake</option>
+      <option value="text">Text file</option>
+      <option value="shape" disabled="disabled">Shape file</option>
+    </select>
+  </div>
+  <div class="menuItems" name="epsg">
     <label>Coordinate reference system [EPSG]:</label>
     <input type="text" name="epsg" placeholder="4326 (WGS84)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
   </div>
@@ -64,6 +72,14 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 <div style="display: none;" name="lavaflow-input">
   <h3>Lava Flow</h3>
   <div class="menuItems">
+    <label>Type of input:</label>
+    <select name="in-type">
+      <option value="openquake">OpenQuake</option>
+      <option value="text">Text file</option>
+      <option value="shape" disabled="disabled">Shape file</option>
+    </select>
+  </div>
+  <div class="menuItems" name="epsg">
     <label>Coordinate reference system [EPSG]:</label>
     <input type="text" name="epsg" placeholder="4326 (WGS84)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
   </div>
@@ -88,6 +104,14 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 <div style="display: none;" name="lahar-input">
   <h3>Lahar</h3>
   <div class="menuItems">
+    <label>Type of input:</label>
+    <select name="in-type">
+      <option value="openquake">OpenQuake</option>
+      <option value="text">Text file</option>
+      <option value="shape" disabled="disabled">Shape file</option>
+    </select>
+  </div>
+  <div class="menuItems" name="epsg">
     <label>Coordinate reference system [EPSG]:</label>
     <input type="text" name="epsg" placeholder="4326 (WGS84)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
   </div>
@@ -112,6 +136,14 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 <div style="display: none;" name="pyroclasticflow-input">
   <h3>Pyroclastic flow</h3>
   <div class="menuItems">
+    <label>Type of input:</label>
+    <select name="in-type">
+      <option value="openquake">OpenQuake</option>
+      <option value="text">Text file</option>
+      <option value="shape" disabled="disabled">Shape file</option>
+    </select>
+  </div>
+  <div class="menuItems" name="epsg">
     <label>Coordinate reference system [EPSG]:</label>
     <input type="text" name="epsg" placeholder="4326 (WGS84)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
   </div>
