@@ -2515,7 +2515,7 @@ $(document).ready(function () {
 
         if (obj.ashfall_choice) {
             obj.ashfall_epsg = $tab.find(
-                'div[name="ashfall-input"] input[type="text"][name="ashfall-epsg"]').val();
+                'div[name="ashfall-input"] input[type="text"][name="epsg"]').val();
             obj.ashfall_file = $tab.find('div[name="ashfall-input"] div[name="ashfall-file-html"]' +
                                          ' select[name="file_html"]').val();
 
@@ -2523,7 +2523,7 @@ $(document).ready(function () {
                 ret.str += "Ash fall associated file not set.\n";
 
             obj.ashfall_hum_ampl = $tab.find(
-                'div[name="ashfall-input"] input[type="text"][name="ashfall-hum-ampl"]').val();
+                'div[name="ashfall-input"] input[type="text"][name="hum-ampl"]').val();
 
             obj.fm_ashfall_file = $tab.find('div[name="fragility"] div[name="fm-ashfall-file-html"]' +
                                           ' select[name="file_html"]').val();
@@ -2545,7 +2545,7 @@ $(document).ready(function () {
 
         if (obj.lavaflow_choice) {
             obj.lavaflow_epsg = $tab.find(
-                'div[name="lavaflow-input"] input[type="text"][name="lavaflow-epsg"]').val();
+                'div[name="lavaflow-input"] input[type="text"][name="epsg"]').val();
             obj.lavaflow_file = $tab.find('div[name="lavaflow-input"] div[name="lavaflow-file-html"]' +
                                          ' select[name="file_html"]').val();
             if (obj.lavaflow_file == "")
@@ -2554,7 +2554,7 @@ $(document).ready(function () {
 
         if (obj.lahar_choice) {
             obj.lahar_epsg = $tab.find(
-                'div[name="lahar-input"] input[type="text"][name="lahar-epsg"]').val();
+                'div[name="lahar-input"] input[type="text"][name="epsg"]').val();
             obj.lahar_file = $tab.find('div[name="lahar-input"] div[name="lahar-file-html"]' +
                                          ' select[name="file_html"]').val();
             if (obj.lahar_file == "")
@@ -2563,7 +2563,7 @@ $(document).ready(function () {
 
         if (obj.pyroclasticflow_choice) {
             obj.pyroclasticflow_epsg = $tab.find(
-                'div[name="pyroclasticflow-input"] input[type="text"][name="pyroclasticflow-epsg"]').val();
+                'div[name="pyroclasticflow-input"] input[type="text"][name="epsg"]').val();
             obj.pyroclasticflow_file = $tab.find(
                 'div[name="pyroclasticflow-input"] div[name="pyroclasticflow-file-html"]' +
                     ' select[name="file_html"]').val();
