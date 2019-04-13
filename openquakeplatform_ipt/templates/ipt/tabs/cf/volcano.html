@@ -34,31 +34,31 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 
 <div style="display: none;" name="ashfall-input">
   <h3>Ash fall</h3>
-    <div class="menuItems">
-      <label>Coordinate reference system [EPSG]:</label>
-      <input type="text" name="ashfall-epsg" placeholder="4326 (WGS84)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
-    </div>
+  <div class="menuItems">
+    <label>Coordinate reference system [EPSG]:</label>
+    <input type="text" name="ashfall-epsg" placeholder="4326 (WGS84)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
+  </div>
+  
+  <div class="menuItems" name="ashfall-file-html">
+    <label>Model file <a target="_blank" href="#" onclick="gem_ipt.help_msg('Hello <b>pippo</b>.<br/><br/>pippo<br/><br/>pippo<br/><br/>pippo<br/><br/>pippo'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Earthquake ash fall model file describing the scenario event.'></span></a>
+      :</label>
+    {{ ashfall_file_html.file_html }}
+    {{ ashfall_file_html.new_btn }}
+  </div>
+  <div class="menuItems" name="ashfall-file-new" style="display: none;">
+    <div name="msg"><br></div>
+    {% if gem_qgis == None %}
+    <form action="upload/ashfall_file" method="post" id="file-upload-form" name="ashfall-file"
+          enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ ashfall_file_upload.file_upload }}
+    </form>
+    {% endif %}
+  </div>
 
-    <div class="menuItems" name="ashfall-file-html">
-      <label>Model file <a target="_blank" href="#" onclick="gem_ipt.help_msg('Hello <b>pippo</b>.<br/><br/>pippo<br/><br/>pippo<br/><br/>pippo<br/><br/>pippo'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Earthquake ash fall model file describing the scenario event.'></span></a>
-        :</label>
-      {{ ashfall_file_html.file_html }}
-      {{ ashfall_file_html.new_btn }}
-    </div>
-    <div class="menuItems" name="ashfall-file-new" style="display: none;">
-      <div name="msg"><br></div>
-      {% if gem_qgis == None %}
-      <form action="upload/ashfall_file" method="post" id="file-upload-form" name="ashfall-file"
-            enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ ashfall_file_upload.file_upload }}
-      </form>
-      {% endif %}
-    </div>
-
-    <div class="menuItems">
-      <label>Humidity amplification factor:</label><input type="text" name="ashfall-hum-ampl" value="1.6"/>
-    </div>
+  <div class="menuItems">
+    <label>Humidity amplification factor:</label><input type="text" name="ashfall-hum-ampl" value="1.6"/>
+  </div>
 </div>
 
 <div style="display: none;" name="lavaflow-input">
@@ -190,7 +190,7 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 
   <button type="submit" style="vertical-align: top; margin: auto;" class="btn btn-primary" name="download">{%if gem_qgis != None %}'Save As'{% else %}Download{% endif %} Zip File</button>
   {%if gem_qgis != None %}
-      <button name="run-calc-btn" type="button" style="vertical-align: top; margin: auto;" class="btn btn-primary">Run Calculation</button>
+  <button name="run-calc-btn" type="button" style="vertical-align: top; margin: auto;" class="btn btn-primary">Run Calculation</button>
   {% endif %}
   <form style="display: inline-block;" name="downloadForm" method="post">{% csrf_token %}</form>
 </div>
