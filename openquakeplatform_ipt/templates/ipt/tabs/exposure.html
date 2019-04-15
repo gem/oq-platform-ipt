@@ -128,7 +128,7 @@
         {{ exposure_csv_html.new_btn }}
       </div>
       <div class="menuItems" name="exposure-csv-new" style="display: none;">
-        <div name="msg"><br></div>
+        <div name="msg" class="file-upload-multiple-msg"><br/></div>
         {% if gem_qgis == None %}
         <form action="upload/exposure_csv" method="post" id="file-upload-form" name="exposure-csv"
               enctype="multipart/form-data">

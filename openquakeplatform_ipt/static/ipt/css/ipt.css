@@ -237,3 +237,7 @@ div.bootstrap-tagsinput {
 .ui-dialog-titlebar-close {
     visibility: hidden;
 }
+
+.file-upload-multiple-msg {
+    line-height: 105%;
+}

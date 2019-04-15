@@ -50,7 +50,7 @@
       {{ source_model_file_html.new_btn }}
     </div>
     <div class="menuItems" name="source-model-file-new" style="margin-right: 0px; display: none;">
-      <div name="msg"><br></div>
+      <div name="msg" class="file-upload-multiple-msg"><br></div>
       <form action="upload/source_model_file" method="post" id="file-upload-form" name="source-model-file" enctype="multipart/form-data">
         {% csrf_token %}
         {{ source_model_file_upload.file_upload }}

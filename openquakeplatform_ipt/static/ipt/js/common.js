@@ -707,7 +707,10 @@ function generic_fileNew_upload(scope, obj, event)
                 for (var i = 0 ; i < old_sel.length ; i++) {
                     $($sel[i]).val(old_sel[i]);
                 }
-                $(sbase + ' div[name="' + name + '-html"] select[name="file_html"]').val(data.selected);
+                for (var sel in data.selected) {
+                    $(sbase + " div[name='" + name + "-html'] select[name='file_html']" +
+                      " option[value='" + data.selected[sel] + "").attr("selected", true);
+                }
             }
             $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
             $(sbase + ' div[name="' + name + '-new"]').delay(3000).slideUp({

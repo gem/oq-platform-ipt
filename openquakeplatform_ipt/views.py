@@ -28,6 +28,7 @@ import shutil
 import requests
 import django
 import xml.etree.ElementTree as etree
+import operator
 
 try:
     from email.utils import formatdate
@@ -327,6 +328,12 @@ class FileUpload(forms.Form):
             attrs={'class': 'hide_file_upload'}))
 
 
+class FileUploadMulti(forms.Form):
+    file_upload = forms.FileField(
+        allow_empty_file=True, widget=forms.ClearableFileInput(
+            attrs={'class': 'hide_file_upload', 'multiple': True}))
+
+
 class FilePathFieldByUser(forms.ChoiceField):
     def __init__(self, is_bridged, userid, subdir, namespace, match=None,
                  recursive=False, allow_files=True,
@@ -393,6 +400,8 @@ class FilePathFieldByUser(forms.ChoiceField):
                         self.choices.append((f, f))
             except OSError:
                 pass
+
+        self.choices.sort(key=operator.itemgetter(1))
 
         self.widget.choices = self.choices
 
@@ -483,7 +492,7 @@ def view(request, **kwargs):
     exposure_csv_html = filehtml_create(
         is_qgis_browser, 'exposure_csv', userid, namespace,
         is_multiple=True)
-    exposure_csv_upload = FileUpload()
+    exposure_csv_upload = FileUploadMulti()
 
     fm_structural_html = filehtml_create(
         is_qgis_browser, 'fragility_model', userid, namespace,
@@ -563,7 +572,7 @@ def view(request, **kwargs):
     source_model_file_html = filehtml_create(
         is_qgis_browser, 'source_model_file', userid, namespace,
         is_multiple=True)
-    source_model_file_upload = FileUpload()
+    source_model_file_upload = FileUploadMulti()
 
     ashfall_file_html = filehtml_create(
         is_qgis_browser, 'ashfall_file', userid, namespace)
@@ -681,97 +690,7 @@ def upload(request, **kwargs):
                 file_upload = forms.FileField(allow_empty_file=True)
             form = FileUpload(request.POST, request.FILES)
 
-            if form.is_valid():
-                if target in NEEDS_EPSG:
-                    if ('epsg' not in request.POST or
-                            'in_type' not in request.POST):
-                        ret['ret'] = 2
-                        ret['ret_msg'] = 'EPSG or IN_TYPE code not provided'
-                        return HttpResponse(json.dumps(ret),
-                                            content_type="application/json")
-                    if (request.POST['in_type'] != 'openquake' and
-                            request.POST['epsg'] == ''):
-                        ret['ret'] = 2
-                        ret['ret_msg'] = 'invalid EPSG value'
-                        return HttpResponse(json.dumps(ret),
-                                            content_type="application/json")
-
-                if (not request.FILES['file_upload'].name.endswith(
-                        tuple('.%s' % _ext for _ext in ALLOWED_DIR[target]))):
-                    ret['ret'] = 1
-                    if len(ALLOWED_DIR[target]) == 1:
-                        ret['ret_msg'] = ('File uploaded isn\'t an .%s file.' %
-                                          ALLOWED_DIR[target][0].upper())
-                    else:
-                        ls = ', '.join(['.%s' % ext.upper()
-                                        for ext in ALLOWED_DIR[target]])
-                        ret['ret_msg'] = ('Type of uploaded file not in the '
-                                          'recognized list [%s].' % ls)
-
-                    # Redirect to the document list after POST
-                    return HttpResponse(json.dumps(ret),
-                                        content_type="application/json")
-
-                if getattr(settings, 'STANDALONE', False):
-                    userid = ''
-                else:
-                    userid = str(request.user.id)
-                namespace = request.resolver_match.namespace
-                user_dir = get_full_path(userid, namespace)
-                bname = os.path.join(user_dir, target)
-                # check if the directory exists (or create it)
-                if not os.path.exists(bname):
-                    os.makedirs(bname)
-                full_path = os.path.join(
-                    bname, request.FILES['file_upload'].name)
-                overwrite_existing_files = request.POST.get(
-                    'overwrite_existing_files', True)
-                if not overwrite_existing_files:
-                    modified_path = full_path
-                    n = 0
-                    while os.path.isfile(modified_path):
-                        n += 1
-                        f_name, f_ext = os.path.splitext(full_path)
-                        modified_path = '%s_%s%s' % (f_name, n, f_ext)
-                    full_path = modified_path
-                if not os.path.normpath(full_path).startswith(user_dir):
-                    ret['ret'] = 5
-                    ret['ret_msg'] = 'Not authorized to write the file.'
-                    return HttpResponse(json.dumps(ret),
-                                        content_type="application/json")
-                with open(full_path, "wb") as f:
-                    f.write(encode(request.FILES['file_upload'].read()))
-
-                suffix = target
-                match = "|".join(
-                    [".*\\.%s$" % ext for ext in ALLOWED_DIR[target]])
-
-                class FileHtml(forms.Form):
-                    file_html = FilePathFieldByUser(
-                        is_bridged=False,
-                        userid=userid,
-                        subdir=suffix,
-                        namespace=namespace,
-                        match=match,
-                        recursive=True)
-
-                fileslist = FileHtml()
-
-                ret['ret'] = 0
-                ret['items'] = fileslist.fields['file_html'].choices
-                orig_file_name = str(request.FILES['file_upload'])
-                new_file_name = os.path.basename(full_path)
-                ret['selected'] = os.path.join(target, new_file_name)
-                changed_msg = ''
-                if orig_file_name != new_file_name:
-                    changed_msg = ' (Renamed into %s)' % new_file_name
-                ret['ret_msg'] = ('File %s uploaded successfully.%s' %
-                                  (orig_file_name, changed_msg))
-
-                # Redirect to the document list after POST
-                return HttpResponse(json.dumps(ret),
-                                    content_type="application/json")
-            else:
+            if not form.is_valid():
                 if getattr(settings, 'STANDALONE', False):
                     userid = ''
                 else:
@@ -800,8 +719,109 @@ def upload(request, **kwargs):
                 # Redirect to the document list after POST
                 return HttpResponse(json.dumps(ret),
                                     content_type="application/json")
+
+            if target in NEEDS_EPSG:
+                if ('epsg' not in request.POST or
+                        'in_type' not in request.POST):
+                    ret['ret'] = 2
+                    ret['ret_msg'] = 'EPSG or IN_TYPE code not provided'
+                    return HttpResponse(json.dumps(ret),
+                                        content_type="application/json")
+                if (request.POST['in_type'] != 'openquake' and
+                        request.POST['epsg'] == ''):
+                    ret['ret'] = 2
+                    ret['ret_msg'] = 'invalid EPSG value'
+                    return HttpResponse(json.dumps(ret),
+                                        content_type="application/json")
+
+            for fi_up in request.FILES.getlist('file_upload'):
+                if (not fi_up.name.endswith(
+                        tuple('.%s' % _ext for _ext in ALLOWED_DIR[target]))):
+                    ret['ret'] = 1
+                    if len(ALLOWED_DIR[target]) == 1:
+                        ret['ret_msg'] = (
+                            'File uploaded %s isn\'t an .%s file.' %
+                            (fi_up.name, ALLOWED_DIR[target][0].upper()))
+                    else:
+                        ls = ', '.join(['.%s' % ext.upper()
+                                        for ext in ALLOWED_DIR[target]])
+                        ret['ret_msg'] = ('Type of uploaded file not in the '
+                                          'recognized list [%s].' % ls)
+
+                    # Redirect to the document list after POST
+                    return HttpResponse(json.dumps(ret),
+                                        content_type="application/json")
+
+            if getattr(settings, 'STANDALONE', False):
+                userid = ''
+            else:
+                userid = str(request.user.id)
+            namespace = request.resolver_match.namespace
+            user_dir = get_full_path(userid, namespace)
+            bname = os.path.join(user_dir, target)
+            # check if the directory exists (or create it)
+            if not os.path.exists(bname):
+                os.makedirs(bname)
+
+            files_list = []
+            for fi_up in request.FILES.getlist('file_upload'):
+                full_path = os.path.join(
+                    bname, fi_up.name)
+                overwrite_existing_files = request.POST.get(
+                    'overwrite_existing_files', True)
+                if not overwrite_existing_files:
+                    modified_path = full_path
+                    n = 0
+                    while os.path.isfile(modified_path):
+                        n += 1
+                        f_name, f_ext = os.path.splitext(full_path)
+                        modified_path = '%s_%s%s' % (f_name, n, f_ext)
+                    full_path = modified_path
+                if not os.path.normpath(full_path).startswith(user_dir):
+                    ret['ret'] = 5
+                    ret['ret_msg'] = 'Not authorized to write the file.'
+                    return HttpResponse(json.dumps(ret),
+                                        content_type="application/json")
+                with open(full_path, "wb") as f:
+                    f.write(encode(fi_up.read()))
+                files_list.append((os.path.basename(fi_up.name),
+                                   os.path.basename(full_path)))
+
+            suffix = target
+            match = "|".join(
+                [".*\\.%s$" % ext for ext in ALLOWED_DIR[target]])
+
+            class FileHtml(forms.Form):
+                file_html = FilePathFieldByUser(
+                    is_bridged=False,
+                    userid=userid,
+                    subdir=suffix,
+                    namespace=namespace,
+                    match=match,
+                    recursive=True)
+
+            fileslist = FileHtml()
+
+            ret['ret'] = 0
+            ret['items'] = fileslist.fields['file_html'].choices
+            changed_msg = ''
+            ret['selected'] = []
+            glue = ''
+            ret['ret_msg'] = ''
+            for file_name in files_list:
+                ret['selected'].append(os.path.join(target, file_name[1]))
+
+                if file_name[0] != file_name[1]:
+                    changed_msg = ' (Renamed into %s)' % file_name[1]
+                ret['ret_msg'] += ('%sFile %s uploaded successfully.%s' %
+                                   (glue, file_name[0], changed_msg))
+                glue = '<br/>'
+
+            # Redirect to the document list after POST
+            return HttpResponse(json.dumps(ret),
+                                content_type="application/json")
     ret['ret'] = 2
-    ret['ret_msg'] = 'Please provide the file.'
+    ret['ret_msg'] = 'Please provide e file.'
 
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
