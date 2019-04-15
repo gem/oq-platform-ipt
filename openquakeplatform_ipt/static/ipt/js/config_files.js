@@ -2586,7 +2586,7 @@ $(document).ready(function () {
             obj.pyroclasticflow_file = $tab.find(
                 'div[name="pyroclasticflow-input"] div[name="pyroclasticflow-file-html"]' +
                     ' select[name="file_html"]').val();
-            if (obj.pyroclastic_file == "")
+            if (obj.pyroclasticflow_file == "")
                 ret.str += "Pyroclastic flow associated file not set.\n";
         }
 
