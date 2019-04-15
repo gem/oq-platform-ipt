@@ -847,7 +847,13 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
     jobini = "\n[Exposure model]\n"
     #           ################
 
-    jobini += "exposure_file = %s\n" % basename(data['exposure_model'])
+    exp_head, exp_sep, exp_tail = data['exposure_model'].rpartition('.')
+    if exp_tail == 'zip' or exp_tail == 'ZIP':
+        exposure_model = exp_head + '.xml'
+    else:
+        exposure_model = data['exposure_model']
+
+    jobini += "exposure_file = %s\n" % basename(exposure_model)
     if save_files is True:
         zwrite_or_collect(z, userid, namespace, data['exposure_model'],
                           file_collect)
