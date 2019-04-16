@@ -192,8 +192,9 @@ def zip_diff(filename1, filename2):
                 break
         else:
             delta = ''
-            diff = difflib.ndiff(list(z1.open(zipentry.filename)),
-                                 list(z2.open(zipentry.filename)))
+            diff = difflib.ndiff(
+                [x.decode('utf-8') for x in list(z1.open(zipentry.filename))],
+                [x.decode('utf-8') for x in list(z2.open(zipentry.filename))])
             delta = ''.join(x for x in diff
                             if x.startswith('- ') or x.startswith('+ '))
 
