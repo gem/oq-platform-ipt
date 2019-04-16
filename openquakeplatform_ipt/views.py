@@ -1453,7 +1453,7 @@ def volcano_prepare(request, **kwargs):
 
     try:
         phenom_arr = []
-        for key in phenoms.keys():
+        for key in sorted(phenoms):
             if phenoms[key]['f'] is None:
                 continue
 
