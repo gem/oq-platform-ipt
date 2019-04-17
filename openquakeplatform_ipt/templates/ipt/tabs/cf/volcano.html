@@ -1,11 +1,12 @@
 The OpenQuake volcano calculator can be used for the calculation of damage distribution statistics or individual asset and portfolio loss statistics for a portfolio of buildings starting from hazard footprints.<br/>
-Four hazard perils can be considered, related to the following phenomena and codes:</br>
-<ul>
-  <li>AshFall</li>
+Four hazard perils can be considered, related to the following phenomena and codes:
+<ul class="phen-list">
+  <li>Ash fall</li>
   <li>Lahar</li>
-  <li>LavaFlow</li>
-  <li>PyroclasticFlow</li>
+  <li>Lava flow</li>
+  <li>Pyroclastic flow</li>
 </ul>
+<p style="clear: both;"></p>
 For AshFall only ash thickness is considered, and the other perils are assumed to be binary.<br/><br/>
 
 <div>
@@ -44,7 +45,7 @@ For AshFall only ash thickness is considered, and the other perils are assumed t
 <div style="display: none;" name="ashfall-input">
   <h3>Ash fall</h3>
   <div class="menuItems">
-    <label>Type of input
+    <label>Input format
 
       <a target="_blank" href="#" onclick="gem_ipt.help_msg('\
 Possible formats are:<br/><ul><li>An Ash3d output file containing Ash deposit/thikness. ASCII (ASC) file format (USGS, <a target=\'_blank\' href=\'https://vsc-ash.wr.usgs.gov/ashgui/#/\'>https://vsc-ash.wr.usgs.gov/ashgui/#/</a>).<br/>\
@@ -53,7 +54,7 @@ See example file <a target=\'_blank\' href=\'/deposit_thickness_mm_shp.asc\'>/de
 See example <a target=\'_blank\' href=\'/ash_fall.csv\'>./ash_fall.csv</a></li>\
 <li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
 See example <a target=\'_blank\' href=\'/deposit_thickness_mm_shp.zip\'>deposit_thickness_mm_shp.zip</a>\
-', 'ash fall - type of input', 'ash fall - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Ash fall. Click for more details.'></span></a>
+', 'ash fall - type of input', 'Ash fall - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Ash fall. Click for more details.'></span></a>
       :</label>
     <select name="in-type">
       <option value="openquake">OpenQuake</option>
@@ -67,7 +68,7 @@ See example <a target=\'_blank\' href=\'/deposit_thickness_mm_shp.zip\'>deposit_
   </div>
   
   <div class="menuItems" name="ashfall-file-html">
-    <label>Model file:</label>
+    <label>Hazard footprint:</label>
     {{ ashfall_file_html.file_html }}
     {{ ashfall_file_html.new_btn }}
   </div>
@@ -88,9 +89,9 @@ See example <a target=\'_blank\' href=\'/deposit_thickness_mm_shp.zip\'>deposit_
 </div>
 
 <div style="display: none;" name="lavaflow-input">
-  <h3>Lava Flow</h3>
+  <h3>Lava flow</h3>
   <div class="menuItems">
-    <label>Type of input:
+    <label>Input format:
 
       <a target="_blank" href="#" onclick="gem_ipt.help_msg('\
 Possible formats are:<br/>\
@@ -102,7 +103,7 @@ See example file <a target=\'_blank\' href=\'/LAVASIMEtna_90.asc\'>LAVASIMEtna_9
 See example <a target=\'_blank\' href=\'/lava_flow.csv\'>lava_flow.csv</a></li>\
 <li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
 See example <a target=\'_blank\' href=\'/lava_flow_shp.zip\'>lava_flow_shp.zip</a></li>\
-</ul>', 'lava flow - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details'></span></a>
+</ul>', 'Lava flow - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details'></span></a>
       :</label>
     </label>
     <select name="in-type">
@@ -116,7 +117,7 @@ See example <a target=\'_blank\' href=\'/lava_flow_shp.zip\'>lava_flow_shp.zip</
     <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
   </div>
   <div class="menuItems" name="lavaflow-file-html">
-    <label>Model file:</label>
+    <label>Hazard footprint:</label>
     {{ lavaflow_file_html.file_html }}
     {{ lavaflow_file_html.new_btn }}
   </div>
@@ -135,7 +136,7 @@ See example <a target=\'_blank\' href=\'/lava_flow_shp.zip\'>lava_flow_shp.zip</
 <div style="display: none;" name="lahar-input">
   <h3>Lahar</h3>
   <div class="menuItems">
-    <label>Type of input
+    <label>Input format
       <a target="_blank" href="#" onclick="gem_ipt.help_msg('\
 Possible formats are:<br/>\
 <ul>\
@@ -146,7 +147,7 @@ See example <a target=\'_blank\' href=\'/lahars.csv\'>/lahars.csv</a></li>\
 <li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
 See example <a target=\'_blank\' href=\'/lahars_binary_shp.zip\'>lahars_binary_shp.zip</a><br/>\
 </li></ul>\
-', 'lahar - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details.'></span></a>
+', 'Lahar - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details.'></span></a>
 
       :</label>
     <select name="in-type">
@@ -160,7 +161,7 @@ See example <a target=\'_blank\' href=\'/lahars_binary_shp.zip\'>lahars_binary_s
     <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>    
   </div>
   <div class="menuItems" name="lahar-file-html">
-    <label>Model file:</label>
+    <label>Hazard footprint:</label>
     {{ lahar_file_html.file_html }}
     {{ lahar_file_html.new_btn }}
   </div>
@@ -188,7 +189,7 @@ See example file <a target=\'_blank\' href=\'pileheightrecord.-00001\'>pileheigh
     See example <a target=\'_blank\' href=\'/pyroclastic_flow.csv\'>pyroclastic_flow.csv</a></li>\
   <li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
 See example <a target=\'_blank\' href=\'/pyroclastic_flow_shp.zip\'>pyroclastic_flow_shp.zip</a></li>\
-<ul>', 'pyroclastic flow - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details'></span></a>
+<ul>', 'Pyroclastic flow - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details'></span></a>
       :</label>
     <select name="in-type">
       <option value="openquake">OpenQuake</option>
@@ -201,7 +202,7 @@ See example <a target=\'_blank\' href=\'/pyroclastic_flow_shp.zip\'>pyroclastic_
     <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
   </div>
   <div class="menuItems" name="pyroclasticflow-file-html">
-    <label>Model file:</label>
+    <label>Hazard footprint:</label>
     {{ pyroclasticflow_file_html.file_html }}
     {{ pyroclasticflow_file_html.new_btn }}
   </div>
@@ -222,7 +223,7 @@ See example <a target=\'_blank\' href=\'/pyroclastic_flow_shp.zip\'>pyroclastic_
 <div name="fragility" style="display: none;">
   <h3>Fragility model</h3>
   <div class="menuItems" name="fm-ashfall-file-html" data-gem-group="fragility-model">
-    <label>Ash fall structural fragility model <span class="ui-icon ui-icon-help ipt_help" title='FIXME'></span>
+    <label>Ash fall structural fragility model <span class="ui-icon ui-icon-help ipt_help" title='A fragility model defines a set of fragility functions, describing the probability of exceeding a set of limit, or damage, states. Note: it is necessary to define a fragility function for each building typology present in the exposure model'></span>
       :</label>
     {{ fm_ashfall_file_html.file_html }}
     {{ fm_ashfall_file_html.new_btn }}
@@ -251,7 +252,7 @@ See example <a target=\'_blank\' href=\'/pyroclastic_flow_shp.zip\'>pyroclastic_
 
   <div name="ashfall-cons" style="display: none;">
     <div class="menuItems" name="fm-ashfall-cons-html" data-gem-group="fragility-cons">
-      <label>Ash fall consequence model <span class="ui-icon ui-icon-help ipt_help" title='FIXME'></span>:</label>
+      <label>Ash fall consequence model <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>:</label>
       {{ fm_ashfall_cons_html.file_html }}
       {{ fm_ashfall_cons_html.new_btn }}
     </div>

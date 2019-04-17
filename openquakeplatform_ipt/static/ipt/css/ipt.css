@@ -261,3 +261,9 @@ div.bootstrap-tagsinput {
     color: #3a87ad;
     text-decoration: underline;
 }
+
+ul.phen-list li {
+    float: left;
+    list-style-position: inside;
+    padding-left: 8px;
+}
