@@ -15,6 +15,12 @@ $(document).ready(function () {
     $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="lavaflow"]').prop('checked', true).triggerHandler('click');
     $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="lahar"]').prop('checked', true).triggerHandler('click');
     $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="pyroclasticflow"]').prop('checked', true).triggerHandler('click');
+
+    $(cf_obj['vol'].pfx + ' div[name="ashfall-input"] select[name="in-type"]').val('openquake');
+    $(cf_obj['vol'].pfx + ' div[name="lavaflow-input"] select[name="in-type"]').val('openquake');
+    $(cf_obj['vol'].pfx + ' div[name="lahar-input"] select[name="in-type"]').val('openquake');
+    $(cf_obj['vol'].pfx + ' div[name="pyroclasticflow-input"] select[name="in-type"]').val('openquake');
+
     
     $(cf_obj['vol'].pfx + ' div[name="ashfall-file-html"] select[name="file_html"]').val('ashfall_file/ashfall_vol_full.csv');
     $(cf_obj['vol'].pfx + ' div[name="lavaflow-file-html"] select[name="file_html"]').val('lavaflow_file/lavaflow_vol_full.csv');
