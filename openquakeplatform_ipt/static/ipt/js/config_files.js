@@ -2515,6 +2515,9 @@ $(document).ready(function () {
 
             asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
+
+            // # FIXME modal_damage_state
+            // is_modal_damage_state: false
         };
 
         var phenomena = cf_obj['vol'].phenomena;
@@ -2593,6 +2596,10 @@ $(document).ready(function () {
         // Exposure model (get)
         exposure_model_getData('vol', ret, files_list, obj, true, true);
 
+        // # FIXME modal_damage_state
+        // obj.is_modal_damage_state = ($tab.find(
+        //    "select[name='is-modal-damage-state']").val() == "yes");
+        //
         if (ret.str == '') {
             ret.ret = 0;
             ret.obj = obj;

@@ -1492,6 +1492,10 @@ def volcano_prepare(request, **kwargs):
                 jobris += ("structural_consequence_file = %s\n" %
                            basename(data['ashfall_cons_models_file']))
 
+        # FIXME modal_damage_state
+        #jobris += "modal_damage_state = " + (
+        #    "true" if data['is_modal_damage_state'] is True else "false")
+        #
         zwrite_or_collect_str(z, 'job.ini', jobris, file_collect)
     except ValueError as err:
         ret['ret'] = 2
