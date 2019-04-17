@@ -254,9 +254,15 @@ var gem_ipt = {
         }
     },
 
-    error_msg: function(msg) {
-        $( "#dialog-message" ).html(msg.replace(/\n/g, "<br/>"));
-        $( "#dialog-message" ).dialog({
+    generic_msg: function(ty, msg, title) {
+        var title_out = 'Help';
+        if (typeof title != 'undefined') {
+            title_out = 'Help: ' + title;
+        }
+
+        $( "#" + ty + "-message" ).html(msg.replace(/\n/g, "<br/>"));
+        $( "#" + ty + "-message" ).dialog({
+            title: title_out,
             dialogClass: 'gem-jqueryui-dialog',
             modal: true,
             width: '600px',
@@ -268,46 +274,20 @@ var gem_ipt = {
         });
     },
 
-    warn_msg: function(msg) {
-        $( "#warning-message" ).html(msg.replace(/\n/g, "<br/>"));
-        $( "#warning-message" ).dialog({
-            dialogClass: 'gem-jqueryui-dialog',
-            modal: true,
-            width: '600px',
-            buttons: {
-                Ok: function() {
-                    $(this).dialog( "close" );
-                }
-            }
-        });
+    error_msg: function(msg, title) {
+        gem_ipt.generic_msg('error', msg, title);
     },
 
-    info_msg: function(msg) {
-        $( "#info-message" ).html(msg.replace(/\n/g, "<br/>"));
-        $( "#info-message" ).dialog({
-            dialogClass: 'gem-jqueryui-dialog',
-            modal: true,
-            width: '600px',
-            buttons: {
-                Ok: function() {
-                    $(this).dialog( "close" );
-                }
-            }
-        });
+    warn_msg: function(msg, title) {
+        gem_ipt.generic_msg('warning', msg, title);
     },
 
-    help_msg: function(msg) {
-        $( "#help-message" ).html(msg.replace(/\n/g, "<br/>"));
-        $( "#help-message" ).dialog({
-            dialogClass: 'gem-jqueryui-dialog',
-            modal: true,
-            width: '600px',
-            buttons: {
-                Ok: function() {
-                    $(this).dialog( "close" );
-                }
-            }
-        });
+    info_msg: function(msg, title) {
+        gem_ipt.generic_msg('info', msg, title);
+    },
+
+    help_msg: function(msg, title) {
+        gem_ipt.generic_msg('help', msg, title);
     },
 
     qgis_msg_open: function(msg) {

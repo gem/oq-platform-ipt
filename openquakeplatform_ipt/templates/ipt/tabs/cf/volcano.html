@@ -1,7 +1,22 @@
 The OpenQuake volcano calculator can be used for the calculation of damage distribution statistics or individual asset and portfolio loss statistics for a portfolio of buildings starting from hazard footprints.<br/>
+Four hazard perils can be considered, related to the following phenomena and codes:</br>
+<ul>
+  <li>AshFall</li>
+  <li>Lahar</li>
+  <li>LavaFlow</li>
+  <li>PyroclasticFlow</li>
+</ul>
+For AshFall only ash thickness is considered, and the other perils are assumed to be binary.<br/><br/>
 
-Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclastic flow.<br/><br/>
-
+<div>
+  <h3>General</h3>
+<!-- <a target="_blank" href="#" onclick="gem_ipt.help_msg(''); return false;"><span class="ui-icon ui-icon-help ipt_help" title=''></span></a> -->
+  <div class="menuItems">
+    <label>Description:</label>
+    <textarea id="description" rows="4" cols="10" name="description" class="gem-gen-descr">Volcano scenario calculation</textarea>
+  </div>
+</div>
+  
 <div name="phens" class="alert alert-info" role="alert">Choose at least one volcano phenomena.
   <div class="menuItems" style="text-align: center;">
     <form style="margin: 0px;">
@@ -25,17 +40,21 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
   </div>
 </div>
 
-<div>
-  <div class="menuItems">
-    <label>Description:</label>
-    <textarea id="description" rows="4" cols="10" name="description" class="gem-gen-descr">Volcano scenario calculation</textarea>
-  </div>
-</div>
 
 <div style="display: none;" name="ashfall-input">
   <h3>Ash fall</h3>
   <div class="menuItems">
-    <label>Type of input:</label>
+    <label>Type of input
+
+      <a target="_blank" href="#" onclick="gem_ipt.help_msg('\
+Possible formats are:<br/><ul><li>An Ash3d output file containing Ash deposit/thikness. ASCII (ASC) file format (USGS, <a target=\'_blank\' href=\'https://vsc-ash.wr.usgs.gov/ashgui/#/\'>https://vsc-ash.wr.usgs.gov/ashgui/#/</a>).<br/>\
+See example file <a target=\'_blank\' href=\'/deposit_thickness_mm_shp.asc\'>/deposit_thickness_mm_shp.asc</a>\
+<li>A CSV file with three columns named: lon, lat, intensity.<br/>\
+See example <a target=\'_blank\' href=\'/ash_fall.csv\'>./ash_fall.csv</a></li>\
+<li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
+See example <a target=\'_blank\' href=\'/deposit_thickness_mm_shp.zip\'>deposit_thickness_mm_shp.zip</a>\
+', 'ash fall - type of input', 'ash fall - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Ash fall. Click for more details.'></span></a>
+      :</label>
     <select name="in-type">
       <option value="openquake">OpenQuake</option>
       <option value="text">Text file</option>
@@ -43,13 +62,12 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
     </select>
   </div>
   <div class="menuItems" name="epsg">
-    <label>Coordinate reference system [EPSG]:</label>
-    <input type="text" name="epsg" placeholder="4326 (WGS84)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
+    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
+    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
   </div>
   
   <div class="menuItems" name="ashfall-file-html">
-    <label>Model file <a target="_blank" href="#" onclick="gem_ipt.help_msg('Hello <b>pippo</b>.<br/><br/>pippo<br/><br/>pippo<br/><br/>pippo<br/><br/>pippo'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Earthquake ash fall model file describing the scenario event.'></span></a>
-      :</label>
+    <label>Model file:</label>
     {{ ashfall_file_html.file_html }}
     {{ ashfall_file_html.new_btn }}
   </div>
@@ -72,7 +90,21 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 <div style="display: none;" name="lavaflow-input">
   <h3>Lava Flow</h3>
   <div class="menuItems">
-    <label>Type of input:</label>
+    <label>Type of input:
+
+      <a target="_blank" href="#" onclick="gem_ipt.help_msg('\
+Possible formats are:<br/>\
+<ul>\
+<li>A Q-LavaHa file. ASCII (ASC) file format (VUB, <a target=\'_blank\' href=\'http://we.vub.ac.be/en/q-lavha\'>http://we.vub.ac.be/en/q-lavha</a>).<br/>\
+See example file <a target=\'_blank\' href=\'/LAVASIMEtna_90.asc\'>LAVASIMEtna_90.asc</a></br>\
+</li>\
+<li>A CSV file with three columns named: lon, lat, intensity.<br/>\
+See example <a target=\'_blank\' href=\'/lava_flow.csv\'>lava_flow.csv</a></li>\
+<li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
+See example <a target=\'_blank\' href=\'/lava_flow_shp.zip\'>lava_flow_shp.zip</a></li>\
+</ul>', 'lava flow - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details'></span></a>
+      :</label>
+    </label>
     <select name="in-type">
       <option value="openquake">OpenQuake</option>
       <option value="text">Text file</option>
@@ -80,12 +112,11 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
     </select>
   </div>
   <div class="menuItems" name="epsg">
-    <label>Coordinate reference system [EPSG]:</label>
-    <input type="text" name="epsg" placeholder="4326 (WGS84)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
+    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
+    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
   </div>
   <div class="menuItems" name="lavaflow-file-html">
-    <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake lavaflow model file describing the scenario event.'></span>
-      :</label>
+    <label>Model file:</label>
     {{ lavaflow_file_html.file_html }}
     {{ lavaflow_file_html.new_btn }}
   </div>
@@ -104,7 +135,20 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 <div style="display: none;" name="lahar-input">
   <h3>Lahar</h3>
   <div class="menuItems">
-    <label>Type of input:</label>
+    <label>Type of input
+      <a target="_blank" href="#" onclick="gem_ipt.help_msg('\
+Possible formats are:<br/>\
+<ul>\
+<li>A LaharZ file. ASCII (ASC) file format (USGS, <a target=\'_blank\' href=\'https://pubs.er.usgs.gov/publication/ofr98638\'>https://pubs.er.usgs.gov/publication/ofr98638</a>).</li><br/>\
+See example file <a target=\'_blank\' href=\'lahars_binary.asc\'>lahars_binary.asc</a></li>\
+<li>A CSV file with three columns named: lon, lat, intensity.<br/>\
+See example <a target=\'_blank\' href=\'/lahars.csv\'>/lahars.csv</a></li>\
+<li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
+See example <a target=\'_blank\' href=\'/lahars_binary_shp.zip\'>lahars_binary_shp.zip</a><br/>\
+</li></ul>\
+', 'lahar - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details.'></span></a>
+
+      :</label>
     <select name="in-type">
       <option value="openquake">OpenQuake</option>
       <option value="text">Text file</option>
@@ -112,12 +156,11 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
     </select>
   </div>
   <div class="menuItems" name="epsg">
-    <label>Coordinate reference system [EPSG]:</label>
-    <input type="text" name="epsg" placeholder="4326 (WGS84)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
+    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
+    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>    
   </div>
   <div class="menuItems" name="lahar-file-html">
-    <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake lahar model file describing the scenario event.'></span>
-      :</label>
+    <label>Model file:</label>
     {{ lahar_file_html.file_html }}
     {{ lahar_file_html.new_btn }}
   </div>
@@ -136,7 +179,17 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
 <div style="display: none;" name="pyroclasticflow-input">
   <h3>Pyroclastic flow</h3>
   <div class="menuItems">
-    <label>Type of input:</label>
+    <label>Type of input <a target="_blank" href="#" onclick="gem_ipt.help_msg('\
+Possible formats are:<br\>\
+<ul>\
+  <li>A Titan2 file. Format .-00001 (GMFP at University of Buffalo, <a target=\'_blank\' href=\'http://www.gmfg.buffalo.edu/\'>http://www.gmfg.buffalo.edu/</a>).<br/>\
+See example file <a target=\'_blank\' href=\'pileheightrecord.-00001\'>pileheightrecord.-00001</a></li>\
+  <li>A CSV file with three columns named: lon, lat, intensity.<br/>\
+    See example <a target=\'_blank\' href=\'/pyroclastic_flow.csv\'>pyroclastic_flow.csv</a></li>\
+  <li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
+See example <a target=\'_blank\' href=\'/pyroclastic_flow_shp.zip\'>pyroclastic_flow_shp.zip</a></li>\
+<ul>', 'pyroclastic flow - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details'></span></a>
+      :</label>
     <select name="in-type">
       <option value="openquake">OpenQuake</option>
       <option value="text">Text file</option>
@@ -144,12 +197,11 @@ Four hazard perils can be considered: Ash fall, Lahars, Lava flow, and Pyroclast
     </select>
   </div>
   <div class="menuItems" name="epsg">
-    <label>Coordinate reference system [EPSG]:</label>
-    <input type="text" name="epsg" placeholder="4326 (WGS84)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
+    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
+    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
   </div>
   <div class="menuItems" name="pyroclasticflow-file-html">
-    <label>Model file <span class="ui-icon ui-icon-help ipt_help" title='Earthquake pyroclasticflow model file describing the scenario event.'></span>
-      :</label>
+    <label>Model file:</label>
     {{ pyroclasticflow_file_html.file_html }}
     {{ pyroclasticflow_file_html.new_btn }}
   </div>
