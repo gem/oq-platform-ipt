@@ -1,4 +1,5 @@
 var tab_id = 0, cf_subtab_id = 0;
+var multi_accept = {{ multi_accept|safe }};
 
 help = document.getElementById("help_url");
 csrf_token = "{% csrf_token %}";

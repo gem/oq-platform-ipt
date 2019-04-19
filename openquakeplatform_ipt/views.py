@@ -72,11 +72,34 @@ ALLOWED_DIR = {
     'source_model_logic_tree_file': ('xml',),
     'source_model_file': ('xml',),
 
-    'ashfall_file': ('csv',),
-    'lavaflow_file': ('csv',),
-    'lahar_file': ('csv',),
-    'pyroclasticflow_file': ('csv',),
+    'ashfall_file': {
+        'openquake': ('csv',),
+        'text': ('asc',),
+        'shape': ('zip',)
+    },
+    'lavaflow_file': {
+        'openquake': ('csv',),
+        'text': ('csv',),
+        'shape': ('zip',)
+    },
+    'lahar_file': {
+        'openquake': ('csv',),
+        'text': ('csv',),
+        'shape': ('zip',)
+    },
+    'pyroclasticflow_file': {
+        'openquake': ('csv',),
+        'text': ('csv',),
+        'shape': ('zip',)
+    },
 }
+
+DEFAULT_SUBTYPE = {'ashfall_file': 'text',
+                   'lavaflow_file': 'openquake',
+                   'lahar_file': 'openquake',
+                   'pyroclasticflow_file': 'openquake',
+                   }
+
 
 NEEDS_EPSG = ['ashfall_file', 'lavaflow_file', 'lahar_file',
               'pyroclasticflow_file']
@@ -259,8 +282,8 @@ def sendback_er_rupture_surface(request):
     rake = request.POST.get('rake')
 
     if (mag is None or hypo_lat is None or hypo_lon is None or
-            hypo_depth is None or strike is None or dip is None
-            or rake is None):
+            hypo_depth is None or strike is None or dip is None or
+            rake is None):
         ret = {'ret': 1, 'ret_s': 'incomplete arguments'}
     else:
         try:
@@ -323,15 +346,24 @@ class ButtonField(forms.Field):
 
 
 class FileUpload(forms.Form):
-    file_upload = forms.FileField(
-        allow_empty_file=True, widget=forms.ClearableFileInput(
-            attrs={'class': 'hide_file_upload'}))
+    def __init__(self, *args, **kwargs):
+        self.accept = kwargs.pop('accept')
+        super(FileUpload, self).__init__(*args, **kwargs)
+        self.fields['file_upload'].widget = forms.ClearableFileInput(
+            attrs={'class': 'hide_file_upload', 'accept': self.accept})
+
+    file_upload = forms.FileField(allow_empty_file=True)
 
 
 class FileUploadMulti(forms.Form):
-    file_upload = forms.FileField(
-        allow_empty_file=True, widget=forms.ClearableFileInput(
-            attrs={'class': 'hide_file_upload', 'multiple': True}))
+    def __init__(self, *args, **kwargs):
+        self.accept = kwargs.pop('accept')
+        super(FileUploadMulti, self).__init__(*args, **kwargs)
+        self.fields['file_upload'].widget = forms.ClearableFileInput(
+            attrs={'class': 'hide_file_upload', 'multiple': True,
+                   'accept': self.accept})
+
+    file_upload = forms.FileField(allow_empty_file=True)
 
 
 class FilePathFieldByUser(forms.ChoiceField):
@@ -432,10 +464,28 @@ def filehtml_create(is_bridged, suffix, userid, namespace,
                     fullpa = os.path.dirname(fullpa)
                 raise
 
+    if isinstance(ALLOWED_DIR[suffix], dict):
+        ext_list = ALLOWED_DIR[suffix][DEFAULT_SUBTYPE[suffix]]
+    else:
+        ext_list = ALLOWED_DIR[suffix]
+
     match = "|".join(
-        [".*\\.%s$" % ext for ext in ALLOWED_DIR[suffix]])
+        [".*\\.%s$" % ext for ext in ext_list])
 
     class FileHtml(forms.Form):
+        def __init__(self, *args, **kwargs):
+            super(FileHtml, self).__init__(*args, **kwargs)
+            self.gem_ext_list = list(ext_list)
+
+        def gem_accepted(self):
+            return ', '.join(['.' + x for x in self.gem_ext_list])
+
+        def gem_fileupload(self):
+            if self.is_multiple:
+                return FileUploadMulti(accept=self.gem_accepted())
+            else:
+                return FileUpload(accept=self.gem_accepted())
+
         file_html = FilePathFieldByUser(
             is_bridged=is_bridged,
             userid=userid,
@@ -448,7 +498,12 @@ def filehtml_create(is_bridged, suffix, userid, namespace,
         new_btn = ButtonField(is_bridged=is_bridged, name=name)
     fh = FileHtml()
 
-    return fh
+    if is_multiple:
+        upload = FileUploadMulti(accept=fh.gem_accepted())
+    else:
+        upload = FileUpload(accept=fh.gem_accepted())
+
+    return fh, upload
 
 
 def _get_available_gsims():
@@ -473,122 +528,101 @@ def view(request, **kwargs):
     namespace = request.resolver_match.namespace
     gmpe = _get_available_gsims()
 
-    rupture_file_html = filehtml_create(
+    rupture_file_html, rupture_file_upload = filehtml_create(
         is_qgis_browser, 'rupture_file', userid, namespace)
-    rupture_file_upload = FileUpload()
 
-    list_of_sites_html = filehtml_create(
+    list_of_sites_html, list_of_sites_upload = filehtml_create(
         is_qgis_browser, 'list_of_sites', userid, namespace)
-    list_of_sites_upload = FileUpload()
 
-    gmf_file_html = filehtml_create(
+    gmf_file_html, gmf_file_upload = filehtml_create(
         is_qgis_browser, 'gmf_file', userid, namespace)
-    gmf_file_upload = FileUpload()
 
-    exposure_model_html = filehtml_create(
+    exposure_model_html, exposure_model_upload = filehtml_create(
         is_qgis_browser, 'exposure_model', userid, namespace)
-    exposure_model_upload = FileUpload()
 
-    exposure_csv_html = filehtml_create(
+    exposure_csv_html, exposure_csv_upload = filehtml_create(
         is_qgis_browser, 'exposure_csv', userid, namespace,
         is_multiple=True)
-    exposure_csv_upload = FileUploadMulti()
 
-    fm_structural_html = filehtml_create(
+    fm_structural_html, fm_structural_upload = filehtml_create(
         is_qgis_browser, 'fragility_model', userid, namespace,
         name='fm_structural')
-    fm_structural_upload = FileUpload()
-    fm_nonstructural_html = filehtml_create(
+    fm_nonstructural_html, fm_nonstructural_upload = filehtml_create(
         is_qgis_browser, 'fragility_model', userid, namespace,
         name='fm_nonstructural')
-    fm_nonstructural_upload = FileUpload()
-    fm_contents_html = filehtml_create(
+    fm_contents_html, fm_contents_upload = filehtml_create(
         is_qgis_browser, 'fragility_model', userid, namespace,
         name='fm_contents')
-    fm_contents_upload = FileUpload()
-    fm_businter_html = filehtml_create(
+    fm_businter_html, fm_businter_upload = filehtml_create(
         is_qgis_browser, 'fragility_model', userid, namespace,
         name='fm_businter')
-    fm_businter_upload = FileUpload()
-    fm_ashfall_file_html = filehtml_create(
+    fm_ashfall_file_html, fm_ashfall_file_upload = filehtml_create(
         is_qgis_browser, 'fragility_model', userid, namespace,
         name='fm_ashfall_file')
-    fm_ashfall_file_upload = FileUpload()
 
-    fm_structural_cons_html = filehtml_create(
+    fm_structural_cons_html, fm_structural_cons_upload = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
         name='fm_structural_cons')
-    fm_structural_cons_upload = FileUpload()
-    fm_nonstructural_cons_html = filehtml_create(
+    fm_nonstructural_cons_html, fm_nonstructural_cons_upload = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
         name='fm_nonstructural_cons')
-    fm_nonstructural_cons_upload = FileUpload()
-    fm_contents_cons_html = filehtml_create(
+    fm_contents_cons_html, fm_contents_cons_upload = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
         name='fm_contents_cons')
-    fm_contents_cons_upload = FileUpload()
-    fm_businter_cons_html = filehtml_create(
+    fm_businter_cons_html, fm_businter_cons_upload = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
         name='fm_businter_cons')
-    fm_businter_cons_upload = FileUpload()
-    fm_ashfall_cons_html = filehtml_create(
+    fm_ashfall_cons_html, fm_ashfall_cons_upload = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
         name='fm_ashfall_cons')
-    fm_ashfall_cons_upload = FileUpload()
 
-    vm_structural_html = filehtml_create(
+    vm_structural_html, vm_structural_upload = filehtml_create(
         is_qgis_browser, 'vulnerability_model', userid, namespace,
         name='vm_structural')
-    vm_structural_upload = FileUpload()
-    vm_nonstructural_html = filehtml_create(
+    vm_nonstructural_html, vm_nonstructural_upload = filehtml_create(
         is_qgis_browser, 'vulnerability_model', userid, namespace,
         name='vm_nonstructural')
-    vm_nonstructural_upload = FileUpload()
-    vm_contents_html = filehtml_create(
+    vm_contents_html, vm_contents_upload = filehtml_create(
         is_qgis_browser, 'vulnerability_model', userid, namespace,
         name='vm_contents')
-    vm_contents_upload = FileUpload()
-    vm_businter_html = filehtml_create(
+    vm_businter_html, vm_businter_upload = filehtml_create(
         is_qgis_browser, 'vulnerability_model', userid, namespace,
         name='vm_businter')
-    vm_businter_upload = FileUpload()
-    vm_occupants_html = filehtml_create(
+    vm_occupants_html, vm_occupants_upload = filehtml_create(
         is_qgis_browser, 'vulnerability_model', userid, namespace,
         name='vm_occupants')
-    vm_occupants_upload = FileUpload()
 
-    site_conditions_html = filehtml_create(
+    site_conditions_html, site_conditions_upload = filehtml_create(
         is_qgis_browser, 'site_conditions', userid, namespace)
-    site_conditions_upload = FileUpload()
 
-    gsim_logic_tree_file_html = filehtml_create(
+    gsim_logic_tree_file_html, gsim_logic_tree_file_upload = filehtml_create(
         is_qgis_browser, 'gsim_logic_tree_file', userid, namespace)
-    gsim_logic_tree_file_upload = FileUpload()
 
-    source_model_logic_tree_file_html = filehtml_create(
+    (source_model_logic_tree_file_html,
+     source_model_logic_tree_file_upload) = filehtml_create(
         is_qgis_browser, 'source_model_logic_tree_file', userid, namespace)
-    source_model_logic_tree_file_upload = FileUpload()
 
-    source_model_file_html = filehtml_create(
+    source_model_file_html, source_model_file_upload = filehtml_create(
         is_qgis_browser, 'source_model_file', userid, namespace,
         is_multiple=True)
-    source_model_file_upload = FileUploadMulti()
 
-    ashfall_file_html = filehtml_create(
+    ashfall_file_html, ashfall_file_upload = filehtml_create(
         is_qgis_browser, 'ashfall_file', userid, namespace)
-    ashfall_file_upload = FileUpload()
 
-    lavaflow_file_html = filehtml_create(
+    lavaflow_file_html, lavaflow_file_upload = filehtml_create(
         is_qgis_browser, 'lavaflow_file', userid, namespace)
-    lavaflow_file_upload = FileUpload()
 
-    lahar_file_html = filehtml_create(
+    lahar_file_html, lahar_file_upload = filehtml_create(
         is_qgis_browser, 'lahar_file', userid, namespace)
-    lahar_file_upload = FileUpload()
 
-    pyroclasticflow_file_html = filehtml_create(
+    pyroclasticflow_file_html, pyroclasticflow_file_upload = filehtml_create(
         is_qgis_browser, 'pyroclasticflow_file', userid, namespace)
-    pyroclasticflow_file_upload = FileUpload()
+
+    multi_accept = {}
+    for dkey in ALLOWED_DIR:
+        dval = ALLOWED_DIR[dkey]
+        if isinstance(dval, dict):
+            multi_accept[dkey] = dval
 
     render_dict = dict(
         oqp_version_maj=oqp_version.split('.')[0],
@@ -662,6 +696,7 @@ def view(request, **kwargs):
 
         fm_ashfall_cons_html=fm_ashfall_cons_html,
         fm_ashfall_cons_upload=fm_ashfall_cons_upload,
+        multi_accept=json.dumps(multi_accept),
     )
 
     if is_qgis_browser:

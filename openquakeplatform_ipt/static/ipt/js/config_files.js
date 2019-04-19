@@ -2335,11 +2335,33 @@ $(document).ready(function () {
             if ($phen.is(':checked')) {
                 $phen_input.show();
                 phen_type = $phen_input.find("select[name='in-type']").val();
-                $subt = $phen_input.find("div[name='epsg']");
-                if (phen_type == 'openquake')
-                    $subt.hide();
-                else
-                    $subt.show();
+                $epsg_tag = $phen_input.find("div[name='epsg']");
+                $discr_dist_tag = $phen_input.find("div[name='discr-dist']");
+                $haz_field_tag = $phen_input.find("div[name='haz-field']");
+                if (phen_type == 'text') {
+                    $epsg_tag.show();
+                    $discr_dist_tag.hide();
+                    $haz_field_tag.hide();
+                }
+                else if (phen_type == 'openquake') {
+                    $epsg_tag.hide();
+                    $discr_dist_tag.hide();
+                    $haz_field_tag.hide();
+                }
+                else if (phen_type == 'shape') {
+                    $epsg_tag.hide();
+                    $discr_dist_tag.show();
+                    $haz_field_tag.show();
+                }
+                var accept_in = multi_accept[$phen.attr('name') + '_file'][phen_type];
+                var accept = "";
+
+                for (var e = 0 ; e < accept_in.length ; e++) {
+                    accept += (e > 0 ? ", " : "") + "." + accept_in[e];
+                }
+
+                $(cf_obj['vol'].pfx + ' div[name="' + $phen.attr('name') +
+                  '-input' + '"] input[type="file"]').attr('accept', accept);
 
                 if (is_ashfall) {
                     is_cons_model = $(cf_obj['vol'].pfx +
