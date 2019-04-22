@@ -94,7 +94,10 @@ ALLOWED_DIR = {
     },
 }
 
-DEFAULT_SUBTYPE = {'ashfall_file': 'text',
+#
+#  FIXME: default is 'text'
+#
+DEFAULT_SUBTYPE = {'ashfall_file': 'openquake',
                    'lavaflow_file': 'openquake',
                    'lahar_file': 'openquake',
                    'pyroclasticflow_file': 'openquake',
@@ -344,9 +347,13 @@ class ButtonField(forms.Field):
 class FileUpload(forms.Form):
     def __init__(self, *args, **kwargs):
         self.accept = kwargs.pop('accept')
+        self.with_subtype = kwargs.pop('with_subtype', False)
         super(FileUpload, self).__init__(*args, **kwargs)
         self.fields['file_upload'].widget = forms.ClearableFileInput(
-            attrs={'class': 'hide_file_upload', 'accept': self.accept})
+            attrs={'class': 'hide_file_upload',
+                   'data-gem-with-subtype': (
+                       'true' if self.with_subtype else 'false'),
+                   'accept': self.accept})
 
     file_upload = forms.FileField(allow_empty_file=True)
 
@@ -354,9 +361,12 @@ class FileUpload(forms.Form):
 class FileUploadMulti(forms.Form):
     def __init__(self, *args, **kwargs):
         self.accept = kwargs.pop('accept')
+        self.with_subtype = kwargs.pop('with_subtype', False)
         super(FileUploadMulti, self).__init__(*args, **kwargs)
         self.fields['file_upload'].widget = forms.ClearableFileInput(
             attrs={'class': 'hide_file_upload', 'multiple': True,
+                   'data-gem-with-subtype': (
+                       'true' if self.with_subtype else 'false'),
                    'accept': self.accept})
 
     file_upload = forms.FileField(allow_empty_file=True)
@@ -462,8 +472,10 @@ def filehtml_create(is_bridged, suffix, userid, namespace,
 
     if isinstance(ALLOWED_DIR[suffix], dict):
         ext_list = ALLOWED_DIR[suffix][DEFAULT_SUBTYPE[suffix]]
+        with_subtype = True
     else:
         ext_list = ALLOWED_DIR[suffix]
+        with_subtype = False
 
     match = "|".join(
         [".*\\.%s$" % ext for ext in ext_list])
@@ -477,10 +489,12 @@ def filehtml_create(is_bridged, suffix, userid, namespace,
             return ', '.join(['.' + x for x in self.gem_ext_list])
 
         def gem_fileupload(self):
-            if self.is_multiple:
-                return FileUploadMulti(accept=self.gem_accepted())
+            if is_multiple:
+                return FileUploadMulti(
+                    accept=self.gem_accepted(), with_subtype=with_subtype)
             else:
-                return FileUpload(accept=self.gem_accepted())
+                return FileUpload(
+                    accept=self.gem_accepted(), with_subtype=with_subtype)
 
         file_html = FilePathFieldByUser(
             is_bridged=is_bridged,
@@ -494,12 +508,7 @@ def filehtml_create(is_bridged, suffix, userid, namespace,
         new_btn = ButtonField(is_bridged=is_bridged, name=name)
     fh = FileHtml()
 
-    if is_multiple:
-        upload = FileUploadMulti(accept=fh.gem_accepted())
-    else:
-        upload = FileUpload(accept=fh.gem_accepted())
-
-    return fh, upload
+    return fh, fh.gem_fileupload()
 
 
 def _get_available_gsims():
@@ -721,6 +730,18 @@ def upload(request, **kwargs):
                 file_upload = forms.FileField(allow_empty_file=True)
             form = FileUpload(request.POST, request.FILES)
 
+            if isinstance(ALLOWED_DIR[target], dict):
+                if 'gem-subtype' not in request.POST:
+                    ret['ret'] = 5
+                    ret['ret_msg'] = 'Target ' + target + ' requires subtype.'
+                    return HttpResponse(json.dumps(ret),
+                                        content_type="application/json")
+
+                subtype = request.POST['gem-subtype']
+                ext_list = ALLOWED_DIR[target][subtype]
+            else:
+                ext_list = ALLOWED_DIR[target]
+
             if not form.is_valid():
                 if getattr(settings, 'STANDALONE', False):
                     userid = ''
@@ -730,7 +751,7 @@ def upload(request, **kwargs):
 
                 suffix = target
                 match = "|".join(
-                    [".*\\.%s$" % ext for ext in ALLOWED_DIR[target]])
+                    [".*\\.%s$" % ext for ext in ext_list])
 
                 class FileHtml(forms.Form):
                     file_html = FilePathFieldByUser(
@@ -753,15 +774,15 @@ def upload(request, **kwargs):
 
             for fi_up in request.FILES.getlist('file_upload'):
                 if (not fi_up.name.endswith(
-                        tuple('.%s' % _ext for _ext in ALLOWED_DIR[target]))):
+                        tuple('.%s' % _ext for _ext in ext_list))):
                     ret['ret'] = 1
-                    if len(ALLOWED_DIR[target]) == 1:
+                    if len(ext_list) == 1:
                         ret['ret_msg'] = (
                             'File uploaded %s isn\'t an .%s file.' %
-                            (fi_up.name, ALLOWED_DIR[target][0].upper()))
+                            (fi_up.name, ext_list[0].upper()))
                     else:
                         ls = ', '.join(['.%s' % ext.upper()
-                                        for ext in ALLOWED_DIR[target]])
+                                        for ext in ext_list])
                         ret['ret_msg'] = ('Type of uploaded file not in the '
                                           'recognized list [%s].' % ls)
 
@@ -806,7 +827,7 @@ def upload(request, **kwargs):
 
             suffix = target
             match = "|".join(
-                [".*\\.%s$" % ext for ext in ALLOWED_DIR[target]])
+                [".*\\.%s$" % ext for ext in ext_list])
 
             class FileHtml(forms.Form):
                 file_html = FilePathFieldByUser(

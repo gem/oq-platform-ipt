@@ -646,6 +646,13 @@ function generic_fileNew_upload(scope, obj, event)
     else
         sbase = cf_obj[scope].pfx
 
+    if (scope == 'vol') {
+        if ($(obj).find('input[type="file"]').attr('data-gem-with-subtype') == 'true') {
+            var subtype = $(obj).parent().parent().find('select[name="in-type"]').val();
+            data.set('gem-subtype', subtype);
+        }
+    }
+
     $.ajax({
         url: $(obj).attr('action'),
         type: $(obj).attr('method'),
