@@ -646,11 +646,9 @@ function generic_fileNew_upload(scope, obj, event)
     else
         sbase = cf_obj[scope].pfx
 
-    if (scope == 'vol') {
-        if ($(obj).find('input[type="file"]').attr('data-gem-with-subtype') == 'true') {
-            var subtype = $(obj).parent().parent().find('select[name="in-type"]').val();
-            data.set('gem-subtype', subtype);
-        }
+    if ($(obj).find('input[type="file"]').attr('data-gem-with-subtype') == 'true') {
+        var subtype = $(obj).parent().parent().find('select[name="in-type"]').val();
+        data.set('gem-subtype', subtype);
     }
 
     $.ajax({
@@ -702,6 +700,60 @@ function generic_fileNew_upload(scope, obj, event)
             });
 
             $(event.target).prop("value", "");
+        }
+    });
+    return false;
+}
+
+/* form widgets and previous remote list select element must follow precise
+   naming schema with '<name>-html' and '<name>-new', see config_files.html */
+function generic_fileNew_refresh(scope, obj, event)
+{
+    event.preventDefault();
+
+    var name = $(obj).attr('name');
+    var data = new FormData($(obj).get(0));
+    var sbase;
+
+    if (scope == 'ex')
+        sbase = ex_obj.pfx
+    else
+        sbase = cf_obj[scope].pfx
+
+    if ($(obj).find('input[type="file"]').attr('data-gem-with-subtype') == 'true') {
+        var subtype = $(obj).parent().parent().find('select[name="in-type"]').val();
+        data.set('gem-subtype', subtype);
+    }
+
+    $.ajax({
+        url: $(obj).attr('action'),
+        type: $(obj).attr('method'),
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+            var $sel;
+            var gem_group = null;
+            var old_sel = [];
+            if (data.ret == 0) {
+                $sel = $(sbase + ' div[name="' + name + '-html"] select[name="file_html"]');
+
+                $sel.empty();
+                $("<option />", {value: '', text: '---------'}).appendTo($sel);
+
+                for (var i = 0 ; i < data.items.length ; i++) {
+                    $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
+                }
+            }
+            $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
+            $(sbase + ' div[name="' + name + '-new"]').delay(3000).slideUp({
+                done: function () {
+                    $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html('');
+                }
+            });
+
+            // $(event.target).prop("value", "");
         }
     });
     return false;

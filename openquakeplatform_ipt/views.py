@@ -79,17 +79,17 @@ ALLOWED_DIR = {
     },
     'lavaflow_file': {
         'openquake': ('csv',),
-        'text': ('csv',),
+        'text': ('asc',),
         'shape': ('zip',)
     },
     'lahar_file': {
         'openquake': ('csv',),
-        'text': ('csv',),
+        'text': ('asc',),
         'shape': ('zip',)
     },
     'pyroclasticflow_file': {
         'openquake': ('csv',),
-        'text': ('csv',),
+        'text': ('asc',),
         'shape': ('zip',)
     },
 }
@@ -97,10 +97,10 @@ ALLOWED_DIR = {
 #
 #  FIXME: default is 'text'
 #
-DEFAULT_SUBTYPE = {'ashfall_file': 'openquake',
-                   'lavaflow_file': 'openquake',
-                   'lahar_file': 'openquake',
-                   'pyroclasticflow_file': 'openquake',
+DEFAULT_SUBTYPE = {'ashfall_file': 'text',
+                   'lavaflow_file': 'text',
+                   'lahar_file': 'text',
+                   'pyroclasticflow_file': 'text',
                    }
 
 

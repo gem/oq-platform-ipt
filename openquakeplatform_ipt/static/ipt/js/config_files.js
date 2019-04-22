@@ -2409,7 +2409,11 @@ $(document).ready(function () {
     for (var i = 0 ; i < phenomena.length ; i++) {
         file_uploader_init('vol', phenomena[i] + '-file', volcano_fileNew_cb, volcano_fileNew_upload);
         $(cf_obj['vol'].pfx + " div[name='" + phenomena[i] + "-input'] select[name='in-type']"
-         ).change(volcano_manager);
+         ).change(function in_type_change(event) {
+             var $obj = $(event.target).parent().parent().find("form#file-upload-form");
+             generic_fileNew_refresh('vol', $obj, event);
+             volcano_manager();
+         });
     }
 
     file_uploader_init('vol', 'fm-ashfall-file', volcano_fileNew_cb, volcano_fileNew_upload);
