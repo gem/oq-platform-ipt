@@ -101,10 +101,6 @@ DEFAULT_SUBTYPE = {'ashfall_file': 'text',
                    }
 
 
-NEEDS_EPSG = ['ashfall_file', 'lavaflow_file', 'lahar_file',
-              'pyroclasticflow_file']
-
-
 def _get_error_line(exc_msg):
     # check if the exc_msg contains a line number indication
     search_match = re.search(r'line \d+', exc_msg)
@@ -754,20 +750,6 @@ def upload(request, **kwargs):
                 # Redirect to the document list after POST
                 return HttpResponse(json.dumps(ret),
                                     content_type="application/json")
-
-            if target in NEEDS_EPSG:
-                if ('epsg' not in request.POST or
-                        'in_type' not in request.POST):
-                    ret['ret'] = 2
-                    ret['ret_msg'] = 'EPSG or IN_TYPE code not provided'
-                    return HttpResponse(json.dumps(ret),
-                                        content_type="application/json")
-                if (request.POST['in_type'] != 'openquake' and
-                        request.POST['epsg'] == ''):
-                    ret['ret'] = 2
-                    ret['ret_msg'] = 'invalid EPSG value'
-                    return HttpResponse(json.dumps(ret),
-                                        content_type="application/json")
 
             for fi_up in request.FILES.getlist('file_upload'):
                 if (not fi_up.name.endswith(

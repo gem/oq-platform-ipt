@@ -646,11 +646,6 @@ function generic_fileNew_upload(scope, obj, event)
     else
         sbase = cf_obj[scope].pfx
 
-    if (scope == 'vol') {
-        var epsg = $(obj).parent().parent().find('input[name="' + name.slice(0, -5) + '-epsg"]').val();
-        data.set('epsg', epsg);
-    }
-
     $.ajax({
         url: $(obj).attr('action'),
         type: $(obj).attr('method'),
