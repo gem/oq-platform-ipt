@@ -122,6 +122,15 @@ imt_examples = {
             {'exa_id': 99, 'subtab_id': 4,
              'zipfile': 'Volcano.zip',
              'sfx': 'zip'},
+            {'exa_id': 98, 'subtab_id': 4,
+             'xpath': ["//div[@id='error-message']"],
+             'sfx': 'txt'},
+            {'exa_id': 97, 'subtab_id': 4,
+             'xpath': ["//div[@id='error-message']"],
+             'sfx': 'txt'},
+            {'exa_id': 96, 'subtab_id': 4,
+             'xpath': ["//div[@id='error-message']"],
+             'sfx': 'txt'},
         ]
     }
 }
@@ -488,7 +497,14 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
             ret = ret_tag.get_attribute("value")
             if ret is None:
                 ret = ret_tag.get_attribute('innerHTML')
-            self.assertEqual(ret, expected)
+            if ret.strip() != expected.strip():
+                ret_filename = os.path.join(
+                    "retrived_%d.%s" % (
+                        tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
+                        example['sfx']))
+                with codecs.open(ret_filename, 'w', 'utf-8') as ret_file:
+                    ret_file.write(ret)
+            self.assertEqual(ret.strip(), expected.strip())
         elif 'zipfile' in example:
             for t in gen_timeout_poller(5, 0.2):
                 if os.path.exists(zipfile):

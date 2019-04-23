@@ -11,6 +11,8 @@ $(document).ready(function () {
     $(cf_obj['vol'].pfx + " div[name='ashfall-file-new'] input[name='file_upload']").submit();
 */
 
+    $(cf_obj['vol'].pfx + ' textarea#description').val('');
+
     $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="ashfall"]').prop('checked', true).triggerHandler('click');
     $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="lavaflow"]').prop('checked', true).triggerHandler('click');
     $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="lahar"]').prop('checked', true).triggerHandler('click');
@@ -24,17 +26,22 @@ $(document).ready(function () {
 
 
     setTimeout(function () {
-        $(cf_obj['vol'].pfx + ' div[name="ashfall-file-html"] select[name="file_html"]').val('ashfall_file/ashfall_vol_full.csv');
-        $(cf_obj['vol'].pfx + ' div[name="lavaflow-file-html"] select[name="file_html"]').val('lavaflow_file/lavaflow_vol_full.csv');
-        $(cf_obj['vol'].pfx + ' div[name="lahar-file-html"] select[name="file_html"]').val('lahar_file/lahar_vol_full.csv');
-        $(cf_obj['vol'].pfx + ' div[name="pyroclasticflow-file-html"] select[name="file_html"]').val('pyroclasticflow_file/pyroclasticflow_vol_full.csv');
+        $(cf_obj['vol'].pfx + ' div[name="ashfall-file-html"] select[name="file_html"]').val('');
+        $(cf_obj['vol'].pfx + ' input[type="text"][name="hum-ampl"]').val('');
+        $(cf_obj['vol'].pfx + ' div[name="lavaflow-file-html"] select[name="file_html"]').val('');
+        $(cf_obj['vol'].pfx + ' div[name="lahar-file-html"] select[name="file_html"]').val('');
+        $(cf_obj['vol'].pfx + ' div[name="pyroclasticflow-file-html"] select[name="file_html"]').val('');
 
-        $(cf_obj['vol'].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val('exposure_model/exposure_model_vol_full.zip');
+        $(cf_obj['vol'].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val('');
 
-        $(cf_obj['vol'].pfx + ' div[name="fm-ashfall-file-html"] select[name="file_html"]').val('fragility_model/fragility_model_vol_full.xml');
+        $(cf_obj['vol'].pfx + ' div[name="fm-ashfall-file-html"] select[name="file_html"]').val('');
 
+        $(cf_obj['vol'].pfx + ' div[name="exposure-model"] input[type="text"][name="asset_hazard_distance"]').val('');
+
+        
+        $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="region_constraint_choice"]').prop('checked', true).triggerHandler('click');
         $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="is-cons-models"]').prop('checked', true).triggerHandler('click');
-        $(cf_obj['vol'].pfx + ' div[name="fm-ashfall-cons-html"] select[name="file_html"]').val('fragility_cons/consequence_model_vol_full.xml');
+        $(cf_obj['vol'].pfx + ' div[name="fm-ashfall-cons-html"] select[name="file_html"]').val('');
 
         // Click to download EventBase.zip
         setTimeout(function () {
