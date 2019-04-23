@@ -30,6 +30,7 @@ var cf_obj = {
     vol: {
         pfx: '.cf_gid div[name="volcano"]',
         phenomena: ['ashfall', 'lavaflow', 'lahar', 'pyroclasticflow'],
+        phenomena_name: ['ash fall', 'lava flow', 'lahar', 'pyroclastic density currents'],
         getData: null
         /*  expModel_coords: null */
     }
@@ -2409,6 +2410,7 @@ $(document).ready(function () {
     exposure_model_init('vol', volcano_fileNew_cb, volcano_fileNew_upload, volcano_manager);
 
     var phenomena = cf_obj['vol'].phenomena;
+    var phenomena_name = cf_obj['vol'].phenomena_name;
     for (var i = 0 ; i < phenomena.length ; i++) {
         file_uploader_init('vol', phenomena[i] + '-file', volcano_fileNew_cb, volcano_fileNew_upload);
         $(cf_obj['vol'].pfx + " div[name='" + phenomena[i] + "-input'] select[name='in-type']"
@@ -2448,8 +2450,10 @@ $(document).ready(function () {
             lahar_choice: false,
             pyroclasticflow_choice: false,
 
-            ashfall_epsg: null,
             ashfall_file: null,
+            ashfall_epsg: null,
+            ashfall_discr_dist: null,
+            ashfall_haz_field: null,
             ashfall_hum_ampl: "",
 
             // fragility
@@ -2457,14 +2461,20 @@ $(document).ready(function () {
             ashfall_cons_models_choice: false,
             ashfall_cons_models_file: null,
 
-            lavaflow_epsg: null,
             lavaflow_file: null,
+            lavaflow_epsg: null,
+            lavaflow_discr_dist: null,
+            lavaflow_haz_field: null,
 
             lahar_epsg: null,
             lahar_file: null,
+            lahar_discr_dist: null,
+            lahar_haz_field: null,
 
-            pyroclasticflow_epsg: null,
             pyroclasticflow_file: null,
+            pyroclasticflow_epsg: null,
+            pyroclasticflow_discr_dist: null,
+            pyroclasticflow_haz_field: null,
 
             // exposure
             exposure_model: null,
@@ -2478,14 +2488,6 @@ $(document).ready(function () {
             // is_modal_damage_state: false
         };
 
-        var phenomena = cf_obj['vol'].phenomena;
-        for (var i = 0 ; i < phenomena.length ; i++) {
-            obj[phenomena[i] + "_choice"] = $tab.find(
-                "input[type='checkbox'][name='" + phenomena[i] + "']").is(':checked');
-            obj[phenomena[i] + "_in_type"] = $tab.find(
-                "div[name='" + phenomena[i] + "-input'] select[name='in-type']").val();
-        }
-
         obj.description = $tab.find('textarea[name="description"]').val();
         obj.description = obj.description.replace(
             new RegExp("\n", "g"), " ").replace(new RegExp("\r", "g"), " ").trim();
@@ -2493,17 +2495,54 @@ $(document).ready(function () {
             ret.str += "'Description' field is empty.\n";
         }
 
+        var phenomena = cf_obj['vol'].phenomena;
+        var phenomena_name = cf_obj['vol'].phenomena_name;
+        var in_type;
+        for (var i = 0 ; i < phenomena.length ; i++) {
+            obj[phenomena[i] + "_choice"] = $tab.find(
+                "input[type='checkbox'][name='" + phenomena[i] + "']").is(':checked');
+            if (! obj[phenomena[i] + "_choice"])
+                continue;
+
+            in_type = $tab.find(
+                "div[name='" + phenomena[i] + "-input'] select[name='in-type']").val();
+
+            obj[phenomena[i] + "_in_type"] = in_type;
+
+            obj[phenomena[i] + "_file"] = $tab.find('div[name="' + phenomena[i] + '-input"]\
+                div[name="' + phenomena[i] + '-file-html"] select[name="file_html"]').val();
+            if (obj[phenomena[i] + "_file"] == "") {
+                ret.str += upper_first(phenomena_name[i]) + ": associated file not set.\n";
+            }
+
+            if (in_type == 'text') {
+                obj[phenomena[i] + '_epsg'] = $tab.find(
+                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="epsg"]').val();
+                if (obj[phenomena[i] + '_epsg'] == '') {
+                    ret.str += upper_first(phenomena_name[i]) + ": EPSG is empty.\n";
+                    console.log('mop: catched');
+                }
+            }
+            else if (in_type == 'shape') {
+                obj[phenomena[i] + '_discr_dist'] = $tab.find(
+                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="discr-dist"]').val();
+                if (obj[phenomena[i] + '_discr_dist'] == '') {
+                    ret.str += upper_first(phenomena_name[i]) + ": discretization distance is empty.\n";
+                }
+                obj[phenomena[i] + '_haz_field'] = $tab.find(
+                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="haz_field"]').val();
+                if (obj[phenomena[i] + '__haz_field'] == '') {
+                    ret.str += upper_first(phenomena_name[i]) + ": hazard field is empty.\n";
+                }
+            }
+        }
+
         if (obj.ashfall_choice) {
-            obj.ashfall_epsg = $tab.find(
-                'div[name="ashfall-input"] input[type="text"][name="epsg"]').val();
-            obj.ashfall_file = $tab.find('div[name="ashfall-input"] div[name="ashfall-file-html"]' +
-                                         ' select[name="file_html"]').val();
-
-            if (obj.ashfall_file == "")
-                ret.str += "Ash fall associated file not set.\n";
-
             obj.ashfall_hum_ampl = $tab.find(
                 'div[name="ashfall-input"] input[type="text"][name="hum-ampl"]').val();
+            if (obj.ashfall_hum_ampl == "" || parseFloat(obj.ashfall_hum_ampl) < 1.0) {
+                ret.str += "'Humidity amplification factor' value must be >= 1.0.\n";
+            }
 
             obj.fm_ashfall_file = $tab.find('div[name="fragility"] div[name="fm-ashfall-file-html"]' +
                                           ' select[name="file_html"]').val();
@@ -2521,34 +2560,6 @@ $(document).ready(function () {
                 if (obj.ashfall_cons_models_file == "")
                     ret.str += "Consequence models file not set.\n";
             }
-        }
-
-        if (obj.lavaflow_choice) {
-            obj.lavaflow_epsg = $tab.find(
-                'div[name="lavaflow-input"] input[type="text"][name="epsg"]').val();
-            obj.lavaflow_file = $tab.find('div[name="lavaflow-input"] div[name="lavaflow-file-html"]' +
-                                         ' select[name="file_html"]').val();
-            if (obj.lavaflow_file == "")
-                ret.str += "Lava flow associated file not set.\n";
-        }
-
-        if (obj.lahar_choice) {
-            obj.lahar_epsg = $tab.find(
-                'div[name="lahar-input"] input[type="text"][name="epsg"]').val();
-            obj.lahar_file = $tab.find('div[name="lahar-input"] div[name="lahar-file-html"]' +
-                                         ' select[name="file_html"]').val();
-            if (obj.lahar_file == "")
-                ret.str += "Lahar associated file not set.\n";
-        }
-
-        if (obj.pyroclasticflow_choice) {
-            obj.pyroclasticflow_epsg = $tab.find(
-                'div[name="pyroclasticflow-input"] input[type="text"][name="epsg"]').val();
-            obj.pyroclasticflow_file = $tab.find(
-                'div[name="pyroclasticflow-input"] div[name="pyroclasticflow-file-html"]' +
-                    ' select[name="file_html"]').val();
-            if (obj.pyroclasticflow_file == "")
-                ret.str += "Pyroclastic flow associated file not set.\n";
         }
 
         // Exposure model (get)
