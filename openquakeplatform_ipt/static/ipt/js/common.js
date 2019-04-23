@@ -255,9 +255,9 @@ var gem_ipt = {
     },
 
     generic_msg: function(ty, msg, title) {
-        var title_out = 'Help';
+        var title_out = upper_first(ty);
         if (typeof title != 'undefined') {
-            title_out = 'Help: ' + title;
+            title_out += ': ' + title;
         }
 
         $( "#" + ty + "-message" ).html(msg.replace(/\n/g, "<br/>"));
@@ -776,4 +776,10 @@ function file_uploader_init(scope, name, fn_cb, fn_up)
 
     $target.find('button[name="' + name + '-new"]').click(fn_cb);
     $target.find('div[name="' + name + '-new"] input[type="file"]').change(fn_up);
+}
+
+
+function upper_first(s)
+{
+    return s.charAt(0).toUpperCase() + s.slice(1);
 }
