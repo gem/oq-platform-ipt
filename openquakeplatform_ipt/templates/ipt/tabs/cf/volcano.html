@@ -10,13 +10,12 @@ Four hazard perils can be considered, related to the following phenomena and cod
 For AshFall only ash thickness is considered, and the other perils are assumed to be binary.<br/>
 <div>
   <h3>General</h3>
-<!-- <a target="_blank" href="#" onclick="gem_ipt.help_msg(''); return false;"><span class="ui-icon ui-icon-help ipt_help" title=''></span></a> -->
   <div class="menuItems">
     <label>Description:</label>
     <textarea id="description" rows="4" cols="10" name="description" class="gem-gen-descr">Volcano scenario calculation</textarea>
   </div>
 </div>
-  
+
 <div name="phens" class="alert alert-info" role="alert">Choose at least one volcano phenomena.
   <div class="menuItems" style="text-align: center;">
     <form style="margin: 0px;">
@@ -61,10 +60,6 @@ See example <a target=\'_blank\' href=\'/deposit_thickness_mm_shp.zip\'>deposit_
       <option value="shape">Shapefile (ESRI)</option>
     </select>
   </div>
-  <div class="menuItems" name="epsg">
-    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
-    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
-  </div>
 
   <div class="menuItems" name="ashfall-file-html">
     <label>Hazard footprint:</label>
@@ -80,6 +75,23 @@ See example <a target=\'_blank\' href=\'/deposit_thickness_mm_shp.zip\'>deposit_
       {{ ashfall_file_upload.file_upload }}
     </form>
     {% endif %}
+  </div>
+
+  <div class="menuItems" name="epsg">
+    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
+    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
+  </div>
+
+  <div class="menuItems" name="discr-dist">
+    <label>Discretization distance
+      <span class="ui-icon ui-icon-help ipt_help" title="This parameter indicates the discretization distance used to rasterize the Shapefile. (Note: the units must be consistent with the Shapefile EPSG)"></span>
+      :</label><input type="text" name="discr-dist" value="0.2"/>
+  </div>
+
+  <div class="menuItems" name="haz-field">
+    <label>Hazard field
+      <span class="ui-icon ui-icon-help ipt_help" title="Hazard field (column name) in the Shapefile attribute table describing the hazard values. (Note: only fields with numerical values are accepted)"></span>
+      :</label><input type="text" name="haz-field"/>
   </div>
 
   <div class="menuItems">
@@ -111,10 +123,7 @@ See example <a target=\'_blank\' href=\'/lava_flow_shp.zip\'>lava_flow_shp.zip</
       <option value="shape">Shapefile (ESRI)</option>
     </select>
   </div>
-  <div class="menuItems" name="epsg">
-    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
-    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
-  </div>
+
   <div class="menuItems" name="lavaflow-file-html">
     <label>Hazard footprint:</label>
     {{ lavaflow_file_html.file_html }}
@@ -130,6 +139,24 @@ See example <a target=\'_blank\' href=\'/lava_flow_shp.zip\'>lava_flow_shp.zip</
     </form>
     {% endif %}
   </div>
+
+  <div class="menuItems" name="epsg">
+    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
+    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
+  </div>
+
+  <div class="menuItems" name="discr-dist">
+    <label>Discretization distance
+      <span class="ui-icon ui-icon-help ipt_help" title="This parameter indicates the discretization distance used to rasterize the Shapefile. (Note: the units must be consistent with the Shapefile EPSG)"></span>
+      :</label><input type="text" name="discr-dist" value="0.2"/>
+  </div>
+
+  <div class="menuItems" name="haz-field">
+    <label>Hazard field
+      <span class="ui-icon ui-icon-help ipt_help" title="Hazard field (column name) in the Shapefile attribute table describing the hazard values. (Note: only fields with numerical values are accepted)"></span>
+      :</label><input type="text" name="haz-field"/>
+  </div>
+
 </div>
 
 <div style="display: none;" name="lahar-input">
@@ -155,10 +182,6 @@ See example <a target=\'_blank\' href=\'/lahars_binary_shp.zip\'>lahars_binary_s
       <option value="shape">Shapefile (ESRI)</option>
     </select>
   </div>
-  <div class="menuItems" name="epsg">
-    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
-    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>    
-  </div>
   <div class="menuItems" name="lahar-file-html">
     <label>Hazard footprint:</label>
     {{ lahar_file_html.file_html }}
@@ -173,6 +196,23 @@ See example <a target=\'_blank\' href=\'/lahars_binary_shp.zip\'>lahars_binary_s
       {{ lahar_file_upload.file_upload }}
     </form>
     {% endif %}
+  </div>
+
+  <div class="menuItems" name="epsg">
+    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
+    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
+  </div>
+
+  <div class="menuItems" name="discr-dist">
+    <label>Discretization distance
+      <span class="ui-icon ui-icon-help ipt_help" title="This parameter indicates the discretization distance used to rasterize the Shapefile. (Note: the units must be consistent with the Shapefile EPSG)"></span>
+      :</label><input type="text" name="discr-dist" value="0.2"/>
+  </div>
+
+  <div class="menuItems" name="haz-field">
+    <label>Hazard field
+      <span class="ui-icon ui-icon-help ipt_help" title="Hazard field (column name) in the Shapefile attribute table describing the hazard values. (Note: only fields with numerical values are accepted)"></span>
+      :</label><input type="text" name="haz-field"/>
   </div>
 </div>
 
@@ -196,10 +236,7 @@ See example <a target=\'_blank\' href=\'/pyroclastic_flow_shp.zip\'>pyroclastic_
       <option value="shape">Shapefile (ESRI)</option>
     </select>
   </div>
-  <div class="menuItems" name="epsg">
-    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
-    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
-  </div>
+
   <div class="menuItems" name="pyroclasticflow-file-html">
     <label>Hazard footprint:</label>
     {{ pyroclasticflow_file_html.file_html }}
@@ -215,6 +252,24 @@ See example <a target=\'_blank\' href=\'/pyroclastic_flow_shp.zip\'>pyroclastic_
     </form>
     {% endif %}
   </div>
+
+  <div class="menuItems" name="epsg">
+    <label>Coordinate reference system [EPSG] <span class="ui-icon ui-icon-help ipt_help" title='The spatial reference system (SRS) used in the input layer. The SRS must follow the EPSG codes implemented by GDAL (www.iogp.org).'></span> :</label>
+    <input type="text" name="epsg" placeholder="4326" title="4326 (that corresponds to WGS84 projection)" oninput="this.value = this.value.replace(/[^0-9]/, '')"/>
+  </div>
+
+  <div class="menuItems" name="discr-dist">
+    <label>Discretization distance
+      <span class="ui-icon ui-icon-help ipt_help" title="This parameter indicates the discretization distance used to rasterize the Shapefile. (Note: the units must be consistent with the Shapefile EPSG)"></span>
+      :</label><input type="text" name="discr-dist" value="0.2"/>
+  </div>
+
+  <div class="menuItems" name="haz-field">
+    <label>Hazard field
+      <span class="ui-icon ui-icon-help ipt_help" title="Hazard field (column name) in the Shapefile attribute table describing the hazard values. (Note: only fields with numerical values are accepted)"></span>
+      :</label><input type="text" name="haz-field"/>
+  </div>
+
 </div>
 
 {% include "ipt/tabs/cf/sect_exposure_model.html" %}
@@ -222,7 +277,7 @@ See example <a target=\'_blank\' href=\'/pyroclastic_flow_shp.zip\'>pyroclastic_
 <div name="fragility" style="display: none;">
   <h3>Fragility model</h3>
   <div class="menuItems" name="fm-ashfall-file-html" data-gem-group="fragility-model">
-    <label>Ash fall structural fragility model <span class="ui-icon ui-icon-help ipt_help" title='A fragility model defines a set of fragility functions, describing the probability of exceeding a set of limit, or damage, states. Note: it is necessary to define a fragility function for each building typology present in the exposure model'></span>
+    <label>Ash fall structural fragility model <span class="ui-icon ui-icon-help ipt_help" title='A fragility model defines a set of fragility functions, describing the probability of exceeding a set of limit, or damage, states. (Note: it is necessary to define a fragility function for each building typology present in the exposure model)'></span>
       :</label>
     {{ fm_ashfall_file_html.file_html }}
     {{ fm_ashfall_file_html.new_btn }}

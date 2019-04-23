@@ -74,7 +74,7 @@ ALLOWED_DIR = {
 
     'ashfall_file': {
         'openquake': ('csv',),
-        'text': ('asc',),
+        'text': ('asc', 'txt'),
         'shape': ('zip',)
     },
     'lavaflow_file': {
@@ -84,12 +84,12 @@ ALLOWED_DIR = {
     },
     'lahar_file': {
         'openquake': ('csv',),
-        'text': ('asc',),
+        'text': ('asc', 'txt'),
         'shape': ('zip',)
     },
     'pyroclasticflow_file': {
         'openquake': ('csv',),
-        'text': ('asc',),
+        'text': ('-00001',),
         'shape': ('zip',)
     },
 }
