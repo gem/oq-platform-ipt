@@ -47,11 +47,11 @@ For AshFall only ash thickness is considered, and the other perils are assumed t
 
       <a target="_blank" href="#" onclick="gem_ipt.help_msg('\
 Possible formats are:<br/><ul><li>An Ash3d output file containing Ash deposit/thikness. ASCII (ASC) file format (USGS, <a target=\'_blank\' href=\'https://vsc-ash.wr.usgs.gov/ashgui/#/\'>https://vsc-ash.wr.usgs.gov/ashgui/#/</a>).<br/>\
-See example file <a target=\'_blank\' href=\'/deposit_thickness_mm_shp.asc\'>/deposit_thickness_mm_shp.asc</a>\
+See example file <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/deposit_thickness_mm.txt\'>deposit_thickness_mm.txt</a>\
 <li>A CSV file with three columns named: lon, lat, intensity.<br/>\
-See example <a target=\'_blank\' href=\'/ash_fall.csv\'>./ash_fall.csv</a></li>\
-<li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
-See example <a target=\'_blank\' href=\'/deposit_thickness_mm_shp.zip\'>deposit_thickness_mm_shp.zip</a>\
+See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/deposit_thickness_mm.csv\'>deposit_thickness_mm.csv</a>\
+</li><li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
+See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/deposit_thickness_mm_shp.zip\'>deposit_thickness_mm_shp.zip</a>\
 ', 'ash fall - type of input', 'Ash fall - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Ash fall. Click for more details.'></span></a>
       :</label>
     <select name="in-type">
@@ -108,13 +108,12 @@ See example <a target=\'_blank\' href=\'/deposit_thickness_mm_shp.zip\'>deposit_
 Possible formats are:<br/>\
 <ul>\
 <li>A Q-LavaHa file. ASCII (ASC) file format (VUB, <a target=\'_blank\' href=\'http://we.vub.ac.be/en/q-lavha\'>http://we.vub.ac.be/en/q-lavha</a>).<br/>\
-See example file <a target=\'_blank\' href=\'/LAVASIMEtna_90.asc\'>LAVASIMEtna_90.asc</a></br>\
-</li>\
-<li>A CSV file with three columns named: lon, lat, intensity.<br/>\
-See example <a target=\'_blank\' href=\'/lava_flow.csv\'>lava_flow.csv</a></li>\
-<li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
-See example <a target=\'_blank\' href=\'/lava_flow_shp.zip\'>lava_flow_shp.zip</a></li>\
-</ul>', 'Lava flow - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details'></span></a>
+See example file <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lava_flow.asc\'>lava_flow.asc</a>\
+</li><li>A CSV file with three columns named: lon, lat, intensity.<br/>\
+See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lava_flow.csv\'>lava_flow.csv</a>\
+</li><li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
+See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lava_flow_shp.zip\'>lava_flow_shp.zip</a>\
+</li></ul>', 'Lava flow - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details.'></span></a>
       :</label>
     </label>
     <select name="in-type">
@@ -166,12 +165,12 @@ See example <a target=\'_blank\' href=\'/lava_flow_shp.zip\'>lava_flow_shp.zip</
       <a target="_blank" href="#" onclick="gem_ipt.help_msg('\
 Possible formats are:<br/>\
 <ul>\
-<li>A LaharZ file. ASCII (ASC) file format (USGS, <a target=\'_blank\' href=\'https://pubs.er.usgs.gov/publication/ofr98638\'>https://pubs.er.usgs.gov/publication/ofr98638</a>).</li><br/>\
-See example file <a target=\'_blank\' href=\'lahars_binary.asc\'>lahars_binary.asc</a></li>\
-<li>A CSV file with three columns named: lon, lat, intensity.<br/>\
-See example <a target=\'_blank\' href=\'/lahars.csv\'>/lahars.csv</a></li>\
-<li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
-See example <a target=\'_blank\' href=\'/lahars_binary_shp.zip\'>lahars_binary_shp.zip</a><br/>\
+<li>A LaharZ file. ASCII (ASC) file format (USGS, <a target=\'_blank\' href=\'https://pubs.er.usgs.gov/publication/ofr98638\'>https://pubs.er.usgs.gov/publication/ofr98638</a>).</li>\
+See example file <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lahars.asc\'>lahars.asc</a>\
+</li><li>A CSV file with three columns named: lon, lat, intensity.<br/>\
+See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lahars.csv\'>lahars.csv</a>\
+</li><li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
+See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lahars_shp.zip\'>lahars_shp.zip</a>\
 </li></ul>\
 ', 'Lahar - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details.'></span></a>
 
@@ -223,12 +222,12 @@ See example <a target=\'_blank\' href=\'/lahars_binary_shp.zip\'>lahars_binary_s
 Possible formats are:<br\>\
 <ul>\
   <li>A Titan2 file. Format .-00001 (GMFP at University of Buffalo, <a target=\'_blank\' href=\'http://www.gmfg.buffalo.edu/\'>http://www.gmfg.buffalo.edu/</a>).<br/>\
-See example file <a target=\'_blank\' href=\'pileheightrecord.-00001\'>pileheightrecord.-00001</a></li>\
-  <li>A CSV file with three columns named: lon, lat, intensity.<br/>\
-    See example <a target=\'_blank\' href=\'/pyroclastic_flow.csv\'>pyroclastic_flow.csv</a></li>\
-  <li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
-See example <a target=\'_blank\' href=\'/pyroclastic_flow_shp.zip\'>pyroclastic_flow_shp.zip</a></li>\
-<ul>', 'Pyroclastic flow - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details'></span></a>
+See example file <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/pileheightrecord.-00001\'>pileheightrecord.-00001</a>\
+  </li><li>A CSV file with three columns named: lon, lat, intensity.<br/>\
+    See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/pyro_density_currents.csv\'>pyro_density_currents.csv</a>\
+  </li><li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
+See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/pyro_density_currents_shp.zip\'>pyro_density_currents_shp.zip</a>\
+</li><ul>', 'Pyroclastic flow - type of input'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details.'></span></a>
       :</label>
     <select name="in-type">
       <option value="text">Titan2 output file</option>
