@@ -207,7 +207,10 @@ $(document).ready(function () {
                     obj.asset_hazard_distance = $(
                         cf_obj[scope].pfx + ' div[name="exposure-model"]'
                             + ' input[type="text"][name="asset_hazard_distance"]').val();
-                    if (!gem_ipt.isFloat(obj.asset_hazard_distance)
+                    if (obj.asset_hazard_distance == '') {
+                        ret.str += "'Asset hazard distance' field is empty.\n";
+                    }
+                    else if (!gem_ipt.isFloat(obj.asset_hazard_distance)
                         || parseFloat(obj.asset_hazard_distance) < 0.0) {
                         ret.str += "'Asset hazard distance' field is negative float number ("
                             + obj.asset_hazard_distance + ").\n";
