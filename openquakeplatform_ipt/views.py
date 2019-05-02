@@ -1509,8 +1509,8 @@ def volcano_prepare(request, **kwargs):
         jobris += 'multi_peril_csv = {' + ', '.join(phenom_arr) + '}\n'
 
         if data['ashfall_choice']:
-            jobris += 'humidity_amplification_factor = %f\n' % float(
-                data['ashfall_hum_ampl'])
+            jobris += 'ash_wet_amplification_factor = %f\n' % float(
+                data['ashfall_wet_ampl'])
 
         jobris += exposure_model_prep_sect(
             data, z, True, userid, namespace, file_collect)

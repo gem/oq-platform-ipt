@@ -27,7 +27,7 @@ $(document).ready(function () {
 
     setTimeout(function () {
         $(cf_obj['vol'].pfx + ' div[name="ashfall-file-html"] select[name="file_html"]').val('');
-        $(cf_obj['vol'].pfx + ' input[type="text"][name="hum-ampl"]').val('');
+        $(cf_obj['vol'].pfx + ' input[type="text"][name="wet-ampl"]').val('');
         $(cf_obj['vol'].pfx + ' input[type="text"][name="discr-dist"]').val('');
         $(cf_obj['vol'].pfx + ' div[name="lavaflow-file-html"] select[name="file_html"]').val('');
         $(cf_obj['vol'].pfx + ' div[name="lahar-file-html"] select[name="file_html"]').val('');

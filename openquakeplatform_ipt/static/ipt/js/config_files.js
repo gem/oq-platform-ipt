@@ -2454,7 +2454,7 @@ $(document).ready(function () {
             ashfall_epsg: null,
             ashfall_discr_dist: null,
             ashfall_haz_field: null,
-            ashfall_hum_ampl: "",
+            ashfall_wet_ampl: "",
 
             // fragility
             fm_ashfall_file: null,
@@ -2538,10 +2538,10 @@ $(document).ready(function () {
         }
 
         if (obj.ashfall_choice) {
-            obj.ashfall_hum_ampl = $tab.find(
-                'div[name="ashfall-input"] input[type="text"][name="hum-ampl"]').val();
-            if (obj.ashfall_hum_ampl == "" || parseFloat(obj.ashfall_hum_ampl) < 1.0) {
-                ret.str += "'Humidity amplification factor' value must be >= 1.0.\n";
+            obj.ashfall_wet_ampl = $tab.find(
+                'div[name="ashfall-input"] input[type="text"][name="wet-ampl"]').val();
+            if (obj.ashfall_wet_ampl == "" || parseFloat(obj.ashfall_wet_ampl) < 1.0) {
+                ret.str += "'Ash wet amplification factor' value must be >= 1.0.\n";
             }
 
             obj.fm_ashfall_file = $tab.find('div[name="fragility"] div[name="fm-ashfall-file-html"]' +
