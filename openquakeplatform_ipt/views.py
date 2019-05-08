@@ -51,6 +51,8 @@ from openquakeplatform.utils import oq_is_qgis_browser
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
 from distutils.version import StrictVersion
 
+from pyproj import Proj, transform
+
 django_version = django.get_version()
 
 if StrictVersion(django_version) < StrictVersion('1.8'):
@@ -1495,17 +1497,45 @@ def volcano_prepare(request, **kwargs):
             if phenoms[key]['f'] is None:
                 continue
 
-            # FIXME: here all conversions based on types
-            zwrite_or_collect(z, userid, namespace, phenoms[key]['f'],
-                              file_collect)
+            if data[phenoms[key]['name'] + '_in_type'] == 'text':
+                # 'text' case for textual external software case
+                # FIXME
+                if data[phenoms[key]['name'] + '_epsg'] == '':
+                    raise ValueError("Not valid EPSG value for '%s' "
+                                     "input file" % (
+                                         phenoms[key]['name'],))
+                
 
-            phenom_arr.append("'%s': '%s'" % (key, basename(
-                phenoms[key]['f'])))
-            if (data[phenoms[key]['name'] + '_in_type'] != 'openquake' and
-                    data[phenoms[key]['name'] + '_epsg'] == ''):
-                raise ValueError("Not valid EPSG value for '%s' input file" % (
-                    phenoms[key]['name'],))
+                
+                zwrite_or_collect(z, userid, namespace, phenoms[key]['f'],
+                                  file_collect)
 
+                phenom_arr.append("'%s': '%s'" % (key, basename(
+                    phenoms[key]['f'])))
+                
+            elif data[phenoms[key]['name'] + '_in_type'] == 'shape':
+                # 'shape'-file case
+                # FIXME
+                zwrite_or_collect(z, userid, namespace, phenoms[key]['f'],
+                                  file_collect)
+
+                if data[phenoms[key]['name'] + '_discr_dist'] == '':
+                    raise ValueError("Discretization distance is missing "
+                                     "for '%s' input file" % (
+                                         phenoms[key]['name'],))
+                if data[phenoms[key]['name'] + '_haz_field'] == '':
+                    raise ValueError("Hazard field name is missing "
+                                     "for '%s' input file" % (
+                                         phenoms[key]['name'],))
+                phenom_arr.append("'%s': '%s'" % (key, basename(
+                    phenoms[key]['f'])))
+            else:
+                # 'openquake' case
+                zwrite_or_collect(z, userid, namespace, phenoms[key]['f'],
+                                  file_collect)
+
+                phenom_arr.append("'%s': '%s'" % (key, basename(
+                    phenoms[key]['f'])))
         jobris += 'multi_peril_csv = {' + ', '.join(phenom_arr) + '}\n'
 
         if data['ashfall_choice']:
