@@ -97,6 +97,12 @@ See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/dep
   <div class="menuItems">
     <label>Ash wet amplification factor:</label><input type="text" name="wet-ampl" value="1.6"/>
   </div>
+
+  <div class="menuItems" name="density">
+    <label>Ash density
+      <span class="ui-icon ui-icon-help ipt_help" title="kg/m³"></span>
+      :</label><input type="text" name="density" value="1500" title="Ash density (kg/m³)" oninput="this.value = this.value.replace(/[^0-9\.]/, '')"/>
+  </div>
 </div>
 
 <div style="display: none;" name="lavaflow-input">

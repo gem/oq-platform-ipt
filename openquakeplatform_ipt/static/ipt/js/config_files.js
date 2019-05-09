@@ -2271,20 +2271,24 @@ $(document).ready(function () {
                 $epsg_tag = $phen_input.find("div[name='epsg']");
                 $discr_dist_tag = $phen_input.find("div[name='discr-dist']");
                 $haz_field_tag = $phen_input.find("div[name='haz-field']");
+                $density_tag = $phen_input.find("div[name='density']");
                 if (phen_type == 'text') {
                     $epsg_tag.show();
                     $discr_dist_tag.hide();
                     $haz_field_tag.hide();
+                    $density_tag.show();
                 }
                 else if (phen_type == 'openquake') {
                     $epsg_tag.hide();
                     $discr_dist_tag.hide();
                     $haz_field_tag.hide();
+                    $density_tag.hide();
                 }
                 else if (phen_type == 'shape') {
                     $epsg_tag.hide();
                     $discr_dist_tag.show();
                     $haz_field_tag.show();
+                    $density_tag.show();
                 }
                 var accept_in = multi_accept[$phen.attr('name') + '_file'][phen_type];
                 var accept = "";
@@ -2455,6 +2459,7 @@ $(document).ready(function () {
             ashfall_discr_dist: null,
             ashfall_haz_field: null,
             ashfall_wet_ampl: "",
+            ashfall_density: "",
 
             // fragility
             fm_ashfall_file: null,
@@ -2542,6 +2547,12 @@ $(document).ready(function () {
                 'div[name="ashfall-input"] input[type="text"][name="wet-ampl"]').val();
             if (obj.ashfall_wet_ampl == "" || parseFloat(obj.ashfall_wet_ampl) < 1.0) {
                 ret.str += "'Ash wet amplification factor' value must be >= 1.0.\n";
+            }
+
+            obj.ashfall_density = $tab.find(
+                'div[name="ashfall-input"] input[type="text"][name="density"]').val();
+            if (obj.ashfall_density == "" || parseFloat(obj.ashfall_density) < 1.0) {
+                ret.str += "'Ash density' value must be >= 1.0.\n";
             }
 
             obj.fm_ashfall_file = $tab.find('div[name="fragility"] div[name="fm-ashfall-file-html"]' +
