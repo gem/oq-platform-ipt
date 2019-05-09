@@ -20,8 +20,6 @@ setup(
     author_email='devops@openquake.org',
     install_requires=[
         'django >=1.5, <2.1',
-        'pyproj ==1.9.5.1',
-        'GDAL >=2.2',
     ],
     classifiers=[
         'Environment :: Web Environment',
