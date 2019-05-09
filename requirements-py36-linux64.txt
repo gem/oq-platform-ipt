@@ -1,0 +1,6 @@
+# GEM Mirror
+# We provide pre-compiled manylinux1 wheels
+
+http://cdn.ftp.openquake.org/wheelhouse/linux/py/Django-2.0.4-py3-none-any.whl
+http://cdn.ftp.openquake.org/wheelhouse/linux/py36/pyproj-1.9.5.1-cp36-cp36m-manylinux1_x86_64.whl
+http://cdn.ftp.openquake.org/wheelhouse/linux/py36/GDAL-2.4.1-cp36-cp36m-manylinux1_x86_64.whl
