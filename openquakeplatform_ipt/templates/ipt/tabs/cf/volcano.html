@@ -120,15 +120,17 @@ The ash density is used to estimate the ash load input layer to be used by the O
     <label>Input format:
 
       <a target="_blank" href="#" onclick="gem_ipt.help_msg('\
-Possible formats are:<br/>\
+Three possible input formats can be used for Lava flow hazard footprint.<br/>\
+Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected).<br/>\
 <ul>\
-<li>A Q-LavaHa file. ASCII (ASC) file format (VUB, <a target=\'_blank\' href=\'http://we.vub.ac.be/en/q-lavha\'>http://we.vub.ac.be/en/q-lavha</a>).<br/>\
-See example file <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lava_flow.asc\'>lava_flow.asc</a>\
-</li><li>A CSV file with three columns named: lon, lat, intensity.<br/>\
-See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lava_flow.csv\'>lava_flow.csv</a>\
-</li><li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
-See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lava_flow_shp.zip\'>lava_flow_shp.zip</a>\
-</li></ul>', 'Lava flow - input format'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Lava flow. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more details.'></span></a>
+<li>Q-LavaHa output file. ASCII (ASC) file format (<a target=\'_blank\' href=\'http://we.vub.ac.be/en/q-lavha\'>VUB-Q-LavaHa</a>).<br/>\
+See example file <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lava_flow_Q-LavaHa.asc\'>lava_flow_Q-LavaHa.asc</a>\
+</li><li>CSV file with three columns named: lon, lat, intensity.<br/>\
+The coordinate reference system must be WGS84 (EPSG:4326)<br/>\
+See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lava_flow_oq.csv\'>lava_flow_oq.csv</a>\
+</li><li>Polygonal vector layer in the ESRI shapefile format describing the hazard peril in a single field. The zip file must contain at least the .shp, .shx, .dbf and .prj files.<br/>\
+See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lava_flow_shapefile.zip\'>lava_flow_shapefile.zip</a>\
+</li></ul>', 'Lava flow - input format'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Three possible input formats can be used for Lava flow hazard footprint: Q-LavaHa, CSV or Shapefile. Hazard values are assumed to be binary (&apos;1&apos; affected and &apos;0&apos; not affected). Click for more detials.'></span></a>
       :</label>
     </label>
     <select name="in-type">
