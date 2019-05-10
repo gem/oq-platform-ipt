@@ -872,7 +872,8 @@ def upload(request, **kwargs):
 
 
 def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
-                             file_collect, save_files=True):
+                             file_collect, save_files=True,
+                             spec_ass_haz_dists=()):
     jobini = "\n[Exposure model]\n"
     #           ################
 
@@ -899,8 +900,10 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
             jobini += "\n"
 
         if data['asset_hazard_distance_enabled'] is True:
-            jobini += ("asset_hazard_distance = %s\n" %
-                       data['asset_hazard_distance'])
+            jobini += "asset_hazard_distance = {"
+            for spec in spec_ass_haz_dists:
+                jobini += "'%s': %s, " % (spec[0], spec[1])
+            jobini += "'default': %s}\n" % data['asset_hazard_distance']
 
     return jobini
 
@@ -1462,9 +1465,15 @@ def volcano_prepare(request, **kwargs):
 
     try:
         phenom_arr = []
+        spec_ass_haz_dists = []
         for key in sorted(phenoms):
             if phenoms[key]['f'] is None:
                 continue
+
+            spec_ass_haz_dist = data[phenoms[key]['name'] + '_ass_haz_dist']
+            spec_ass_haz_dist = spec_ass_haz_dist.strip()
+            if spec_ass_haz_dist != '':
+                spec_ass_haz_dists.append([key, spec_ass_haz_dist])
 
             if data[phenoms[key]['name'] + '_in_type'] == 'text':
                 # 'text' case for textual external software case
@@ -1526,7 +1535,8 @@ def volcano_prepare(request, **kwargs):
                 data['ashfall_wet_ampl'])
 
         jobris += exposure_model_prep_sect(
-            data, z, True, userid, namespace, file_collect)
+            data, z, True, userid, namespace, file_collect,
+            spec_ass_haz_dists=spec_ass_haz_dists)
 
         if data['ashfall_choice']:
             jobris += "\n[Fragility model]\n"

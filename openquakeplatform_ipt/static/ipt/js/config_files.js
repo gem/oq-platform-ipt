@@ -2458,6 +2458,7 @@ $(document).ready(function () {
             ashfall_epsg: null,
             ashfall_discr_dist: null,
             ashfall_haz_field: null,
+            ashfall_ass_haz_dist: null,
             ashfall_wet_ampl: "",
             ashfall_density: "",
 
@@ -2470,16 +2471,19 @@ $(document).ready(function () {
             lavaflow_epsg: null,
             lavaflow_discr_dist: null,
             lavaflow_haz_field: null,
+            lavaflow_ass_haz_dist: null,
 
             lahar_epsg: null,
             lahar_file: null,
             lahar_discr_dist: null,
             lahar_haz_field: null,
+            lahar_ass_haz_dist: null,
 
             pyroclasticflow_file: null,
             pyroclasticflow_epsg: null,
             pyroclasticflow_discr_dist: null,
             pyroclasticflow_haz_field: null,
+            pyroclasticflow_ass_haz_dist: null,
 
             // exposure
             exposure_model: null,
@@ -2513,6 +2517,9 @@ $(document).ready(function () {
                 "div[name='" + phenomena[i] + "-input'] select[name='in-type']").val();
 
             obj[phenomena[i] + "_in_type"] = in_type;
+
+            obj[phenomena[i] + "_ass_haz_dist"] = $tab.find(
+                "div[name='" + phenomena[i] + "-input'] input[name='spec-ass-haz-dist']").val();
 
             obj[phenomena[i] + "_file"] = $tab.find('div[name="' + phenomena[i] + '-input"]\
                 div[name="' + phenomena[i] + '-file-html"] select[name="file_html"]').val();

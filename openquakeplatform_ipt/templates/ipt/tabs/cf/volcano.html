@@ -95,6 +95,11 @@ See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/dep
       :</label><input type="text" name="haz-field"/>
   </div>
 
+  <div class="menuItems" name="spec-ass-haz-dist" data-gem-enabled="true">
+    <label>Phenomena-specific asset hazard distance <span class="ui-icon ui-icon-help ipt_help" title='This parameter indicates the maximum allowable distance between an asset and the closest hazard input. Hazard inputs can include hazard curves or ground motion intensity values. Will be used &quot;Asset hazard distance&quot; field value if leaved empty'></span>:</label>
+    <input type="text" name="spec-ass-haz-dist" placeholder="'Asset hazard distance' if empty">
+  </div>
+
   <div class="menuItems">
     <label>Ash wet amplification factor:</label><input type="text" name="wet-ampl" value="1.6"/>
   </div>
@@ -163,6 +168,11 @@ See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lav
       :</label><input type="text" name="haz-field"/>
   </div>
 
+  <div class="menuItems" name="spec-ass-haz-dist" data-gem-enabled="true">
+    <label>Phenomena-specific asset hazard distance <span class="ui-icon ui-icon-help ipt_help" title='This parameter indicates the maximum allowable distance between an asset and the closest hazard input. Hazard inputs can include hazard curves or ground motion intensity values. Will be used &quot;Asset hazard distance&quot; field value if leaved empty'></span>:</label>
+    <input type="text" name="spec-ass-haz-dist" placeholder="'Asset hazard distance' if empty">
+  </div>
+
 </div>
 
 <div style="display: none;" name="lahar-input">
@@ -220,6 +230,12 @@ See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/lah
       <span class="ui-icon ui-icon-help ipt_help" title="Hazard field (column name) in the Shapefile attribute table describing the hazard values. (Note: only fields with numerical values are accepted)"></span>
       :</label><input type="text" name="haz-field"/>
   </div>
+
+  <div class="menuItems" name="spec-ass-haz-dist" data-gem-enabled="true">
+    <label>Phenomena-specific asset hazard distance <span class="ui-icon ui-icon-help ipt_help" title='This parameter indicates the maximum allowable distance between an asset and the closest hazard input. Hazard inputs can include hazard curves or ground motion intensity values. Leave empty: &quot;Asset hazard distance&quot; field value will be used'></span>:</label>
+    <input type="text" name="spec-ass-haz-dist" placeholder="leave empty: 'Asset hazard distance' value">
+  </div>
+
 </div>
 
 <div style="display: none;" name="pyroclasticflow-input">
@@ -274,6 +290,11 @@ See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/pyr
     <label>Hazard field
       <span class="ui-icon ui-icon-help ipt_help" title="Hazard field (column name) in the Shapefile attribute table describing the hazard values. (Note: only fields with numerical values are accepted)"></span>
       :</label><input type="text" name="haz-field"/>
+  </div>
+
+  <div class="menuItems" name="spec-ass-haz-dist" data-gem-enabled="true">
+    <label>Phenomena-specific asset hazard distance <span class="ui-icon ui-icon-help ipt_help" title='This parameter indicates the maximum allowable distance between an asset and the closest hazard input. Hazard inputs can include hazard curves or ground motion intensity values. Will be used &quot;Asset hazard distance&quot; field value if leaved empty'></span>:</label>
+    <input type="text" name="spec-ass-haz-dist" placeholder="'Asset hazard distance' if empty">
   </div>
 
 </div>
