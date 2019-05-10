@@ -101,12 +101,15 @@ See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/ash
   </div>
 
   <div class="menuItems">
-    <label>Ash wet amplification factor:</label><input type="text" name="wet-ampl" value="1.6"/>
+    <label>Ash wet amplification factor
+      <span class="ui-icon ui-icon-help ipt_help" title='Amplification factor to amplify the ash density in wet conditions.'></span>
+      :</label><input type="text" name="wet-ampl" value="1.6"/>
   </div>
 
   <div class="menuItems" name="density">
     <label>Ash density
-      <span class="ui-icon ui-icon-help ipt_help" title="kg/m³"></span>
+      <span class="ui-icon ui-icon-help ipt_help" title="Reference ash deposit density (units in kg/m³).
+The ash density is used to estimate the ash load input layer to be used by the OpenQuake-engine."></span>
       :</label><input type="text" name="density" value="1500" title="Ash density (kg/m³)" oninput="this.value = this.value.replace(/[^0-9\.]/, '')"/>
   </div>
 </div>
