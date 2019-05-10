@@ -2535,8 +2535,8 @@ $(document).ready(function () {
                     ret.str += upper_first(phenomena_name[i]) + ": discretization distance is empty.\n";
                 }
                 obj[phenomena[i] + '_haz_field'] = $tab.find(
-                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="haz_field"]').val();
-                if (obj[phenomena[i] + '__haz_field'] == '') {
+                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="haz-field"]').val();
+                if (obj[phenomena[i] + '_haz_field'] == '') {
                     ret.str += upper_first(phenomena_name[i]) + ": hazard field is empty.\n";
                 }
             }

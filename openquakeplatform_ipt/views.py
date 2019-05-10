@@ -51,7 +51,12 @@ from openquakeplatform.utils import oq_is_qgis_browser
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
 from distutils.version import StrictVersion
 
-from pyproj import Proj, transform
+from openquakeplatform_ipt.common import (get_full_path, zwrite_or_collect,
+                                          zwrite_or_collect_str)
+
+
+from openquakeplatform_ipt.converters import gem_input_converter
+# from pyproj import Proj, transform
 
 django_version = django.get_version()
 
@@ -866,42 +871,6 @@ def upload(request, **kwargs):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-def get_full_path(userid, namespace, subdir_and_filename=""):
-    return os.path.normpath(os.path.join(settings.FILE_PATH_FIELD_DIRECTORY,
-                            userid,
-                            namespace,
-                            subdir_and_filename))
-
-
-def zwrite_or_collect(z, userid, namespace, fname, file_collect):
-    """if z is None add the couple full_pathname, filename to a list,
-    else append the file to the z zip object"""
-
-    zip_filename = basename(fname)
-    if z is None:
-        for item in file_collect:
-            if item[1] == zip_filename:
-                raise ValueError(
-                    'File "%s" already exists.'
-                    ' Upload it again with a different name.' % zip_filename)
-        file_collect.append(["file", zip_filename, fname])
-    else:
-        for item_name in z.namelist():
-            if item_name == zip_filename:
-                raise ValueError(
-                    'File "%s" already exists.'
-                    ' Upload it again with a different name.' % zip_filename)
-        z.write(get_full_path(userid, namespace, fname),
-                zip_filename)
-
-
-def zwrite_or_collect_str(z, fname, content, file_collect):
-    if z is None:
-        file_collect.append(["string", fname, content])
-    else:
-        z.writestr(fname, encode(content))
-
-
 def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
                              file_collect, save_files=True):
     jobini = "\n[Exposure model]\n"
@@ -1512,13 +1481,9 @@ def volcano_prepare(request, **kwargs):
 
                 phenom_arr.append("'%s': '%s'" % (key, basename(
                     phenoms[key]['f'])))
-                
+
             elif data[phenoms[key]['name'] + '_in_type'] == 'shape':
                 # 'shape'-file case
-                # FIXME
-                zwrite_or_collect(z, userid, namespace, phenoms[key]['f'],
-                                  file_collect)
-
                 if data[phenoms[key]['name'] + '_discr_dist'] == '':
                     raise ValueError("Discretization distance is missing "
                                      "for '%s' input file" % (
@@ -1527,8 +1492,26 @@ def volcano_prepare(request, **kwargs):
                     raise ValueError("Hazard field name is missing "
                                      "for '%s' input file" % (
                                          phenoms[key]['name'],))
-                phenom_arr.append("'%s': '%s'" % (key, basename(
-                    phenoms[key]['f'])))
+                if key == 'ASH':
+                    if data[phenoms[key]['name'] + '_density'] == '':
+                        raise ValueError("Ashfall density is missing "
+                                         "for '%s' input file" % (
+                                             phenoms[key]['name'],))
+
+                if key == 'ASH':
+                    density = float(
+                        data[phenoms[key]['name'] + '_density'])
+                else:
+                    density = None
+
+                phenom_inputfile = gem_input_converter(
+                    z, 'shape', userid, namespace, phenoms[key]['f'],
+                    file_collect,
+                    float(data[phenoms[key]['name'] + '_discr_dist']),
+                    data[phenoms[key]['name'] + '_haz_field'],
+                    density)
+
+                phenom_arr.append("'%s': '%s'" % (key, phenom_inputfile))
             else:
                 # 'openquake' case
                 zwrite_or_collect(z, userid, namespace, phenoms[key]['f'],
