@@ -47,13 +47,13 @@ The following four hazard perils can be considered:
     <label>Input format
 
       <a target="_blank" href="#" onclick="gem_ipt.help_msg('\
-Possible formats are:<br/><ul><li>An Ash3d output file containing Ash deposit/thikness. ASCII (ASC) file format (USGS, <a target=\'_blank\' href=\'https://vsc-ash.wr.usgs.gov/ashgui/#/\'>https://vsc-ash.wr.usgs.gov/ashgui/#/</a>).<br/>\
-See example file <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/deposit_thickness_mm.txt\'>deposit_thickness_mm.txt</a>\
-<li>A CSV file with three columns named: lon, lat, intensity.<br/>\
-See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/deposit_thickness_mm.csv\'>deposit_thickness_mm.csv</a>\
-</li><li>A single polygonal shapefile from ESRI describing the ash deposit/thickness. The user should provide a .zip containing at least the .shp, .shx, .dbf and .prj files components of the ESRI shapefile.<br/>\
-See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/deposit_thickness_mm_shp.zip\'>deposit_thickness_mm_shp.zip</a>\
-', 'Ash fall - input format'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Input file format for Ash fall. Click for more details.'></span></a>
+Three possible input formats can be used for Ash fall hazard footprint:<br/><ul><li>An Ash3d output file containing ash deposit/thikness in mm. ASCII (ASC) file format (<a target=\'_blank\' href=\'https://vsc-ash.wr.usgs.gov/ashgui/#/\'>USGS-Ash3D</a>).<br/>\
+See example file <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/ash_fall_Ash3D.txt\'>ash_fall_Ash3D.txt</a>\
+<li>A CSV file with three columns named: lon, lat, intensity.<br/>The intensity must be the ash load in kPa.<br/>The coordinate reference system must be WGS84 (EPSG:4326)<br/>\
+See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/ash_fall_oq.csv\'>ash_fall_oq.csv</a>\
+</li><li>Polygonal vector layer in the ESRI shapefile format describing the ash deposit thickness in mm. The zip file must contain at least the .shp, .shx, .dbf and .prj files.<br/>\
+See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/ash_fall_shapefile.zip\'>ash_fall_shapefile.zip</a>\
+         ', 'Ash fall - input format'); return false;"><span class="ui-icon ui-icon-help ipt_help" title='Three possible input formats can be used for Ash fall hazard footprint: Ash3D, CSV or Shapefile. Click for more details.'></span></a>
       :</label>
     <select name="in-type">
       <option value="text">Ash3D output file</option>
