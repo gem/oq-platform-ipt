@@ -46,7 +46,7 @@ def gem_esritxt_converter(z, userid, namespace, filename, file_collect,
 
         with open(csv_filepath, 'w', newline='') as csv_fout:
             csv_out = csv.writer(csv_fout)
-            csv_out.writerow(["lon", " lat", " intensity"])
+            csv_out.writerow(['lon', 'lat', 'intensity'])
 
             lat_out = lat + (lat_delta / 2.0)
             for row in rasterArray:
