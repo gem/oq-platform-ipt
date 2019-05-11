@@ -1563,7 +1563,11 @@ def volcano_prepare(request, **kwargs):
         zwrite_or_collect_str(z, 'job.ini', jobris, file_collect)
     except Exception as err:
         ret['ret'] = 2
-        ret['msg'] = err.message
+        if 'message' in err:
+            ret['msg'] = err.message
+        else:
+            ret['msg'] = ("Unexpected error happens, "
+                          "check your input values and files")
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
     if is_qgis_browser:
