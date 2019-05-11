@@ -1442,19 +1442,19 @@ def volcano_prepare(request, **kwargs):
     jobris += "\n[Volcano information]\n"
 
     phenoms = {
-        VolConst.ashf: {
+        VolConst.ph_ashf: {
             'name': 'ashfall',
             'f': data['ashfall_file'] if data['ashfall_choice'] else None
         },
-        VolConst.lava: {
+        VolConst.ph_lava: {
             'name': 'lavaflow',
             'f': data['lavaflow_file'] if data['lavaflow_choice'] else None
         },
-        VolConst.laha: {
+        VolConst.ph_laha: {
             'name': 'lahar',
             'f': data['lahar_file'] if data['lahar_choice'] else None
         },
-        VolConst.pyro: {
+        VolConst.ph_pyro: {
             'name': 'pyroclasticflow',
             'f': (data['pyroclasticflow_file'] if
                   data['pyroclasticflow_choice'] else None)
@@ -1480,14 +1480,19 @@ def volcano_prepare(request, **kwargs):
                     raise ValueError("Not valid EPSG value for '%s' "
                                      "input file" % (
                                          phenoms[key]['name'],))
-                
 
-                
-                zwrite_or_collect(z, userid, namespace, phenoms[key]['f'],
-                                  file_collect)
+                if key == VolConst.ph_ashf:
+                    density = float(
+                        data[phenoms[key]['name'] + '_density'])
+                else:
+                    density = None
 
-                phenom_arr.append("'%s': '%s'" % (key, basename(
-                    phenoms[key]['f'])))
+                phenom_inputfile = gem_input_converter(
+                    z, key, VolConst.ty_text, userid, namespace,
+                    phenoms[key]['f'], file_collect,
+                    data[phenoms[key]['name'] + '_epsg'],
+                    density)
+                phenom_arr.append("'%s': '%s'" % (key, phenom_inputfile))
 
             elif data[phenoms[key]['name'] + '_in_type'] == VolConst.ty_shap:
                 # 'shape'-file case
@@ -1499,21 +1504,21 @@ def volcano_prepare(request, **kwargs):
                     raise ValueError("Hazard field name is missing "
                                      "for '%s' input file" % (
                                          phenoms[key]['name'],))
-                if key == VolConst.ashf:
+                if key == VolConst.ph_ashf:
                     if data[phenoms[key]['name'] + '_density'] == '':
                         raise ValueError("Ashfall density is missing "
                                          "for '%s' input file" % (
                                              phenoms[key]['name'],))
 
-                if key == VolConst.ashf:
+                if key == VolConst.ph_ashf:
                     density = float(
                         data[phenoms[key]['name'] + '_density'])
                 else:
                     density = None
 
                 phenom_inputfile = gem_input_converter(
-                    z, 'shape', userid, namespace, phenoms[key]['f'],
-                    file_collect,
+                    z, key, VolConst.ty_shap, userid, namespace,
+                    phenoms[key]['f'], file_collect,
                     float(data[phenoms[key]['name'] + '_discr_dist']),
                     data[phenoms[key]['name'] + '_haz_field'],
                     density)

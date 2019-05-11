@@ -14,7 +14,7 @@ from zipfile import ZipFile
 class TransToWGS84(object):
     def __init__(self, epsg_in):
         self.proj_in = Proj(init='epsg:%s' % epsg_in)
-        self.proj_out = Proj(init='epsg:4326')
+        self.proj_out = Proj(init='epsg:%s' % VolConst.epsg_out)
 
     def coord(self, x_in, y_in):
         x_out, y_out = transform(self.proj_in, self.proj_out,
@@ -22,50 +22,60 @@ class TransToWGS84(object):
         return (x_out, y_out)
 
 
-def Ash3DToOpenQuake(file_in, file_out, epsg_in):
-    """
-NCOLS    74
-NROWS    75
-XLLCORNER    280.860
-YLLCORNER      3.395
-CELLSIZE      0.099
-NODATA_VALUE  0.000
-     0.000     0.000     0.000     0.000     0.000     0.000 ... (10 values)
-...
-<white line>
-     0.000     0.000     0.000     0.000     0.000     0.000 ...
-...
-.
-.
-.
-"""
-    ash3d_header = {
-        "NCOLS": None,
-        "NROWS": None,
-        "XLLCORNER": None,
-        "YLLCORNER": None,
-        "CELLSIZE": None,
-        "NODATA_VALUE": None
-    }
+def gem_esritxt_converter(z, userid, namespace, filename, file_collect,
+                          epsg_in, density):
+    csv_filepath = None
+    try:
+        input_filepath = get_full_path(userid, namespace, filename)
+        output_file = os.path.basename(filename)
+        extension = os.path.splitext(output_file)[1][1:]
+        if not extension:
+            raise ValueError('extension of input file not found')
 
-    trans = TransToWGS84(epsg_in)
-    csv_out = csv.writer(file_out)
-    check_header = True
+        csv_filename = output_file[:-4] + "__" + extension + ".csv"
 
-    for l in file_in:
-        if not l.startswith(' '):
-            fie = re.split(r'\s+', l.strip())
-            if fie[0] not in ash3d_header.keys():
-                continue
-            else:
-                ash3d_header[fie] = fie[1]
-                continue
+        tmp_path = get_tmp_path(userid)
+        csv_filepath = os.path.join(tmp_path, csv_filename)
 
-        if check_header is True:
-            # check header completeness
-            if any(x is None for x in ash3d_header.values()):
-                raise ValueError('malformed header')
-            check_header = False
+        raster = gdal.Open(input_filepath)
+        rasterArray = raster.ReadAsArray()
+        lon, lon_delta, _, lat, _, lat_delta = raster.GetGeoTransform()
+
+        if epsg_in is not VolConst.epsg_out:
+            trans = TransToWGS84(epsg_in)
+
+        with open(csv_filepath, 'w', newline='') as csv_fout:
+            csv_out = csv.writer(csv_fout)
+            csv_out.writerow(["lon", " lat", " intensity"])
+
+            lat_out = lat + (lat_delta / 2.0)
+            for row in rasterArray:
+                lon_out = lon + (lon_delta / 2.0)
+                for el in row:
+                    if float(el) <= 0.0:
+                        continue
+                    if epsg_in is not VolConst.epsg_out:
+                        # original coordinates
+                        # transformed to EPGS:4326 using pyproj
+                        lon_out, lat_out = trans.coord(lon_out, lat_out)
+
+                    if not (density is None):
+                        el = ((float(density) * VolConst.g *
+                               (float(el) / 1000.)) / 1000.)
+
+                    row_out = ["%.5f" % lon_out, "%.5f" % lat_out, "%.5f" % el]
+                    csv_out.writerow(row_out)
+
+                    lon_out += lon_delta
+                lat_out += lat_delta
+
+            zwrite_or_collect(z, userid, 'tmp', csv_filename,
+                              file_collect)
+    finally:
+        if os.path.exists(csv_filepath):
+            os.remove(csv_filepath)
+
+    return csv_filename
 
 
 def gem_shape_converter(z, userid, namespace, filename, file_collect,
@@ -132,7 +142,7 @@ def gem_shape_converter(z, userid, namespace, filename, file_collect,
                 if density is None:
                     intens = r[2]
                 else:
-                    load_kpa = ((float(density) * 9.80665 *
+                    load_kpa = ((float(density) * VolConst.g *
                                  (float(r[2]) / 1000.)) / 1000.)
                     intens = "%.5f" % load_kpa
                 csv_out.writerow(
@@ -151,18 +161,18 @@ def gem_shape_converter(z, userid, namespace, filename, file_collect,
     return csv_name
 
 
-def gem_input_converter(z, input_type, userid, namespace, filename,
+def gem_input_converter(z, key, input_type, userid, namespace, filename,
                         file_collect, *args):
     """
     a part of mandatory fields, optional are managed as follow:
     input_type == VolConst.ty_shape:
-       p_size = args[0]
-       attrib = args[1]
-       density = args[1]
+        p_size = args[0]
+        attrib = args[1]
+        density = args[2] (value or None)
 
     input_type == VolConst.ty_text:
-       epsg_in = arg[0]
-
+        epsg_in = arg[0]
+        density = args[2] (value or None)
     """
     if input_type == VolConst.ty_shap:
         p_size = args[0]
@@ -170,4 +180,11 @@ def gem_input_converter(z, input_type, userid, namespace, filename,
         density = args[2]
         return gem_shape_converter(z, userid, namespace, filename,
                                    file_collect, p_size, attrib, density)
+    elif input_type == VolConst.ty_text:
+        epsg_in = args[0]
+        density = args[1]
 
+        if key in [VolConst.ph_ashf, VolConst.ph_lava, VolConst.ph_laha]:
+            return gem_esritxt_converter(
+                z, userid, namespace, filename, file_collect,
+                epsg_in, density)
