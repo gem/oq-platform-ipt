@@ -43,6 +43,7 @@ class TransToWGS84(object):
 def gem_esritxt_converter(z, userid, namespace, filename, file_collect,
                           epsg_in, density):
     csv_filepath = None
+    csv_filename = ""
     try:
         input_filepath = get_full_path(userid, namespace, filename)
         output_file = os.path.basename(filename)
@@ -87,6 +88,109 @@ def gem_esritxt_converter(z, userid, namespace, filename, file_collect,
                     lon_out += lon_delta
                 lat_out += lat_delta
 
+            zwrite_or_collect(z, userid, 'tmp', csv_filename,
+                              file_collect)
+    finally:
+        if os.path.exists(csv_filepath):
+            os.remove(csv_filepath)
+
+    return csv_filename
+
+
+def gem_titan2_converter(z, userid, namespace, filename, file_collect,
+                         epsg_in):
+    """
+    Note: Only Pileheight!
+    Nx=1024: X={              641941,              645559}
+    Ny=1024: Y={             2154941,             2158559}
+    Pileheight=
+    """
+    csv_filepath = None
+    csv_filename = ""
+    try:
+        input_filepath = get_full_path(userid, namespace, filename)
+        output_file = os.path.basename(filename)
+        extension = os.path.splitext(output_file)[1][2:]
+        if not extension:
+            raise ValueError('extension of input file not found')
+
+        csv_filename = output_file[:-7] + "__" + extension + ".csv"
+
+        tmp_path = get_tmp_path(userid)
+        csv_filepath = os.path.join(tmp_path, csv_filename)
+
+        if epsg_in is not VolConst.epsg_out:
+            trans = TransToWGS84(epsg_in)
+
+        with open(input_filepath, 'r', newline='') as file_in, open(
+                csv_filepath, 'w', newline='') as csv_fout:
+            csv_out = csv.writer(csv_fout)
+            csv_out.writerow(['lon', 'lat', 'intensity'])
+
+            line1 = file_in.readline()
+            ret = re.search(
+                '^Nx=([0-9]+): X={[ 	]*([0-9]+),[ 	]*([0-9]+)',
+                line1)
+
+            ret1_grp = ret.groups()
+            if len(ret1_grp) != 3:
+                raise ValueError(
+                    'Malformed Titan2 first line header [%s]' % line1)
+            cols_n = int(ret1_grp[0])
+            x_min = float(ret1_grp[1])
+            x_max = float(ret1_grp[2])
+
+            line2 = file_in.readline()
+            ret = re.search(
+                '^Ny=([0-9]+): Y={[ 	]*([0-9]+),[ 	]*([0-9]+)',
+                line2)
+
+            ret2_grp = ret.groups()
+            if len(ret2_grp) != 3:
+                raise ValueError(
+                    'Malformed Titan2 second line header [%s]' % line2)
+            rows_n = int(ret1_grp[0])
+            y_min = float(ret1_grp[1])
+            y_max = float(ret1_grp[2])
+
+            x_step = float((x_max - x_min) / float(cols_n))
+            y_step = float((y_max - y_min) / float(rows_n))
+
+            line3 = file_in.readline()
+            ret = re.search('^(Pileheight=)\s*', line3)
+
+            ret3_grp = ret.groups()
+            if len(ret3_grp) != 1:
+                raise ValueError(
+                    'Malformed Titan2 third line header [%s]' % line3)
+
+            x_cur = 0
+            y_cur = 0
+            while True:
+                row = file_in.readline()
+                if len(row) == 0:
+                    break
+                for el in re.split(r'\s+', row.strip()):
+                    if float(el) <= 0.0:
+                        x_cur += 1
+                        if x_cur == cols_n:
+                            x_cur = 0
+                            y_cur += 1
+                        continue
+                    x = x_min + (x_step / 2.0) + x_cur * x_step
+                    y = y_min + (y_step / 2.0) + y_cur * y_step
+                    lon, lat = trans.coord(x, y)
+                    # This is necessary ONLY for converted geo coordinates
+                    if lon > 180.0:
+                        lon = lon - 360.0
+                    # Writing .csv file with EPGS:4326 coordinates
+
+                    csv_out.writerow(["%.5f" % lon, "%.5f" % lat, "%.5f" % float(el)])
+
+                    x_cur += 1
+                    if x_cur == cols_n:
+                        x_cur = 0
+                        y_cur += 1
             zwrite_or_collect(z, userid, 'tmp', csv_filename,
                               file_collect)
     finally:
@@ -188,9 +292,11 @@ def gem_input_converter(z, key, input_type, userid, namespace, filename,
         attrib = args[1]
         density = args[2] (value or None)
 
-    input_type == VolConst.ty_text:
+    input_type == VolConst.ty_text && key != pyro:
         epsg_in = arg[0]
         density = args[2] (value or None)
+    input_type == VolConst.ty_text && key == pyro:
+        epsg_in = arg[0]
     """
     if input_type == VolConst.ty_shap:
         p_size = args[0]
@@ -206,3 +312,7 @@ def gem_input_converter(z, key, input_type, userid, namespace, filename,
             return gem_esritxt_converter(
                 z, userid, namespace, filename, file_collect,
                 epsg_in, density)
+        else:  # pyro case
+            return gem_titan2_converter(
+                z, userid, namespace, filename, file_collect,
+                epsg_in)
