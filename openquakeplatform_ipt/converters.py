@@ -145,10 +145,8 @@ def gem_shape_converter(z, userid, namespace, filename, file_collect,
         csv_name = os.path.basename(csv_filename)
 
     finally:
-        if tmp_path:
-            for f_del in os.listdir(tmp_path):
-                os.remove(os.path.join(tmp_path, f_del))
-            os.rmdir(tmp_path)
+        if tmp_path and os.path.exists(tmp_path):
+            shutil.rmtree(tmp_path)
 
     return csv_name
 
