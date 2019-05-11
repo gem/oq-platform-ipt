@@ -2,10 +2,12 @@ import os
 import re
 import csv
 import tempfile
+import shutil
 from pyproj import Proj, transform
 from osgeo import ogr, gdal
 from openquakeplatform_ipt.common import (
-    get_full_path, get_tmp_path, zwrite_or_collect)
+    VolConst, get_full_path, get_tmp_path,
+    zwrite_or_collect)
 from zipfile import ZipFile
 
 
@@ -155,12 +157,16 @@ def gem_input_converter(z, input_type, userid, namespace, filename,
                         file_collect, *args):
     """
     a part of mandatory fields, optional are managed as follow:
-    input_tyle == 'shape':
+    input_type == VolConst.ty_shape:
        p_size = args[0]
        attrib = args[1]
+       density = args[1]
+
+    input_type == VolConst.ty_text:
+       epsg_in = arg[0]
 
     """
-    if input_type == 'shape':
+    if input_type == VolConst.ty_shap:
         p_size = args[0]
         attrib = args[1]
         density = args[2]

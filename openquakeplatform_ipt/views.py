@@ -51,7 +51,8 @@ from openquakeplatform.utils import oq_is_qgis_browser
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
 from distutils.version import StrictVersion
 
-from openquakeplatform_ipt.common import (get_full_path, zwrite_or_collect,
+from openquakeplatform_ipt.common import (VolConst, get_full_path,
+                                          zwrite_or_collect,
                                           zwrite_or_collect_str)
 
 
@@ -80,34 +81,31 @@ ALLOWED_DIR = {
     'source_model_file': ('xml',),
 
     'ashfall_file': {
-        'openquake': ('csv',),
-        'text': ('asc', 'txt'),
-        'shape': ('zip',)
+        VolConst.ty_text: ('asc', 'txt'),
+        VolConst.ty_open: ('csv',),
+        VolConst.ty_shap: ('zip',)
     },
     'lavaflow_file': {
-        'openquake': ('csv',),
-        'text': ('asc',),
-        'shape': ('zip',)
+        VolConst.ty_text: ('asc',),
+        VolConst.ty_open: ('csv',),
+        VolConst.ty_shap: ('zip',)
     },
     'lahar_file': {
-        'openquake': ('csv',),
-        'text': ('asc', 'txt'),
-        'shape': ('zip',)
+        VolConst.ty_text: ('asc', 'txt'),
+        VolConst.ty_open: ('csv',),
+        VolConst.ty_shap: ('zip',)
     },
     'pyroclasticflow_file': {
-        'openquake': ('csv',),
-        'text': ('-00001',),
-        'shape': ('zip',)
+        VolConst.ty_text: ('-00001',),
+        VolConst.ty_open: ('csv',),
+        VolConst.ty_shap: ('zip',)
     },
 }
 
-#
-#  FIXME: default is 'text'
-#
-DEFAULT_SUBTYPE = {'ashfall_file': 'text',
-                   'lavaflow_file': 'text',
-                   'lahar_file': 'text',
-                   'pyroclasticflow_file': 'text',
+DEFAULT_SUBTYPE = {'ashfall_file': VolConst.ty_text,
+                   'lavaflow_file': VolConst.ty_text,
+                   'lahar_file': VolConst.ty_text,
+                   'pyroclasticflow_file': VolConst.ty_text,
                    }
 
 
@@ -1444,19 +1442,19 @@ def volcano_prepare(request, **kwargs):
     jobris += "\n[Volcano information]\n"
 
     phenoms = {
-        'ASH': {
+        VolConst.ashf: {
             'name': 'ashfall',
             'f': data['ashfall_file'] if data['ashfall_choice'] else None
         },
-        'LAVA': {
+        VolConst.lava: {
             'name': 'lavaflow',
             'f': data['lavaflow_file'] if data['lavaflow_choice'] else None
         },
-        'LAHAR': {
+        VolConst.laha: {
             'name': 'lahar',
             'f': data['lahar_file'] if data['lahar_choice'] else None
         },
-        'PYRO': {
+        VolConst.pyro: {
             'name': 'pyroclasticflow',
             'f': (data['pyroclasticflow_file'] if
                   data['pyroclasticflow_choice'] else None)
@@ -1475,7 +1473,7 @@ def volcano_prepare(request, **kwargs):
             if spec_ass_haz_dist != '':
                 spec_ass_haz_dists.append([key, spec_ass_haz_dist])
 
-            if data[phenoms[key]['name'] + '_in_type'] == 'text':
+            if data[phenoms[key]['name'] + '_in_type'] == VolConst.ty_text:
                 # 'text' case for textual external software case
                 # FIXME
                 if data[phenoms[key]['name'] + '_epsg'] == '':
@@ -1491,7 +1489,7 @@ def volcano_prepare(request, **kwargs):
                 phenom_arr.append("'%s': '%s'" % (key, basename(
                     phenoms[key]['f'])))
 
-            elif data[phenoms[key]['name'] + '_in_type'] == 'shape':
+            elif data[phenoms[key]['name'] + '_in_type'] == VolConst.ty_shap:
                 # 'shape'-file case
                 if data[phenoms[key]['name'] + '_discr_dist'] == '':
                     raise ValueError("Discretization distance is missing "
@@ -1501,13 +1499,13 @@ def volcano_prepare(request, **kwargs):
                     raise ValueError("Hazard field name is missing "
                                      "for '%s' input file" % (
                                          phenoms[key]['name'],))
-                if key == 'ASH':
+                if key == VolConst.ashf:
                     if data[phenoms[key]['name'] + '_density'] == '':
                         raise ValueError("Ashfall density is missing "
                                          "for '%s' input file" % (
                                              phenoms[key]['name'],))
 
-                if key == 'ASH':
+                if key == VolConst.ashf:
                     density = float(
                         data[phenoms[key]['name'] + '_density'])
                 else:

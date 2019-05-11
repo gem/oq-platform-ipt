@@ -4,6 +4,17 @@ from django.conf import settings
 from openquakeplatform.python3compat import encode
 
 
+class VolConst():
+    ph_ashf = 'ASH'
+    ph_lava = 'LAVA'
+    ph_laha = 'LAHAR'
+    ph_pyro = 'PYRO'
+
+    ty_text = 'text'
+    ty_open = 'openquake'
+    ty_shap = 'shape'
+
+
 def get_tmp_path(userid):
     tmp_path = os.path.normpath(os.path.join(
         settings.FILE_PATH_FIELD_DIRECTORY, userid, 'tmp'))
