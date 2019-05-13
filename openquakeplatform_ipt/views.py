@@ -250,7 +250,7 @@ def sendback_nrml(request):
         z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED,
                             allowZip64=True)
         for csv_fname in file_list:
-            print(csv_fname)
+            # print(csv_fname)
             zwrite_or_collect(z, userid, namespace,
                               csv_fname, file_collect)
 
@@ -315,14 +315,12 @@ class ButtonWidget(forms.widgets.TextInput):
     template_name = 'widgets/button_widget.html'
 
     def __init__(self, is_bridged=False, name=None, *args, **kwargs):
-        print("ButtonWidget init")
         super(ButtonWidget, self).__init__(*args, **kwargs)
         self.gem_is_bridged = is_bridged
         self.gem_name = name
 
     if StrictVersion(django_version) > StrictVersion('2.0'):
         def get_context(self, name, value, attrs):
-            print("ButtonWidget get_context")
             context = super().get_context(name, value, attrs)
             context['widget']['gem_name'] = self.gem_name
             context['widget']['gem_is_bridged'] = self.gem_is_bridged
@@ -1152,7 +1150,7 @@ def scenario_prepare(request, **kwargs):
         jobini += ("number_of_ground_motion_fields = %s\n" %
                    data['number_of_ground_motion_fields'])
 
-    print(encode(jobini))
+    #  print(encode(jobini))
 
     zwrite_or_collect_str(z, 'job.ini', jobini, file_collect)
 
