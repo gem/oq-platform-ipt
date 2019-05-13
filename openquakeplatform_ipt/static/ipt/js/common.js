@@ -254,9 +254,15 @@ var gem_ipt = {
         }
     },
 
-    error_msg: function(msg) {
-        $( "#dialog-message" ).html(msg.replace(/\n/g, "<br/>"));
-        $( "#dialog-message" ).dialog({
+    generic_msg: function(ty, msg, title) {
+        var title_out = upper_first(ty);
+        if (typeof title != 'undefined') {
+            title_out += ': ' + title;
+        }
+
+        $( "#" + ty + "-message" ).html(msg.replace(/\n/g, "<br/>"));
+        $( "#" + ty + "-message" ).dialog({
+            title: title_out,
             dialogClass: 'gem-jqueryui-dialog',
             modal: true,
             width: '600px',
@@ -268,32 +274,20 @@ var gem_ipt = {
         });
     },
 
-    warn_msg: function(msg) {
-        $( "#warning-message" ).html(msg.replace(/\n/g, "<br/>"));
-        $( "#warning-message" ).dialog({
-            dialogClass: 'gem-jqueryui-dialog',
-            modal: true,
-            width: '600px',
-            buttons: {
-                Ok: function() {
-                    $(this).dialog( "close" );
-                }
-            }
-        });
+    error_msg: function(msg, title) {
+        gem_ipt.generic_msg('error', msg, title);
     },
 
-    info_msg: function(msg) {
-        $( "#info-message" ).html(msg.replace(/\n/g, "<br/>"));
-        $( "#info-message" ).dialog({
-            dialogClass: 'gem-jqueryui-dialog',
-            modal: true,
-            width: '600px',
-            buttons: {
-                Ok: function() {
-                    $(this).dialog( "close" );
-                }
-            }
-        });
+    warn_msg: function(msg, title) {
+        gem_ipt.generic_msg('warning', msg, title);
+    },
+
+    info_msg: function(msg, title) {
+        gem_ipt.generic_msg('info', msg, title);
+    },
+
+    help_msg: function(msg, title) {
+        gem_ipt.generic_msg('help', msg, title);
     },
 
     qgis_msg_open: function(msg) {
@@ -550,4 +544,242 @@ function wrapping4load(match, is_wrapping) {
             }
         }
     }
+}
+
+function generic_fileNew_collect(scope, reply, event)
+{
+    // called if reply.success == true only
+
+    event.preventDefault();
+    var name = $(event.target.parentElement).attr("name").slice(0,-5)
+    var $sibling = $(event.target).siblings("select[name='file_html']");
+    var subdir = $sibling.attr('data-gem-subdir');
+    var collected_reply = reply;
+    var sbase;
+
+    if (scope == 'ex')
+        sbase = ex_obj.pfx
+    else
+        sbase = cf_obj[scope].pfx
+
+
+    function ls_subdir_cb(uuid, app_msg) {
+        if (! app_msg.complete)
+            return;
+        var cmd_msg = app_msg.result;
+
+        if (cmd_msg.success == true) {
+            var options = [];
+            var old_sel = [];
+            for (var i = 0 ; i < cmd_msg.content.length ; i++) {
+                var v = cmd_msg.content[i];
+                options.push([subdir + '/' + v, v]);
+            }
+
+            if ($(sbase + ' div[name="' + name + '-html"]')[0].hasAttribute('data-gem-group')) {
+                gem_group = $(sbase + ' div[name="' + name + '-html"]').attr('data-gem-group');
+                // find elements of groups around all the config_file tab
+                $sel = $('.cf_gid div[data-gem-group="' + gem_group + '"] select[name="file_html"]');
+                for (var i = 0 ; i < $sel.length ; i++) {
+                    old_sel[i] = $($sel[i]).val();
+                }
+            }
+            else {
+                $sel = $(sbase + ' div[name="' + name + '-html"] select[name="file_html"]');
+                old_sel[0] = $sel.val();
+            }
+
+            $sel.empty();
+            for (var i = 0 ; i < old_sel.length ; i++) {
+                if (! $($sel[i]).is("[multiple]")) {
+                    $("<option />", {value: '', text: '---------'}).appendTo($($sel[i]));
+                }
+            }
+            for (var i = 0 ; i < options.length ; i++) {
+                $("<option />", {value: options[i][0], text: options[i][1]}).appendTo($sel);
+            }
+
+            // set old options of all select of the same group except current select
+            for (var i = 0 ; i < old_sel.length ; i++) {
+                if ($($sel[i]).attr('name') == name) {
+                    continue;
+                }
+                $($sel[i]).val(old_sel[i]);
+            }
+
+            var set_opt = [];
+            for (var i = 0 ; i < collected_reply.content.length ; i++) {
+                var v = collected_reply.content[i];
+                set_opt.push([subdir + '/' + v]);
+            }
+
+            $(sbase + ' div[name="' + name + '-html"] select[name="file_html"]').val(
+                set_opt);
+
+            collected_reply.reason = collected_reply.content.length > 1 ? 'Files ' : 'File ';
+            for (var i = 0 ; i < collected_reply.content.length ; i++) {
+                collected_reply.reason += (i > 0 ? ', ' : '');
+                collected_reply.reason += "'" + collected_reply.content[i] + "'";
+            }
+            collected_reply.reason += ' added correctly.';
+        }
+        $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html(collected_reply.reason);
+        $(sbase + ' div[name="' + name + '-new"]').delay(3000).slideUp();
+    }
+    gem_api.ls(ls_subdir_cb, subdir);
+}
+
+
+
+/* form widgets and previous remote list select element must follow precise
+   naming schema with '<name>-html' and '<name>-new', see config_files.html */
+function generic_fileNew_upload(scope, obj, event)
+{
+    event.preventDefault();
+
+    var name = $(obj).attr('name');
+    var data = new FormData($(obj).get(0));
+    var sbase;
+
+    if (scope == 'ex')
+        sbase = ex_obj.pfx
+    else
+        sbase = cf_obj[scope].pfx
+
+    if ($(obj).find('input[type="file"]').attr('data-gem-with-subtype') == 'true') {
+        var subtype = $(obj).parent().parent().find('select[name="in-type"]').val();
+        data.set('gem-subtype', subtype);
+    }
+
+    $.ajax({
+        url: $(obj).attr('action'),
+        type: $(obj).attr('method'),
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+            var $sel;
+            var gem_group = null;
+            var old_sel = [];
+            if (data.ret == 0) {
+                if ($(sbase + ' div[name="' + name + '-html"]')[0].hasAttribute('data-gem-group')) {
+                    gem_group = $(sbase + ' div[name="' + name + '-html"]').attr('data-gem-group');
+                    // find elements of groups around all the config_file tab
+                    $sel = $('.cf_gid div[data-gem-group="' + gem_group + '"] select[name="file_html"]');
+                    for (var i = 0 ; i < $sel.length ; i++) {
+                        old_sel[i] = $($sel[i]).val();
+                    }
+                }
+                else {
+                    $sel = $(sbase + ' div[name="' + name + '-html"] select[name="file_html"]');
+                }
+
+                $sel.empty();
+                for (var i = 0 ; i < old_sel.length ; i++) {
+                    if (! $($sel[i]).is("[multiple]")) {
+                        $("<option />", {value: '', text: '---------'}).appendTo($($sel[i]));
+                    }
+                }
+                for (var i = 0 ; i < data.items.length ; i++) {
+                    $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
+                }
+                for (var i = 0 ; i < old_sel.length ; i++) {
+                    $($sel[i]).val(old_sel[i]);
+                }
+                for (var sel in data.selected) {
+                    $(sbase + " div[name='" + name + "-html'] select[name='file_html']" +
+                      " option[value='" + data.selected[sel] + "").attr("selected", true);
+                }
+            }
+            $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
+            $(sbase + ' div[name="' + name + '-new"]').delay(3000).slideUp({
+                done: function () {
+                    $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html('');
+                }
+            });
+
+            $(event.target).prop("value", "");
+        }
+    });
+    return false;
+}
+
+/* form widgets and previous remote list select element must follow precise
+   naming schema with '<name>-html' and '<name>-new', see config_files.html */
+function generic_fileNew_refresh(scope, obj, event)
+{
+    event.preventDefault();
+
+    var name = $(obj).attr('name');
+    var data = new FormData($(obj).get(0));
+    var sbase;
+
+    if (scope == 'ex')
+        sbase = ex_obj.pfx
+    else
+        sbase = cf_obj[scope].pfx
+
+    if ($(obj).find('input[type="file"]').attr('data-gem-with-subtype') == 'true') {
+        var subtype = $(obj).parent().parent().find('select[name="in-type"]').val();
+        data.set('gem-subtype', subtype);
+    }
+
+    $.ajax({
+        url: $(obj).attr('action'),
+        type: $(obj).attr('method'),
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+            var $sel;
+            var gem_group = null;
+            var old_sel = [];
+            if (data.ret == 0) {
+                $sel = $(sbase + ' div[name="' + name + '-html"] select[name="file_html"]');
+
+                $sel.empty();
+                $("<option />", {value: '', text: '---------'}).appendTo($sel);
+
+                for (var i = 0 ; i < data.items.length ; i++) {
+                    $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
+                }
+            }
+            $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
+            $(sbase + ' div[name="' + name + '-new"]').delay(3000).slideUp({
+                done: function () {
+                    $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html('');
+                }
+            });
+
+            // $(event.target).prop("value", "");
+        }
+    });
+    return false;
+}
+
+function file_uploader_init(scope, name, fn_cb, fn_up)
+{
+    var $target;
+
+    if (typeof scope == 'string') {
+        if (scope == 'ex') {
+            $target = $(ex_obj.pfx);
+        }
+        else {
+            $target = $(cf_obj[scope].pfx);
+        }
+    }
+    else
+        $target = scope;
+
+    $target.find('button[name="' + name + '-new"]').click(fn_cb);
+    $target.find('div[name="' + name + '-new"] input[type="file"]').change(fn_up);
+}
+
+
+function upper_first(s)
+{
+    return s.charAt(0).toUpperCase() + s.slice(1);
 }

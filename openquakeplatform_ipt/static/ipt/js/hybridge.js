@@ -7,7 +7,7 @@
  * @licstart  The following is the entire license notice for the
  *  JavaScript code in this page.
  *
- * Copyright (C) 2018 Matteo Nastasi
+ * Copyright (C) 2018-2019 Matteo Nastasi
  *
  *
  * The JavaScript code in this page is free software: you can
@@ -37,8 +37,16 @@ function HyBridge(app, on_msg_cb)
     this.connect();
 }
 
+var _hybridge_id = null;
+
+try {
+    _hybridge_id = hybridge_id;
+} catch {
+    console.log('no hybridge_id found');
+}
+
 HyBridge.prototype = {
-    hybridge_id: hybridge_id,
+    hybridge_id: _hybridge_id,
     app: null,
     name: null,
     port: null,

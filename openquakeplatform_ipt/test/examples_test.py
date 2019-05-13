@@ -19,7 +19,7 @@ from openquakeplatform.settings import FILE_PATH_FIELD_DIRECTORY
 from openquake.moon import platform_get, TimeoutError
 
 PLA_ADMIN_ID = os.environ.get('GEM_PLA_ADMIN_ID', '1')
-
+_CLEAN_ALL = True
 #
 # TO RUN A SINGLE TEST:
 #
@@ -118,7 +118,19 @@ imt_examples = {
              'sfx': 'zip'},
             {'exa_id': 99, 'subtab_id': 3,
              'zipfile': 'EventBasedHazard.zip',
-             'sfx': 'zip'}
+             'sfx': 'zip'},
+            {'exa_id': 99, 'subtab_id': 4,
+             'zipfile': 'Volcano.zip',
+             'sfx': 'zip'},
+            {'exa_id': 98, 'subtab_id': 4,
+             'xpath': ["//div[@id='error-message']"],
+             'sfx': 'txt'},
+            {'exa_id': 97, 'subtab_id': 4,
+             'xpath': ["//div[@id='error-message']"],
+             'sfx': 'txt'},
+            {'exa_id': 96, 'subtab_id': 4,
+             'xpath': ["//div[@id='error-message']"],
+             'sfx': 'txt'},
         ]
     }
 }
@@ -151,7 +163,7 @@ def replicatetree(fm, to):
         if os.path.isdir(fm_item):
             if os.path.exists(to_item):
                 if os.path.isdir(to_item):
-                    continue
+                    replicatetree(fm_item, to_item)
                 else:
                     raise OSError("'%s' is not a directory" % to_item)
             else:
@@ -165,7 +177,7 @@ def replicatetree(fm, to):
 
 
 def zip_diff(filename1, filename2):
-    differs = False
+    differs = True
 
     z1 = zipfile.ZipFile(open(filename1, "rb"))
     z2 = zipfile.ZipFile(open(filename2, "rb"))
@@ -177,17 +189,32 @@ def zip_diff(filename1, filename2):
         return 1
     for zipentry in z1.infolist():
         if zipentry.filename not in z2.namelist():
-            diff = difflib.ndiff(z1.open(zipentry.filename),
-                                 z2.open(zipentry.filename))
-            delta = ''.join(x[2:] for x in diff
-                            if x.startswith('- ') or x.startswith('+ '))
-            if delta:
-                print("zip_diff: differ here: %s" % zipentry.filename)
-                differs = True
+            break
+        cont1 = z1.open(zipentry.filename).read()
+        cont2 = z2.open(zipentry.filename).read()
+
+        _, ext = os.path.splitext(zipentry.filename)
+        if ext.upper() == '.ZIP' or ext.upper() == '.HDF5':
+            if cont1 != cont2:
+                print("\nzip_diff: the files %s are binarily different\n" % (
+                    zipentry.filename,))
                 break
-    if not differs:
-        return 0
-    return 1
+        else:
+            delta = ''
+            diff = difflib.ndiff(
+                [x.decode('utf-8') for x in list(z1.open(zipentry.filename))],
+                [x.decode('utf-8') for x in list(z2.open(zipentry.filename))])
+            delta = ''.join(x for x in diff
+                            if x.startswith('- ') or x.startswith('+ '))
+
+            if delta:
+                print("\nzip_diff: the files %s are different:\n%s\n" % (
+                    zipentry.filename, delta))
+                break
+    else:
+        differs = False
+
+    return (1 if differs else 0)
 
 
 def setup_module(module):
@@ -213,7 +240,7 @@ def setup_module(module):
 
 
 def teardown_module(module):
-    if _fpath_field_directory_old is not None:
+    if (_CLEAN_ALL and _fpath_field_directory_old is not None):
         shutil.rmtree(_fpath_field_directory)
         os.rename(_fpath_field_directory_old,
                   _fpath_field_directory)
@@ -350,14 +377,15 @@ class IptUploadTest(unittest.TestCase):
             " and @name='configuration_file']"
             "//div[starts-with(@id, 'cf_subtabs-') and @name='scenario']")
 
-        clean_all = pla.xpath_finduniq(
-            common + "//button[@type='submit' and @name='clean_all']")
-        clean_all.click()
+        if _CLEAN_ALL:
+            clean_all = pla.xpath_finduniq(
+                common + "//button[@type='submit' and @name='clean_all']")
+            clean_all.click()
 
-        confirm = pla.xpath_finduniq(
-            "//div[@class='ui-dialog-buttonset']//button["
-            "@type='button' and normalize-space(text())='Yes']")
-        confirm.click()
+            confirm = pla.xpath_finduniq(
+                "//div[@class='ui-dialog-buttonset']//button["
+                "@type='button' and normalize-space(text())='Yes']")
+            confirm.click()
 
         # show div with upload file
         up_file = os.path.join(os.path.dirname(__file__), 'data',
@@ -366,10 +394,8 @@ class IptUploadTest(unittest.TestCase):
         butt_upload_file = pla.xpath_finduniq(
             "//button[@name='rupture-file-new'"
             " and normalize-space(text())='Upload']")
-        # import pdb ; pdb.set_trace()
 
         time.sleep(8)
-        # pla.scroll_into_view(butt_upload_file)
         butt_upload_file.click()
 
         upload_file = pla.xpath_finduniq(
@@ -384,8 +410,6 @@ class IptUploadTest(unittest.TestCase):
 
         upload_file.send_keys(up_file)
 
-        upload_file.submit()
-
         # wait for js upload callback to setup dropdown item properly
         time.sleep(8)
 
@@ -393,7 +417,8 @@ class IptUploadTest(unittest.TestCase):
             common + "//div[@name='rupture-file-html']"
             "//select[@name='file_html']"))
 
-        assert list_files.first_selected_option.text == "earthquake_rupture_model.xml"
+        assert (list_files.first_selected_option.text ==
+                "earthquake_rupture_model.xml")
 
 
 class IptExamplesTest(unittest.TestCase):
@@ -411,14 +436,15 @@ class IptExamplesTest(unittest.TestCase):
             " @name='configuration_file']"
             "//div[starts-with(@id, 'cf_subtabs-') and @name='scenario']")
 
-        clean_all = pla.xpath_finduniq(
-            common + "//button[@type='submit' and @name='clean_all']")
-        clean_all.click()
+        if _CLEAN_ALL:
+            clean_all = pla.xpath_finduniq(
+                common + "//button[@type='submit' and @name='clean_all']")
+            clean_all.click()
 
-        confirm = pla.xpath_finduniq(
-            "//div[@class='ui-dialog-buttonset']//button["
-            "@type='button' and normalize-space(text())='Yes']")
-        confirm.click()
+            confirm = pla.xpath_finduniq(
+                "//div[@class='ui-dialog-buttonset']//button["
+                "@type='button' and normalize-space(text())='Yes']")
+            confirm.click()
 
         #
         # populate uploaded file with template
@@ -471,7 +497,14 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
             ret = ret_tag.get_attribute("value")
             if ret is None:
                 ret = ret_tag.get_attribute('innerHTML')
-            self.assertEqual(ret, expected)
+            if ret.strip() != expected.strip():
+                ret_filename = os.path.join(
+                    "retrived_%d.%s" % (
+                        tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
+                        example['sfx']))
+                with codecs.open(ret_filename, 'w', 'utf-8') as ret_file:
+                    ret_file.write(ret)
+            self.assertEqual(ret.strip(), expected.strip())
         elif 'zipfile' in example:
             for t in gen_timeout_poller(5, 0.2):
                 if os.path.exists(zipfile):

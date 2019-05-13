@@ -14,7 +14,7 @@
 </div>
 <div class="menuItems">
   <label>Description:</label>
-  <textarea id="description" rows="4" cols="10" name="description">Event based calculation</textarea>
+  <textarea id="description" rows="4" cols="10" name="description" class="gem-gen-descr">Event based calculation</textarea>
 </div>
 
 <div name="hazard-sites">
@@ -50,7 +50,7 @@
       {{ source_model_file_html.new_btn }}
     </div>
     <div class="menuItems" name="source-model-file-new" style="margin-right: 0px; display: none;">
-      <div name="msg"><br></div>
+      <div name="msg" class="file-upload-multiple-msg"><br></div>
       <form action="upload/source_model_file" method="post" id="file-upload-form" name="source-model-file" enctype="multipart/form-data">
         {% csrf_token %}
         {{ source_model_file_upload.file_upload }}
@@ -172,9 +172,7 @@
 
 </div> <!-- hazard-calculation -->
 
-<div name="exposure-model">
-  {% include "ipt/tabs/cf/sect_exposure_model.html" %}
-</div>
+{% include "ipt/tabs/cf/sect_exposure_model.html" %}
 
 <div name="vulnerability-model">
  {% include "ipt/tabs/cf/sect_vulnerability_model.html" %}

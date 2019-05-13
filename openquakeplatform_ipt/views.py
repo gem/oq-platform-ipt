@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 #
-# Copyright (C) 2016-2017 GEM Foundation
+# Copyright (C) 2016-2019 GEM Foundation
 #
 # OpenQuake is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License as published
@@ -17,6 +17,7 @@
 # along with OpenQuake. If not, see <http://www.gnu.org/licenses/>.
 
 import os
+from os.path import basename
 import re
 import random
 import string
@@ -26,6 +27,8 @@ import tempfile
 import shutil
 import requests
 import django
+import xml.etree.ElementTree as etree
+import operator
 
 try:
     from email.utils import formatdate
@@ -48,16 +51,62 @@ from openquakeplatform.utils import oq_is_qgis_browser
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
 from distutils.version import StrictVersion
 
+from openquakeplatform_ipt.common import (VolConst, get_full_path,
+                                          zwrite_or_collect,
+                                          zwrite_or_collect_str)
+
+
+from openquakeplatform_ipt.converters import gem_input_converter
+# from pyproj import Proj, transform
+
 django_version = django.get_version()
 
 if StrictVersion(django_version) < StrictVersion('1.8'):
     from django.template import Context
 
-ALLOWED_DIR = ['rupture_file', 'list_of_sites', 'gmf_file', 'exposure_model',
-               'site_model', 'site_conditions', 'imt',
-               'fragility_model', 'fragility_cons',
-               'vulnerability_model', 'gsim_logic_tree_file',
-               'source_model_logic_tree_file', 'source_model_file']
+ALLOWED_DIR = {
+    'rupture_file': ('xml',),
+    'list_of_sites': ('csv',),
+    'gmf_file': ('xml', 'csv'),
+    'exposure_csv': ('csv',),
+    'exposure_model': ('xml', 'zip'),
+    'site_model': ('xml',),
+    'site_conditions': ('xml',),
+    'imt': ('xml',),
+    'fragility_model': ('xml',),
+    'fragility_cons': ('xml',),
+    'vulnerability_model': ('xml',),
+    'gsim_logic_tree_file': ('xml',),
+    'source_model_logic_tree_file': ('xml',),
+    'source_model_file': ('xml',),
+
+    'ashfall_file': {
+        VolConst.ty_text: ('asc', 'txt'),
+        VolConst.ty_open: ('csv',),
+        VolConst.ty_shap: ('zip',)
+    },
+    'lavaflow_file': {
+        VolConst.ty_text: ('asc',),
+        VolConst.ty_open: ('csv',),
+        VolConst.ty_shap: ('zip',)
+    },
+    'lahar_file': {
+        VolConst.ty_text: ('asc', 'txt'),
+        VolConst.ty_open: ('csv',),
+        VolConst.ty_shap: ('zip',)
+    },
+    'pyroclasticflow_file': {
+        VolConst.ty_text: ('-00001',),
+        VolConst.ty_open: ('csv',),
+        VolConst.ty_shap: ('zip',)
+    },
+}
+
+DEFAULT_SUBTYPE = {'ashfall_file': VolConst.ty_text,
+                   'lavaflow_file': VolConst.ty_text,
+                   'lahar_file': VolConst.ty_text,
+                   'pyroclasticflow_file': VolConst.ty_text,
+                   }
 
 
 def _get_error_line(exc_msg):
@@ -159,6 +208,7 @@ def sendback_nrml(request):
 
     :returns: an XML file, containing the given NRML text
     """
+    file_list = []
     xml_text = request.POST.get('xml_text')
     func_type = request.POST.get('func_type')
     if not xml_text:
@@ -170,19 +220,60 @@ def sendback_nrml(request):
     try:
         xml_text = xml_text.replace('\r\n', '\n').replace('\r', '\n')
         _do_validate_nrml(xml_text)
+        if func_type == u'exposure':
+            ns = {'oq': 'http://openquake.org/xmlns/nrml/0.4'}
+
+            root = etree.fromstring(xml_text)
+            assets = root.findall('.//oq:assets/oq:asset', ns)
+
+            if not assets:
+                assets = root.findall('.//oq:assets', ns)
+                file_list = assets[0].text.strip().split()
+                file_list = [os.path.join('exposure_csv', f) for f
+                             in file_list]
     except:
         return HttpResponseBadRequest(
             'Invalid NRML')
-    else:
-        if func_type in known_func_types:
-            filename = func_type + '_model.xml'
+
+    if file_list:
+        if getattr(settings, 'STANDALONE', False):
+            userid = ''
         else:
-            filename = 'unknown_model.xml'
-        resp = HttpResponse(content=xml_text,
-                            content_type='application/xml')
-        resp['Content-Disposition'] = (
-            'attachment; filename="' + filename + '"')
-        return resp
+            userid = str(request.user.id)
+        namespace = request.resolver_match.namespace
+
+        ext = 'zip'
+        (fd, fname) = tempfile.mkstemp(
+            suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
+        fzip = os.fdopen(fd, 'wb')
+        file_collect = None
+        z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED,
+                            allowZip64=True)
+        for csv_fname in file_list:
+            # print(csv_fname)
+            zwrite_or_collect(z, userid, namespace,
+                              csv_fname, file_collect)
+
+        zwrite_or_collect_str(z, 'exposure_model.xml', xml_text, file_collect)
+        z.close()
+        with open(fname, 'rb') as content_file:
+            content = content_file.read()
+    else:
+        content = xml_text
+        ext = 'xml'
+
+    if func_type in known_func_types:
+        filename = func_type + '_model.%s' % ext
+    else:
+        filename = 'unknown_model.%s' % ext
+
+    resp = HttpResponse(content=content,
+                        content_type='application/%s' % ext)
+    resp['Content-Description'] = 'File Transfer'
+    resp['Content-Length'] = len(content)
+    resp['Content-Disposition'] = (
+        'attachment; filename="' + filename + '"')
+    return resp
 
 
 def sendback_er_rupture_surface(request):
@@ -195,8 +286,8 @@ def sendback_er_rupture_surface(request):
     rake = request.POST.get('rake')
 
     if (mag is None or hypo_lat is None or hypo_lon is None or
-            hypo_depth is None or strike is None or dip is None
-            or rake is None):
+            hypo_depth is None or strike is None or dip is None or
+            rake is None):
         ret = {'ret': 1, 'ret_s': 'incomplete arguments'}
     else:
         try:
@@ -224,14 +315,12 @@ class ButtonWidget(forms.widgets.TextInput):
     template_name = 'widgets/button_widget.html'
 
     def __init__(self, is_bridged=False, name=None, *args, **kwargs):
-        print("ButtonWidget init")
         super(ButtonWidget, self).__init__(*args, **kwargs)
         self.gem_is_bridged = is_bridged
         self.gem_name = name
 
     if StrictVersion(django_version) > StrictVersion('2.0'):
         def get_context(self, name, value, attrs):
-            print("ButtonWidget get_context")
             context = super().get_context(name, value, attrs)
             context['widget']['gem_name'] = self.gem_name
             context['widget']['gem_is_bridged'] = self.gem_is_bridged
@@ -259,9 +348,31 @@ class ButtonField(forms.Field):
 
 
 class FileUpload(forms.Form):
-    file_upload = forms.FileField(
-        allow_empty_file=True, widget=forms.ClearableFileInput(
-            attrs={'class': 'hide_file_upload'}))
+    def __init__(self, *args, **kwargs):
+        self.accept = kwargs.pop('accept')
+        self.with_subtype = kwargs.pop('with_subtype', False)
+        super(FileUpload, self).__init__(*args, **kwargs)
+        self.fields['file_upload'].widget = forms.ClearableFileInput(
+            attrs={'class': 'hide_file_upload',
+                   'data-gem-with-subtype': (
+                       'true' if self.with_subtype else 'false'),
+                   'accept': self.accept})
+
+    file_upload = forms.FileField(allow_empty_file=True)
+
+
+class FileUploadMulti(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.accept = kwargs.pop('accept')
+        self.with_subtype = kwargs.pop('with_subtype', False)
+        super(FileUploadMulti, self).__init__(*args, **kwargs)
+        self.fields['file_upload'].widget = forms.ClearableFileInput(
+            attrs={'class': 'hide_file_upload', 'multiple': True,
+                   'data-gem-with-subtype': (
+                       'true' if self.with_subtype else 'false'),
+                   'accept': self.accept})
+
+    file_upload = forms.FileField(allow_empty_file=True)
 
 
 class FilePathFieldByUser(forms.ChoiceField):
@@ -270,7 +381,8 @@ class FilePathFieldByUser(forms.ChoiceField):
                  allow_folders=False, required=True, widget=None, label=None,
                  initial=None, help_text=None, *args, **kwargs):
         self.is_bridged = is_bridged
-        self.match, self.recursive = match, recursive
+        self.match = match
+        self.recursive = recursive
         self.subdir = subdir
         self.userid = str(userid)
         self.namespace = namespace
@@ -330,22 +442,22 @@ class FilePathFieldByUser(forms.ChoiceField):
             except OSError:
                 pass
 
+        self.choices.sort(key=operator.itemgetter(1))
+
         self.widget.choices = self.choices
 
 
-def filehtml_create(is_bridged, suffix, userid, namespace, dirnam=None,
-                    match=".*\.xml", is_multiple=False, name=None):
-    if dirnam is None:
-        dirnam = suffix
-    if (dirnam not in ALLOWED_DIR):
-        raise KeyError("dirnam (%s) not in allowed list" % dirnam)
+def filehtml_create(is_bridged, suffix, userid, namespace,
+                    is_multiple=False, name=None):
+    if (suffix not in ALLOWED_DIR):
+        raise KeyError("suffix (%s) not in allowed list" % suffix)
 
     if name is None:
         name = suffix
     name = name.replace('_', '-')
 
     if not is_bridged:
-        normalized_path = get_full_path(userid, namespace, dirnam)
+        normalized_path = get_full_path(userid, namespace, suffix)
         user_allowed_path = get_full_path(userid, namespace)
         if not normalized_path.startswith(user_allowed_path):
             raise LookupError('Unauthorized path: "%s"' % normalized_path)
@@ -361,11 +473,36 @@ def filehtml_create(is_bridged, suffix, userid, namespace, dirnam=None,
                     fullpa = os.path.dirname(fullpa)
                 raise
 
+    if isinstance(ALLOWED_DIR[suffix], dict):
+        ext_list = ALLOWED_DIR[suffix][DEFAULT_SUBTYPE[suffix]]
+        with_subtype = True
+    else:
+        ext_list = ALLOWED_DIR[suffix]
+        with_subtype = False
+
+    match = "|".join(
+        [".*\\.%s$" % ext for ext in ext_list])
+
     class FileHtml(forms.Form):
+        def __init__(self, *args, **kwargs):
+            super(FileHtml, self).__init__(*args, **kwargs)
+            self.gem_ext_list = list(ext_list)
+
+        def gem_accepted(self):
+            return ', '.join(['.' + x for x in self.gem_ext_list])
+
+        def gem_fileupload(self):
+            if is_multiple:
+                return FileUploadMulti(
+                    accept=self.gem_accepted(), with_subtype=with_subtype)
+            else:
+                return FileUpload(
+                    accept=self.gem_accepted(), with_subtype=with_subtype)
+
         file_html = FilePathFieldByUser(
             is_bridged=is_bridged,
             userid=userid,
-            subdir=dirnam,
+            subdir=suffix,
             namespace=namespace,
             match=match,
             recursive=True,
@@ -374,7 +511,7 @@ def filehtml_create(is_bridged, suffix, userid, namespace, dirnam=None,
         new_btn = ButtonField(is_bridged=is_bridged, name=name)
     fh = FileHtml()
 
-    return fh
+    return fh, fh.gem_fileupload()
 
 
 def _get_available_gsims():
@@ -399,93 +536,101 @@ def view(request, **kwargs):
     namespace = request.resolver_match.namespace
     gmpe = _get_available_gsims()
 
-    rupture_file_html = filehtml_create(
+    rupture_file_html, rupture_file_upload = filehtml_create(
         is_qgis_browser, 'rupture_file', userid, namespace)
-    rupture_file_upload = FileUpload()
 
-    list_of_sites_html = filehtml_create(
-        is_qgis_browser, 'list_of_sites', userid, namespace, match=".*\.csv")
-    list_of_sites_upload = FileUpload()
+    list_of_sites_html, list_of_sites_upload = filehtml_create(
+        is_qgis_browser, 'list_of_sites', userid, namespace)
 
-    gmf_file_html = filehtml_create(
+    gmf_file_html, gmf_file_upload = filehtml_create(
         is_qgis_browser, 'gmf_file', userid, namespace)
-    gmf_file_upload = FileUpload()
 
-    exposure_model_html = filehtml_create(
+    exposure_model_html, exposure_model_upload = filehtml_create(
         is_qgis_browser, 'exposure_model', userid, namespace)
-    exposure_model_upload = FileUpload()
 
-    fm_structural_html = filehtml_create(
-        is_qgis_browser, 'fm_structural', userid, namespace,
-        dirnam='fragility_model')
-    fm_structural_upload = FileUpload()
-    fm_nonstructural_html = filehtml_create(
-        is_qgis_browser, 'fm_nonstructural', userid, namespace,
-        dirnam='fragility_model')
-    fm_nonstructural_upload = FileUpload()
-    fm_contents_html = filehtml_create(
-        is_qgis_browser, 'fm_contents', userid, namespace,
-        dirnam='fragility_model')
-    fm_contents_upload = FileUpload()
-    fm_businter_html = filehtml_create(
-        is_qgis_browser, 'fm_businter', userid, namespace,
-        dirnam='fragility_model')
-    fm_businter_upload = FileUpload()
+    exposure_csv_html, exposure_csv_upload = filehtml_create(
+        is_qgis_browser, 'exposure_csv', userid, namespace,
+        is_multiple=True)
 
-    fm_structural_cons_html = filehtml_create(
+    fm_structural_html, fm_structural_upload = filehtml_create(
+        is_qgis_browser, 'fragility_model', userid, namespace,
+        name='fm_structural')
+    fm_nonstructural_html, fm_nonstructural_upload = filehtml_create(
+        is_qgis_browser, 'fragility_model', userid, namespace,
+        name='fm_nonstructural')
+    fm_contents_html, fm_contents_upload = filehtml_create(
+        is_qgis_browser, 'fragility_model', userid, namespace,
+        name='fm_contents')
+    fm_businter_html, fm_businter_upload = filehtml_create(
+        is_qgis_browser, 'fragility_model', userid, namespace,
+        name='fm_businter')
+    fm_ashfall_file_html, fm_ashfall_file_upload = filehtml_create(
+        is_qgis_browser, 'fragility_model', userid, namespace,
+        name='fm_ashfall_file')
+
+    fm_structural_cons_html, fm_structural_cons_upload = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
         name='fm_structural_cons')
-    fm_structural_cons_upload = FileUpload()
-    fm_nonstructural_cons_html = filehtml_create(
+    fm_nonstructural_cons_html, fm_nonstructural_cons_upload = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
         name='fm_nonstructural_cons')
-    fm_nonstructural_cons_upload = FileUpload()
-    fm_contents_cons_html = filehtml_create(
+    fm_contents_cons_html, fm_contents_cons_upload = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
         name='fm_contents_cons')
-    fm_contents_cons_upload = FileUpload()
-    fm_businter_cons_html = filehtml_create(
+    fm_businter_cons_html, fm_businter_cons_upload = filehtml_create(
         is_qgis_browser, 'fragility_cons', userid, namespace,
         name='fm_businter_cons')
-    fm_businter_cons_upload = FileUpload()
+    fm_ashfall_cons_html, fm_ashfall_cons_upload = filehtml_create(
+        is_qgis_browser, 'fragility_cons', userid, namespace,
+        name='fm_ashfall_cons')
 
-    vm_structural_html = filehtml_create(
-        is_qgis_browser, 'vm_structural', userid, namespace,
-        dirnam='vulnerability_model')
-    vm_structural_upload = FileUpload()
-    vm_nonstructural_html = filehtml_create(
-        is_qgis_browser, 'vm_nonstructural', userid, namespace,
-        dirnam='vulnerability_model')
-    vm_nonstructural_upload = FileUpload()
-    vm_contents_html = filehtml_create(
-        is_qgis_browser, 'vm_contents', userid, namespace,
-        dirnam='vulnerability_model')
-    vm_contents_upload = FileUpload()
-    vm_businter_html = filehtml_create(
-        is_qgis_browser, 'vm_businter', userid, namespace,
-        dirnam='vulnerability_model')
-    vm_businter_upload = FileUpload()
-    vm_occupants_html = filehtml_create(
-        is_qgis_browser, 'vm_occupants', userid, namespace,
-        dirnam='vulnerability_model')
-    vm_occupants_upload = FileUpload()
+    vm_structural_html, vm_structural_upload = filehtml_create(
+        is_qgis_browser, 'vulnerability_model', userid, namespace,
+        name='vm_structural')
+    vm_nonstructural_html, vm_nonstructural_upload = filehtml_create(
+        is_qgis_browser, 'vulnerability_model', userid, namespace,
+        name='vm_nonstructural')
+    vm_contents_html, vm_contents_upload = filehtml_create(
+        is_qgis_browser, 'vulnerability_model', userid, namespace,
+        name='vm_contents')
+    vm_businter_html, vm_businter_upload = filehtml_create(
+        is_qgis_browser, 'vulnerability_model', userid, namespace,
+        name='vm_businter')
+    vm_occupants_html, vm_occupants_upload = filehtml_create(
+        is_qgis_browser, 'vulnerability_model', userid, namespace,
+        name='vm_occupants')
 
-    site_conditions_html = filehtml_create(
+    site_conditions_html, site_conditions_upload = filehtml_create(
         is_qgis_browser, 'site_conditions', userid, namespace)
-    site_conditions_upload = FileUpload()
 
-    gsim_logic_tree_file_html = filehtml_create(
+    gsim_logic_tree_file_html, gsim_logic_tree_file_upload = filehtml_create(
         is_qgis_browser, 'gsim_logic_tree_file', userid, namespace)
-    gsim_logic_tree_file_upload = FileUpload()
 
-    source_model_logic_tree_file_html = filehtml_create(
+    (source_model_logic_tree_file_html,
+     source_model_logic_tree_file_upload) = filehtml_create(
         is_qgis_browser, 'source_model_logic_tree_file', userid, namespace)
-    source_model_logic_tree_file_upload = FileUpload()
 
-    source_model_file_html = filehtml_create(
+    source_model_file_html, source_model_file_upload = filehtml_create(
         is_qgis_browser, 'source_model_file', userid, namespace,
         is_multiple=True)
-    source_model_file_upload = FileUpload()
+
+    ashfall_file_html, ashfall_file_upload = filehtml_create(
+        is_qgis_browser, 'ashfall_file', userid, namespace)
+
+    lavaflow_file_html, lavaflow_file_upload = filehtml_create(
+        is_qgis_browser, 'lavaflow_file', userid, namespace)
+
+    lahar_file_html, lahar_file_upload = filehtml_create(
+        is_qgis_browser, 'lahar_file', userid, namespace)
+
+    pyroclasticflow_file_html, pyroclasticflow_file_upload = filehtml_create(
+        is_qgis_browser, 'pyroclasticflow_file', userid, namespace)
+
+    multi_accept = {}
+    for dkey in ALLOWED_DIR:
+        dval = ALLOWED_DIR[dkey]
+        if isinstance(dval, dict):
+            multi_accept[dkey] = dval
 
     render_dict = dict(
         oqp_version_maj=oqp_version.split('.')[0],
@@ -498,7 +643,8 @@ def view(request, **kwargs):
         gmf_file_upload=gmf_file_upload,
         exposure_model_html=exposure_model_html,
         exposure_model_upload=exposure_model_upload,
-
+        exposure_csv_html=exposure_csv_html,
+        exposure_csv_upload=exposure_csv_upload,
         fm_structural_html=fm_structural_html,
         fm_structural_upload=fm_structural_upload,
         fm_nonstructural_html=fm_nonstructural_html,
@@ -539,10 +685,30 @@ def view(request, **kwargs):
             source_model_logic_tree_file_upload),
 
         source_model_file_html=source_model_file_html,
-        source_model_file_upload=source_model_file_upload)
+        source_model_file_upload=source_model_file_upload,
+
+        ashfall_file_html=ashfall_file_html,
+        ashfall_file_upload=ashfall_file_upload,
+
+        lavaflow_file_html=lavaflow_file_html,
+        lavaflow_file_upload=lavaflow_file_upload,
+
+        lahar_file_html=lahar_file_html,
+        lahar_file_upload=lahar_file_upload,
+
+        pyroclasticflow_file_html=pyroclasticflow_file_html,
+        pyroclasticflow_file_upload=pyroclasticflow_file_upload,
+
+        fm_ashfall_file_html=fm_ashfall_file_html,
+        fm_ashfall_file_upload=fm_ashfall_file_upload,
+
+        fm_ashfall_cons_html=fm_ashfall_cons_html,
+        fm_ashfall_cons_upload=fm_ashfall_cons_upload,
+        multi_accept=json.dumps(multi_accept),
+    )
 
     if is_qgis_browser:
-        render_dict.update({'allowed_dir': ALLOWED_DIR})
+        render_dict.update({'allowed_dir': ALLOWED_DIR.keys()})
 
     return render(request, "ipt/ipt.html", render_dict)
 
@@ -566,83 +732,20 @@ def upload(request, **kwargs):
             class FileUpload(forms.Form):
                 file_upload = forms.FileField(allow_empty_file=True)
             form = FileUpload(request.POST, request.FILES)
-            exten2 = None
-            if target in ['list_of_sites']:
-                exten = "csv"
+
+            if isinstance(ALLOWED_DIR[target], dict):
+                if 'gem-subtype' not in request.POST:
+                    ret['ret'] = 5
+                    ret['ret_msg'] = 'Target ' + target + ' requires subtype.'
+                    return HttpResponse(json.dumps(ret),
+                                        content_type="application/json")
+
+                subtype = request.POST['gem-subtype']
+                ext_list = ALLOWED_DIR[target][subtype]
             else:
-                exten = "xml"
-            if target in ['gmf_file']:
-                exten2 = 'csv'
+                ext_list = ALLOWED_DIR[target]
 
-            if form.is_valid():
-                if (request.FILES['file_upload'].name.endswith('.' + exten) or
-                        (exten2 is not None and request.FILES[
-                            'file_upload'].name.endswith('.' + exten2))):
-                    if getattr(settings, 'STANDALONE', False):
-                        userid = ''
-                    else:
-                        userid = str(request.user.id)
-                    namespace = request.resolver_match.namespace
-                    user_dir = get_full_path(userid, namespace)
-                    bname = os.path.join(user_dir, target)
-                    # check if the directory exists (or create it)
-                    if not os.path.exists(bname):
-                        os.makedirs(bname)
-                    full_path = os.path.join(
-                        bname, request.FILES['file_upload'].name)
-                    overwrite_existing_files = request.POST.get(
-                        'overwrite_existing_files', True)
-                    if not overwrite_existing_files:
-                        modified_path = full_path
-                        n = 0
-                        while os.path.isfile(modified_path):
-                            n += 1
-                            f_name, f_ext = os.path.splitext(full_path)
-                            modified_path = '%s_%s%s' % (f_name, n, f_ext)
-                        full_path = modified_path
-                    if not os.path.normpath(full_path).startswith(user_dir):
-                        ret['ret'] = 5
-                        ret['ret_msg'] = 'Not authorized to write the file.'
-                        return HttpResponse(json.dumps(ret),
-                                            content_type="application/json")
-                    with open(full_path, "wb") as f:
-                        f.write(encode(request.FILES['file_upload'].read()))
-
-                    suffix = target
-                    match = ".*\." + exten + "$"
-                    if exten2 is not None:
-                        match += "|.*\." + exten2 + "$"
-
-                    class FileHtml(forms.Form):
-                        file_html = FilePathFieldByUser(
-                            is_bridged=False,
-                            userid=userid,
-                            subdir=suffix,
-                            namespace=namespace,
-                            match=match,
-                            recursive=True)
-
-                    fileslist = FileHtml()
-
-                    ret['ret'] = 0
-                    ret['items'] = fileslist.fields['file_html'].choices
-                    orig_file_name = str(request.FILES['file_upload'])
-                    new_file_name = os.path.basename(full_path)
-                    ret['selected'] = os.path.join(target, new_file_name)
-                    changed_msg = ''
-                    if orig_file_name != new_file_name:
-                        changed_msg = ' (Renamed into %s)' % new_file_name
-                    ret['ret_msg'] = ('File %s uploaded successfully.%s' %
-                                      (orig_file_name, changed_msg))
-                else:
-                    ret['ret'] = 1
-                    ret['ret_msg'] = ('File uploaded isn\'t an %s file.' %
-                                      exten.upper())
-
-                # Redirect to the document list after POST
-                return HttpResponse(json.dumps(ret),
-                                    content_type="application/json")
-            else:
+            if not form.is_valid():
                 if getattr(settings, 'STANDALONE', False):
                     userid = ''
                 else:
@@ -650,9 +753,8 @@ def upload(request, **kwargs):
                 namespace = request.resolver_match.namespace
 
                 suffix = target
-                match = ".*\." + exten + "$"
-                if exten2 is not None:
-                    match += "|.*\." + exten2 + "$"
+                match = "|".join(
+                    [".*\\.%s$" % ext for ext in ext_list])
 
                 class FileHtml(forms.Form):
                     file_html = FilePathFieldByUser(
@@ -672,42 +774,112 @@ def upload(request, **kwargs):
                 # Redirect to the document list after POST
                 return HttpResponse(json.dumps(ret),
                                     content_type="application/json")
+
+            for fi_up in request.FILES.getlist('file_upload'):
+                if (not fi_up.name.endswith(
+                        tuple('.%s' % _ext for _ext in ext_list))):
+                    ret['ret'] = 1
+                    if len(ext_list) == 1:
+                        ret['ret_msg'] = (
+                            'File uploaded %s isn\'t an .%s file.' %
+                            (fi_up.name, ext_list[0].upper()))
+                    else:
+                        ls = ', '.join(['.%s' % ext.upper()
+                                        for ext in ext_list])
+                        ret['ret_msg'] = ('Type of uploaded file not in the '
+                                          'recognized list [%s].' % ls)
+
+                    # Redirect to the document list after POST
+                    return HttpResponse(json.dumps(ret),
+                                        content_type="application/json")
+
+            if getattr(settings, 'STANDALONE', False):
+                userid = ''
+            else:
+                userid = str(request.user.id)
+            namespace = request.resolver_match.namespace
+            user_dir = get_full_path(userid, namespace)
+            bname = os.path.join(user_dir, target)
+            # check if the directory exists (or create it)
+            if not os.path.exists(bname):
+                os.makedirs(bname)
+
+            files_list = []
+            for fi_up in request.FILES.getlist('file_upload'):
+                full_path = os.path.join(
+                    bname, fi_up.name)
+                overwrite_existing_files = request.POST.get(
+                    'overwrite_existing_files', True)
+                if not overwrite_existing_files:
+                    modified_path = full_path
+                    n = 0
+                    while os.path.isfile(modified_path):
+                        n += 1
+                        f_name, f_ext = os.path.splitext(full_path)
+                        modified_path = '%s_%s%s' % (f_name, n, f_ext)
+                    full_path = modified_path
+                if not os.path.normpath(full_path).startswith(user_dir):
+                    ret['ret'] = 5
+                    ret['ret_msg'] = 'Not authorized to write the file.'
+                    return HttpResponse(json.dumps(ret),
+                                        content_type="application/json")
+                with open(full_path, "wb") as f:
+                    f.write(encode(fi_up.read()))
+                files_list.append((os.path.basename(fi_up.name),
+                                   os.path.basename(full_path)))
+
+            suffix = target
+            match = "|".join(
+                [".*\\.%s$" % ext for ext in ext_list])
+
+            class FileHtml(forms.Form):
+                file_html = FilePathFieldByUser(
+                    is_bridged=False,
+                    userid=userid,
+                    subdir=suffix,
+                    namespace=namespace,
+                    match=match,
+                    recursive=True)
+
+            fileslist = FileHtml()
+
+            ret['ret'] = 0
+            ret['items'] = fileslist.fields['file_html'].choices
+            changed_msg = ''
+            ret['selected'] = []
+            glue = ''
+            ret['ret_msg'] = ''
+            for file_name in files_list:
+                ret['selected'].append(os.path.join(target, file_name[1]))
+
+                if file_name[0] != file_name[1]:
+                    changed_msg = ' (Renamed into %s)' % file_name[1]
+                ret['ret_msg'] += ('%sFile %s uploaded successfully.%s' %
+                                   (glue, file_name[0], changed_msg))
+                glue = '<br/>'
+
+            # Redirect to the document list after POST
+            return HttpResponse(json.dumps(ret),
+                                content_type="application/json")
     ret['ret'] = 2
-    ret['ret_msg'] = 'Please provide the file.'
+    ret['ret_msg'] = 'Please provide e file.'
 
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-def get_full_path(userid, namespace, subdir_and_filename=""):
-    return os.path.normpath(os.path.join(settings.FILE_PATH_FIELD_DIRECTORY,
-                            userid,
-                            namespace,
-                            subdir_and_filename))
-
-
-def zwrite_or_collect(z, userid, namespace, fname, file_collect):
-    """if z is None add the couple full_pathname, filename to a list,
-    else append the file to the z zip object"""
-    if z is None:
-        file_collect.append(["file", os.path.basename(fname), fname])
-    else:
-        z.write(get_full_path(userid, namespace, fname),
-                decode(os.path.basename(fname)))
-
-
-def zwrite_or_collect_str(z, fname, content, file_collect):
-    if z is None:
-        file_collect.append(["string", fname, content])
-    else:
-        z.writestr(fname, encode(content))
-
-
 def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
-                             file_collect, save_files=True):
+                             file_collect, save_files=True,
+                             spec_ass_haz_dists=()):
     jobini = "\n[Exposure model]\n"
     #           ################
 
-    jobini += "exposure_file = %s\n" % os.path.basename(data['exposure_model'])
+    exp_head, exp_sep, exp_tail = data['exposure_model'].rpartition('.')
+    if exp_tail == 'zip' or exp_tail == 'ZIP':
+        exposure_model = exp_head + '.xml'
+    else:
+        exposure_model = data['exposure_model']
+
+    jobini += "exposure_file = %s\n" % basename(exposure_model)
     if save_files is True:
         zwrite_or_collect(z, userid, namespace, data['exposure_model'],
                           file_collect)
@@ -723,9 +895,11 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
                 jobini += "%s %s" % (el[0], el[1])
             jobini += "\n"
 
-        if data['asset_hazard_distance_choice'] is True:
-            jobini += ("asset_hazard_distance = %s\n" %
-                       data['asset_hazard_distance'])
+        if data['asset_hazard_distance_enabled'] is True:
+            jobini += "asset_hazard_distance = {"
+            for spec in spec_ass_haz_dists:
+                jobini += "'%s': %s, " % (spec[0], spec[1])
+            jobini += "'default': %s}\n" % data['asset_hazard_distance']
 
     return jobini
 
@@ -741,7 +915,7 @@ def vulnerability_model_prep_sect(data, z, userid, namespace, file_collect,
                      'occupants']:
         if data['vm_loss_%s_choice' % losslist] is True:
             jobini += "%s_vulnerability_file = %s\n" % (
-                descr[losslist], os.path.basename(data['vm_loss_' + losslist]))
+                descr[losslist], basename(data['vm_loss_' + losslist]))
             if save_files is True:
                 zwrite_or_collect(z, userid, namespace,
                                   data['vm_loss_%s' % losslist],
@@ -763,7 +937,7 @@ def site_conditions_prep_sect(data, z, userid, namespace, file_collect):
 
     if data['site_conditions_choice'] == 'from-file':
         jobini += ("site_model_file = %s\n" %
-                   os.path.basename(data['site_model_file']))
+                   basename(data['site_model_file']))
         zwrite_or_collect(z, userid, namespace, data['site_model_file'],
                           file_collect)
     elif data['site_conditions_choice'] == 'uniform-param':
@@ -803,9 +977,9 @@ def scenario_prepare(request, **kwargs):
         file_collect = None
     else:
         z = None
+        file_collect = []
         fname = 'ipt_' + ''.join(random.choice(
             string.ascii_lowercase + string.digits) for _ in range(8)) + '.zip'
-        file_collect = []
 
     jobini = "# Generated automatically with IPT at %s\n" % (
         "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
@@ -828,8 +1002,7 @@ def scenario_prepare(request, **kwargs):
     if (data['hazard'] is None and data['risk'] is not None and
             data['gmf_file'] is not None):
         jobini += "\n[hazard]\n"
-        jobini += ("gmfs_file = %s\n" %
-                   os.path.basename(data['gmf_file']))
+        jobini += ("gmfs_file = %s\n" % basename(data['gmf_file']))
         zwrite_or_collect(z, userid, namespace, data['gmf_file'], file_collect)
 
     if data['hazard'] == 'hazard':
@@ -837,7 +1010,7 @@ def scenario_prepare(request, **kwargs):
         #            #####################
 
         jobini += ("rupture_model_file = %s\n" %
-                   os.path.basename(data['rupture_model_file']))
+                   basename(data['rupture_model_file']))
         zwrite_or_collect(z, userid, namespace, data['rupture_model_file'],
                           file_collect)
 
@@ -860,8 +1033,7 @@ def scenario_prepare(request, **kwargs):
                     jobini += "%s %s" % (el[0], el[1])
                 jobini += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
-            jobini += "sites_csv = %s\n" % os.path.basename(
-                data['list_of_sites'])
+            jobini += "sites_csv = %s\n" % basename(data['list_of_sites'])
             zwrite_or_collect(z, userid, namespace, data['list_of_sites'],
                               file_collect)
 
@@ -883,8 +1055,8 @@ def scenario_prepare(request, **kwargs):
     if ((data['hazard'] == 'hazard' and
          data['hazard_sites_choice'] == 'exposure-model') or
             data['risk'] is not None):
-        jobini += exposure_model_prep_sect(
-            data, z, (data['risk'] is not None), userid, namespace)
+        jobini += exposure_model_prep_sect(data, z, (data['risk'] is not None),
+                                           userid, namespace, file_collect)
 
     if data['risk'] == 'damage':
         jobini += "\n[Fragility model]\n"
@@ -897,13 +1069,13 @@ def scenario_prepare(request, **kwargs):
             if data['fm_loss_%s_choice' % losslist] is True:
                 jobini += "%s_fragility_file = %s\n" % (
                     descr[losslist],
-                    os.path.basename(data['fm_loss_' + losslist]))
+                    basename(data['fm_loss_' + losslist]))
                 zwrite_or_collect(z, userid, namespace,
                                   data['fm_loss_' + losslist], file_collect)
                 if with_cons is True:
                     jobini += "%s_consequence_file = %s\n" % (
                         descr[losslist],
-                        os.path.basename(data['fm_loss_%s_cons' % losslist]))
+                        basename(data['fm_loss_%s_cons' % losslist]))
                     zwrite_or_collect(z, userid, namespace,
                                       data['fm_loss_%s_cons' % losslist],
                                       file_collect)
@@ -978,7 +1150,7 @@ def scenario_prepare(request, **kwargs):
         jobini += ("number_of_ground_motion_fields = %s\n" %
                    data['number_of_ground_motion_fields'])
 
-    print(encode(jobini))
+    #  print(encode(jobini))
 
     zwrite_or_collect_str(z, 'job.ini', jobini, file_collect)
 
@@ -1057,8 +1229,7 @@ def event_based_prepare(request, **kwargs):
                     jobhaz += "%s %s" % (el[0], el[1])
                 jobhaz += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
-            jobhaz += "sites_csv = %s\n" % os.path.basename(
-                data['list_of_sites'])
+            jobhaz += "sites_csv = %s\n" % basename(data['list_of_sites'])
             zwrite_or_collect(z, userid, namespace, data['list_of_sites'],
                               file_collect)
         elif data['hazard_sites_choice'] == 'exposure-model':
@@ -1074,7 +1245,7 @@ def event_based_prepare(request, **kwargs):
                                             file_collect)
 
         # Hazard model
-        jobhaz += "source_model_logic_tree_file = %s\n" % os.path.basename(
+        jobhaz += "source_model_logic_tree_file = %s\n" % basename(
             data['source_model_logic_tree_file'])
         zwrite_or_collect(z, userid, namespace,
                           data['source_model_logic_tree_file'],
@@ -1084,7 +1255,7 @@ def event_based_prepare(request, **kwargs):
             zwrite_or_collect(z, userid, namespace, source_model_name,
                               file_collect)
 
-        jobhaz += "gsim_logic_tree_file = %s\n" % os.path.basename(
+        jobhaz += "gsim_logic_tree_file = %s\n" % basename(
             data['gsim_logic_tree_file'])
         zwrite_or_collect(z, userid, namespace, data['gsim_logic_tree_file'],
                           file_collect)
@@ -1211,6 +1382,187 @@ def event_based_prepare(request, **kwargs):
 
         jobris = jobris_head + jobris
         zwrite_or_collect_str(z, 'job_risk.ini', jobris, file_collect)
+
+    if is_qgis_browser:
+        ret['ret'] = 0
+        ret['msg'] = 'Success, event based prepared correctly.'
+        ret['content'] = file_collect
+    else:
+        z.close()
+        ret['ret'] = 0
+        ret['msg'] = 'Success, download it.'
+
+    ret['zipname'] = os.path.basename(fname)
+
+    return HttpResponse(json.dumps(ret), content_type="application/json")
+
+
+def volcano_prepare(request, **kwargs):
+    ret = {}
+
+    if request.POST.get('data', '') == '':
+        ret['ret'] = 1
+        ret['msg'] = 'Malformed request.'
+        return HttpResponse(json.dumps(ret), content_type="application/json")
+
+    if getattr(settings, 'STANDALONE', False):
+        userid = ''
+    else:
+        userid = str(request.user.id)
+
+    is_qgis_browser = oq_is_qgis_browser(request)
+
+    namespace = request.resolver_match.namespace
+
+    data = json.loads(request.POST.get('data'))
+
+    if not is_qgis_browser:
+        (fd, fname) = tempfile.mkstemp(
+            suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
+        fzip = os.fdopen(fd, 'wb')
+        z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
+        file_collect = None
+    else:
+        z = None
+        fname = 'ipt_' + ''.join(random.choice(
+            string.ascii_lowercase + string.digits) for _ in range(8)) + '.zip'
+        file_collect = []
+
+    jobris = ""
+
+    jobris += "# Generated automatically with IPT at %s\n" % (
+        "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
+    jobris += "[general]\n"
+    jobris += "description = %s\n" % data['description']
+
+    jobris += "calculation_mode = multi_risk\n"
+
+    jobris += "\n[Volcano information]\n"
+
+    phenoms = {
+        VolConst.ph_ashf: {
+            'name': 'ashfall',
+            'f': data['ashfall_file'] if data['ashfall_choice'] else None
+        },
+        VolConst.ph_lava: {
+            'name': 'lavaflow',
+            'f': data['lavaflow_file'] if data['lavaflow_choice'] else None
+        },
+        VolConst.ph_laha: {
+            'name': 'lahar',
+            'f': data['lahar_file'] if data['lahar_choice'] else None
+        },
+        VolConst.ph_pyro: {
+            'name': 'pyroclasticflow',
+            'f': (data['pyroclasticflow_file'] if
+                  data['pyroclasticflow_choice'] else None)
+        }
+    }
+
+    try:
+        phenom_arr = []
+        spec_ass_haz_dists = []
+        for key in sorted(phenoms):
+            if phenoms[key]['f'] is None:
+                continue
+
+            spec_ass_haz_dist = data[phenoms[key]['name'] + '_ass_haz_dist']
+            spec_ass_haz_dist = spec_ass_haz_dist.strip()
+            if spec_ass_haz_dist != '':
+                spec_ass_haz_dists.append([key, spec_ass_haz_dist])
+
+            if data[phenoms[key]['name'] + '_in_type'] == VolConst.ty_text:
+                # 'text' case for textual external software case
+                # FIXME
+                if data[phenoms[key]['name'] + '_epsg'] == '':
+                    raise ValueError("Not valid EPSG value for '%s' "
+                                     "input file" % (
+                                         phenoms[key]['name'],))
+
+                if key == VolConst.ph_ashf:
+                    density = float(
+                        data[phenoms[key]['name'] + '_density'])
+                else:
+                    density = None
+
+                phenom_inputfile = gem_input_converter(
+                    z, key, VolConst.ty_text, userid, namespace,
+                    phenoms[key]['f'], file_collect,
+                    data[phenoms[key]['name'] + '_epsg'],
+                    density)
+                phenom_arr.append("'%s': '%s'" % (key, phenom_inputfile))
+
+            elif data[phenoms[key]['name'] + '_in_type'] == VolConst.ty_shap:
+                # 'shape'-file case
+                if data[phenoms[key]['name'] + '_discr_dist'] == '':
+                    raise ValueError("Discretization distance is missing "
+                                     "for '%s' input file" % (
+                                         phenoms[key]['name'],))
+                if data[phenoms[key]['name'] + '_haz_field'] == '':
+                    raise ValueError("Hazard field name is missing "
+                                     "for '%s' input file" % (
+                                         phenoms[key]['name'],))
+                if key == VolConst.ph_ashf:
+                    if data[phenoms[key]['name'] + '_density'] == '':
+                        raise ValueError("Ashfall density is missing "
+                                         "for '%s' input file" % (
+                                             phenoms[key]['name'],))
+
+                if key == VolConst.ph_ashf:
+                    density = float(
+                        data[phenoms[key]['name'] + '_density'])
+                else:
+                    density = None
+
+                phenom_inputfile = gem_input_converter(
+                    z, key, VolConst.ty_shap, userid, namespace,
+                    phenoms[key]['f'], file_collect,
+                    float(data[phenoms[key]['name'] + '_discr_dist']),
+                    data[phenoms[key]['name'] + '_haz_field'],
+                    density)
+
+                phenom_arr.append("'%s': '%s'" % (key, phenom_inputfile))
+            else:
+                # 'openquake' case
+                zwrite_or_collect(z, userid, namespace, phenoms[key]['f'],
+                                  file_collect)
+
+                phenom_arr.append("'%s': '%s'" % (key, basename(
+                    phenoms[key]['f'])))
+        jobris += 'multi_peril_csv = {' + ', '.join(phenom_arr) + '}\n'
+
+        if data['ashfall_choice']:
+            jobris += 'ash_wet_amplification_factor = %f\n' % float(
+                data['ashfall_wet_ampl'])
+
+        jobris += exposure_model_prep_sect(
+            data, z, True, userid, namespace, file_collect,
+            spec_ass_haz_dists=spec_ass_haz_dists)
+
+        if data['ashfall_choice']:
+            jobris += "\n[Fragility model]\n"
+
+            zwrite_or_collect(z, userid, namespace, data['fm_ashfall_file'],
+                              file_collect)
+            jobris += ("structural_fragility_file = %s\n" %
+                       basename(data['fm_ashfall_file']))
+
+            if data['ashfall_cons_models_choice']:
+                zwrite_or_collect(
+                    z, userid, namespace, data['ashfall_cons_models_file'],
+                    file_collect)
+                jobris += ("structural_consequence_file = %s\n" %
+                           basename(data['ashfall_cons_models_file']))
+
+        # FIXME modal_damage_state
+        # jobris += "modal_damage_state = " + (
+        #    "true" if data['is_modal_damage_state'] is True else "false")
+        #
+        zwrite_or_collect_str(z, 'job.ini', jobris, file_collect)
+    except Exception as err:
+        ret['ret'] = 2
+        ret['msg'] = ' exception raised: %s' % err
+        return HttpResponse(json.dumps(ret), content_type="application/json")
 
     if is_qgis_browser:
         ret['ret'] = 0

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2015-2016, GEM Foundation.
+   Copyright (c) 2015-2019, GEM Foundation.
 
       This program is free software: you can redistribute it and/or modify
       it under the terms of the GNU Affero General Public License as
@@ -46,6 +46,8 @@ var ex_obj = {
         tags: null,
         table: null,
         table_file: null,
+
+        exposure_type: ''
     },
 
     // perAreaRefCount is used to keep track of any time perArea is selected
@@ -121,7 +123,7 @@ var ex_obj = {
         for (var tbl_id = 0 ; tbl_id < $table_files.length ; tbl_id++) {
             var $tbl_file = $($table_files[tbl_id]);
             ctx.table_file[tbl_id] = $tbl_file.val().replace(/.*[\/\\]/, '');
-        }    
+        }
     },
 
     ctx_save: function (obj) {
@@ -331,13 +333,13 @@ var ex_obj = {
         var id = obj.target.getAttribute("data-gem-id");
         ex_obj.tbl[id].alter('insert_row');
         var tbl_box = $(obj.target).closest("div[name='exposuretbl-" + id + "']").find("div[name='table-" + id + "']");
-        
+
         setTimeout(function() {
             return gem_tableHeightUpdate(tbl_box);
         }, 0);
     },
 
-       
+
     exposuretbl_add: function () {
         var ct = ex_obj.tbl_cur;
         var ctx = '\
@@ -603,7 +605,7 @@ function ex_updateTable() {
         ex_obj.tbl[id].addHook('afterCreateRow', function() {
             return gem_tableHeightUpdate(ex_obj.o.find('div[name^="table-"]'));
         });
- 
+
         ex_obj.tbl[id].addHook('afterRemoveRow', function() {
             return gem_tableHeightUpdate(ex_obj.o.find('div[name^="table-"]'));
         });
@@ -635,33 +637,43 @@ if (typeof gem_api != 'undefined') {
     });
 }
 
-ex_obj.o.find('#convertBtn').click(function() {
+function ex_convert2nrml()
+{
     var data = [];
+    var files_list = [];
+    var ret = {
+        ret: -1,
+        str: ''
+    };
 
-    $tbls = ex_obj.o.find('div[name="exposuretbls"] div[name^="exposuretbl-"]');
-    for (var i = 0 ; i < $tbls.length ; i++) {
-        $tbl = $($tbls[i]);
-        if ($tbl.find('input#table_file')[0].files.length > 0) {
-            var id = $tbl.find('input#table_file').attr('data-gem-id');
-            data = data.concat(ex_obj.tbl_file[id]);
-        }
-        else {
-            // Get the values from the table
-            $tbl_tab = $tbl.find('div[name^="table-"]');
-            data = data.concat($tbl_tab.handsontable('getInstance').getData());
-        }
-    }
-    var not_empty_rows = not_empty_rows_get(data);
+    var exp_type = ex_obj.o.find('input:radio[name="exposure-type"]:checked').val();
 
-    // Check for null values
-    for (var i = 0; i < not_empty_rows ; i++) {
-        // tags columns can be empty
-        var no_tags_col = (data[i].length < ex_obj.headerbase_len ? data[i].length : ex_obj.headerbase_len);
-        for (var j = 0; j < no_tags_col ; j++) {
-            var s = data[i][j] + " ";
-            if (data[i][j] === null || data[i][j].toString().trim() == "") {
-                output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
-                return;
+    if (exp_type == 'xml') {
+        $tbls = ex_obj.o.find('div[name="exposuretbls"] div[name^="exposuretbl-"]');
+        for (var i = 0 ; i < $tbls.length ; i++) {
+            $tbl = $($tbls[i]);
+            if ($tbl.find('input#table_file')[0].files.length > 0) {
+                var id = $tbl.find('input#table_file').attr('data-gem-id');
+                data = data.concat(ex_obj.tbl_file[id]);
+            }
+            else {
+                // Get the values from the table
+                $tbl_tab = $tbl.find('div[name^="table-"]');
+                data = data.concat($tbl_tab.handsontable('getInstance').getData());
+        }
+        }
+        var not_empty_rows = not_empty_rows_get(data);
+
+        // Check for null values
+        for (var i = 0; i < not_empty_rows ; i++) {
+            // tags columns can be empty
+            var no_tags_col = (data[i].length < ex_obj.headerbase_len ? data[i].length : ex_obj.headerbase_len);
+            for (var j = 0; j < no_tags_col ; j++) {
+                var s = data[i][j] + " ";
+                if (data[i][j] === null || data[i][j].toString().trim() == "") {
+                    output_manager('ex', "empty cell at coords (" + (i+1) + ", " + (j+1) + ")", null, null);
+                    return;
+                }
             }
         }
     }
@@ -758,115 +770,133 @@ ex_obj.o.find('#convertBtn').click(function() {
     }
 
     var retrofittingSelect = ex_obj.o.find('#retrofittingSelect input:checked').val();
+    if (exp_type == 'xml') {
+        // Create the asset
+        for (var i = 0; i < not_empty_rows ; i++) {
+            var costTypes = '\t\t\t<costTypes>\n';
+            var costs ='\t\t\t\t<costs>\n';
+            var occupancies = "";
 
-    // Create the asset
-    for (var i = 0; i < not_empty_rows ; i++) {
-        var costTypes = '\t\t\t<costTypes>\n';
-        var costs ='\t\t\t\t<costs>\n';
-        var occupancies = "";
-
-        if (numberInx > -1 ) {
-            number = 'number="'+ data[i][numberInx]+'"';
-        } else {
-            number = '';
-        }
-        if (latitudeInx > -1 ) {
-            latitude = 'lat="'+ data[i][latitudeInx]+'"';
-        } else {
-            latitude = '';
-        }
-        if (longitudeInx > -1 ) {
-            longitude = 'lon="'+ data[i][longitudeInx]+'"';
-        } else {
-            longitude = '';
-        }
-        if (taxonomyInx > -1 ) {
-            taxonomy = 'taxonomy="'+ data[i][taxonomyInx]+'"';
-        } else {
-            taxonomy = '';
-        }
-        if (areaInx > -1 ) {
-            area = 'area="'+ data[i][areaInx]+'"';
-        } else {
-            area = '';
-        }
-        if (assetIdInx > -1 ) {
-            id = data[i][assetIdInx];
-        } else {
-            id = '';
-        }
-
-        // Insurance Limit
-        var limitValue = '';
-        if (limitState == 'absolute') {
-            limitValue = ' insuranceLimit="'+data[i][limitInx]+'"';
-        } else if (limitState == 'relative') {
-            limitValue = ' insuranceLimit="'+data[i][limitInx]+'"';
-        }
-
-        // Retrofitted
-        if (retrofittingSelect == 'retrofitting') {
-            retrofitting = ' retrofitted="'+data[i][retrofittingInx]+'"';
-        }
-
-        // deductibleSelect
-        var deductibleValue = '';
-        if (deductibleState == 'absolute') {
-            deductibleValue = ' deductible="'+data[i][deductibleInx]+'"';
-        } else if (deductibleState == 'relative') {
-            deductibleValue = ' deductible="'+data[i][deductibleInx]+'"';
-        }
-
-        // Economic Cost
-        if (structuralInx > -1 ) {
-            costTypes += '\t\t\t\t<costType name="structural" type="per_asset" unit="USD" />\n';
-            costs += '\t\t\t\t\t<cost type="structural" value="'+ data[i][structuralInx]+'"'+retrofitting+deductibleValue+limitValue+'/>\n';
-        }
-        if (non_structuralInx > -1 ) {
-            costs += '\t\t\t\t\t<cost type="nonstructural" value="'+ data[i][non_structuralInx]+'"/>\n';
-        }
-        if (contentsInx > -1 ) {
-            costs += '\t\t\t\t\t<cost type="contents" value="'+ data[i][contentsInx]+'"/>\n';
-        }
-        if (businessInx > -1 ) {
-            costs += '\t\t\t\t\t<cost type="business_interruption" value="'+ data[i][businessInx]+'"/>\n';
-        }
-
-        // Occupancies
-        if (dayInx > -1 ) {
-            occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][dayInx]+'" period="day"/>\n';
-        }
-        if (nightInx > -1 ) {
-            occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][nightInx]+'" period="night"/>\n';
-        }
-        if (transitInx > -1 ) {
-            occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][transitInx]+'" period="transit"/>\n';
-        }
-
-        costs += '\t\t\t\t</costs>\n';
-        if (occupancies != "") {
-            occupancies = '\t\t\t\t<occupancies>\n' + occupancies + '\t\t\t\t</occupancies>\n';
-        }
-
-        asset_tags = "";
-        for (var t_id = 0, e = ex_obj.headerbase_len ; e < ex_obj.headerbase_len + tags.length ; e++, t_id++) {
-            if (data[i][e] !== null && data[i][e].length != 0) {
-                asset_tags += (asset_tags == "" ? "" : " ") + tags[t_id] + "=\"" + data[i][e] + "\"";
+            if (numberInx > -1 ) {
+                number = 'number="'+ data[i][numberInx]+'"';
+            } else {
+                number = '';
             }
-        }
-        if (asset_tags.length != 0) {
-            asset_tags = "\t\t\t\t<tags " + asset_tags + " />\n";
-        }
+            if (latitudeInx > -1 ) {
+                latitude = 'lat="'+ data[i][latitudeInx]+'"';
+            } else {
+                latitude = '';
+            }
+            if (longitudeInx > -1 ) {
+                longitude = 'lon="'+ data[i][longitudeInx]+'"';
+            } else {
+                longitude = '';
+            }
+            if (taxonomyInx > -1 ) {
+                taxonomy = 'taxonomy="'+ data[i][taxonomyInx]+'"';
+            } else {
+                taxonomy = '';
+            }
+            if (areaInx > -1 ) {
+                area = 'area="'+ data[i][areaInx]+'"';
+            } else {
+                area = '';
+            }
+            if (assetIdInx > -1 ) {
+                id = data[i][assetIdInx];
+            } else {
+                id = '';
+            }
 
-        asset +=
-            '\t\t\t<asset id="'+id+'" '+number+' '+area+' '+taxonomy+' >\n' +
+            // Insurance Limit
+            var limitValue = '';
+            if (limitState == 'absolute') {
+                limitValue = ' insuranceLimit="'+data[i][limitInx]+'"';
+            } else if (limitState == 'relative') {
+                limitValue = ' insuranceLimit="'+data[i][limitInx]+'"';
+            }
+
+            // Retrofitted
+            if (retrofittingSelect == 'retrofitting') {
+                retrofitting = ' retrofitted="'+data[i][retrofittingInx]+'"';
+            }
+
+            // deductibleSelect
+            var deductibleValue = '';
+            if (deductibleState == 'absolute') {
+                deductibleValue = ' deductible="'+data[i][deductibleInx]+'"';
+            } else if (deductibleState == 'relative') {
+                deductibleValue = ' deductible="'+data[i][deductibleInx]+'"';
+            }
+
+            // Economic Cost
+            if (structuralInx > -1 ) {
+                costTypes += '\t\t\t\t<costType name="structural" type="per_asset" unit="USD" />\n';
+                costs += '\t\t\t\t\t<cost type="structural" value="'+ data[i][structuralInx]+'"'+retrofitting+deductibleValue+limitValue+'/>\n';
+            }
+            if (non_structuralInx > -1 ) {
+                costs += '\t\t\t\t\t<cost type="nonstructural" value="'+ data[i][non_structuralInx]+'"/>\n';
+            }
+            if (contentsInx > -1 ) {
+                costs += '\t\t\t\t\t<cost type="contents" value="'+ data[i][contentsInx]+'"/>\n';
+            }
+            if (businessInx > -1 ) {
+                costs += '\t\t\t\t\t<cost type="business_interruption" value="'+ data[i][businessInx]+'"/>\n';
+            }
+
+            // Occupancies
+            if (dayInx > -1 ) {
+                occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][dayInx]+'" period="day"/>\n';
+            }
+            if (nightInx > -1 ) {
+                occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][nightInx]+'" period="night"/>\n';
+            }
+            if (transitInx > -1 ) {
+                occupancies += '\t\t\t\t\t<occupancy occupants="'+ data[i][transitInx]+'" period="transit"/>\n';
+            }
+
+            costs += '\t\t\t\t</costs>\n';
+            if (occupancies != "") {
+                occupancies = '\t\t\t\t<occupancies>\n' + occupancies + '\t\t\t\t</occupancies>\n';
+            }
+
+            asset_tags = "";
+            for (var t_id = 0, e = ex_obj.headerbase_len ; e < ex_obj.headerbase_len + tags.length ; e++, t_id++) {
+                if (data[i][e] !== null && data[i][e].length != 0) {
+                    asset_tags += (asset_tags == "" ? "" : " ") + tags[t_id] + "=\"" + data[i][e] + "\"";
+                }
+            }
+            if (asset_tags.length != 0) {
+                asset_tags = "\t\t\t\t<tags " + asset_tags + " />\n";
+            }
+
+            asset +=
+                '\t\t\t<asset id="'+id+'" '+number+' '+area+' '+taxonomy+' >\n' +
                 '\t\t\t\t<location '+longitude+' '+latitude+' />\n' +
                 costs +
                 occupancies +
                 asset_tags +
-            '\t\t\t</asset>\n';
+                '\t\t\t</asset>\n';
+        }
     }
+    else if (exp_type == 'csv') {
+        var ex_csv = ex_obj.o.find('div[name="exposure-csv-html"] select').val();
 
+        if (ex_csv == null || ex_csv.length < 1) {
+            ret.str += "'Exposure csv files': at least one file must be selected.\n";
+        }
+        if (ex_csv != null) {
+            for (f_id in ex_csv) {
+                fname = ex_csv[f_id];
+                uniqueness_add(files_list, 'exposure csv model: item #' + (parseInt(f_id) + 1), fname);
+                ret.str += uniqueness_check(files_list);
+                asset += '\t\t\t' + basename(ex_csv[f_id]) + '\n';
+            }
+        }
+    }
+    else {
+        ret.str += 'Unknown type of exposure [' + exp_type + ']';
+    }
     var tagNames = "";
     if (tags.length > 0) {
         tagNames = "\t\t<tagNames>";
@@ -896,8 +926,16 @@ ex_obj.o.find('#convertBtn').click(function() {
             '\t</exposureModel>\n' +
         '</nrml>\n';
 
-    validateAndDisplayNRML(nrml, 'ex', ex_obj);
-});
+    if (ret.str == '') {
+        ret.ret = 0;
+        validateAndDisplayNRML(nrml, 'ex', ex_obj);
+    }
+    else {
+        gem_ipt.error_msg(ret.str);
+    }
+}
+
+ex_obj.o.find('#convertBtn').click(ex_convert2nrml);
 
 function exposure_tags_cb(event)
 {
@@ -918,8 +956,104 @@ function exposure_tags_cb(event)
     return ret;
 }
 
-// tab initialization
-$(document).ready(function () {
+function exposure_manager()
+{
+    console.log('exposure_manager');
+    var exp_type = ex_obj.o.find('input:radio[name="exposure-type"]:checked').val();
+    var to_hide = false;
+
+    if (exp_type == 'xml') {
+        if (ex_obj.o.find('.exposure-type-xml').is(":hidden")) {
+            to_hide = true;
+        }
+        ex_obj.o.find('.exposure-type-xml').show();
+        ex_obj.o.find('.exposure-type-csv').hide();
+    }
+    else if (exp_type == 'csv') {
+        if (ex_obj.o.find('.exposure-type-xml').is(":visible")) {
+            to_hide = true;
+        }
+        ex_obj.o.find('.exposure-type-xml').hide();
+        ex_obj.o.find('.exposure-type-csv').show();
+    }
+
+    if (to_hide) {
+        $('.ex_gid #downloadLink').hide();
+        $('.ex_gid #outputDiv').hide();
+    }
+
+}
+
+function exposure_csv_fileNew_upload(event)
+{
+    form = $(event.target).parent('form').get(0);
+    return generic_fileNew_upload('ex', form, event);
+}
+
+function exposure_csv_fileNew_collect(event, reply)
+{
+    return generic_fileNew_collect('ex', reply, event);
+}
+
+function exposure_csv_fileNew_cb(e) {
+    if (typeof gem_api == 'undefined') {
+
+        /* generic callback to show upload div (init) */
+        $(ex_obj.pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+        if ($(ex_obj.pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+            if (typeof window.gem_not_interactive == 'undefined') {
+                $(ex_obj.pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+                var name = e.target.name;
+
+                function uploader_rollback() {
+                    if ($(ex_obj.pfx + ' div[name="' + name +
+                          '"] input[type="file"]').val().length > 0) {
+                        $(document.body).off('focusin', uploader_rollback);
+                        return;
+                    }
+
+                    var $msg = $(ex_obj.pfx + ' div[name="' + name + '"] div[name="msg"]');
+                    $msg.html("Upload file cancelled.");
+                    $(ex_obj.pfx + ' div[name="' + name + '"]').delay(3000).slideUp({
+                        done: function () {
+                            $(ex_obj.pfx + ' div[name="' + name + '"] div[name="msg"]').html('');
+                        }
+                    });
+                    $(document.body).off('focusin', uploader_rollback);
+                }
+                $(document.body).on('focusin', uploader_rollback);
+            }
+        }
+    }
+    else { // if (typeof gem_api == 'undefined') {
+        var event = e;
+        var $msg = $(ex_obj.pfx + ' div[name="' + e.target.name + '"] div[name="msg"]');
+        $(ex_obj.pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+
+        var $sibling = $(e.target).siblings("select[name='file_html']");
+        var subdir = $sibling.attr('data-gem-subdir');
+        var sel_grp = $sibling.attr('data-gem-group');
+        var is_multiple = $sibling.is("[multiple]");
+
+        function cb(uuid, app_msg) {
+            if (! app_msg.complete)
+                return;
+
+            var cmd_msg = app_msg.result;
+            if (cmd_msg.success) {
+                $msg.html("File '" + cmd_msg.content[0] + "' collected correctly.");
+                exposure_csv_fileNew_collect(event, cmd_msg);
+            }
+            else {
+                $msg.html(cmd_msg.reason);
+            }
+            $(ex_obj.pfx + ' div[name="' + event.target.name + '"]').delay(3000).slideUp();
+        }
+        gem_api.select_and_copy_file(cb, subdir, is_multiple);
+    }
+}
+
+function exposure_init() {
     /////////////////////////////////////////////////////////
     // Manage the visibility of the perArea selection menu //
     /////////////////////////////////////////////////////////
@@ -944,6 +1078,15 @@ $(document).ready(function () {
     ex_obj.o.find('#tags').on('itemAdded', exposure_tags_cb);
     ex_obj.o.find('#tags').on('itemRemoved', exposure_tags_cb);
 
+    ex_obj.o.find("input[name='exposure-type']").click(exposure_manager);
+    file_uploader_init(ex_obj.o, 'exposure-csv', exposure_csv_fileNew_cb, exposure_csv_fileNew_upload);
+
+    exposure_manager();
+}
+
+// tab initialization
+$(document).ready(function () {
+    exposure_init();
 
     $('#absoluteSpinner').hide();
 

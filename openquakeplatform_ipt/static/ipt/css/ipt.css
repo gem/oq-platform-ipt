@@ -169,6 +169,10 @@ div.chbox > input {
     *overflow: hidden;
 }
 
+div.chbox_last {
+    border-right: 0px;
+}
+
 span.inlible {
     padding: 0 12px 0 0px;
     vertical-align: middle;
@@ -224,4 +228,42 @@ div.bootstrap-tagsinput {
 
 .bootstrap-tagsinput input {
     width: 100% !important;
+}
+
+.gem-gen-descr {
+    width: 350px;
+}
+
+.ui-dialog-titlebar-close {
+    visibility: hidden;
+}
+
+.file-upload-multiple-msg {
+    line-height: 105%;
+}
+
+#help-message a:link {
+    color: #3a87ad;
+    text-decoration: underline;
+}
+
+#help-message a:visited {
+    color: #3a87ad;
+    text-decoration: underline;
+}
+
+#help-message a:hover {
+    color: #3a87ad;
+    text-decoration: underline;
+}
+
+#help-message a:active {
+    color: #3a87ad;
+    text-decoration: underline;
+}
+
+ul.phen-list li {
+    float: left;
+    list-style-position: inside;
+    padding-left: 8px;
 }

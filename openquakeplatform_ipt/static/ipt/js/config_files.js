@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2015-2018, GEM Foundation.
+   Copyright (c) 2015-2019, GEM Foundation.
 
       This program is free software: you can redistribute it and/or modify
       it under the terms of the GNU Affero General Public License as
@@ -26,6 +26,13 @@ var cf_obj = {
         pfx: '.cf_gid div[name="event-based"]',
         getData: null,
         expModel_coords: null
+    },
+    vol: {
+        pfx: '.cf_gid div[name="volcano"]',
+        phenomena: ['ashfall', 'lavaflow', 'lahar', 'pyroclasticflow'],
+        phenomena_name: ['ash fall', 'lava flow', 'lahar', 'pyroclastic density currents'],
+        getData: null
+        /*  expModel_coords: null */
     }
 };
 
@@ -52,18 +59,8 @@ $(document).ready(function () {
                 else
                     $subsubt.css('display', 'none');
 
-                $subsubt = $(cf_obj[scope].pfx
-                             + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                             + ' div[name="asset-hazard-distance"]');
-                if ($(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                      + ' input[name="asset_hazard_distance_choice"]').is(':checked'))
-                    $subsubt.css('display', '');
-                else
-                    $subsubt.css('display', 'none');
-                $subsubt = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="inc-asset-haz-dist"]');
-                if (without_inc_asset) {
-                    $subsubt.find('input[name="asset_hazard_distance_choice"]').prop('checked', false);
-                }
+                $subsubt = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="asset-hazard-distance"]');
+                $subsubt.attr('data-gem-enabled', (without_inc_asset ? 'false' : 'true'));
                 $subsubt.css('display', (without_inc_asset ? 'none' : ''));
             }
             else {
@@ -171,7 +168,7 @@ $(document).ready(function () {
     }
 
     // Exposure model (get)
-    // scope == 'scen' or 'e_b'
+    // scope == 'scen' or 'e_b' or 'vol'
     function exposure_model_getData(scope, ret, files_list, obj, enabled, with_constraints)
     {
         if (enabled) {
@@ -204,15 +201,17 @@ $(document).ready(function () {
                     }
                 }
 
-                obj.asset_hazard_distance_choice = $(
+                obj.asset_hazard_distance_enabled = $(
                     cf_obj[scope].pfx + ' div[name="exposure-model"]'
-                    + ' input[type="checkbox"][name="asset_hazard_distance_choice"]'
-                ).is(':checked');
-                if (obj.asset_hazard_distance_choice) {
+                        + ' div[name="asset-hazard-distance"]').attr('data-gem-enabled') == 'true';
+                if (obj.asset_hazard_distance_enabled) {
                     obj.asset_hazard_distance = $(
                         cf_obj[scope].pfx + ' div[name="exposure-model"]'
                             + ' input[type="text"][name="asset_hazard_distance"]').val();
-                    if (!gem_ipt.isFloat(obj.asset_hazard_distance)
+                    if (obj.asset_hazard_distance == '') {
+                        ret.str += "'Asset hazard distance' field is empty.\n";
+                    }
+                    else if (!gem_ipt.isFloat(obj.asset_hazard_distance)
                         || parseFloat(obj.asset_hazard_distance) < 0.0) {
                         ret.str += "'Asset hazard distance' field is negative float number ("
                             + obj.asset_hazard_distance + ").\n";
@@ -383,74 +382,13 @@ $(document).ready(function () {
         gem_api.ls(ls_subdir_cb, subdir);
     }
 
-
-
-    /* form widgets and previous remote list select element must follow precise
-       naming schema with '<name>-html' and '<name>-new', see config_files.html */
-    function generic_fileNew_upload(scope, obj, event)
-    {
-        event.preventDefault();
-        var name = $(obj).attr('name');
-        var data = new FormData($(obj).get(0));
-
-        $.ajax({
-            url: $(obj).attr('action'),
-            type: $(obj).attr('method'),
-            data: data,
-            cache: false,
-            processData: false,
-            contentType: false,
-            success: function(data) {
-                var $sel;
-                var gem_group = null;
-                var old_sel = [];
-                if (data.ret == 0) {
-                    if ($(cf_obj[scope].pfx + ' div[name="' + name + '-html"]')[0].hasAttribute('data-gem-group')) {
-                        gem_group = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"]').attr('data-gem-group');
-                        // find elements of groups around all the config_file tab
-                        $sel = $('.cf_gid div[data-gem-group="' + gem_group + '"] select[name="file_html"]');
-                        for (var i = 0 ; i < $sel.length ; i++) {
-                            old_sel[i] = $($sel[i]).val();
-                        }
-                    }
-                    else {
-                        $sel = $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]');
-                    }
-
-                    $sel.empty();
-                    for (var i = 0 ; i < old_sel.length ; i++) {
-                        if (! $($sel[i]).is("[multiple]")) {
-                            $("<option />", {value: '', text: '---------'}).appendTo($($sel[i]));
-                        }
-                    }
-                    for (var i = 0 ; i < data.items.length ; i++) {
-                        $("<option />", {value: data.items[i][0], text: data.items[i][1]}).appendTo($sel);
-                    }
-                    for (var i = 0 ; i < old_sel.length ; i++) {
-                        $($sel[i]).val(old_sel[i]);
-                    }
-                    $(cf_obj[scope].pfx + ' div[name="' + name + '-html"] select[name="file_html"]').val(data.selected);
-                }
-                $(cf_obj[scope].pfx + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
-                $(cf_obj[scope].pfx + ' div[name="' + name + '-new"]').delay(3000).slideUp();
-            }
-        });
-        return false;
-    }
-
     function exposure_model_init(scope, fileNew_cb, fileNew_upload, manager)
     {
-        $(cf_obj[scope].pfx + ' button[name="exposure-model-new"]').click(
-            fileNew_cb);
-        $(cf_obj[scope].pfx + ' div[name="exposure-model-new"]' +
-          ' form[name="exposure-model"]').submit(fileNew_upload);
+        file_uploader_init(scope, 'exposure-model', fileNew_cb, fileNew_upload);
 
         // Exposure model: risk-only region constraint checkbox (init)
         $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
           + ' input[name="region_constraint_choice"]').click(manager);
-
-        $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-          + ' input[name="asset_hazard_distance_choice"]').click(manager);
 
         // Exposure model: hazard content region-constr table handsontable (init)
         $(cf_obj[scope].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable({
@@ -498,29 +436,19 @@ $(document).ready(function () {
         $target.find('input[type="checkbox"]').click(manager);
 
         // Vulnerability model: structural (init)
-        $target.find('button[name="vm-structural-new"]').click(fileNew_cb);
-        $target.find('div[name="vm-structural-new"]' +
-          ' form[name="vm-structural"]').submit(fileNew_upload);
+        file_uploader_init($target, 'vm-structural', fileNew_cb, fileNew_upload);
 
         // Vulnerability model: nonstructural (init)
-        $target.find('button[name="vm-nonstructural-new"]').click(fileNew_cb);
-        $target.find('div[name="vm-nonstructural-new"]' +
-          ' form[name="vm-nonstructural"]').submit(fileNew_upload);
+        file_uploader_init($target, 'vm-nonstructural', fileNew_cb, fileNew_upload);
 
         // Vulnerability model: contents (init)
-        $target.find('button[name="vm-contents-new"]').click(fileNew_cb);
-        $target.find('div[name="vm-contents-new"]' +
-          ' form[name="vm-contents"]').submit(fileNew_upload);
+        file_uploader_init($target, 'vm-contents', fileNew_cb, fileNew_upload);
 
         // Vulnerability model: businter (init)
-        $target.find('button[name="vm-businter-new"]').click(fileNew_cb);
-        $target.find('div[name="vm-businter-new"]' +
-          ' form[name="vm-businter"]').submit(fileNew_upload);
+        file_uploader_init($target, 'vm-businter', fileNew_cb, fileNew_upload);
 
         // Vulnerability model: occupants (init)
-        $target.find('button[name="vm-occupants-new"]').click(fileNew_cb);
-        $target.find('div[name="vm-occupants-new"]' +
-          ' form[name="vm-occupants"]').submit(fileNew_upload);
+        file_uploader_init($target, 'vm-occupants', fileNew_cb, fileNew_upload);
 
         $target.find('input[type="checkbox"]').click(manager);
         $target.find('input[name="insured_losses"]').prop('checked', false); // .triggerHandler('click');
@@ -535,10 +463,7 @@ $(document).ready(function () {
         $(cf_obj[scope].pfx + ' input[name="hazard_sitecond"][value="uniform-param"]'
          ).prop('checked', true);  // .triggerHandler('click');
 
-        $(cf_obj[scope].pfx + ' button[name="site-conditions-new"]').click(
-            fileNew_cb);
-        $(cf_obj[scope].pfx + ' div[name="site-conditions-new"]' +
-          ' form[name="site-conditions"]').submit(fileNew_upload);
+        file_uploader_init(scope, 'site-conditions', fileNew_cb, fileNew_upload);
     }
 
     cf_obj.generate_dest_name = function(scope)
@@ -551,6 +476,9 @@ $(document).ready(function () {
         }
         else if (scope == 'e_b') {
             base_name = 'EventBased';
+        }
+        else if (scope == 'vol') {
+            base_name = 'Volcano';
         }
         else {
             base_name = 'Unknown';
@@ -684,8 +612,6 @@ $(document).ready(function () {
     function generic_prepare_runcalc_gemapi_postcb(reply, scope)
     {
         function build_zip_cb(uuid, msg) {
-            console.log('=== build_zip_cb ===');
-            console.log(msg);
             if (! msg.complete) {
                 return;
             }
@@ -743,7 +669,7 @@ $(document).ready(function () {
 
         var data = new FormData();
         data.append('data', JSON.stringify(ret.obj));
-        var url_suffix = { scen: "scenario", e_b: "event-based" };
+        var url_suffix = { scen: "scenario", e_b: "event-based", vol: "volcano" };
         $.ajax({
             url: 'prepare/' + url_suffix[scope],
             type: 'POST',
@@ -754,6 +680,9 @@ $(document).ready(function () {
             success: function (data) {
                 if (data.ret == 0) {
                     return on_success(data, scope);
+                }
+                else {
+                    gem_ipt.error_msg(data.msg);
                 }
             }
         });
@@ -802,7 +731,7 @@ $(document).ready(function () {
             contentType: false,
             success: function(data) {
                 if (data.ret == 0) {
-                    var tabs = ['scen', 'e_b'];
+                    var tabs = ['scen', 'e_b', 'vol'];
                     for (var i = 0 ; i < tabs.length ; i++) {
                         tab = tabs[i];
 
@@ -974,10 +903,7 @@ $(document).ready(function () {
     /* - - - SCENARIO (INIT) - - - */
 
     // Rupture information (init)
-    $(cf_obj['scen'].pfx + ' button[name="rupture-file-new"]').click(scenario_fileNew_cb);
-
-    $(cf_obj['scen'].pfx + ' div[name="rupture-file-new"]' +
-      ' form[name="rupture-file"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'rupture-file', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Hazard site
     //   Hazard site Region Grid (init)
@@ -1019,18 +945,13 @@ $(document).ready(function () {
     });
 
     // List of sites (init)
-    $(cf_obj['scen'].pfx + ' button[name="list-of-sites-new"]').click(scenario_fileNew_cb);
+    file_uploader_init('scen', 'list-of-sites', scenario_fileNew_cb, scenario_fileNew_upload);
 
-    $(cf_obj['scen'].pfx + ' div[name="list-of-sites-new"]' +
-      ' form[name="list-of-sites"]').submit(scenario_fileNew_upload);
 
     // GMF file upload (init)
     $(cf_obj['scen'].pfx + ' div[name="gmf-file"] input[name="use_gmf_file"]').click(scenario_manager);
 
-    $(cf_obj['scen'].pfx + ' div[name="gmf-file"] button[name="gmf-file-new"]').click(scenario_fileNew_cb);
-
-    $(cf_obj['scen'].pfx + ' div[name="gmf-file-new"]' +
-      ' form[name="gmf-file"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'gmf-file', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Exposure model (init)
     exposure_model_init('scen', scenario_fileNew_cb, scenario_fileNew_upload, scenario_manager);
@@ -1042,48 +963,20 @@ $(document).ready(function () {
       + '[name="fm-loss-include-cons"]').click(scenario_manager);
 
     // Fragility model: structural (init)
-    $(cf_obj['scen'].pfx + ' button[name="fm-structural-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-structural-new"]' +
-      ' form[name="fm-structural"]').submit(scenario_fileNew_upload);
-
-    $(cf_obj['scen'].pfx + ' button[name="fm-structural-cons-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-structural-cons-new"]' +
-      ' form[name="fm-structural-cons"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-structural', scenario_fileNew_cb, scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-structural-cons', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Fragility model: nonstructural (init)
-    $(cf_obj['scen'].pfx + ' button[name="fm-nonstructural-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-nonstructural-new"]' +
-      ' form[name="fm-nonstructural"]').submit(scenario_fileNew_upload);
-
-    $(cf_obj['scen'].pfx + ' button[name="fm-nonstructural-cons-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-nonstructural-cons-new"]' +
-      ' form[name="fm-nonstructural-cons"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-nonstructural', scenario_fileNew_cb, scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-nonstructural-cons', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Fragility model: contents (init)
-    $(cf_obj['scen'].pfx + ' button[name="fm-contents-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-contents-new"]' +
-      ' form[name="fm-contents"]').submit(scenario_fileNew_upload);
-
-    $(cf_obj['scen'].pfx + ' button[name="fm-contents-cons-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-contents-cons-new"]' +
-      ' form[name="fm-contents-cons"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-contents', scenario_fileNew_cb, scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-contents-cons', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Fragility model: businter (init)
-    $(cf_obj['scen'].pfx + ' button[name="fm-businter-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-businter-new"]' +
-      ' form[name="fm-businter"]').submit(scenario_fileNew_upload);
-
-    $(cf_obj['scen'].pfx + ' button[name="fm-businter-cons-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="fm-businter-cons-new"]' +
-      ' form[name="fm-businter-cons"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-businter', scenario_fileNew_cb, scenario_fileNew_upload);
+    file_uploader_init('scen', 'fm-businter-cons', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Vulnerability model (init)
     vulnerability_model_init('scen', scenario_fileNew_cb, scenario_fileNew_upload,
@@ -1096,10 +989,7 @@ $(document).ready(function () {
     // Calculation parameters (init)
 
     // Calculation parameters: imt (init)
-    $(cf_obj['scen'].pfx + ' button[name="gmpe-new"]').click(
-        scenario_fileNew_cb);
-    $(cf_obj['scen'].pfx + ' div[name="gmpe-new"]' +
-      ' form[name="gmpe"]').submit(scenario_fileNew_upload);
+    file_uploader_init('scen', 'gmpe', scenario_fileNew_cb, scenario_fileNew_upload);
 
     // Calculation parameters: gsim_logic_tree_file (init)
     $(cf_obj['scen'].pfx + ' select[name="gmpe"]').searchableOptionList(
@@ -1144,9 +1034,29 @@ $(document).ready(function () {
             /* generic callback to show upload div (init) */
             $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
             if ($(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
-                $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(scenario_fileNew_upload);
-                if (window.gem_not_interactive == undefined) {
+                if (typeof window.gem_not_interactive == 'undefined') {
                     $(cf_obj['scen'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+                    var name = e.target.name;
+
+                    function uploader_rollback() {
+                        if ($(cf_obj['scen'].pfx + ' div[name="' + name +
+                              '"] input[type="file"]').val().length > 0) {
+                            $(document.body).off('focusin', uploader_rollback);
+                            return;
+                        }
+
+                        var $msg = $(cf_obj['scen'].pfx + ' div[name="' + name + '"] div[name="msg"]');
+                        $msg.html("Upload file cancelled.");
+                        $(cf_obj['scen'].pfx + ' div[name="' + name + '"]').delay(3000).slideUp({
+                            done: function () {
+                                $(cf_obj['scen'].pfx + ' div[name="' + name + '"] div[name="msg"]').html('');
+                            }
+                        });
+                        $(document.body).off('focusin', uploader_rollback);
+                    }
+                    $(document.body).on('focusin', uploader_rollback);
+
+
                 }
             }
         }
@@ -1221,7 +1131,7 @@ $(document).ready(function () {
             exposure_model_regcons_choice: false,
             exposure_model_regcons_coords_data: null,
 
-            asset_hazard_distance_choice: false,
+            asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
 
             // rupture information
@@ -1693,9 +1603,28 @@ $(document).ready(function () {
             /* generic callback to show upload div (init) */
             $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
             if ($(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
-                $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').change(event_based_fileNew_upload);
-                if (window.gem_not_interactive == undefined) {
+                if (typeof window.gem_not_interactive == 'undefined') {
                     $(cf_obj['e_b'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+
+                    var name = e.target.name;
+
+                    function uploader_rollback() {
+                        if ($(cf_obj['e_b'].pfx + ' div[name="' + name +
+                              '"] input[type="file"]').val().length > 0) {
+                            $(document.body).off('focusin', uploader_rollback);
+                            return;
+                        }
+
+                        var $msg = $(cf_obj['e_b'].pfx + ' div[name="' + name + '"] div[name="msg"]');
+                        $msg.html("Upload file cancelled.");
+                        $(cf_obj['e_b'].pfx + ' div[name="' + name + '"]').delay(3000).slideUp({
+                            done: function () {
+                                $(cf_obj['e_b'].pfx + ' div[name="' + name + '"] div[name="msg"]').html('');
+                            }
+                        });
+                        $(document.body).off('focusin', uploader_rollback);
+                    }
+                    $(document.body).on('focusin', uploader_rollback);
                 }
             }
         }
@@ -1785,22 +1714,16 @@ $(document).ready(function () {
         var $target = $(cf_obj['e_b'].pfx + ' div[name="hazard-model"]');
 
         // Hazard model: source_model_logic_tree_file (init)
-        $target.find('button[name="source-model-logic-tree-file-new"]').click(
-            event_based_fileNew_cb);
-        $target.find('div[name="source-model-logic-tree-file-new"]' +
-          ' form[name="source-model-logic-tree-file"]').submit(event_based_fileNew_upload);
+        file_uploader_init($target, 'source-model-logic-tree-file',
+                           event_based_fileNew_cb, event_based_fileNew_upload)
 
         // Hazard model: source_tree_file (init)
-        $target.find('button[name="source-model-file-new"]').click(
-            event_based_fileNew_cb);
-        $target.find('div[name="source-model-file-new"]' +
-          ' form[name="source-model-file"]').submit(event_based_fileNew_upload);
+        file_uploader_init($target, 'source-model-file',
+                           event_based_fileNew_cb, event_based_fileNew_upload)
 
         // Hazard model: gsim_logic_tree_file (init)
-        $target.find('button[name="gsim-logic-tree-file-new"]').click(
-            event_based_fileNew_cb);
-        $target.find('div[name="gsim-logic-tree-file-new"]' +
-          ' form[name="gsim-logic-tree-file"]').submit(event_based_fileNew_upload);
+        file_uploader_init($target, 'gsim-logic-tree-file',
+                           event_based_fileNew_cb, event_based_fileNew_upload)
 
         $target.find('input[type="checkbox"][name="rupture_mesh_spacing_choice"]').click(
             event_based_manager);
@@ -1938,7 +1861,7 @@ $(document).ready(function () {
             exposure_model_regcons_choice: false,
             exposure_model_regcons_coords_data: null,
 
-            asset_hazard_distance_choice: false,
+            asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
 
             // vulnerability model
@@ -2066,7 +1989,7 @@ $(document).ready(function () {
                 for (f_id in obj.source_model_file) {
                     fname = obj.source_model_file[f_id];
                     uniqueness_add(files_list, 'source model: item #' + (parseInt(f_id) + 1), fname);
-                ret.str += uniqueness_check(files_list);
+                    ret.str += uniqueness_check(files_list);
                 }
             }
 
@@ -2312,4 +2235,383 @@ $(document).ready(function () {
          + '</div></div>', placement: 'bottom'});
 
     $(cf_obj['e_b'].pfx + ' input[name="hazard"]').prop('checked', true).triggerHandler('click');
+
+    /*
+     * - - - VOLCANO - - -
+     */
+
+    function volcano_fileNew_upload(event)
+    {
+        form = $(event.target).parent('form').get(0);
+        return generic_fileNew_upload('vol', form, event);
+    }
+
+    function volcano_fileNew_collect(event, reply)
+    {
+        return generic_fileNew_collect('vol', reply, event);
+    }
+
+    function volcano_manager()
+    {
+        var $phen, $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']");
+        var $phen_input, $file_new, is_ashfall, is_cons_model, $cons_model;
+
+        var $expo_is_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-reg-constr']");
+        var $expo_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='region-constraint']");
+
+        for (var i = 0 ; i < $phens.length ; i++) {
+            is_ashfall = $($phens[i]).attr('name') == 'ashfall';
+
+            $phen = $($phens[i]);
+            $phen_input = $(cf_obj['vol'].pfx + " div[name='" + $phen.attr('name') + "-input']");
+
+            if ($phen.is(':checked')) {
+                $phen_input.show();
+                phen_type = $phen_input.find("select[name='in-type']").val();
+                $epsg_tag = $phen_input.find("div[name='epsg']");
+                $discr_dist_tag = $phen_input.find("div[name='discr-dist']");
+                $haz_field_tag = $phen_input.find("div[name='haz-field']");
+                $density_tag = $phen_input.find("div[name='density']");
+                if (phen_type == 'text') {
+                    $epsg_tag.show();
+                    $discr_dist_tag.hide();
+                    $haz_field_tag.hide();
+                    $density_tag.show();
+                }
+                else if (phen_type == 'openquake') {
+                    $epsg_tag.hide();
+                    $discr_dist_tag.hide();
+                    $haz_field_tag.hide();
+                    $density_tag.hide();
+                }
+                else if (phen_type == 'shape') {
+                    $epsg_tag.hide();
+                    $discr_dist_tag.show();
+                    $haz_field_tag.show();
+                    $density_tag.show();
+                }
+                var accept_in = multi_accept[$phen.attr('name') + '_file'][phen_type];
+                var accept = "";
+
+                for (var e = 0 ; e < accept_in.length ; e++) {
+                    accept += (e > 0 ? ", " : "") + "." + accept_in[e];
+                }
+
+                $(cf_obj['vol'].pfx + ' div[name="' + $phen.attr('name') +
+                  '-input' + '"] input[type="file"]').attr('accept', accept);
+
+                if (is_ashfall) {
+                    is_cons_model = $(cf_obj['vol'].pfx +
+                                      " div[name='fragility'] input[name='is-cons-models']").is(':checked');
+                    $cons_model = $(cf_obj['vol'].pfx + " div[name='fragility'] div[name='ashfall-cons']");
+                    if (is_cons_model)
+                        $cons_model.show();
+                    else
+                        $cons_model.hide();
+                    $(cf_obj['vol'].pfx + " div[name='fragility']").show();
+                }
+            }
+            else {
+                $phen_input.hide();
+                if (is_ashfall) {
+                    $(cf_obj['vol'].pfx + " div[name='fragility']").hide();
+                }
+            }
+        }
+
+        // Exposure model (ui)
+        exposure_model_sect_manager('vol', true, true, false);
+    }
+
+    /* generic callback to show upload div */
+    function volcano_fileNew_cb(e) {
+        var name = $(e.target).attr('name');
+        var $epsg = $(e.target).parent().parent().find('input[name="' + name.slice(0, -9) + '-epsg"]');
+
+        if ($epsg.length > 0) {
+            if ($epsg.val()  == '') {
+                gem_ipt.error_msg('Associated coordinate reference system [EPSG] not properly set.');
+                return;
+            }
+        }
+
+        if (typeof gem_api == 'undefined') {
+            /* generic callback to show upload div (init) */
+            $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+            if ($(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"]').css('display') != 'none') {
+                if (typeof window.gem_not_interactive == 'undefined') {
+                    $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"] input[type="file"]').click();
+                    var name = e.target.name;
+
+                    function uploader_rollback() {
+                        if ($(cf_obj['vol'].pfx + ' div[name="' + name +
+                              '"] input[type="file"]').val().length > 0) {
+                            $(document.body).off('focusin', uploader_rollback);
+                            return;
+                        }
+
+                        var $msg = $(cf_obj['vol'].pfx + ' div[name="' + name + '"] div[name="msg"]');
+                        $msg.html("Upload file cancelled.");
+                        $(cf_obj['vol'].pfx + ' div[name="' + name + '"]').delay(3000).slideUp({
+                            done: function () {
+                                $(cf_obj['vol'].pfx + ' div[name="' + name + '"] div[name="msg"]').html('');
+                            }
+                        });
+                        $(document.body).off('focusin', uploader_rollback);
+                    }
+                    $(document.body).on('focusin', uploader_rollback);
+                }
+            }
+        }
+        else { // if (gem_api == null
+            var event = e;
+            var $msg = $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"] div[name="msg"]');
+            $(cf_obj['vol'].pfx + ' div[name="' + e.target.name + '"]').slideToggle();
+
+            var $sibling = $(e.target).siblings("select[name='file_html']");
+            var subdir = $sibling.attr('data-gem-subdir');
+            var sel_grp = $sibling.attr('data-gem-group');
+            var is_multiple = $sibling.is("[multiple]");
+
+            function cb(uuid, app_msg) {
+                if (! app_msg.complete)
+                    return;
+
+                var cmd_msg = app_msg.result;
+                if (cmd_msg.success) {
+                    $msg.html("File '" + cmd_msg.content[0] + "' collected correctly.");
+                    volcano_fileNew_collect(event, cmd_msg);
+                }
+                else {
+                    $msg.html(cmd_msg.reason);
+                }
+                $(cf_obj['vol'].pfx + ' div[name="' + event.target.name + '"]').delay(3000).slideUp();
+            }
+            gem_api.select_and_copy_file(cb, subdir, is_multiple);
+        }
+    }
+
+    /* force to have at least one checkbox enabled */
+    function volcano_phen_cb(event)
+    {
+        var $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']:checked");
+
+        if ($phens.length == 0) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+        }
+        volcano_manager();
+    }
+
+    /* - - - VOLCANO (INIT) - - - */
+
+    $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']").click(volcano_phen_cb);
+    $(cf_obj['vol'].pfx + ' input[name="ashfall"]').prop('checked', true).triggerHandler('click');
+    $(cf_obj['vol'].pfx + " div[name='fragility'] input[name='is-cons-models']").click(volcano_manager);
+
+    // Exposure model (init)
+    exposure_model_init('vol', volcano_fileNew_cb, volcano_fileNew_upload, volcano_manager);
+
+    var phenomena = cf_obj['vol'].phenomena;
+    var phenomena_name = cf_obj['vol'].phenomena_name;
+    for (var i = 0 ; i < phenomena.length ; i++) {
+        file_uploader_init('vol', phenomena[i] + '-file', volcano_fileNew_cb, volcano_fileNew_upload);
+        $(cf_obj['vol'].pfx + " div[name='" + phenomena[i] + "-input'] select[name='in-type']"
+         ).change(function in_type_change(event) {
+             var $obj = $(event.target).parent().parent().find("form#file-upload-form");
+             generic_fileNew_refresh('vol', $obj, event);
+             volcano_manager();
+         });
+    }
+
+    file_uploader_init('vol', 'fm-ashfall-file', volcano_fileNew_cb, volcano_fileNew_upload);
+    file_uploader_init('vol', 'fm-ashfall-cons', volcano_fileNew_cb, volcano_fileNew_upload);
+
+    // Volcano outputs (init)
+    $(cf_obj['vol'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
+
+    function volcano_getData()
+    {
+
+        var files_list = [];
+        var $tab = $(cf_obj['vol'].pfx);
+        var ret = {
+            ret: -1,
+            str: '',
+            obj: null
+        };
+        var obj = {
+            description: null,
+
+            ashfall_in_type: false,
+            lavaflow_in_type: false,
+            lahar_in_type: false,
+            pyroclasticflow_in_type: false,
+
+            ashfall_choice: false,
+            lavaflow_choice: false,
+            lahar_choice: false,
+            pyroclasticflow_choice: false,
+
+            ashfall_file: null,
+            ashfall_epsg: null,
+            ashfall_discr_dist: null,
+            ashfall_haz_field: null,
+            ashfall_ass_haz_dist: null,
+            ashfall_wet_ampl: "",
+            ashfall_density: "",
+
+            // fragility
+            fm_ashfall_file: null,
+            ashfall_cons_models_choice: false,
+            ashfall_cons_models_file: null,
+
+            lavaflow_file: null,
+            lavaflow_epsg: null,
+            lavaflow_discr_dist: null,
+            lavaflow_haz_field: null,
+            lavaflow_ass_haz_dist: null,
+
+            lahar_epsg: null,
+            lahar_file: null,
+            lahar_discr_dist: null,
+            lahar_haz_field: null,
+            lahar_ass_haz_dist: null,
+
+            pyroclasticflow_file: null,
+            pyroclasticflow_epsg: null,
+            pyroclasticflow_discr_dist: null,
+            pyroclasticflow_haz_field: null,
+            pyroclasticflow_ass_haz_dist: null,
+
+            // exposure
+            exposure_model: null,
+            exposure_model_regcons_choice: false,
+            exposure_model_regcons_coords_data: null,
+
+            asset_hazard_distance_enabled: false,
+            asset_hazard_distance: null,
+
+            // # FIXME modal_damage_state
+            // is_modal_damage_state: false
+        };
+
+        obj.description = $tab.find('textarea[name="description"]').val();
+        obj.description = obj.description.replace(
+            new RegExp("\n", "g"), " ").replace(new RegExp("\r", "g"), " ").trim();
+        if (obj.description == '') {
+            ret.str += "'Description' field is empty.\n";
+        }
+
+        var phenomena = cf_obj['vol'].phenomena;
+        var phenomena_name = cf_obj['vol'].phenomena_name;
+        var in_type;
+        for (var i = 0 ; i < phenomena.length ; i++) {
+            obj[phenomena[i] + "_choice"] = $tab.find(
+                "input[type='checkbox'][name='" + phenomena[i] + "']").is(':checked');
+            if (! obj[phenomena[i] + "_choice"])
+                continue;
+
+            in_type = $tab.find(
+                "div[name='" + phenomena[i] + "-input'] select[name='in-type']").val();
+
+            obj[phenomena[i] + "_in_type"] = in_type;
+
+            obj[phenomena[i] + "_ass_haz_dist"] = $tab.find(
+                "div[name='" + phenomena[i] + "-input'] input[name='spec-ass-haz-dist']").val();
+
+            obj[phenomena[i] + "_file"] = $tab.find('div[name="' + phenomena[i] + '-input"]\
+                div[name="' + phenomena[i] + '-file-html"] select[name="file_html"]').val();
+            if (obj[phenomena[i] + "_file"] == "") {
+                ret.str += upper_first(phenomena_name[i]) + ": associated file not set.\n";
+            }
+
+            if (in_type == 'text') {
+                obj[phenomena[i] + '_epsg'] = $tab.find(
+                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="epsg"]').val();
+                if (obj[phenomena[i] + '_epsg'] == '') {
+                    ret.str += upper_first(phenomena_name[i]) + ": EPSG is empty.\n";
+                    console.log('mop: catched');
+                }
+            }
+            else if (in_type == 'shape') {
+                obj[phenomena[i] + '_discr_dist'] = $tab.find(
+                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="discr-dist"]').val();
+                if (obj[phenomena[i] + '_discr_dist'] == '') {
+                    ret.str += upper_first(phenomena_name[i]) + ": discretization distance is empty.\n";
+                }
+                obj[phenomena[i] + '_haz_field'] = $tab.find(
+                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="haz-field"]').val();
+                if (obj[phenomena[i] + '_haz_field'] == '') {
+                    ret.str += upper_first(phenomena_name[i]) + ": hazard field is empty.\n";
+                }
+            }
+        }
+
+        if (obj.ashfall_choice) {
+            obj.ashfall_wet_ampl = $tab.find(
+                'div[name="ashfall-input"] input[type="text"][name="wet-ampl"]').val();
+            if (obj.ashfall_wet_ampl == "" || parseFloat(obj.ashfall_wet_ampl) < 1.0) {
+                ret.str += "'Ash wet amplification factor' value must be >= 1.0.\n";
+            }
+
+            obj.ashfall_density = $tab.find(
+                'div[name="ashfall-input"] input[type="text"][name="density"]').val();
+            if (obj.ashfall_density == "" || parseFloat(obj.ashfall_density) < 1.0) {
+                ret.str += "'Ash density' value must be >= 1.0.\n";
+            }
+
+            obj.fm_ashfall_file = $tab.find('div[name="fragility"] div[name="fm-ashfall-file-html"]' +
+                                          ' select[name="file_html"]').val();
+            if (obj.fm_ashfall_file == "")
+                ret.str += "Fragility function associated file not set.\n";
+
+
+            obj.ashfall_cons_models_choice = $tab.find(
+                'div[name="fragility"]' +
+                    ' input[type="checkbox"][name="is-cons-models"]').is(':checked');
+            if (obj.ashfall_cons_models_choice) {
+                obj.ashfall_cons_models_file = $tab.find(
+                    'div[name="fragility"] div[name="fm-ashfall-cons-html"]' +
+                        ' select[name="file_html"]').val();
+                if (obj.ashfall_cons_models_file == "")
+                    ret.str += "Consequence models file not set.\n";
+            }
+        }
+
+        // Exposure model (get)
+        exposure_model_getData('vol', ret, files_list, obj, true, true);
+
+        // # FIXME modal_damage_state
+        // obj.is_modal_damage_state = ($tab.find(
+        //    "select[name='is-modal-damage-state']").val() == "yes");
+        //
+        if (ret.str == '') {
+            ret.ret = 0;
+            ret.obj = obj;
+        }
+        return ret;
+    }
+    cf_obj['vol'].getData = volcano_getData;
+
+    function volcano_download_cb(e)
+    {
+        var generic_prepare_download_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_download_normal_postcb : generic_prepare_download_gemapi_postcb;
+
+        return generic_prepare_cb('vol', this, generic_prepare_download_postcb, e);
+    }
+    $(cf_obj['vol'].pfx + ' button[name="download"]').click(volcano_download_cb);
+
+    function volcano_runcalc_cb(e)
+    {
+        var generic_prepare_runcalc_postcb = (typeof gem_api == 'undefined') ?
+            generic_prepare_runcalc_normal_postcb : generic_prepare_runcalc_gemapi_postcb;
+
+        return generic_prepare_cb('vol', this, generic_prepare_runcalc_postcb, e);
+    }
+    $(cf_obj['vol'].pfx + ' button[name="run-calc-btn"]').click(volcano_runcalc_cb);
+
+    volcano_manager();
 });
