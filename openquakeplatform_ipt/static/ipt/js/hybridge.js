@@ -7,7 +7,7 @@
  * @licstart  The following is the entire license notice for the
  *  JavaScript code in this page.
  *
- * Copyright (C) 2018 Matteo Nastasi
+ * Copyright (C) 2018-2019 Matteo Nastasi
  *
  *
  * The JavaScript code in this page is free software: you can

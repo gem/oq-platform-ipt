@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2016-2017, GEM Foundation.
+   Copyright (c) 2016-2019, GEM Foundation.
 
       This program is free software: you can redistribute it and/or modify
       it under the terms of the GNU Affero General Public License as
