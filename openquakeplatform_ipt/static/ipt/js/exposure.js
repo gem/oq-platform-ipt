@@ -905,6 +905,21 @@ function ex_convert2nrml()
         }
         tagNames += "</tagNames>\n";
     }
+
+    var occupancyPeriods = "";
+    if (exp_type == 'csv') {
+        occupancyPeriods = "\t\t<occupancyPeriods>";
+
+        var occus = ["day", "night", "transit"];
+        for (var occu_idx in occus ) {
+            var occu = occus[occu_idx];
+
+            if (ex_obj.o.find('div#occupantsCheckBoxes input[type="checkbox"][value="' + occu + '"]').is(':checked')) {
+                occupancyPeriods += occu + " ";
+            }
+        }
+        occupancyPeriods += "</occupancyPeriods>\n";
+    }
     // Create a NRML element
     var nrml =
         '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -920,6 +935,7 @@ function ex_convert2nrml()
                     deductible +
                 '\t\t</conversions>\n' +
                 tagNames +
+                occupancyPeriods +
                 '\t\t<assets>\n' +
                     asset +
                 '\t\t</assets>\n' +
