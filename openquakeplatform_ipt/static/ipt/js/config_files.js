@@ -735,7 +735,8 @@ $(document).ready(function () {
                     for (var i = 0 ; i < tabs.length ; i++) {
                         tab = tabs[i];
 
-                        var $all_selects = $(cf_obj[tab].pfx + ' select[name="file_html"]');
+                        var $all_selects = $(cf_obj[tab].pfx + ' select[name="file_html"]'
+                                            ).add(ex_obj.pfx + ' select[name="file_html"]');
 
                         for (var e = 0 ; e < $all_selects.length ; e++) {
                             $sel = $($all_selects[e]);
@@ -2430,6 +2431,9 @@ $(document).ready(function () {
 
     // Volcano outputs (init)
     $(cf_obj['vol'].pfx + ' button[name="clean_all"]').click(clean_all_cb);
+
+    // Scope violation but isn't so serious
+    $(ex_obj.pfx + ' button[name="clean_all"]').click(clean_all_cb);
 
     function volcano_getData()
     {
