@@ -1,20 +1,50 @@
 import os
+import sys
+import re
 from setuptools import setup
 
-with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
-    README = readme.read()
+
+def get_version():
+    version_re = r"^__version__\s+=\s+['\"]([^'\"]*)['\"]"
+    version = None
+
+    package_init = 'openquakeplatform_ipt/__init__.py'
+    for line in open(package_init, 'r'):
+        version_match = re.search(version_re, line, re.M)
+        if version_match:
+            version = version_match.group(1)
+            break
+    else:
+        sys.exit('__version__ variable not found in %s' % package_init)
+
+    return version
+
+
+def get_readme():
+    if sys.version_info[0] == 3:
+        kwargs = {'encoding': 'utf-8'}
+    else:
+        kwargs = {}
+
+    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                           'README.rst'), **kwargs) as readme:
+        return readme.read()
+
 
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
+version = get_version()
+readme = get_readme()
+
 setup(
     name='oq-platform-ipt',
-    version='1.2.0',
+    version=version,
     packages=["openquakeplatform_ipt"],
     include_package_data=True,
     license='BSD License',  # example license
     description='Input Preparation Toolkit for OpenQuake Platform.',
-    long_description=README,
+    long_description=readme,
     url='http://github.com/gem/oq-platform-ipt',
     author='GEM Foundation',
     author_email='devops@openquake.org',
