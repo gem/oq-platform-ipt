@@ -185,7 +185,8 @@ def gem_titan2_converter(z, userid, namespace, filename, file_collect,
                         lon = lon - 360.0
                     # Writing .csv file with EPGS:4326 coordinates
 
-                    csv_out.writerow(["%.5f" % lon, "%.5f" % lat, "%.5f" % float(el)])
+                    csv_out.writerow(["%.5f" % lon, "%.5f" % lat,
+                                      "%.5f" % float(el)])
 
                     x_cur += 1
                     if x_cur == cols_n:
@@ -262,7 +263,7 @@ def gem_shape_converter(z, userid, namespace, filename, file_collect,
                 if float(r[2]) <= 0.0:
                     continue
                 if density is None:
-                    intens = r[2]
+                    intens = r[2].strip()
                 else:
                     load_kpa = ((float(density) * VolConst.g *
                                  (float(r[2]) / 1000.)) / 1000.)
