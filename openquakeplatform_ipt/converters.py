@@ -255,7 +255,7 @@ def gem_shape_converter(z, userid, namespace, filename, file_collect,
 
         csv_filepath = os.path.join(tmp_path, csv_filename)
         with open(os.path.join(tmp_path, xyz_filename),
-                  "r") as f_in, open(csv_filepath, 'w') as f_out:
+                  "r") as f_in, open(csv_filepath, 'w', newline='') as f_out:
             csv_in = csv.reader(f_in)
             csv_out = csv.writer(f_out)
             csv_out.writerow(['lon', 'lat', 'intensity'])
