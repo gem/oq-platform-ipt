@@ -270,13 +270,16 @@ def gem_shape_converter(z, userid, namespace, filename, file_collect,
                 csv_out.writerow(
                     ["%.5f" % float(r[0]), "%.5f" % float(r[1]),
                      intens])
-
         zwrite_or_collect(z, userid, 'tmp',
                           os.path.join(tmp_path, csv_filename),
                           file_collect)
         csv_name = os.path.basename(csv_filename)
 
     finally:
+        del RetDS
+        del s_ds
+        del InDS
+
         if tmp_path and os.path.exists(tmp_path):
             shutil.rmtree(tmp_path)
 
