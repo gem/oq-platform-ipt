@@ -119,9 +119,6 @@ imt_examples = {
             {'exa_id': 99, 'subtab_id': 3,
              'zipfile': 'EventBasedHazard.zip',
              'sfx': 'zip'},
-            {'exa_id': 99, 'subtab_id': 4,
-             'zipfile': 'Volcano.zip',
-             'sfx': 'zip'},
             {'exa_id': 98, 'subtab_id': 4,
              'xpath': ["//div[@id='error-message']"],
              'sfx': 'txt'},
@@ -135,6 +132,11 @@ imt_examples = {
     }
 }
 
+if STANDALONE:
+    imt_examples['ConfigurationFile']['exams'].append(
+        {'exa_id': 99, 'subtab_id': 4,
+         'zipfile': 'Volcano.zip',
+         'sfx': 'zip'})
 
 _fpath_field_directory_old = None
 _fpath_field_directory = None
