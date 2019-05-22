@@ -17,17 +17,21 @@
 # along with OpenQuake. If not, see <http://www.gnu.org/licenses/>.
 
 import gc
+import sys
 import os
 import re
 import csv
 import tempfile
 import shutil
+import subprocess
 from pyproj import Proj, transform
 from osgeo import ogr, gdal
 from openquakeplatform_ipt.common import (
     VolConst, get_full_path, get_tmp_path,
     zwrite_or_collect)
 from zipfile import ZipFile
+
+GEM_PYTHONPATH_BIN = '/opt/openquake/bin/python3'
 
 
 class TransToWGS84(object):
@@ -39,6 +43,64 @@ class TransToWGS84(object):
         x_out, y_out = transform(self.proj_in, self.proj_out,
                                  x_in, y_in)
         return (x_out, y_out)
+
+
+def gem_esritxt_coreconv3(input_filepath, csv_filepath, epsg_in, density):
+    raster = gdal.Open(input_filepath)
+    rasterArray = raster.ReadAsArray()
+    lon, lon_delta, _, lat, _, lat_delta = raster.GetGeoTransform()
+
+    if epsg_in is not VolConst.epsg_out:
+        trans = TransToWGS84(epsg_in)
+
+    with open(csv_filepath, 'w', newline='') as csv_fout:
+        csv_out = csv.writer(csv_fout)
+        csv_out.writerow(['lon', 'lat', 'intensity'])
+
+        lat_out = lat + (lat_delta / 2.0)
+        for row in rasterArray:
+            lon_out = lon + (lon_delta / 2.0)
+            for el in row:
+                if float(el) <= 0.0:
+                    continue
+                if epsg_in is not VolConst.epsg_out:
+                    # original coordinates
+                    # transformed to EPGS:4326 using pyproj
+                    lon_out, lat_out = trans.coord(lon_out, lat_out)
+
+                if not (density is None):
+                    el = ((float(density) * VolConst.g *
+                           (float(el) / 1000.)) / 1000.)
+
+                row_out = ["%.5f" % lon_out, "%.5f" % lat_out, "%.5f" % el]
+                csv_out.writerow(row_out)
+
+                lon_out += lon_delta
+            lat_out += lat_delta
+
+
+def gem_esritxt_coreconv2(input_filepath, csv_filepath, epsg_in, density):
+    params = [GEM_PYTHONPATH_BIN, __file__, 'esritxt',
+              input_filepath, csv_filepath, epsg_in]
+    if density:
+        params.append(density)
+    sp = subprocess.Popen(params)
+    sp.wait()
+    if sp.returncode == 0:
+        return True
+    else:
+        # TODO: read output and raise ValueError excp.
+        cmd_output = "TODO"
+        raise ValueError(cmd_output)
+
+
+def gem_esritxt_coreconv(input_filepath, csv_filepath, epsg_in, density):
+    if sys.version_info.major == 3:
+        method = gem_esritxt_coreconv3
+    else:
+        method = gem_esritxt_coreconv2
+
+    return method(input_filepath, csv_filepath, epsg_in, density)
 
 
 def gem_esritxt_converter(z, userid, namespace, filename, file_collect,
@@ -56,41 +118,8 @@ def gem_esritxt_converter(z, userid, namespace, filename, file_collect,
 
         tmp_path = get_tmp_path(userid)
         csv_filepath = os.path.join(tmp_path, csv_filename)
-
-        raster = gdal.Open(input_filepath)
-        rasterArray = raster.ReadAsArray()
-        lon, lon_delta, _, lat, _, lat_delta = raster.GetGeoTransform()
-
-        if epsg_in is not VolConst.epsg_out:
-            trans = TransToWGS84(epsg_in)
-
-        with open(csv_filepath, 'w', newline='') as csv_fout:
-            csv_out = csv.writer(csv_fout)
-            csv_out.writerow(['lon', 'lat', 'intensity'])
-
-            lat_out = lat + (lat_delta / 2.0)
-            for row in rasterArray:
-                lon_out = lon + (lon_delta / 2.0)
-                for el in row:
-                    if float(el) <= 0.0:
-                        continue
-                    if epsg_in is not VolConst.epsg_out:
-                        # original coordinates
-                        # transformed to EPGS:4326 using pyproj
-                        lon_out, lat_out = trans.coord(lon_out, lat_out)
-
-                    if not (density is None):
-                        el = ((float(density) * VolConst.g *
-                               (float(el) / 1000.)) / 1000.)
-
-                    row_out = ["%.5f" % lon_out, "%.5f" % lat_out, "%.5f" % el]
-                    csv_out.writerow(row_out)
-
-                    lon_out += lon_delta
-                lat_out += lat_delta
-
-            zwrite_or_collect(z, userid, 'tmp', csv_filename,
-                              file_collect)
+        gem_esritxt_coreconv(input_filepath, csv_filepath, epsg_in, density)
+        zwrite_or_collect(z, userid, 'tmp', csv_filename, file_collect)
     finally:
         if os.path.exists(csv_filepath):
             os.remove(csv_filepath)
@@ -322,3 +351,18 @@ def gem_input_converter(z, key, input_type, userid, namespace, filename,
             return gem_titan2_converter(
                 z, userid, namespace, filename, file_collect,
                 epsg_in)
+
+
+if __name__ == '__main__':
+    if sys.argv[1] == 'esritxt':
+        if len(sys.argv) < 5:
+            sys.exit(1)
+        input_filepath = sys.argv[1]
+        csv_filepath = sys.argv[2]
+        epsg_in = sys.argv[3]
+        if len(sys.argv) == 5:
+            density = sys.argv[4]
+        else:
+            density = None
+
+        gem_esritxt_coreconv3(input_filepath, csv_filepath, epsg_in, density)
