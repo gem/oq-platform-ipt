@@ -51,7 +51,8 @@ from openquakeplatform.utils import oq_is_qgis_browser
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
 from distutils.version import StrictVersion
 
-from openquakeplatform_ipt.common import (VolConst, get_full_path,
+from openquakeplatform_ipt.multienv_common import VolConst
+from openquakeplatform_ipt.common import (get_full_path,
                                           zwrite_or_collect,
                                           zwrite_or_collect_str)
 
@@ -1480,8 +1481,7 @@ def volcano_prepare(request, **kwargs):
                                          phenoms[key]['name'],))
 
                 if key == VolConst.ph_ashf:
-                    density = float(
-                        data[phenoms[key]['name'] + '_density'])
+                    density = data[phenoms[key]['name'] + '_density']
                 else:
                     density = None
 
@@ -1509,15 +1509,14 @@ def volcano_prepare(request, **kwargs):
                                              phenoms[key]['name'],))
 
                 if key == VolConst.ph_ashf:
-                    density = float(
-                        data[phenoms[key]['name'] + '_density'])
+                    density = data[phenoms[key]['name'] + '_density']
                 else:
                     density = None
 
                 phenom_inputfile = gem_input_converter(
                     z, key, VolConst.ty_shap, userid, namespace,
                     phenoms[key]['f'], file_collect,
-                    float(data[phenoms[key]['name'] + '_discr_dist']),
+                    data[phenoms[key]['name'] + '_discr_dist'],
                     data[phenoms[key]['name'] + '_haz_field'],
                     density)
 
