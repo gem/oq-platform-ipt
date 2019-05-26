@@ -19,7 +19,11 @@
 import sys
 import os
 
-from multienv_common import VolConst
+try:
+    from multienv_common import VolConst
+except ImportError:
+    from openquakeplatform_ipt.multienv_common import VolConst
+
 
 GDAL2_AVAILABLE = False
 try:
