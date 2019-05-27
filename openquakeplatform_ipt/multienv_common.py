@@ -1,0 +1,13 @@
+class VolConst():
+    ph_ashf = 'ASH'
+    ph_lava = 'LAVA'
+    ph_laha = 'LAHAR'
+    ph_pyro = 'PYRO'
+
+    ty_text = 'text'
+    ty_open = 'openquake'
+    ty_shap = 'shape'
+
+    g = 9.80665
+
+    epsg_out = '4326'
