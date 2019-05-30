@@ -291,7 +291,10 @@ from zipfile import ZipFile
 GEM_PYTHONPATH_BIN = '/opt/openquake/bin/python3'
 
 
-def execute_external_prog(args):
+def reexecute_with_engine_py3(args_in):
+    py_name = (__file__[:-1] if __file__.endswith('.pyc') else __file__)
+    args = [GEM_PYTHONPATH_BIN, py_name]
+    args.extend(args_in)
     sp = subprocess.Popen(
         args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = sp.communicate()
@@ -303,11 +306,10 @@ def execute_external_prog(args):
 
 def gem_esritxt_coreconv_delegate(input_filepath, csv_filepath, epsg_in,
                                   density):
-    params = [GEM_PYTHONPATH_BIN, __file__, 'esritxt',
-              input_filepath, csv_filepath, epsg_in]
+    params = ['esritxt', input_filepath, csv_filepath, epsg_in]
     if density:
         params.append(density)
-    return execute_external_prog(params)
+    return reexecute_with_engine_py3(params)
 
 
 def gem_esritxt_coreconv(input_filepath, csv_filepath, epsg_in, density):
@@ -321,12 +323,11 @@ def gem_esritxt_coreconv(input_filepath, csv_filepath, epsg_in, density):
 
 def gem_shape_coreconv_delegate(input_filepath, csv_filepath,
                                 attrib, p_size, density):
-    params = [GEM_PYTHONPATH_BIN, __file__, 'shape',
-              input_filepath, csv_filepath, attrib, p_size]
+    params = ['shape', input_filepath, csv_filepath, attrib, p_size]
     if density:
         params.append(density)
 
-    return execute_external_prog(params)
+    return reexecute_with_engine_py3(params)
 
 
 def gem_shape_coreconv(input_filepath, csv_filepath,
@@ -341,9 +342,8 @@ def gem_shape_coreconv(input_filepath, csv_filepath,
 
 
 def gem_titan2_coreconv_delegate(input_filepath, csv_filepath, epsg_in):
-    params = [GEM_PYTHONPATH_BIN, __file__, 'titan2',
-              input_filepath, csv_filepath, epsg_in]
-    return execute_external_prog(params)
+    params = ['titan2', input_filepath, csv_filepath, epsg_in]
+    return reexecute_with_engine_py3(params)
 
 
 def gem_titan2_coreconv(input_filepath, csv_filepath, epsg_in):
