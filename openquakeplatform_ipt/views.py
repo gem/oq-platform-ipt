@@ -709,7 +709,7 @@ def view(request, **kwargs):
     )
 
     if is_qgis_browser:
-        render_dict.update({'allowed_dir': ALLOWED_DIR.keys()})
+        render_dict.update({'allowed_dir': list(ALLOWED_DIR)})
 
     return render(request, "ipt/ipt.html", render_dict)
 
