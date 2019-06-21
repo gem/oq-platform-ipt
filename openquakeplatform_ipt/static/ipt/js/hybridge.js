@@ -86,7 +86,10 @@ HyBridge.prototype = {
 
         this.port.onmessage = function(msg) {
             console.log('onmsg: ' + msg.data);
-            return _this.receive(msg)
+            var hyb_msg = JSON.parse(msg.data);
+            if (hyb_msg.app != 'ipt')
+                return;
+            return _this.receive(hyb_msg.msg)
         };
 
         this.port.onclose = function(msg) {
