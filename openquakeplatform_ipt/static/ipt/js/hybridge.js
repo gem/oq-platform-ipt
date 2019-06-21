@@ -46,22 +46,74 @@ try {
 }
 
 HyBridge.prototype = {
+    retry_time: 5000,
+    abort_time: 5000,
     hybridge_id: _hybridge_id,
     app: null,
     name: null,
     port: null,
+    tosend: [],
     pending: {},
+    ws_status_cbs: {},
+    port_close_cbs: {},
 
     // connect to hybridge
     connect: function() {
+        clearTimeout(this.retry_tout);
+        this.retry_tout = null;
+
         var _this = this;
         if (this.port != null) {
-            // FIXME close previous
+            this.port.close();
+            this.port = null;
         }
         console.log('NAME: ' + this.app.name);
+        this.url = 'ws://127.0.0.1:8040/svir/ipt';
+
+        this.port = new WebSocket(this.url);
+        this.retry_tout = null;
+        this.close_tout = setTimeout(function() { console.log('TIMEOUT TRIGGERED'); _this.port.close(); },
+                                     this.abort_time);
+        this.port.onopen = function(event) { console.log('onopen');
+                                             clearTimeout(_this.close_tout);
+                                             _this.close_tout = null;
+                                             _this.tosend_flush();
+                                             for (var key in _this.ws_status_cbs) {
+                                                 var ws_status_cb = _this.ws_status_cbs[key];
+                                                 ws_status_cb(true);
+                                             }
+                                           };
+
+        this.port.onmessage = function(msg) {
+            console.log('onmsg: ' + msg.data);
+            return _this.receive(msg)
+        };
+
+        this.port.onclose = function(msg) {
+            console.log('onclose');
+            for (var key in _this.ws_status_cbs) {
+                console.log('update status loop');
+                var ws_status_cb = _this.ws_status_cbs[key];
+                ws_status_cb(false);
+            }
+            _this.ws_appstatus_cbs = {};
+            clearTimeout(_this.close_tout);
+            _this.close_tout = null;
+            _this.port = null;
+            _this.retry_tout = setTimeout(
+                function() {
+                    console.log('delayed retry to connect');
+                    _this.connect();
+                },
+                _this.retry_time);
+        }
+
+
+        /*
         this.port = chrome.runtime.connect(
             this.hybridge_id, {name: this.app.name});
         this.port.onMessage.addListener(function(msg) { return _this.receive(msg)});
+        */
     },
 
     // receive from hybridge
@@ -128,6 +180,51 @@ HyBridge.prototype = {
         }
     },
 
+    _real_send: function(uu, msg, on_reply_cb) {
+        this.pending[uu] = { 'msg': msg, 'cb': on_reply_cb };
+        console.log('Pending[' + uu + '] = ' + this.pending[uu]);
+        if (msg.msg != undefined && msg.msg.command == 'hybridge_track_status') {
+            console.log('RECEIVED hybridge_track_status');
+            this.hybridge_track_status({'app': 'ipt', 'msg': msg});
+            return;
+        }
+
+        this.port.send(JSON.stringify({'app': 'ipt' , 'frm': 'web', 'msg':msg}));
+    },
+
+    tosend_flush: function() {
+        console.log('tosend_flush: ' + this.tosend.length);
+        var tosend_l = this.tosend.length;
+        for (var i = 0 ; i < tosend_l ;  i++) {
+            var cur_cmd = this.tosend.shift();
+            this._real_send(cur_cmd.msg.uuid, cur_cmd.msg, cur_cmd.cb);
+        }
+    },
+
+    hybridge_track_status: function (hyb_msg) {
+        console.log('HTS');
+        console.log(hyb_msg);
+        var _this = this;
+        console.log("TRACK_STATUS: from hybridge");
+        function track_status_cb(is_conn) {
+            console.log("TRACK_STATUS: " + _this.port.readyState);
+            if (_this.port.readyState == WebSocket.CONNECTING) {
+                return;
+            }
+            var is_conn = _this.port.readyState == WebSocket.OPEN;
+            var api_rep = {
+                    'uuid': hyb_msg.msg.uuid,
+                'reply': {'success': is_conn, 'complete': false}};
+            _this.receive(api_rep);
+        }
+        this.ws_status_cbs[hyb_msg.msg.uuid] = track_status_cb;
+
+        this.port_close_cbs[hyb_msg.msg.uuid] = function ws_status_cbs_cleaner(uuid) {
+            delete _this.ws_status_cbs[uuid];
+        };
+        track_status_cb(this.ws_is_connect);
+    },
+
     // send to hybridge
     // { 'msg': {'command', 'args', [ ]}, uuid: <UUID> }
     send: function(msg, on_reply_cb) {
@@ -137,12 +234,35 @@ HyBridge.prototype = {
                         'uuid': uu
                         // maybe the time
                       };
-        if (this.port == null) {
+        console.log(api_msg);
+
+        // commands to manage internal status
+        if (api_msg.msg.command == 'hybridge_track_status') {
+            this._real_send(uu, api_msg, on_reply_cb);
+            return true;
+        }
+
+        if (this.port == null)
+            return false;
+
+        var st = this.port.readyState;
+
+        if (st == WebSocket.CLOSING || st == WebSocket.CLOSED)
+            return false;
+
+        if (st == WebSocket.OPEN) {
+            console.log('send, it is open');
+            this._real_send(uu, api_msg, on_reply_cb);
+        }
+        else if (st == WebSocket.CONNECTING) {
+            console.log('send but connecting');
+            this.tosend.push({ 'msg': api_msg, 'cb': on_reply_cb });
+        }
+        else {
+            console.log('unknown status ' % st);
             return false;
         }
-        console.log(api_msg);
-        this.port.postMessage(api_msg);
-        this.pending[uu] = { 'msg': api_msg, 'cb': on_reply_cb };
+
         return uu;
     }
 }

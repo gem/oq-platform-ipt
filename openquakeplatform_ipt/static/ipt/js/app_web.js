@@ -201,9 +201,27 @@ AppWeb.prototype = {
     hybridge: null,
     track_uuid: null,
     allowed_meths: ['set_cells'],
+    router: null,
 
     register: function (hybridge) {
         this.hybridge = hybridge;
+    },
+
+    hybridge_track_status: function (hyb_msg) {
+        var _this = this;
+
+        function track_status_cb(is_conn) {
+            _this.router.add_reply('bridge', hyb_msg.app, hyb_msg.msg,
+                                   {'success': is_conn, 'complete': false});
+        }
+        this.ws_status_cbs[hyb_msg.msg.uuid] = track_status_cb;
+
+        var app = this.apps[hyb_msg.app];
+
+        app.port_close_cbs[hyb_msg.msg.uuid] = function ws_status_cbs_cleaner(uuid) {
+            delete _this.ws_status_cbs[uuid];
+        };
+        track_status_cb(this.ws_is_connect);
     },
 
     /* this function is called when a malformed message is received */
