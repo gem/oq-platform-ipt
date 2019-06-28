@@ -211,6 +211,36 @@ try:
                 del RetDS
                 del s_ds
                 del InDS
+                del ogr_drv
+                gc.collect()
+
+        def gem_shape2wkt_coreconv_exec(input_filepath, wkt_filepath,
+                                        attrib):
+            try:
+                tmp_path = os.path.dirname(input_filepath)
+                shp_filename = os.path.basename(input_filepath)
+                wkt_filename = shp_filename[:-4] + "__shp.wkt"
+
+                ogr_drv = ogr.GetDriverByName('ESRI Shapefile')
+                shp_ds = ogr_drv.Open(input_filepath, 0)
+                shp_layer = shp_ds.GetLayerByIndex(0)
+
+                if shp_layer.GetFeatureCount() != 1:
+                    raise ValueError('1 feature only layers are supported')
+
+                for shp_fea in shp_layer:
+                    geom = shp_fea.GetGeometryRef()
+                    # Excluding Z dimension
+                    geom.FlattenTo2D()
+                    geom_wkt = geom.ExportToWkt()
+                    break
+
+                wkt_filepath = os.path.join(tmp_path, wkt_filename)
+                with open(wkt_filepath, 'w', newline='') as f_out:
+                    f_out.write(geom_wkt)
+            finally:
+                del shp_ds
+                del ogr_drv
                 gc.collect()
 
         if __name__ == '__main__':
@@ -227,7 +257,6 @@ try:
 
                 gem_esritxt_coreconv_exec(input_filepath, csv_filepath,
                                           epsg_in, density)
-                sys.exit(0)
             elif sys.argv[1] == 'shape':
                 if len(sys.argv) < 6 or len(sys.argv) > 7:
                     sys.exit(2)
@@ -242,7 +271,16 @@ try:
 
                 gem_shape_coreconv_exec(input_filepath, csv_filepath,
                                         attrib, p_size, density)
-                sys.exit(0)
+            elif sys.argv[1] == 'shape-to-wkt':
+                if len(sys.argv) < 5:
+                    sys.exit(2)
+                input_filepath = sys.argv[2]
+                wkt_filepath = sys.argv[3]
+                attrib = sys.argv[4]
+
+                gem_shape2wkt_coreconv_exec(input_filepath,
+                                            wkt_filepath,
+                                            attrib)
             elif sys.argv[1] == 'titan2':
                 if len(sys.argv) != 5:
                     sys.exit(2)
@@ -252,8 +290,9 @@ try:
 
                 gem_titan2_coreconv_exec(input_filepath, csv_filepath,
                                          epsg_in)
-                sys.exit(0)
-            sys.exit(1)
+            else:
+                sys.exit(1)
+            sys.exit(0)
 
 except ImportError:
     # if gdal 2 not available delegate to external environment
@@ -271,6 +310,12 @@ if not GDAL2_AVAILABLE:
                                 attrib, p_size, density):
         raise NotImplementedError(
             '"gem_shape_coreconv_exec" not implemented'
+            ' with this environment')
+
+    def gem_shape2wkt_coreconv_exec(input_filepath, wkt_filepath,
+                                    attrib):
+        raise NotImplementedError(
+            '"gem_shape2wkt_coreconv_exec" not implemented'
             ' with this environment')
 
     def gem_titan2_coreconv_exec(input_filepath, csv_filepath, epsg_in):
@@ -339,6 +384,23 @@ def gem_shape_coreconv(input_filepath, csv_filepath,
 
     return method(input_filepath, csv_filepath,
                   attrib, p_size, density)
+
+
+def gem_shape2wkt_coreconv_delegate(input_filepath, wkt_filepath,
+                                    attrib):
+    params = ['shape-to-wkt', input_filepath, wkt_filepath, attrib]
+
+    return reexecute_with_engine_py3(params)
+
+
+def gem_shape2wkt_coreconv(input_filepath, wkt_filepath,
+                           attrib):
+    if GDAL2_AVAILABLE:
+        method = gem_shape2wkt_coreconv_exec
+    else:
+        method = gem_shape2wkt_coreconv_delegate
+
+    return method(input_filepath, wkt_filepath, attrib)
 
 
 def gem_titan2_coreconv_delegate(input_filepath, csv_filepath, epsg_in):
@@ -449,6 +511,45 @@ def gem_shape_converter(z, userid, namespace, filename, file_collect,
     return csv_name
 
 
+def gem_shape2wkt_converter(z, userid, namespace, filename, file_collect,
+                            attrib):
+    if z is None:
+        raise ValueError("Shapefile input format not yet supported for"
+                         " hybridge QGIS integration")
+
+    input_filepath = get_full_path(userid, namespace, filename)
+    tmp_basepath = get_tmp_path(userid)
+    tmp_path = tempfile.mkdtemp(prefix='shpin_', dir=tmp_basepath)
+    try:
+        with ZipFile(input_filepath, 'r') as zip:
+            zip.extractall(path=tmp_path)
+
+        shp_files = [f for f in os.listdir(tmp_path) if (
+            f.endswith('.shp') or f.endswith('.SHP'))]
+
+        if len(shp_files) != 1:
+            raise ValueError('Not uniq .shp file not found in [%s] file.' %
+                             filename)
+
+        shp_filename = shp_files[0]
+        wkt_filename = shp_filename[:-4] + "__shp.wkt"
+        shp_filepath = os.path.join(tmp_path, shp_filename)
+        wkt_filepath = os.path.join(tmp_path, wkt_filename)
+
+        gem_shape2wkt_coreconv(shp_filepath, wkt_filepath,
+                               attrib)
+
+        zwrite_or_collect(z, userid, 'tmp',
+                          wkt_filepath, file_collect)
+        wkt_name = os.path.basename(wkt_filename)
+
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            shutil.rmtree(tmp_path)
+
+    return wkt_name
+
+
 def gem_input_converter(z, key, input_type, userid, namespace, filename,
                         file_collect, *args):
     """
@@ -470,6 +571,10 @@ def gem_input_converter(z, key, input_type, userid, namespace, filename,
         density = args[2]
         return gem_shape_converter(z, userid, namespace, filename,
                                    file_collect, p_size, attrib, density)
+    elif input_type == VolConst.ty_swkt:
+        attrib = args[0]
+        return gem_shape2wkt_converter(z, userid, namespace, filename,
+                                       file_collect, attrib)
     elif input_type == VolConst.ty_text:
         epsg_in = args[0]
         density = args[1]

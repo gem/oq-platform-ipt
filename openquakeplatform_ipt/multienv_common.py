@@ -7,6 +7,7 @@ class VolConst():
     ty_text = 'text'
     ty_open = 'openquake'
     ty_shap = 'shape'
+    ty_swkt = 'shape-to-wkt'
 
     g = 9.80665
 
