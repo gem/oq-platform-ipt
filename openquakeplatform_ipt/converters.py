@@ -237,8 +237,9 @@ try:
 
                 wkt_filepath = os.path.join(tmp_path, wkt_filename)
                 with open(wkt_filepath, 'w', newline='') as f_out:
-                    f_out.write('geom\n')
+                    f_out.write('WKT\n"')
                     f_out.write(geom_wkt)
+                    f_out.write('"\n')
             finally:
                 del shp_ds
                 del ogr_drv
