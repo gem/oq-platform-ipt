@@ -219,7 +219,7 @@ try:
             try:
                 tmp_path = os.path.dirname(input_filepath)
                 shp_filename = os.path.basename(input_filepath)
-                wkt_filename = shp_filename[:-4] + "__shp.wkt"
+                wkt_filename = shp_filename[:-4] + "__shp.csv"
 
                 ogr_drv = ogr.GetDriverByName('ESRI Shapefile')
                 shp_ds = ogr_drv.Open(input_filepath, 0)
@@ -237,6 +237,7 @@ try:
 
                 wkt_filepath = os.path.join(tmp_path, wkt_filename)
                 with open(wkt_filepath, 'w', newline='') as f_out:
+                    f_out.write('geom\n')
                     f_out.write(geom_wkt)
             finally:
                 del shp_ds
@@ -532,7 +533,7 @@ def gem_shape2wkt_converter(z, userid, namespace, filename, file_collect,
                              filename)
 
         shp_filename = shp_files[0]
-        wkt_filename = shp_filename[:-4] + "__shp.wkt"
+        wkt_filename = shp_filename[:-4] + "__shp.csv"
         shp_filepath = os.path.join(tmp_path, shp_filename)
         wkt_filepath = os.path.join(tmp_path, wkt_filename)
 
