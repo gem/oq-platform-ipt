@@ -216,8 +216,7 @@ try:
                 del ogr_drv
                 gc.collect()
 
-        def gem_shape2wkt_coreconv_exec(input_filepath, wkt_filepath,
-                                        attrib):
+        def gem_shape2wkt_coreconv_exec(input_filepath, wkt_filepath):
             try:
                 tmp_path = os.path.dirname(input_filepath)
                 shp_filename = os.path.basename(input_filepath)
@@ -287,15 +286,13 @@ try:
                 gem_shape_coreconv_exec(input_filepath, csv_filepath,
                                         attrib, p_size, density)
             elif sys.argv[1] == 'shape-to-wkt':
-                if len(sys.argv) < 5:
+                if len(sys.argv) != 4:
                     sys.exit(2)
                 input_filepath = sys.argv[2]
                 wkt_filepath = sys.argv[3]
-                attrib = sys.argv[4]
 
                 gem_shape2wkt_coreconv_exec(input_filepath,
-                                            wkt_filepath,
-                                            attrib)
+                                            wkt_filepath)
             elif sys.argv[1] == 'titan2':
                 if len(sys.argv) != 5:
                     sys.exit(2)
@@ -327,8 +324,7 @@ if not GDAL2_AVAILABLE:
             '"gem_shape_coreconv_exec" not implemented'
             ' with this environment')
 
-    def gem_shape2wkt_coreconv_exec(input_filepath, wkt_filepath,
-                                    attrib):
+    def gem_shape2wkt_coreconv_exec(input_filepath, wkt_filepath):
         raise NotImplementedError(
             '"gem_shape2wkt_coreconv_exec" not implemented'
             ' with this environment')
@@ -401,21 +397,19 @@ def gem_shape_coreconv(input_filepath, csv_filepath,
                   attrib, p_size, density)
 
 
-def gem_shape2wkt_coreconv_delegate(input_filepath, wkt_filepath,
-                                    attrib):
-    params = ['shape-to-wkt', input_filepath, wkt_filepath, attrib]
+def gem_shape2wkt_coreconv_delegate(input_filepath, wkt_filepath):
+    params = ['shape-to-wkt', input_filepath, wkt_filepath]
 
     return reexecute_with_engine_py3(params)
 
 
-def gem_shape2wkt_coreconv(input_filepath, wkt_filepath,
-                           attrib):
+def gem_shape2wkt_coreconv(input_filepath, wkt_filepath):
     if GDAL2_AVAILABLE:
         method = gem_shape2wkt_coreconv_exec
     else:
         method = gem_shape2wkt_coreconv_delegate
 
-    return method(input_filepath, wkt_filepath, attrib)
+    return method(input_filepath, wkt_filepath)
 
 
 def gem_titan2_coreconv_delegate(input_filepath, csv_filepath, epsg_in):
@@ -526,8 +520,7 @@ def gem_shape_converter(z, userid, namespace, filename, file_collect,
     return csv_name
 
 
-def gem_shape2wkt_converter(z, userid, namespace, filename, file_collect,
-                            attrib):
+def gem_shape2wkt_converter(z, userid, namespace, filename, file_collect):
     if z is None:
         raise ValueError("Shapefile input format not yet supported for"
                          " hybridge QGIS integration")
@@ -551,8 +544,7 @@ def gem_shape2wkt_converter(z, userid, namespace, filename, file_collect,
         shp_filepath = os.path.join(tmp_path, shp_filename)
         wkt_filepath = os.path.join(tmp_path, wkt_filename)
 
-        gem_shape2wkt_coreconv(shp_filepath, wkt_filepath,
-                               attrib)
+        gem_shape2wkt_coreconv(shp_filepath, wkt_filepath)
 
         zwrite_or_collect(z, userid, 'tmp',
                           wkt_filepath, file_collect)
@@ -587,9 +579,8 @@ def gem_input_converter(z, key, input_type, userid, namespace, filename,
         return gem_shape_converter(z, userid, namespace, filename,
                                    file_collect, p_size, attrib, density)
     elif input_type == VolConst.ty_swkt:
-        attrib = args[0]
         return gem_shape2wkt_converter(z, userid, namespace, filename,
-                                       file_collect, attrib)
+                                       file_collect)
     elif input_type == VolConst.ty_text:
         epsg_in = args[0]
         density = args[1]
