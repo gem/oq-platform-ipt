@@ -34,6 +34,8 @@ try:
         import csv
         from osgeo import ogr
         from pyproj import Proj, transform
+        from osgeo import osr
+
         GDAL2_AVAILABLE = True
 
         class TransToWGS84(object):
@@ -228,8 +230,19 @@ try:
                 if shp_layer.GetFeatureCount() != 1:
                     raise ValueError('1 feature only layers are supported')
 
+                target_prj = osr.SpatialReference()
+                target_prj.ImportFromEPSG(4326)
+                source_prj = shp_layer.GetSpatialRef()
+
+                if not source_prj.IsSame(target_prj):
+                    transform = osr.CoordinateTransformation(
+                        source_prj, target_prj)
+
                 for shp_fea in shp_layer:
                     geom = shp_fea.GetGeometryRef()
+
+                    if transform:
+                        geom.Transform(transform)
                     # Excluding Z dimension
                     geom.FlattenTo2D()
                     geom_wkt = geom.ExportToWkt()
