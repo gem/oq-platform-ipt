@@ -224,7 +224,7 @@ def sendback_nrml(request):
         if func_type == u'exposure':
             ns = {'oq': 'http://openquake.org/xmlns/nrml/0.4'}
 
-            root = etree.fromstring(xml_text)
+            root = etree.fromstring(encode(xml_text))
             assets = root.findall('.//oq:assets/oq:asset', ns)
 
             if not assets:
