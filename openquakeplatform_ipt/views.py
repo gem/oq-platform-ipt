@@ -224,7 +224,7 @@ def sendback_nrml(request):
         if func_type == u'exposure':
             ns = {'oq': 'http://openquake.org/xmlns/nrml/0.4'}
 
-            root = etree.fromstring(xml_text)
+            root = etree.fromstring(encode(xml_text))
             assets = root.findall('.//oq:assets/oq:asset', ns)
 
             if not assets:
@@ -255,7 +255,7 @@ def sendback_nrml(request):
             zwrite_or_collect(z, userid, namespace,
                               csv_fname, file_collect)
 
-        zwrite_or_collect_str(z, 'exposure_model.xml', xml_text, file_collect)
+        zwrite_or_collect_str(z, 'exposure.xml', xml_text, file_collect)
         z.close()
         with open(fname, 'rb') as content_file:
             content = content_file.read()
@@ -875,10 +875,7 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
     #           ################
 
     exp_head, exp_sep, exp_tail = data['exposure_model'].rpartition('.')
-    if exp_tail == 'zip' or exp_tail == 'ZIP':
-        exposure_model = exp_head + '.xml'
-    else:
-        exposure_model = data['exposure_model']
+    exposure_model = data['exposure_model']
 
     jobini += "exposure_file = %s\n" % basename(exposure_model)
     if save_files is True:
