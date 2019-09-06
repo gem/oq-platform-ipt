@@ -2545,13 +2545,11 @@ $(document).ready(function () {
                     console.log('mop: catched');
                 }
             }
-            else if (in_type == 'shape' || in_type == 'shape-to-wkt') {
-                if (in_type == 'shape') {
-                    obj[phenomena[i] + '_discr_dist'] = $tab.find(
-                        'div[name="' + phenomena[i] + '-input"] input[type="text"][name="discr-dist"]').val();
-                    if (obj[phenomena[i] + '_discr_dist'] == '') {
-                        ret.str += upper_first(phenomena_name[i]) + ": discretization distance is empty.\n";
-                    }
+            else if (in_type == 'shape') {
+                obj[phenomena[i] + '_discr_dist'] = $tab.find(
+                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="discr-dist"]').val();
+                if (obj[phenomena[i] + '_discr_dist'] == '') {
+                    ret.str += upper_first(phenomena_name[i]) + ": discretization distance is empty.\n";
                 }
                 obj[phenomena[i] + '_haz_field'] = $tab.find(
                     'div[name="' + phenomena[i] + '-input"] input[type="text"][name="haz-field"]').val();
