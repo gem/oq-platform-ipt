@@ -89,17 +89,17 @@ ALLOWED_DIR = {
     'lavaflow_file': {
         VolConst.ty_text: ('asc',),
         VolConst.ty_open: ('csv',),
-        VolConst.ty_shap: ('zip',)
+        VolConst.ty_swkt: ('zip',)
     },
     'lahar_file': {
         VolConst.ty_text: ('asc', 'txt'),
         VolConst.ty_open: ('csv',),
-        VolConst.ty_shap: ('zip',)
+        VolConst.ty_swkt: ('zip',)
     },
     'pyroclasticflow_file': {
         VolConst.ty_text: ('-00001',),
         VolConst.ty_open: ('csv',),
-        VolConst.ty_shap: ('zip',)
+        VolConst.ty_swkt: ('zip',)
     },
 }
 
@@ -1464,12 +1464,13 @@ def volcano_prepare(request, **kwargs):
             if phenoms[key]['f'] is None:
                 continue
 
+            in_type = data[phenoms[key]['name'] + '_in_type']
             spec_ass_haz_dist = data[phenoms[key]['name'] + '_ass_haz_dist']
             spec_ass_haz_dist = spec_ass_haz_dist.strip()
             if spec_ass_haz_dist != '':
                 spec_ass_haz_dists.append([key, spec_ass_haz_dist])
 
-            if data[phenoms[key]['name'] + '_in_type'] == VolConst.ty_text:
+            if in_type == VolConst.ty_text:
                 # 'text' case for textual external software case
                 # FIXME
                 if data[phenoms[key]['name'] + '_epsg'] == '':
@@ -1489,33 +1490,38 @@ def volcano_prepare(request, **kwargs):
                     density)
                 phenom_arr.append("'%s': '%s'" % (key, phenom_inputfile))
 
-            elif data[phenoms[key]['name'] + '_in_type'] == VolConst.ty_shap:
+            elif in_type == VolConst.ty_shap or in_type == VolConst.ty_swkt:
                 # 'shape'-file case
-                if data[phenoms[key]['name'] + '_discr_dist'] == '':
-                    raise ValueError("Discretization distance is missing "
-                                     "for '%s' input file" % (
-                                         phenoms[key]['name'],))
-                if data[phenoms[key]['name'] + '_haz_field'] == '':
-                    raise ValueError("Hazard field name is missing "
-                                     "for '%s' input file" % (
-                                         phenoms[key]['name'],))
+                if in_type == VolConst.ty_shap:
+                    if data[phenoms[key]['name'] + '_discr_dist'] == '':
+                        raise ValueError("Discretization distance is missing "
+                                         "for '%s' input file" % (
+                                             phenoms[key]['name'],))
+                    if data[phenoms[key]['name'] + '_haz_field'] == '':
+                        raise ValueError("Hazard field name is missing "
+                                         "for '%s' input file" % (
+                                             phenoms[key]['name'],))
                 if key == VolConst.ph_ashf:
                     if data[phenoms[key]['name'] + '_density'] == '':
                         raise ValueError("Ashfall density is missing "
                                          "for '%s' input file" % (
                                              phenoms[key]['name'],))
 
-                if key == VolConst.ph_ashf:
                     density = data[phenoms[key]['name'] + '_density']
                 else:
                     density = None
 
-                phenom_inputfile = gem_input_converter(
-                    z, key, VolConst.ty_shap, userid, namespace,
-                    phenoms[key]['f'], file_collect,
-                    data[phenoms[key]['name'] + '_discr_dist'],
-                    data[phenoms[key]['name'] + '_haz_field'],
-                    density)
+                if in_type == VolConst.ty_shap:
+                    phenom_inputfile = gem_input_converter(
+                        z, key, VolConst.ty_shap, userid, namespace,
+                        phenoms[key]['f'], file_collect,
+                        data[phenoms[key]['name'] + '_discr_dist'],
+                        data[phenoms[key]['name'] + '_haz_field'],
+                        density)
+                else:
+                    phenom_inputfile = gem_input_converter(
+                        z, key, VolConst.ty_swkt, userid, namespace,
+                        phenoms[key]['f'], file_collect)
 
                 phenom_arr.append("'%s': '%s'" % (key, phenom_inputfile))
             else:

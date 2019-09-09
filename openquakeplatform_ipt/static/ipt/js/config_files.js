@@ -2291,6 +2291,12 @@ $(document).ready(function () {
                     $haz_field_tag.show();
                     $density_tag.show();
                 }
+                else if (phen_type == 'shape-to-wkt') {
+                    $epsg_tag.hide();
+                    $discr_dist_tag.hide();
+                    $haz_field_tag.hide();
+                    $density_tag.hide();
+                }
                 var accept_in = multi_accept[$phen.attr('name') + '_file'][phen_type];
                 var accept = "";
 
