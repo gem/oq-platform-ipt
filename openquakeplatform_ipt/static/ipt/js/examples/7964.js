@@ -20,9 +20,9 @@ $(document).ready(function () {
 
 
     $(cf_obj['vol'].pfx + ' div[name="ashfall-input"] select[name="in-type"]').val('shape').triggerHandler('change');
-    $(cf_obj['vol'].pfx + ' div[name="lavaflow-input"] select[name="in-type"]').val('shape').triggerHandler('change');
-    $(cf_obj['vol'].pfx + ' div[name="lahar-input"] select[name="in-type"]').val('shape').triggerHandler('change');
-    $(cf_obj['vol'].pfx + ' div[name="pyroclasticflow-input"] select[name="in-type"]').val('shape').triggerHandler('change');
+    $(cf_obj['vol'].pfx + ' div[name="lavaflow-input"] select[name="in-type"]').val('shape-to-wkt').triggerHandler('change');
+    $(cf_obj['vol'].pfx + ' div[name="lahar-input"] select[name="in-type"]').val('shape-to-wkt').triggerHandler('change');
+    $(cf_obj['vol'].pfx + ' div[name="pyroclasticflow-input"] select[name="in-type"]').val('shape-to-wkt').triggerHandler('change');
 
 
     setTimeout(function () {
