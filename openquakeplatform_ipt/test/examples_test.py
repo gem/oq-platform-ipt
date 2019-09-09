@@ -500,6 +500,13 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
             if ret is None:
                 ret = ret_tag.get_attribute('innerHTML')
             if ret.strip() != expected.strip():
+                # Turn on to save expected vs received with single test run
+                if False:
+                    with open('/tmp/rec.log', 'w') as rec:
+                        rec.write(ret.strip())
+                    with open('/tmp/exp.log', 'w') as exp:
+                        exp.write(expected.strip())
+
                 ret_filename = os.path.join(
                     "retrived_%d.%s" % (
                         tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
