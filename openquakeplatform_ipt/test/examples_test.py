@@ -131,6 +131,9 @@ imt_examples = {
             {'exa_id': 96, 'subtab_id': 4,
              'xpath': ["//div[@id='error-message']"],
              'sfx': 'txt'},
+            {'exa_id': 95, 'subtab_id': 4,
+             'zipfile': 'Volcano.zip',
+             'sfx': 'zip'},
         ]
     }
 }
