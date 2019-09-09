@@ -233,6 +233,7 @@ try:
                 target_prj.ImportFromEPSG(4326)
                 source_prj = shp_layer.GetSpatialRef()
 
+                transform = None
                 if not source_prj.IsSame(target_prj):
                     transform = osr.CoordinateTransformation(
                         source_prj, target_prj)
@@ -249,7 +250,7 @@ try:
 
                 wkt_filepath = os.path.join(tmp_path, wkt_filename)
                 with open(wkt_filepath, 'w', newline='') as f_out:
-                    f_out.write('WKT\n"')
+                    f_out.write('geom\n"')
                     f_out.write(geom_wkt)
                     f_out.write('"\n')
             finally:
