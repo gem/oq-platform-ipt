@@ -1,15 +1,5 @@
 $(document).ready(function () {
     window.gem_example_completed = false;
-    // this is a workaround for a bug fixed in jquery 1.9 (checked is toggled after that handler is fired
-/*
-    $(cf_obj['vol'].pfx + " div[name='vm-structural-new'] input[name='file_upload']").submit();
-    $(cf_obj['vol'].pfx + " div[name='source-model-logic-tree-file-new'] input[name='file_upload']").submit();
-    $(cf_obj['vol'].pfx + " div[name='source-model-file-new'] input[name='file_upload']").submit();
-    $(cf_obj['vol'].pfx + " div[name='gsim-logic-tree-file-new'] input[name='file_upload']").submit();
-    $(cf_obj['vol'].pfx + " div[name='vm-structural-new'] input[name='file_upload']").submit();
-
-    $(cf_obj['vol'].pfx + " div[name='ashfall-file-new'] input[name='file_upload']").submit();
-*/
 
     $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="ashfall"]').prop('checked', true).triggerHandler('click');
     $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="lavaflow"]').prop('checked', true).triggerHandler('click');
@@ -28,7 +18,13 @@ $(document).ready(function () {
         $(cf_obj['vol'].pfx + ' div[name="lavaflow-file-html"] select[name="file_html"]').val('lavaflow_file/lavaflow_vol_full.csv');
         $(cf_obj['vol'].pfx + ' div[name="lahar-file-html"] select[name="file_html"]').val('lahar_file/lahar_vol_full.csv');
         $(cf_obj['vol'].pfx + ' div[name="pyroclasticflow-file-html"] select[name="file_html"]').val('pyroclasticflow_file/pyroclasticflow_vol_full.csv');
-
+        
+        $(cf_obj['vol'].pfx + '  div[name="ashfall-input"] input[type="text"][name="spec-ass-haz-dist"]').val(10.0)
+        $(cf_obj['vol'].pfx + '  div[name="lavaflow-input"] input[type="text"][name="spec-ass-haz-dist"]').val(12.0)
+        $(cf_obj['vol'].pfx + '  div[name="lahar-input"] input[type="text"][name="spec-ass-haz-dist"]').val(14.0)
+        $(cf_obj['vol'].pfx + '  div[name="pyroclasticflow-input"] input[type="text"][name="spec-ass-haz-dist"]').val(16.0)
+        
+        
         $(cf_obj['vol'].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val('exposure_model/exposure_model_vol_full.zip');
 
         $(cf_obj['vol'].pfx + ' div[name="fm-ashfall-file-html"] select[name="file_html"]').val('fragility_model/fragility_model_vol_full.xml');

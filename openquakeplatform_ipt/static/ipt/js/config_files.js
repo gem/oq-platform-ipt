@@ -2537,10 +2537,12 @@ $(document).ready(function () {
 
             obj[phenomena[i] + "_in_type"] = in_type;
 
-            obj[phenomena[i] + "_ass_haz_dist"] = $tab.find(
-                "div[name='" + phenomena[i] + "-input'] input[name='spec-ass-haz-dist']").val();
-            if (obj[phenomena[i] + "_ass_haz_dist"] == '') {
-                ret.str += upper_first(phenomena_name[i]) + ": asset hazard distance not set.\n";
+            if (obj[phenomena[i] + "_in_type"] != 'shape-to-wkt') {
+                obj[phenomena[i] + "_ass_haz_dist"] = $tab.find(
+                    "div[name='" + phenomena[i] + "-input'] input[name='spec-ass-haz-dist']").val();
+                if (obj[phenomena[i] + "_ass_haz_dist"] == '') {
+                    ret.str += upper_first(phenomena_name[i]) + ": asset hazard distance not set.\n";
+                }
             }
 
             obj[phenomena[i] + "_file"] = $tab.find('div[name="' + phenomena[i] + '-input"]\
