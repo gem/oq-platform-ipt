@@ -856,7 +856,8 @@ $(document).ready(function () {
             $target.css('display', 'none');
         }
 
-        // Exposure model (ui)
+        // Exposure model (ui) - (scenario)
+        // exposure_model_sect_manager(scope, enabled, with_constraints, without_inc_asset)
         exposure_model_sect_manager(
             'scen', ((hazard != null && (
                 hazard_sites_choice == 'exposure-model'
@@ -1464,6 +1465,8 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
 
+        // Exposure model (ui) - (event_based)
+        // exposure_model_sect_manager(scope, enabled, with_constraints, without_inc_asset)
         exposure_model_sect_manager(
             'e_b', ((hazard != null && (
                 hazard_sites_choice == 'exposure-model'
@@ -2273,29 +2276,34 @@ $(document).ready(function () {
                 $discr_dist_tag = $phen_input.find("div[name='discr-dist']");
                 $haz_field_tag = $phen_input.find("div[name='haz-field']");
                 $density_tag = $phen_input.find("div[name='density']");
+                $spec_ass_haz_dist =  $phen_input.find("div[name='spec-ass-haz-dist']");
                 if (phen_type == 'text') {
                     $epsg_tag.show();
                     $discr_dist_tag.hide();
                     $haz_field_tag.hide();
                     $density_tag.show();
+                    $spec_ass_haz_dist.show();
                 }
                 else if (phen_type == 'openquake') {
                     $epsg_tag.hide();
                     $discr_dist_tag.hide();
                     $haz_field_tag.hide();
                     $density_tag.hide();
+                    $spec_ass_haz_dist.show();
                 }
                 else if (phen_type == 'shape') {
                     $epsg_tag.hide();
                     $discr_dist_tag.show();
                     $haz_field_tag.show();
                     $density_tag.show();
+                    $spec_ass_haz_dist.show();
                 }
                 else if (phen_type == 'shape-to-wkt') {
                     $epsg_tag.hide();
                     $discr_dist_tag.hide();
                     $haz_field_tag.hide();
                     $density_tag.hide();
+                    $spec_ass_haz_dist.hide();
                 }
                 var accept_in = multi_accept[$phen.attr('name') + '_file'][phen_type];
                 var accept = "";
@@ -2326,8 +2334,9 @@ $(document).ready(function () {
             }
         }
 
-        // Exposure model (ui)
-        exposure_model_sect_manager('vol', true, true, false);
+        // Exposure model (ui) - (volcano)
+        // exposure_model_sect_manager(scope, enabled, with_constraints, without_inc_asset)
+        exposure_model_sect_manager('vol', true, true, true);
     }
 
     /* generic callback to show upload div */
@@ -2530,6 +2539,9 @@ $(document).ready(function () {
 
             obj[phenomena[i] + "_ass_haz_dist"] = $tab.find(
                 "div[name='" + phenomena[i] + "-input'] input[name='spec-ass-haz-dist']").val();
+            if (obj[phenomena[i] + "_ass_haz_dist"] == '') {
+                ret.str += upper_first(phenomena_name[i]) + ": asset hazard distance not set.\n";
+            }
 
             obj[phenomena[i] + "_file"] = $tab.find('div[name="' + phenomena[i] + '-input"]\
                 div[name="' + phenomena[i] + '-file-html"] select[name="file_html"]').val();
