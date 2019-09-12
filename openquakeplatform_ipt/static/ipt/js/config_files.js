@@ -2255,6 +2255,31 @@ $(document).ready(function () {
         return generic_fileNew_collect('vol', reply, event);
     }
 
+
+    function volcano_shp_fields_list($select_back, path, filename)
+    {
+        var data = new FormData();
+        data.append('data', JSON.stringify({path: path, filename: filename}));
+        $.ajax({
+            url: 'shp-fields',
+            type: 'POST',
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if (data.ret == 0) {
+                    console.log(data);
+                    return true;
+                }
+                else {
+                    gem_ipt.error_msg(data.msg);
+                }
+            }
+        });
+        return false;
+    }
+    
     function volcano_manager()
     {
         var $phen, $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']");
@@ -2439,6 +2464,20 @@ $(document).ready(function () {
              generic_fileNew_refresh('vol', $obj, event);
              volcano_manager();
          });
+        if (phenomena[i] == 'ashfall') {
+            $(cf_obj['vol'].pfx + " div[name='" + phenomena[i] + "-input'] select[name='file_html']"
+             ).change(function shp_fields_list(event) {
+                 var $subobj = $(event.target).parent().parent().find("select[name='in-type']");
+                 if ($subobj.val() == "shape") {
+                     // async call to populate 'hazard field' dropdown.
+                     var fname = $(event.target).val();
+                     volcano_shp_fields_list('qui', fname, 'qua');
+
+
+                     
+                 }
+             });
+        }
     }
 
     file_uploader_init('vol', 'fm-ashfall-file', volcano_fileNew_cb, volcano_fileNew_upload);

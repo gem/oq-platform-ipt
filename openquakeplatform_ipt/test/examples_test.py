@@ -19,7 +19,7 @@ from openquakeplatform.settings import FILE_PATH_FIELD_DIRECTORY
 from openquake.moon import platform_get, TimeoutError
 
 PLA_ADMIN_ID = os.environ.get('GEM_PLA_ADMIN_ID', '1')
-_CLEAN_ALL = True
+_CLEAN_ALL = False
 #
 # TO RUN A SINGLE TEST:
 #
