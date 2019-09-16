@@ -2256,10 +2256,10 @@ $(document).ready(function () {
     }
 
 
-    function volcano_shp_fields_list($select_back, path, filename)
+    function volcano_shp_fields_list($select_back, filepath)
     {
         var data = new FormData();
-        data.append('data', JSON.stringify({path: path, filename: filename}));
+        data.append('data', JSON.stringify({filepath: filepath}));
         $.ajax({
             url: 'shp-fields',
             type: 'POST',
@@ -2269,7 +2269,11 @@ $(document).ready(function () {
             contentType: false,
             success: function (data) {
                 if (data.ret == 0) {
-                    console.log(data);
+                    for (item_idx in data.items) {
+                        var item = data.items[item_idx];
+                        $("<option />", {value: item, text: item}
+                         ).appendTo($select_back);
+                    }
                     return true;
                 }
                 else {
@@ -2279,7 +2283,7 @@ $(document).ready(function () {
         });
         return false;
     }
-    
+
     function volcano_manager()
     {
         var $phen, $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']");
@@ -2454,6 +2458,12 @@ $(document).ready(function () {
     // Exposure model (init)
     exposure_model_init('vol', volcano_fileNew_cb, volcano_fileNew_upload, volcano_manager);
 
+    function reset_ashfall_haz_field($select_back)
+    {
+        $select_back.empty();
+        $("<option />", {value: '', text: '---------'}).appendTo($select_back);
+    }
+
     var phenomena = cf_obj['vol'].phenomena;
     var phenomena_name = cf_obj['vol'].phenomena_name;
     for (var i = 0 ; i < phenomena.length ; i++) {
@@ -2463,18 +2473,24 @@ $(document).ready(function () {
              var $obj = $(event.target).parent().parent().find("form#file-upload-form");
              generic_fileNew_refresh('vol', $obj, event);
              volcano_manager();
+             var $select_back = $("div[name='ashfall-input'] select[name='haz-field']");
+             reset_ashfall_haz_field($select_back);
          });
         if (phenomena[i] == 'ashfall') {
             $(cf_obj['vol'].pfx + " div[name='" + phenomena[i] + "-input'] select[name='file_html']"
              ).change(function shp_fields_list(event) {
+                 console.log('shp_fields_list');
                  var $subobj = $(event.target).parent().parent().find("select[name='in-type']");
+                 var fname = $(event.target).val();
                  if ($subobj.val() == "shape") {
-                     // async call to populate 'hazard field' dropdown.
-                     var fname = $(event.target).val();
-                     volcano_shp_fields_list('qui', fname, 'qua');
+                     var $select_back = $("div[name='ashfall-input'] select[name='haz-field']");
+                     reset_ashfall_haz_field($select_back);
 
-
-                     
+                     if (fname != '' && fname != undefined) {
+                         // async call to populate 'hazard field' dropdown.
+                         console.log('here we are');
+                         volcano_shp_fields_list($select_back, fname);
+                     }
                  }
              });
         }
@@ -2604,8 +2620,14 @@ $(document).ready(function () {
                 if (obj[phenomena[i] + '_discr_dist'] == '') {
                     ret.str += upper_first(phenomena_name[i]) + ": discretization distance is empty.\n";
                 }
-                obj[phenomena[i] + '_haz_field'] = $tab.find(
-                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="haz-field"]').val();
+                if (phenomena[i] == 'ashfall') {
+                    obj[phenomena[i] + '_haz_field'] = $tab.find(
+                        'div[name="' + phenomena[i] + '-input"] select[name="haz-field"]').val();
+                }
+                else {
+                    obj[phenomena[i] + '_haz_field'] = $tab.find(
+                        'div[name="' + phenomena[i] + '-input"] input[type="text"][name="haz-field"]').val();
+                }
                 if (obj[phenomena[i] + '_haz_field'] == '') {
                     ret.str += upper_first(phenomena_name[i]) + ": hazard field is empty.\n";
                 }

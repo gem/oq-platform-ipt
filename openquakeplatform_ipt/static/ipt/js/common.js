@@ -691,6 +691,7 @@ function generic_fileNew_upload(scope, obj, event)
                     $(sbase + " div[name='" + name + "-html'] select[name='file_html']" +
                       " option[value='" + data.selected[sel] + "").attr("selected", true);
                 }
+                $sel.trigger('change');
             }
             $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
             $(sbase + ' div[name="' + name + '-new"]').delay(3000).slideUp({

@@ -134,6 +134,9 @@ imt_examples = {
             {'exa_id': 95, 'subtab_id': 4,
              'zipfile': 'Volcano.zip',
              'sfx': 'zip'},
+            {'exa_id': 94, 'subtab_id': 4,
+             'zipfile': 'Volcano.zip',
+             'sfx': 'zip'},
         ]
     }
 }

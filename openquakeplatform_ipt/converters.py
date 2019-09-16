@@ -258,7 +258,35 @@ try:
                 del ogr_drv
                 gc.collect()
 
+        def gem_shapefile_get_fields_exec(input_filepath, tmp_path):
+            with ZipFile(input_filepath, 'r') as zip:
+                zip.extractall(path=tmp_path)
+
+            shp_files = [f for f in os.listdir(tmp_path) if (
+                f.endswith('.shp') or f.endswith('.SHP'))]
+
+            if len(shp_files) != 1:
+                raise ValueError(
+                    'Not uniq .shp file not found in [%s] file.' %
+                    input_filepath)
+
+            shp_filename = shp_files[0]
+            shp_filepath = os.path.join(tmp_path, shp_filename)
+
+            ogr_drv = ogr.GetDriverByName('ESRI Shapefile')
+            s_ds = ogr_drv.Open(shp_filepath)
+            s_layer = s_ds.GetLayer()
+            # here the layer name l_name = s_layer.GetName()
+            ldefn = s_layer.GetLayerDefn()
+            schema = []
+            for n in range(ldefn.GetFieldCount()):
+                fdefn = ldefn.GetFieldDefn(n)
+                schema.append(fdefn.name)
+            return schema
+
         if __name__ == '__main__':
+            from zipfile import ZipFile
+
             if sys.argv[1] == 'esritxt':
                 if len(sys.argv) < 5 or len(sys.argv) > 6:
                     sys.exit(2)
@@ -286,6 +314,16 @@ try:
 
                 gem_shape_coreconv_exec(input_filepath, csv_filepath,
                                         attrib, p_size, density)
+            elif sys.argv[1] == 'shapefile-get-fields':
+                if len(sys.argv) != 4:
+                    sys.exit(2)
+                input_filepath = sys.argv[2]
+                tmp_path = sys.argv[3]
+
+                schema = gem_shapefile_get_fields_exec(input_filepath,
+                                                       tmp_path)
+                for i in schema:
+                    print(i)
             elif sys.argv[1] == 'shape-to-wkt':
                 if len(sys.argv) != 4:
                     sys.exit(2)
@@ -348,7 +386,7 @@ from zipfile import ZipFile
 GEM_PYTHONPATH_BIN = '/opt/openquake/bin/python3'
 
 
-def reexecute_with_engine_py3(args_in):
+def reexecute_with_engine_py3(args_in, out=None):
     py_name = (__file__[:-1] if __file__.endswith('.pyc') else __file__)
     args = [GEM_PYTHONPATH_BIN, py_name]
     args.extend(args_in)
@@ -358,6 +396,8 @@ def reexecute_with_engine_py3(args_in):
     if sp.returncode != 0:
         raise ValueError("Return code: %d\nSTDOUT: %s\nSTDERR: %s" % (
             sp.returncode, output, err))
+    if type(out) is list:
+        out.append(output)
     return True
 
 
@@ -425,6 +465,35 @@ def gem_titan2_coreconv(input_filepath, csv_filepath, epsg_in):
         method = gem_titan2_coreconv_delegate
 
     return method(input_filepath, csv_filepath, epsg_in)
+
+
+def gem_shapefile_get_fields_delegate(input_filepath, tmp_path):
+    params = ['shapefile-get-fields', input_filepath, tmp_path]
+    out = []
+
+    if reexecute_with_engine_py3(params, out):
+        return out[0].strip().split('\n')
+    else:
+        return False
+
+
+def gem_shapefile_get_fields(userid, namespace, filename):
+    input_filepath = get_full_path(userid, namespace, filename)
+    tmp_basepath = get_tmp_path(userid)
+    tmp_path = tempfile.mkdtemp(prefix='shpin_', dir=tmp_basepath)
+
+    if GDAL2_AVAILABLE:
+        method = gem_shapefile_get_fields_exec
+    else:
+        method = gem_shapefile_get_fields_delegate
+
+    try:
+        ret = method(input_filepath, tmp_path)
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            shutil.rmtree(tmp_path)
+
+    return ret
 
 
 def gem_esritxt_converter(z, userid, namespace, filename, file_collect,

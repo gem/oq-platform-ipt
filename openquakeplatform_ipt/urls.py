@@ -40,5 +40,5 @@ urlpatterns = [
         views.volcano_prepare, name='volcano_prepare'),
     url(r'^download$', views.download, name='download'),
     url(r'^clean_all$', views.clean_all, name='clean_all'),
-    url(r'^shp-fields$', views.shp_fields, name='shp_fields'),
+    url(r'^shp-fields$', views.shapefile_get_fields, name='shapefile_get_fields'),
 ]

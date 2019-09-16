@@ -57,7 +57,9 @@ from openquakeplatform_ipt.common import (get_full_path,
                                           zwrite_or_collect_str)
 
 
-from openquakeplatform_ipt.converters import gem_input_converter
+from openquakeplatform_ipt.converters import (
+    gem_input_converter, gem_shapefile_get_fields)
+
 # from pyproj import Proj, transform
 
 django_version = django.get_version()
@@ -1633,26 +1635,19 @@ def clean_all(request):
         ret['msg'] = 'Success, reload it.'
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
-def shp_fields(request):
+
+def shapefile_get_fields(request):
     if request.method == 'POST':
         if getattr(settings, 'STANDALONE', False):
             userid = ''
         else:
             userid = str(request.user.id)
-        import pdb ; pdb.set_trace()
+        namespace = request.resolver_match.namespace
+        data = json.loads(request.POST.get('data'))
 
-        # namespace = request.resolver_match.namespace
-        # user_allowed_path = get_full_path(userid, namespace)
-        # for ipt_dir in ALLOWED_DIR:
-        #     normalized_path = get_full_path(userid, namespace, ipt_dir)
-        #     if not normalized_path.startswith(user_allowed_path):
-        #         raise LookupError('Unauthorized path: "%s"' % normalized_path)
-        #     if not os.path.isdir(normalized_path):
-        #         continue
-        #     shutil.rmtree(normalized_path)
-        #     os.makedirs(normalized_path)
+        fname = data['filepath']
+        fields_list = gem_shapefile_get_fields(userid, namespace, fname)
 
-        # ret = {}
-        # ret['ret'] = 0
-        # ret['msg'] = 'Success, reload it.'
-        return HttpResponse(json.dumps(ret), content_type="application/json")
+        return HttpResponse(json.dumps(
+            {'ret': 0, 'ret_s': 'Success', 'items': fields_list}),
+            content_type="application/json")
