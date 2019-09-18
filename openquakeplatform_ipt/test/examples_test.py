@@ -19,7 +19,7 @@ from openquakeplatform.settings import FILE_PATH_FIELD_DIRECTORY
 from openquake.moon import platform_get, TimeoutError
 
 PLA_ADMIN_ID = os.environ.get('GEM_PLA_ADMIN_ID', '1')
-_CLEAN_ALL = True
+_CLEAN_ALL = False
 #
 # TO RUN A SINGLE TEST:
 #
@@ -132,6 +132,9 @@ imt_examples = {
              'xpath': ["//div[@id='error-message']"],
              'sfx': 'txt'},
             {'exa_id': 95, 'subtab_id': 4,
+             'zipfile': 'Volcano.zip',
+             'sfx': 'zip'},
+            {'exa_id': 94, 'subtab_id': 4,
              'zipfile': 'Volcano.zip',
              'sfx': 'zip'},
         ]
@@ -501,7 +504,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                 ret = ret_tag.get_attribute('innerHTML')
             if ret.strip() != expected.strip():
                 # Turn on to save expected vs received with single test run
-                if False:
+                if True:
                     with open('/tmp/rec.log', 'w') as rec:
                         rec.write(ret.strip())
                     with open('/tmp/exp.log', 'w') as exp:

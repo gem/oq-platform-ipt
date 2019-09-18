@@ -7,14 +7,15 @@ $(document).ready(function () {
     $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="pyroclasticflow"]').prop('checked', true).triggerHandler('click');
 
 
-    $(cf_obj['vol'].pfx + ' div[name="ashfall-input"] select[name="in-type"]').val('openquake').triggerHandler('change');
+    $(cf_obj['vol'].pfx + ' div[name="ashfall-input"] select[name="in-type"]').val('shape').triggerHandler('change');
     $(cf_obj['vol'].pfx + ' div[name="lavaflow-input"] select[name="in-type"]').val('openquake').triggerHandler('change');
     $(cf_obj['vol'].pfx + ' div[name="lahar-input"] select[name="in-type"]').val('openquake').triggerHandler('change');
     $(cf_obj['vol'].pfx + ' div[name="pyroclasticflow-input"] select[name="in-type"]').val('openquake').triggerHandler('change');
 
 
     setTimeout(function () {
-        $(cf_obj['vol'].pfx + ' div[name="ashfall-file-html"] select[name="file_html"]').val('ashfall_file/ashfall_vol_full.csv');
+        $(cf_obj['vol'].pfx + ' div[name="ashfall-file-html"] select[name="file_html"]').val('ashfall_file/ashfall_geom.zip');
+        $(cf_obj['vol'].pfx + ' div[name="ashfall-file-html"] select[name="file_html"]').triggerHandler('change');
         $(cf_obj['vol'].pfx + ' div[name="lavaflow-file-html"] select[name="file_html"]').val('lavaflow_file/lavaflow_vol_full.csv');
         $(cf_obj['vol'].pfx + ' div[name="lahar-file-html"] select[name="file_html"]').val('lahar_file/lahar_vol_full.csv');
         $(cf_obj['vol'].pfx + ' div[name="pyroclasticflow-file-html"] select[name="file_html"]').val('pyroclasticflow_file/pyroclasticflow_vol_full.csv');
@@ -34,6 +35,8 @@ $(document).ready(function () {
 
         // Click to download EventBase.zip
         setTimeout(function () {
+            $(cf_obj['vol'].pfx + ' div[name="ashfall-input"] select[name="haz-field"]').val('value');
+            
             $(cf_obj['vol'].pfx + ' button[name="download"]').click();
             window.gem_example_completed = true;
         }, 1000);

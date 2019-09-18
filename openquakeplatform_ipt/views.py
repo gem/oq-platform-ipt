@@ -57,7 +57,9 @@ from openquakeplatform_ipt.common import (get_full_path,
                                           zwrite_or_collect_str)
 
 
-from openquakeplatform_ipt.converters import gem_input_converter
+from openquakeplatform_ipt.converters import (
+    gem_input_converter, gem_shapefile_get_fields)
+
 # from pyproj import Proj, transform
 
 django_version = django.get_version()
@@ -898,6 +900,11 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
             for spec in spec_ass_haz_dists:
                 jobini += "'%s': %s, " % (spec[0], spec[1])
             jobini += "'default': %s}\n" % data['asset_hazard_distance']
+        elif spec_ass_haz_dists:
+            jobini += "asset_hazard_distance = {"
+            for spec in spec_ass_haz_dists:
+                jobini += "'%s': %s, " % (spec[0], spec[1])
+            jobini += "}\n"
 
     return jobini
 
@@ -1465,8 +1472,13 @@ def volcano_prepare(request, **kwargs):
                 continue
 
             in_type = data[phenoms[key]['name'] + '_in_type']
-            spec_ass_haz_dist = data[phenoms[key]['name'] + '_ass_haz_dist']
-            spec_ass_haz_dist = spec_ass_haz_dist.strip()
+            if in_type != 'shape-to-wkt':
+                spec_ass_haz_dist = data[phenoms[key]['name'] +
+                                         '_ass_haz_dist']
+                spec_ass_haz_dist = spec_ass_haz_dist.strip()
+            else:
+                spec_ass_haz_dist = ''
+                
             if spec_ass_haz_dist != '':
                 spec_ass_haz_dists.append([key, spec_ass_haz_dist])
 
@@ -1622,3 +1634,20 @@ def clean_all(request):
         ret['ret'] = 0
         ret['msg'] = 'Success, reload it.'
         return HttpResponse(json.dumps(ret), content_type="application/json")
+
+
+def shapefile_get_fields(request):
+    if request.method == 'POST':
+        if getattr(settings, 'STANDALONE', False):
+            userid = ''
+        else:
+            userid = str(request.user.id)
+        namespace = request.resolver_match.namespace
+        data = json.loads(request.POST.get('data'))
+
+        fname = data['filepath']
+        fields_list = gem_shapefile_get_fields(userid, namespace, fname)
+
+        return HttpResponse(json.dumps(
+            {'ret': 0, 'ret_s': 'Success', 'items': fields_list}),
+            content_type="application/json")

@@ -856,7 +856,8 @@ $(document).ready(function () {
             $target.css('display', 'none');
         }
 
-        // Exposure model (ui)
+        // Exposure model (ui) - (scenario)
+        // exposure_model_sect_manager(scope, enabled, with_constraints, without_inc_asset)
         exposure_model_sect_manager(
             'scen', ((hazard != null && (
                 hazard_sites_choice == 'exposure-model'
@@ -1464,6 +1465,8 @@ $(document).ready(function () {
         else
             $target.css('display', 'none');
 
+        // Exposure model (ui) - (event_based)
+        // exposure_model_sect_manager(scope, enabled, with_constraints, without_inc_asset)
         exposure_model_sect_manager(
             'e_b', ((hazard != null && (
                 hazard_sites_choice == 'exposure-model'
@@ -2252,6 +2255,35 @@ $(document).ready(function () {
         return generic_fileNew_collect('vol', reply, event);
     }
 
+
+    function volcano_shp_fields_list($select_back, filepath)
+    {
+        var data = new FormData();
+        data.append('data', JSON.stringify({filepath: filepath}));
+        $.ajax({
+            url: 'shp-fields',
+            type: 'POST',
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if (data.ret == 0) {
+                    for (item_idx in data.items) {
+                        var item = data.items[item_idx];
+                        $("<option />", {value: item, text: item}
+                         ).appendTo($select_back);
+                    }
+                    return true;
+                }
+                else {
+                    gem_ipt.error_msg(data.msg);
+                }
+            }
+        });
+        return false;
+    }
+
     function volcano_manager()
     {
         var $phen, $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']");
@@ -2273,29 +2305,34 @@ $(document).ready(function () {
                 $discr_dist_tag = $phen_input.find("div[name='discr-dist']");
                 $haz_field_tag = $phen_input.find("div[name='haz-field']");
                 $density_tag = $phen_input.find("div[name='density']");
+                $spec_ass_haz_dist =  $phen_input.find("div[name='spec-ass-haz-dist']");
                 if (phen_type == 'text') {
                     $epsg_tag.show();
                     $discr_dist_tag.hide();
                     $haz_field_tag.hide();
                     $density_tag.show();
+                    $spec_ass_haz_dist.show();
                 }
                 else if (phen_type == 'openquake') {
                     $epsg_tag.hide();
                     $discr_dist_tag.hide();
                     $haz_field_tag.hide();
                     $density_tag.hide();
+                    $spec_ass_haz_dist.show();
                 }
                 else if (phen_type == 'shape') {
                     $epsg_tag.hide();
                     $discr_dist_tag.show();
                     $haz_field_tag.show();
                     $density_tag.show();
+                    $spec_ass_haz_dist.show();
                 }
                 else if (phen_type == 'shape-to-wkt') {
                     $epsg_tag.hide();
                     $discr_dist_tag.hide();
                     $haz_field_tag.hide();
                     $density_tag.hide();
+                    $spec_ass_haz_dist.hide();
                 }
                 var accept_in = multi_accept[$phen.attr('name') + '_file'][phen_type];
                 var accept = "";
@@ -2326,8 +2363,9 @@ $(document).ready(function () {
             }
         }
 
-        // Exposure model (ui)
-        exposure_model_sect_manager('vol', true, true, false);
+        // Exposure model (ui) - (volcano)
+        // exposure_model_sect_manager(scope, enabled, with_constraints, without_inc_asset)
+        exposure_model_sect_manager('vol', true, true, true);
     }
 
     /* generic callback to show upload div */
@@ -2420,6 +2458,12 @@ $(document).ready(function () {
     // Exposure model (init)
     exposure_model_init('vol', volcano_fileNew_cb, volcano_fileNew_upload, volcano_manager);
 
+    function reset_ashfall_haz_field($select_back)
+    {
+        $select_back.empty();
+        $("<option />", {value: '', text: '---------'}).appendTo($select_back);
+    }
+
     var phenomena = cf_obj['vol'].phenomena;
     var phenomena_name = cf_obj['vol'].phenomena_name;
     for (var i = 0 ; i < phenomena.length ; i++) {
@@ -2429,7 +2473,27 @@ $(document).ready(function () {
              var $obj = $(event.target).parent().parent().find("form#file-upload-form");
              generic_fileNew_refresh('vol', $obj, event);
              volcano_manager();
+             var $select_back = $("div[name='ashfall-input'] select[name='haz-field']");
+             reset_ashfall_haz_field($select_back);
          });
+        if (phenomena[i] == 'ashfall') {
+            $(cf_obj['vol'].pfx + " div[name='" + phenomena[i] + "-input'] select[name='file_html']"
+             ).change(function shp_fields_list(event) {
+                 console.log('shp_fields_list');
+                 var $subobj = $(event.target).parent().parent().find("select[name='in-type']");
+                 var fname = $(event.target).val();
+                 if ($subobj.val() == "shape") {
+                     var $select_back = $("div[name='ashfall-input'] select[name='haz-field']");
+                     reset_ashfall_haz_field($select_back);
+
+                     if (fname != '' && fname != undefined) {
+                         // async call to populate 'hazard field' dropdown.
+                         console.log('here we are');
+                         volcano_shp_fields_list($select_back, fname);
+                     }
+                 }
+             });
+        }
     }
 
     file_uploader_init('vol', 'fm-ashfall-file', volcano_fileNew_cb, volcano_fileNew_upload);
@@ -2528,8 +2592,13 @@ $(document).ready(function () {
 
             obj[phenomena[i] + "_in_type"] = in_type;
 
-            obj[phenomena[i] + "_ass_haz_dist"] = $tab.find(
-                "div[name='" + phenomena[i] + "-input'] input[name='spec-ass-haz-dist']").val();
+            if (obj[phenomena[i] + "_in_type"] != 'shape-to-wkt') {
+                obj[phenomena[i] + "_ass_haz_dist"] = $tab.find(
+                    "div[name='" + phenomena[i] + "-input'] input[name='spec-ass-haz-dist']").val();
+                if (obj[phenomena[i] + "_ass_haz_dist"] == '') {
+                    ret.str += upper_first(phenomena_name[i]) + ": asset hazard distance not set.\n";
+                }
+            }
 
             obj[phenomena[i] + "_file"] = $tab.find('div[name="' + phenomena[i] + '-input"]\
                 div[name="' + phenomena[i] + '-file-html"] select[name="file_html"]').val();
@@ -2551,8 +2620,14 @@ $(document).ready(function () {
                 if (obj[phenomena[i] + '_discr_dist'] == '') {
                     ret.str += upper_first(phenomena_name[i]) + ": discretization distance is empty.\n";
                 }
-                obj[phenomena[i] + '_haz_field'] = $tab.find(
-                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="haz-field"]').val();
+                if (phenomena[i] == 'ashfall') {
+                    obj[phenomena[i] + '_haz_field'] = $tab.find(
+                        'div[name="' + phenomena[i] + '-input"] select[name="haz-field"]').val();
+                }
+                else {
+                    obj[phenomena[i] + '_haz_field'] = $tab.find(
+                        'div[name="' + phenomena[i] + '-input"] input[type="text"][name="haz-field"]').val();
+                }
                 if (obj[phenomena[i] + '_haz_field'] == '') {
                     ret.str += upper_first(phenomena_name[i]) + ": hazard field is empty.\n";
                 }
