@@ -19,7 +19,7 @@ from openquakeplatform.settings import FILE_PATH_FIELD_DIRECTORY
 from openquake.moon import platform_get, TimeoutError
 
 PLA_ADMIN_ID = os.environ.get('GEM_PLA_ADMIN_ID', '1')
-_CLEAN_ALL = False
+_CLEAN_ALL = True
 #
 # TO RUN A SINGLE TEST:
 #
@@ -35,6 +35,22 @@ imt_examples = {
                        "validationErrorMsg'][@style='display: none;']",
                        "//textarea[@id='textareaex']"],
              'sfx': 'xml'},
+
+
+
+            {'exa_id': 94, 'subtab_id': 0,
+             'xpath': ["//div[@id='error-message']"],
+             'sfx': 'xml'},
+            {'exa_id': 95, 'subtab_id': 0,
+             'xpath': ["//div[@id='error-message']"],
+             'sfx': 'xml'},
+
+            {'exa_id': 96, 'subtab_id': 0,
+             'zipfile': 'exposure_model.zip', 'sfx': 'zip'},
+            {'exa_id': 97, 'subtab_id': 0,
+             'zipfile': 'exposure_model.zip', 'sfx': 'zip'},
+
+
             {'exa_id': 98, 'subtab_id': 0,
              'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg']"],
              'sfx': 'txt'},
