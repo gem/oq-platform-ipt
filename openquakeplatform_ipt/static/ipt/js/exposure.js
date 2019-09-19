@@ -995,6 +995,7 @@ function ex_convert2nrml(step)
 
 function ex_convert2nrml_cb(e)
 {
+    $('.ex_gid #outputDiv').hide();
     ex_convert2nrml(1);
 }
 
