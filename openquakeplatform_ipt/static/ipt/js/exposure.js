@@ -650,7 +650,6 @@ function ex_csv_check(field_names, csv_files)
         contentType: false,
         success: function (data) {
             if (data.ret == 0) {
-                console.log('fase 2');
                 ex_convert2nrml(2);
             }
             else {
