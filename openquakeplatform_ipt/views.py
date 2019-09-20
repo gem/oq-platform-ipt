@@ -1694,7 +1694,7 @@ def ex_csv_check(request):
 
             with enc_open(input_filepath, encoding='utf-8') as csv_fp:
                 csv_dr = csv.reader(csv_fp)
-                csv_field_names = csv_dr.next()
+                csv_field_names = next(csv_dr)
                 csv_field_names_n = len(csv_field_names)
                 for field_name in field_names:
                     if field_name not in csv_field_names:
