@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    $('.ex_gid input[name="exposure-type"][value="xml"]').prop('checked', true).triggerHandler('click');
+
     $('.ex_gid #description').val('The description of exposure function');
     $('.ex_gid #costStruc').val('per_asset');
     $('.ex_gid #costStruc').trigger('change');

@@ -1,5 +1,6 @@
 $(document).ready(function () {
-  $('.ex_gid #description').val('Example of exposure in Antioquia\nsimplest structural cost per building\nsingle MUR taxonomy');
+    $('.ex_gid input[name="exposure-type"][value="xml"]').prop('checked', true).triggerHandler('click');
+    $('.ex_gid #description').val('Example of exposure in Antioquia\nsimplest structural cost per building\nsingle MUR taxonomy');
     $('.ex_gid #costStruc').val('per_asset');
     $('.ex_gid #costStruc').trigger('change');
     { // blocks are used to reflect DOM hierarchy

@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $('.ex_gid input[name="exposure-type"]').prop('checked', true).triggerHandler('click');
+    $('.ex_gid input[name="exposure-type"][value="csv"]').prop('checked', true).triggerHandler('click');
 
     $csv_files = ex_obj.o.find("div[name='exposure-csv-html'] select[name='file_html'] option")
     for (var i = 0 ; i < $csv_files.length ; i++) {
