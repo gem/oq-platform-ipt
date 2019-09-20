@@ -17,8 +17,10 @@
 # along with OpenQuake. If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 from os.path import basename
 import re
+import csv
 import random
 import string
 import json
@@ -1650,4 +1652,70 @@ def shapefile_get_fields(request):
 
         return HttpResponse(json.dumps(
             {'ret': 0, 'ret_s': 'Success', 'items': fields_list}),
+            content_type="application/json")
+
+
+def enc_open(*args, **kwargs):
+    if sys.version_info[0] < 3:
+        try:
+            codecs
+        except NameError:
+            import codecs
+
+        return codecs.open(*args, **kwargs)
+    else:
+        return open(*args, **kwargs)
+
+
+def ex_csv_check(request):
+    if request.method == 'POST':
+        if getattr(settings, 'STANDALONE', False):
+            userid = ''
+        else:
+            userid = str(request.user.id)
+        namespace = request.resolver_match.namespace
+        data = json.loads(request.POST.get('data'))
+
+        field_names = data['field_names']
+        field_names_n = len(field_names)
+        csv_files = data['csv_files']
+
+        for csv_file in csv_files:
+            fpath, fname = os.path.split(csv_file)
+
+            if fpath not in ALLOWED_DIR:
+                return HttpResponse(
+                    json.dumps(
+                        {'ret': 1, 'ret_s': 'Failed: "%s" '
+                         'not in a autorized path.' % fpath}),
+                    content_type="application/json")
+
+            input_filepath = get_full_path(userid, namespace, csv_file)
+
+            with enc_open(input_filepath, encoding='utf-8') as csv_fp:
+                csv_dr = csv.reader(csv_fp)
+                csv_field_names = next(csv_dr)
+                csv_field_names_n = len(csv_field_names)
+                for field_name in field_names:
+                    if field_name not in csv_field_names:
+                        return HttpResponse(
+                            json.dumps(
+                                {'ret': 2, 'ret_s': (
+                                    "Failed: missing column '%s'"
+                                    " in csv file '%s'" %
+                                    (field_name, fname))}),
+                            content_type="application/json")
+
+                for row_id, row in enumerate(csv_dr):
+                    if len(row) != csv_field_names_n:
+                        return HttpResponse(json.dumps(
+                            {'ret': 3, 'ret_s': (
+                                "Failed: at row %d of csv file '%s'"
+                                " columns number is %d instead of %d" %
+                                (row_id+1, fname,
+                                 len(row), csv_field_names_n))}),
+                            content_type="application/json")
+
+        return HttpResponse(json.dumps(
+            {'ret': 0, 'ret_s': 'Success'}),
             content_type="application/json")

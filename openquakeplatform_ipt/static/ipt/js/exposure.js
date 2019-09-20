@@ -501,7 +501,7 @@ function ex_updateTable() {
     var $tbl, $table, tbl_id, tbls = ex_obj.o.find('div[name="exposuretbls"] div[name^="exposuretbl-"]');
 
     // Default columns
-    ex_obj.header = ['id', 'longitude', 'latitude', 'taxonomy', 'number'];
+    ex_obj.header = ['id', 'lon', 'lat', 'taxonomy', 'number'];
     function checkForValue (argument, valueArg) {
         // Modify the table header only when the menu is altered
         // This constraint will allow Limit, Deductible and Occupant elements to be
@@ -637,7 +637,35 @@ if (typeof gem_api != 'undefined') {
     });
 }
 
-function ex_convert2nrml()
+function ex_csv_check(field_names, csv_files)
+{
+    var data = new FormData();
+    data.append('data', JSON.stringify({field_names: field_names, csv_files: csv_files}));
+    $.ajax({
+        url: 'ex-csv-check',
+        type: 'POST',
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function (data) {
+            if (data.ret == 0) {
+                ex_convert2nrml(2);
+            }
+            else {
+                gem_ipt.error_msg(data.ret_s);
+            }
+        },
+        error: function () {
+            gem_ipt.error_msg('some error occured during csv headers check');
+        }
+    });
+    return false;
+}
+
+
+
+function ex_convert2nrml(step)
 {
     var data = [];
     var files_list = [];
@@ -648,7 +676,20 @@ function ex_convert2nrml()
 
     var exp_type = ex_obj.o.find('input:radio[name="exposure-type"]:checked').val();
 
-    if (exp_type == 'xml') {
+    if (exp_type == 'csv' && step == 1) {
+        var $csv_files = ex_obj.o.find("div[name='exposure-csv-html'] select[name='file_html']"
+                                      ).children("option:selected");
+        var csv_files = [];
+        for (var i = 0 ; i < $csv_files.length ; i++) {
+            var $csv_file = $($csv_files[i]);
+            csv_files.push($csv_file.val());
+        }
+        var field_names = ex_obj.header.slice();
+        ex_csv_check(field_names, csv_files);
+        return;
+    }
+    else if (exp_type == 'xml') {
+        step = 2;
         $tbls = ex_obj.o.find('div[name="exposuretbls"] div[name^="exposuretbl-"]');
         for (var i = 0 ; i < $tbls.length ; i++) {
             $tbl = $($tbls[i]);
@@ -686,8 +727,8 @@ function ex_convert2nrml()
     var description = ex_obj.o.find('#description').val();
 
     var asset = '';
-    var latitude = 'latitude';
-    var longitude = 'longitude';
+    var lon = 'lon';
+    var lat = 'lat';
     var taxonomy = 'taxonomy';
     var number = 'number';
     var area = 'area';
@@ -709,8 +750,8 @@ function ex_convert2nrml()
     var tags = ex_obj.o.find('#tags').tagsinput('items');
 
     // Get the the index for each header element
-    var latitudeInx = checkHeaderMatch(latitude);
-    var longitudeInx = checkHeaderMatch(longitude);
+    var latInx = checkHeaderMatch(lat);
+    var lonInx = checkHeaderMatch(lon);
     var taxonomyInx = checkHeaderMatch(taxonomy);
     var numberInx = checkHeaderMatch(number);
     var areaInx = checkHeaderMatch(area);
@@ -782,15 +823,15 @@ function ex_convert2nrml()
             } else {
                 number = '';
             }
-            if (latitudeInx > -1 ) {
-                latitude = 'lat="'+ data[i][latitudeInx]+'"';
+            if (latInx > -1 ) {
+                lat = 'lat="'+ data[i][latInx]+'"';
             } else {
-                latitude = '';
+                lat = '';
             }
-            if (longitudeInx > -1 ) {
-                longitude = 'lon="'+ data[i][longitudeInx]+'"';
+            if (lonInx > -1 ) {
+                lon = 'lon="'+ data[i][lonInx]+'"';
             } else {
-                longitude = '';
+                lon = '';
             }
             if (taxonomyInx > -1 ) {
                 taxonomy = 'taxonomy="'+ data[i][taxonomyInx]+'"';
@@ -872,7 +913,7 @@ function ex_convert2nrml()
 
             asset +=
                 '\t\t\t<asset id="'+id+'" '+number+' '+area+' '+taxonomy+' >\n' +
-                '\t\t\t\t<location '+longitude+' '+latitude+' />\n' +
+                '\t\t\t\t<location '+lon+' '+lat+' />\n' +
                 costs +
                 occupancies +
                 asset_tags +
@@ -951,7 +992,14 @@ function ex_convert2nrml()
     }
 }
 
-ex_obj.o.find('#convertBtn').click(ex_convert2nrml);
+function ex_convert2nrml_cb(e)
+{
+    $('.ex_gid #outputDiv').hide();
+    ex_convert2nrml(1);
+}
+
+
+ex_obj.o.find('#convertBtn').click(ex_convert2nrml_cb);
 
 function exposure_tags_cb(event)
 {
