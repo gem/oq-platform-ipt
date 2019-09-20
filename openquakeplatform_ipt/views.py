@@ -1707,7 +1707,6 @@ def ex_csv_check(request):
                             content_type="application/json")
 
                 for row_id, row in enumerate(csv_dr):
-                    print(len(row))
                     if len(row) != csv_field_names_n:
                         return HttpResponse(json.dumps(
                             {'ret': 3, 'ret_s': (
