@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import unittest
-from openquake.moon import platform_get
+from openquake.moon import platform_get, TimeoutError
 from selenium.webdriver.common.keys import Keys
+import time
 
 
 class IptTest(unittest.TestCase):
@@ -14,6 +15,21 @@ class IptTest(unittest.TestCase):
 
         # <button id="saveBtnEX" type="button" style="display: block;"
         #     class="btn btn-primary">Convert to NRML</button>
+        try:
+            footer = pla.xpath_finduniq("//footer")
+
+            # hide footer
+            pla.driver.execute_script(
+                "$(arguments[0]).attr('style','display:none;')", footer)
+        except TimeoutError:
+            pass
+
+        xml_radio_type = pla.xpath_finduniq(
+            "//div[@name = 'exposure-type']"
+            "//input[@type = 'radio' and @value = 'xml']")
+        xml_radio_type.click()
+
+        time.sleep(2)
 
         convert_btn = pla.xpath_finduniq(
             "//div[contains(concat(' ',normalize-space(@class),' '),"
@@ -35,11 +51,21 @@ class IptTest(unittest.TestCase):
         pla = platform_get()
         pla.get('/ipt')
 
-        footer = pla.xpath_finduniq("//footer")
+        try:
+            footer = pla.xpath_finduniq("//footer")
 
-        # hide footer
-        pla.driver.execute_script(
-            "$(arguments[0]).attr('style','display:none;')", footer)
+            # hide footer
+            pla.driver.execute_script(
+                "$(arguments[0]).attr('style','display:none;')", footer)
+        except TimeoutError:
+            pass
+
+        xml_radio_type = pla.xpath_finduniq(
+            "//div[@name = 'exposure-type']"
+            "//input[@type = 'radio' and @value = 'xml']")
+        xml_radio_type.click()
+
+        time.sleep(2)
 
         # Check add rows for exposure table
         new_row_btn = pla.xpath_finduniq(
@@ -63,7 +89,6 @@ class IptTest(unittest.TestCase):
         # Click add row and check if exists new rows
         for id_tbl in range(1, 2):
             new_table_btn.click()
-            print('id table: %s' % id_tbl)
             new_table_btn = pla.xpath_finduniq(
                 "//div[@name='exposuretbl-%s']" % id_tbl)
 
