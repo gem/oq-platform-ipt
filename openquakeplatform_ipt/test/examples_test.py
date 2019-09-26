@@ -108,23 +108,8 @@ imt_examples = {
              'sfx': 'xml'},
         ]
     },
-    'SiteConditions': {
-        'tab_id': 6,
-        'exams': [
-            {'exa_id': 1, 'subtab_id': 0,
-             'xpath': ["//div[@id='tabs-5']//div[@id='"
-                       "validationErrorMsg'][@style='display: none;']",
-                       "//textarea[@id='textareasc']"],
-             'sfx': 'xml'},
-            {'exa_id': 99, 'subtab_id': 0,
-             'xpath': ["//div[@id='tabs-5']//div[@id='"
-                       "validationErrorMsg'][@style='display: none;']",
-                       "//textarea[@id='textareasc']"],
-             'sfx': 'xml'}
-        ]
-    },
     'ConfigurationFile': {
-        'tab_id': 7,
+        'tab_id': 6,
         'exams': [
             {'exa_id': 99, 'subtab_id': 1,
              'zipfile': 'ScenarioHazard.zip',
@@ -280,110 +265,10 @@ def class_match(cls):
 
 class IptUploadTest(unittest.TestCase):
 
-    def sitecond_upload_wout_header_test(self):
-        homedir = os.path.expanduser('~')
-        outfile = os.path.join(homedir, 'Downloads', 'site_model.xml')
-
-        exp_path = os.path.join(os.path.dirname(
-            sys.modules[IptExamplesTest.__module__].__file__), 'expected')
-
-        if os.path.isfile(outfile):
-            os.unlink(outfile)
-
-        pla = platform_get()
-        pla.get('/ipt/?tab_id=6')
-        hide_footer(pla)
-
-        common = "//div[%s]//" % class_match('sc_gid')
-        filetag = pla.xpath_finduniq(
-            common + "input[@type='file'][@id='table_file']")
-        # show div with upload file
-        up_file = os.path.join(os.path.dirname(__file__), 'data',
-                               'site_model', 'upload_wout_header.csv')
-        filetag.send_keys(up_file)
-
-        convert = pla.xpath_finduniq(
-            common + "button[@id='convertBtn']")
-        download = pla.xpath_finduniq(
-            common + "button[@id='downloadBtn']")
-
-        convert.click()
-        for ct in range(0, 20):
-            try:
-                pla.wait_visibility(download, timeout=0.1)
-                break
-            except TimeoutError:
-                convert.click()
-                continue
-        else:
-            raise TimeoutError
-
-        exp_filename = os.path.join(
-            exp_path, "sitecond_upload_wout_header_test.xml")
-
-        with codecs.open(exp_filename, 'r', 'utf-8') as exp_file:
-            expected = exp_file.read()
-
-        ret_tag = pla.xpath_finduniq(
-            common + "textarea[@id='textareasc']")
-        ret = ret_tag.get_attribute("value")
-
-        self.assertEqual(ret, expected)
-
-    def sitecond_upload_with_header_test(self):
-        homedir = os.path.expanduser('~')
-        outfile = os.path.join(homedir, 'Downloads', 'site_model.xml')
-
-        exp_path = os.path.join(os.path.dirname(
-            sys.modules[IptExamplesTest.__module__].__file__), 'expected')
-
-        if os.path.isfile(outfile):
-            os.unlink(outfile)
-
-        pla = platform_get()
-        pla.get('/ipt/?tab_id=6')
-        hide_footer(pla)
-
-        common = "//div[%s]//" % class_match('sc_gid')
-        filetag = pla.xpath_finduniq(
-            common + "input[@type='file'][@id='table_file']")
-        # show div with upload file
-        up_file = os.path.join(os.path.dirname(__file__), 'data',
-                               'site_model', 'upload_with_header.csv')
-        filetag.send_keys(up_file)
-
-        convert = pla.xpath_finduniq(
-            common + "button[@id='convertBtn']")
-        download = pla.xpath_finduniq(
-            common + "button[@id='downloadBtn']")
-
-        convert.click()
-        for ct in range(0, 20):
-            try:
-                pla.wait_visibility(download, timeout=0.1)
-                break
-            except TimeoutError:
-                convert.click()
-                continue
-        else:
-            raise TimeoutError
-
-        exp_filename = os.path.join(
-            exp_path, "sitecond_upload_with_header_test.xml")
-
-        with codecs.open(exp_filename, 'r', 'utf-8') as exp_file:
-            expected = exp_file.read()
-
-        ret_tag = pla.xpath_finduniq(
-            common + "textarea[@id='textareasc']")
-        ret = ret_tag.get_attribute("value")
-
-        self.assertEqual(ret, expected)
-
     def upload_test(self):
         # clean all files in upload folder
         pla = platform_get()
-        pla.get('/ipt/?tab_id=7&subtab_id=1')
+        pla.get('/ipt/?tab_id=6&subtab_id=1')
 
         pla.driver.execute_script(
             "window.gem_not_interactive = true;")
@@ -445,7 +330,7 @@ class IptExamplesTest(unittest.TestCase):
         #
         # remove all uploaded files
         pla = platform_get()
-        pla.get('/ipt/?tab_id=7&subtab_id=1')
+        pla.get('/ipt/?tab_id=6&subtab_id=1')
 
         hide_footer(pla)
 
