@@ -27,6 +27,7 @@ $(document).ready(function () {
         $(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="rupture_mesh_spacing_choice"]').prop('checked', true).triggerHandler('click');
         $(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="area_source_discretization_choice"]').prop('checked', true).triggerHandler('click');
 
+        $(cf_obj['e_b'].pfx + ' div[name="hazard-calculation"] select[name="ground-motion-correlation"]').val('JB2009');
         // Click to download EventBase.zip
         $(cf_obj['e_b'].pfx + ' button[name="download"]').click();
         window.gem_example_completed = true;
