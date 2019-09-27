@@ -14,22 +14,6 @@
     </form>
   </div>
   <div name="exposure-model-risk">
-    <div class="alert alert-info ipt-info" role="alert" style="text-align: center;">
-      <input style="margin:0;" type="checkbox" name="region_constraint_choice">
-      Include region constraint
-    </div>
-
-    <div class="menuItems" name="region-constraint">
-      <div style="display: inline-block; float: left;">
-        <label>Region constraint <span class="ui-icon ui-icon-help ipt_help" title='Region that defines the polygon that will be used for filtering the assets from the exposure model. Assets outside of this region will not be considered in the risk calculations.'></span>:</label>
-      </div>
-      <div style="position: relative; display: inline-block; text-align: center;">
-        <div name="region-constr" style=" width: 300px; height: 120px; overflow: hidden; padding: auto;"></div>
-        <button type="button" name="new_row_add" class="btn">New Row</button>
-        <br><br>
-      </div>
-    </div>
-
     <div class="menuItems" name="asset-hazard-distance" data-gem-enabled="true">
       <label>Asset hazard distance <span class="ui-icon ui-icon-help ipt_help" title='This parameter indicates the maximum allowable distance between an asset and the closest hazard input. Hazard inputs can include hazard curves or ground motion intensity values.'></span>:</label>
       <input type="text" name="asset_hazard_distance" value="15.0">
