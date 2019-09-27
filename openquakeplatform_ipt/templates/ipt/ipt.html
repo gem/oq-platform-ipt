@@ -126,7 +126,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
 {% include "ipt/ipt.js" %}
     </script>
     {% with subtab_semi=request.GET.subtab_id|default:0 %}
-        {% if request.GET.example_id|add:"0" > 0 and request.GET.example_id|add:"0" < 100 and request.GET.tab_id|add:"0" > 0 and request.GET.tab_id|add:"0" < 8 and subtab_semi|add:"0" >= 0 and subtab_semi|add:"0" < 5 %}
+        {% if request.GET.example_id|add:"0" > 0 and request.GET.example_id|add:"0" < 100 and request.GET.tab_id|add:"0" > 0 and request.GET.tab_id|add:"0" < 7 and subtab_semi|add:"0" >= 0 and subtab_semi|add:"0" < 5 %}
             <script src="{{ STATIC_URL }}ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}{{subtab_semi|add:"0"|stringformat:"01d" }}.js"></script>
         {% else %}
             <!-- Example not found "ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}{{ request.GET.subtab_id|add:"0"|stringformat:"01d" }}.js"  -->
