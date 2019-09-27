@@ -214,6 +214,7 @@ def sendback_nrml(request):
     :returns: an XML file, containing the given NRML text
     """
     file_list = []
+    content = 'content not yet set'
     xml_text = request.POST.get('xml_text')
     func_type = request.POST.get('func_type')
     if not xml_text:
@@ -236,7 +237,7 @@ def sendback_nrml(request):
                 file_list = assets[0].text.strip().split()
                 file_list = [os.path.join('exposure_csv', f) for f
                              in file_list]
-    except:
+    except Exception:
         return HttpResponseBadRequest(
             'Invalid NRML')
 
