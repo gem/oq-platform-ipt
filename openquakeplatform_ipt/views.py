@@ -909,7 +909,7 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
 
 
 def vulnerability_model_prep_sect(data, z, userid, namespace, file_collect,
-                                  save_files=True, with_ensloss=True):
+                                  save_files=True):
     jobini = "\n[Vulnerability model]\n"
     #            #####################
     descr = {'structural': 'structural', 'nonstructural': 'nonstructural',
@@ -924,13 +924,6 @@ def vulnerability_model_prep_sect(data, z, userid, namespace, file_collect,
                 zwrite_or_collect(z, userid, namespace,
                                   data['vm_loss_%s' % losslist],
                                   file_collect)
-
-    if with_ensloss is True:
-        jobini += "insured_losses = %s\n" % (
-            "True" if data['insured_losses'] else "False")
-
-        if data['asset_correlation_choice']:
-            jobini += "asset_correlation = %s" % data['asset_correlation']
 
     return jobini
 
@@ -1282,7 +1275,7 @@ def event_based_prepare(request, **kwargs):
                 is True) or data['risk'] == 'risk':
             jobhaz += vulnerability_model_prep_sect(
                 data, z, userid, namespace, file_collect,
-                save_files=(not vuln_file_saved), with_ensloss=False)
+                save_files=(not vuln_file_saved))
             vuln_file_saved = True
 
         jobhaz += "\n[Hazard calculation]\n"

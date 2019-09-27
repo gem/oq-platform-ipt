@@ -220,17 +220,6 @@ $(document).ready(function () {
                 ret.str += uniqueness_check(files_list);
             }
         }
-
-        obj['insured_losses'] = $(pfx + ' input[type="checkbox"][name="insured_losses"]').is(':checked');
-
-        obj['asset_correlation_choice'] = $(
-            pfx + ' input[type="checkbox"][name="asset-correlation-choice"]').is(':checked');
-        if (obj['asset_correlation_choice'] == true) {
-            obj['asset_correlation'] = $(pfx + ' input[type="text"][name="asset_correlation"]').val();
-            if (obj['asset_correlation'] < 0.0 || obj['asset_correlation'] > 1.0) {
-                ret.str += "'asset correlation' out of range 0.0 ≤ x ≤ 1.0";
-            }
-        }
     }
 
     function site_conditions_getData(scope, ret, files_list, obj)
@@ -384,8 +373,6 @@ $(document).ready(function () {
         file_uploader_init($target, 'vm-occupants', fileNew_cb, fileNew_upload);
 
         $target.find('input[type="checkbox"]').click(manager);
-        $target.find('input[name="insured_losses"]').prop('checked', false); // .triggerHandler('click');
-        $target.find('input[name="asset-correlation-choice"]').prop('checked', false); // .triggerHandler('click');
     }
 
     // Site conditions (init)
@@ -1110,10 +1097,6 @@ $(document).ready(function () {
             vm_loss_occupants_choice: false,
             vm_loss_occupants: null,
 
-            insured_losses: false,
-            asset_correlation_choice: false,
-            asset_correlation: null,
-
             // calculation parameters
             intensity_measure_types: null,
             gsim_logic_tree_file: null,
@@ -1806,10 +1789,6 @@ $(document).ready(function () {
             vm_loss_businter: null,
             vm_loss_occupants_choice: false,
             vm_loss_occupants: null,
-
-            insured_losses: false,
-            asset_correlation_choice: false,
-            asset_correlation: null,
 
             // hazard outputs
             save_ruptures: false,
