@@ -48,6 +48,11 @@ from django.template.loader import get_template
 
 from openquakeplatform import __version__ as oqp_version
 from openquakeplatform.settings import WEBUIURL, TIME_INVARIANT_OUTPUTS
+try:
+    from openquakeplatform.settings import GEM_IPT_CLEAN_ALL
+except Exception:
+    GEM_IPT_CLEAN_ALL = True
+
 from openquakeplatform.python3compat import unicode, encode, decode
 from openquakeplatform.utils import oq_is_qgis_browser
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
@@ -264,6 +269,8 @@ def sendback_nrml(request):
         z.close()
         with open(fname, 'rb') as content_file:
             content = content_file.read()
+            if GEM_IPT_CLEAN_ALL:
+                os.unlink(fname)
     else:
         content = xml_text
         ext = 'xml'
@@ -1606,6 +1613,8 @@ def download(request):
             return HttpResponseBadRequest('Zipfile not found.')
         with open(absfile, 'rb') as content_file:
             content = content_file.read()
+            if GEM_IPT_CLEAN_ALL:
+                os.unlink(absfile)
 
         resp = HttpResponse(content=content,
                             content_type='application/zip')

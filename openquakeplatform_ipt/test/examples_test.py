@@ -11,15 +11,20 @@ import zipfile
 from selenium.webdriver.support.select import Select
 try:
     from openquakeplatform.settings import STANDALONE
-except:
+except Exception:
     STANDALONE = False
+
+try:
+    from openquakeplatform.settings import GEM_IPT_CLEAN_ALL
+except Exception:
+    GEM_IPT_CLEAN_ALL = True
+
 
 from openquakeplatform.settings import FILE_PATH_FIELD_DIRECTORY
 
 from openquake.moon import platform_get, TimeoutError
 
 PLA_ADMIN_ID = os.environ.get('GEM_PLA_ADMIN_ID', '1')
-_CLEAN_ALL = True
 #
 # TO RUN A SINGLE TEST:
 #
@@ -243,7 +248,7 @@ def setup_module(module):
 
 
 def teardown_module(module):
-    if (_CLEAN_ALL and _fpath_field_directory_old is not None):
+    if (GEM_IPT_CLEAN_ALL and _fpath_field_directory_old is not None):
         shutil.rmtree(_fpath_field_directory)
         os.rename(_fpath_field_directory_old,
                   _fpath_field_directory)
@@ -280,7 +285,7 @@ class IptUploadTest(unittest.TestCase):
             " and @name='configuration_file']"
             "//div[starts-with(@id, 'cf_subtabs-') and @name='scenario']")
 
-        if _CLEAN_ALL:
+        if GEM_IPT_CLEAN_ALL:
             clean_all = pla.xpath_finduniq(
                 common + "//button[@type='submit' and @name='clean_all']")
             clean_all.click()
@@ -339,7 +344,7 @@ class IptExamplesTest(unittest.TestCase):
             " @name='configuration_file']"
             "//div[starts-with(@id, 'cf_subtabs-') and @name='scenario']")
 
-        if _CLEAN_ALL:
+        if GEM_IPT_CLEAN_ALL:
             clean_all = pla.xpath_finduniq(
                 common + "//button[@type='submit' and @name='clean_all']")
             clean_all.click()
