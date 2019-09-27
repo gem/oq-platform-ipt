@@ -48,6 +48,11 @@ from django.template.loader import get_template
 
 from openquakeplatform import __version__ as oqp_version
 from openquakeplatform.settings import WEBUIURL, TIME_INVARIANT_OUTPUTS
+try:
+    from openquakeplatform.settings import GEM_IPT_CLEAN_ALL
+except Exception:
+    GEM_IPT_CLEAN_ALL = True
+
 from openquakeplatform.python3compat import unicode, encode, decode
 from openquakeplatform.utils import oq_is_qgis_browser
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
@@ -214,6 +219,7 @@ def sendback_nrml(request):
     :returns: an XML file, containing the given NRML text
     """
     file_list = []
+    content = 'content not yet set'
     xml_text = request.POST.get('xml_text')
     func_type = request.POST.get('func_type')
     if not xml_text:
@@ -236,7 +242,7 @@ def sendback_nrml(request):
                 file_list = assets[0].text.strip().split()
                 file_list = [os.path.join('exposure_csv', f) for f
                              in file_list]
-    except:
+    except Exception:
         return HttpResponseBadRequest(
             'Invalid NRML')
 
@@ -263,6 +269,8 @@ def sendback_nrml(request):
         z.close()
         with open(fname, 'rb') as content_file:
             content = content_file.read()
+            if GEM_IPT_CLEAN_ALL:
+                os.unlink(fname)
     else:
         content = xml_text
         ext = 'xml'
@@ -1303,7 +1311,7 @@ def event_based_prepare(request, **kwargs):
                    data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
             jobhaz += ("ground_motion_correlation_params = "
-                       "{\"vs30_clustering\": True}")
+                       "{\"vs30_clustering\": True}\n")
         jobhaz += "maximum_distance = %s\n" % data['maximum_distance']
         jobhaz += "truncation_level = %s\n" % data['truncation_level']
         jobhaz += "investigation_time = %s\n" % data['investigation_time']
@@ -1598,6 +1606,8 @@ def download(request):
             return HttpResponseBadRequest('Zipfile not found.')
         with open(absfile, 'rb') as content_file:
             content = content_file.read()
+            if GEM_IPT_CLEAN_ALL:
+                os.unlink(absfile)
 
         resp = HttpResponse(content=content,
                             content_type='application/zip')
