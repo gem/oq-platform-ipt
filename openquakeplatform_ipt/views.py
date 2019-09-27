@@ -1310,7 +1310,7 @@ def event_based_prepare(request, **kwargs):
                    data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
             jobhaz += ("ground_motion_correlation_params = "
-                       "{\"vs30_clustering\": True}")
+                       "{\"vs30_clustering\": True}\n")
         jobhaz += "maximum_distance = %s\n" % data['maximum_distance']
         jobhaz += "truncation_level = %s\n" % data['truncation_level']
         jobhaz += "investigation_time = %s\n" % data['investigation_time']
