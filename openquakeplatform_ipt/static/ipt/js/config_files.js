@@ -1038,6 +1038,7 @@ $(document).ready(function () {
 
             hazard_sites_choice: null,
 
+            region_grid_choice: null,
             region_grid: null,
 
             // hazard sites
@@ -1189,7 +1190,9 @@ $(document).ready(function () {
         // Exposure model (get)
         exposure_model_getData(
             'scen', ret, files_list, obj,
-            ((obj.hazard == 'hazard' && obj.hazard_sites_choice == 'exposure-model') || obj.risk != null),
+            ((obj.hazard == 'hazard' && (obj.hazard_sites_choice == 'exposure-model' ||
+                                         obj.region_grid_choice == 'infer-from-exposure')
+             ) || obj.risk != null),
             obj.risk);
 
         // Fragility and vulnerability model (get)
@@ -1997,7 +2000,9 @@ $(document).ready(function () {
         // Exposure model (get)
         exposure_model_getData(
             'e_b', ret, files_list, obj,
-            ((obj.hazard == 'hazard' && obj.hazard_sites_choice == 'exposure-model') || obj.risk != null),
+            ((obj.hazard == 'hazard' && (obj.hazard_sites_choice == 'exposure-model' ||
+                                         obj.region_grid_choice == 'infer-from-exposure')
+             ) || obj.risk != null),
             obj.risk);
 
         if ((obj.hazard != null && obj.use_imt_from_vulnerability == true) ||
