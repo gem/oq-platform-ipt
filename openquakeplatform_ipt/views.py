@@ -1050,7 +1050,8 @@ def scenario_prepare(request, **kwargs):
                                 content_type="application/json")
 
     if ((data['hazard'] == 'hazard' and
-         data['hazard_sites_choice'] == 'exposure-model') or
+         (data['hazard_sites_choice'] == 'exposure-model' or
+          data['region_grid_choice'] == 'infer-from-exposure')) or
             data['risk'] is not None):
         jobini += exposure_model_prep_sect(data, z, (data['risk'] is not None),
                                            userid, namespace, file_collect)
