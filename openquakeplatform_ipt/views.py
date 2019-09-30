@@ -1318,7 +1318,6 @@ def event_based_prepare(request, **kwargs):
         jobhaz += ("hazard_curves_from_gmfs = %s\n" %
                    data['hazard_curves_from_gmfs'])
         if data['hazard_curves_from_gmfs']:
-            jobhaz += "mean_hazard_curves = %s\n" % False
             if data['quantile_hazard_curves_choice']:
                 jobhaz += ("quantile_hazard_curves = %s\n" %
                            data['quantile_hazard_curves'])
