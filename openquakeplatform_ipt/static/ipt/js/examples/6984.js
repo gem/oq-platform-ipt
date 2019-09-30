@@ -38,8 +38,7 @@ $(document).ready(function () {
 
         $(cf_obj['vol'].pfx + ' div[name="exposure-model"] input[type="text"][name="asset_hazard_distance"]').val('');
 
-        
-        $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="region_constraint_choice"]').prop('checked', true).triggerHandler('click');
+
         $(cf_obj['vol'].pfx + ' input[type="checkbox"][name="is-cons-models"]').prop('checked', true).triggerHandler('click');
         $(cf_obj['vol'].pfx + ' div[name="fm-ashfall-cons-html"] select[name="file_html"]').val('');
 

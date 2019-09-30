@@ -894,17 +894,6 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
         zwrite_or_collect(z, userid, namespace, data['exposure_model'],
                           file_collect)
     if is_regcons:
-        if data['exposure_model_regcons_choice'] is True:
-            is_first = True
-            jobini += "region_constraint = "
-            for el in data['exposure_model_regcons_coords_data']:
-                if is_first:
-                    is_first = False
-                else:
-                    jobini += ", "
-                jobini += "%s %s" % (el[0], el[1])
-            jobini += "\n"
-
         if data['asset_hazard_distance_enabled'] is True:
             jobini += "asset_hazard_distance = {"
             for spec in spec_ass_haz_dists:

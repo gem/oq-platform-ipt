@@ -50,14 +50,6 @@ $(document).ready(function () {
             $subtarget = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]');
             if (with_constraints) {
                 $subtarget.css('display', '');
-                $subsubt = $(cf_obj[scope].pfx
-                             + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                             + ' div[name="region-constraint"]');
-                if ($(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-                      + ' input[name="region_constraint_choice"]').is(':checked'))
-                    $subsubt.css('display', '');
-                else
-                    $subsubt.css('display', 'none');
 
                 $subsubt = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="asset-hazard-distance"]');
                 $subsubt.attr('data-gem-enabled', (without_inc_asset ? 'false' : 'true'));
@@ -181,26 +173,6 @@ $(document).ready(function () {
             uniqueness_add(files_list, 'exposure model', obj.exposure_model);
             ret.str += uniqueness_check(files_list);
             if (with_constraints) {
-                obj.exposure_model_regcons_choice = $(
-                    cf_obj[scope].pfx + ' div[name="exposure-model"]'
-                    + ' input[type="checkbox"][name="region_constraint_choice"]'
-                ).is(':checked');
-                if (obj.exposure_model_regcons_choice) {
-                    obj.exposure_model_regcons_coords_data = cf_obj[scope].expModel_coords.getData();
-
-                    // Check for invalid value
-                    for (var i = 0; i < obj.exposure_model_regcons_coords_data.length; i++) {
-                        var lon = obj.exposure_model_regcons_coords_data[i][0];
-                        var lat = obj.exposure_model_regcons_coords_data[i][1];
-                        if (lon === null || lat === null || !gem_ipt.isFloat(lon) || !gem_ipt.isFloat(lat) ||
-                            parseFloat(lon) < -180.0 || parseFloat(lon) > 180.0 ||
-                            parseFloat(lat) < -90.0  || parseFloat(lat) > 90.0) {
-                            ret.str += "Entry #" + (i+1) + " of exposure model 'Region constraint'"
-                                + " field is invalid (" + lon + ", " + lat + ").\n";
-                        }
-                    }
-                }
-
                 obj.asset_hazard_distance_enabled = $(
                     cf_obj[scope].pfx + ' div[name="exposure-model"]'
                         + ' div[name="asset-hazard-distance"]').attr('data-gem-enabled') == 'true';
@@ -374,45 +346,6 @@ $(document).ready(function () {
     function exposure_model_init(scope, fileNew_cb, fileNew_upload, manager)
     {
         file_uploader_init(scope, 'exposure-model', fileNew_cb, fileNew_upload);
-
-        // Exposure model: risk-only region constraint checkbox (init)
-        $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]'
-          + ' input[name="region_constraint_choice"]').click(manager);
-
-        // Exposure model: hazard content region-constr table handsontable (init)
-        $(cf_obj[scope].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]').handsontable({
-            colHeaders: ['Longitude', 'Latitude'],
-            allowInsertColumn: false,
-            allowRemoveColumn: false,
-            rowHeaders: false,
-            contextMenu: true,
-            startRows: 3,
-            startCols: 2,
-            maxCols: 2,
-            width: "300px",
-            viewportRowRenderingOffset: 100,
-            className: "htLeft",
-            stretchH: "all"
-        });
-        cf_obj[scope].expModel_coords = $(
-            cf_obj[scope].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'
-        ).handsontable('getInstance');
-
-        setTimeout(function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj[scope].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
-        }, 0);
-
-        cf_obj[scope].expModel_coords.addHook('afterCreateRow', function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj[scope].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
-        });
-
-        cf_obj[scope].expModel_coords.addHook('afterRemoveRow', function() {
-            return gem_tableHeightUpdate(
-                $(cf_obj[scope].pfx + ' div[name="exposure-model-risk"] div[name="region-constr"]'));
-        });
-
         $(cf_obj[scope].pfx + ' div[name="exposure-model-risk"] button[name="new_row_add"]').click(function () {
             cf_obj[scope].expModel_coords.alter('insert_row');
         });
@@ -1117,9 +1050,6 @@ $(document).ready(function () {
 
             // exposure model
             exposure_model: null,
-            exposure_model_regcons_choice: false,
-            exposure_model_regcons_coords_data: null,
-
             asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
 
@@ -1845,9 +1775,6 @@ $(document).ready(function () {
 
             // exposure model
             exposure_model: null,
-            exposure_model_regcons_choice: false,
-            exposure_model_regcons_coords_data: null,
-
             asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
 
@@ -2269,7 +2196,6 @@ $(document).ready(function () {
         var $phen_input, $file_new, is_ashfall, is_cons_model, $cons_model;
 
         var $expo_is_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] input[name='is-reg-constr']");
-        var $expo_reg_const = $(cf_obj['vol'].pfx + " div[name='exposure'] div[name='region-constraint']");
 
         for (var i = 0 ; i < $phens.length ; i++) {
             is_ashfall = $($phens[i]).attr('name') == 'ashfall';
@@ -2540,9 +2466,6 @@ $(document).ready(function () {
 
             // exposure
             exposure_model: null,
-            exposure_model_regcons_choice: false,
-            exposure_model_regcons_coords_data: null,
-
             asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
 

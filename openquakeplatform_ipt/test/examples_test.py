@@ -407,7 +407,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                 ret = ret_tag.get_attribute('innerHTML')
             if ret.strip() != expected.strip():
                 # Turn on to save expected vs received with single test run
-                if False:
+                if not GEM_IPT_CLEAN_ALL:
                     with open('/tmp/rec.log', 'w') as rec:
                         rec.write(ret.strip())
                     with open('/tmp/exp.log', 'w') as exp:
