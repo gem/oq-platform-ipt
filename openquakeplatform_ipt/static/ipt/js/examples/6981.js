@@ -1,6 +1,6 @@
 $(document).ready(function () {
     window.gem_example_completed = false;
-    // this is a workaround for a bug fixed in jquery 1.9 (checked is toggled after that handler is fired
+    // this is a workaround for a bug fixed in jquery 1.9 (checked is toggled after that handler is fired)
     $(cf_obj['scen'].pfx + ' input[type="checkbox"][name="hazard"]').prop('checked', true).triggerHandler('click');
 
     $(cf_obj['scen'].pfx + " div[name='rupture-file-new'] input[name='file_upload']").submit();

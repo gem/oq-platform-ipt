@@ -1,6 +1,6 @@
 $(document).ready(function () {
     window.gem_example_completed = false;
-    // this is a workaround for a bug fixed in jquery 1.9 (checked is toggled after that handler is fired
+    // this is a workaround for a bug fixed in jquery 1.9 (checked is toggled after that handler is fired)
     $(cf_obj['e_b'].pfx + " div[name='exposure-model-new'] input[name='file_upload']").submit();
     $(cf_obj['e_b'].pfx + " div[name='vm-structural-new'] input[name='file_upload']").submit();
     $(cf_obj['e_b'].pfx + " div[name='source-model-logic-tree-file-new'] input[name='file_upload']").submit();
