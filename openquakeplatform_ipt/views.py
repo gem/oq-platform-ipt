@@ -1684,7 +1684,7 @@ def ex_csv_check(request):
 
             input_filepath = get_full_path(userid, namespace, csv_file)
 
-            with enc_open(input_filepath, encoding='utf-8') as csv_fp:
+            with enc_open(input_filepath, encoding='utf-8-sig') as csv_fp:
                 csv_dr = csv.reader(csv_fp)
                 csv_field_names = next(csv_dr)
                 csv_field_names_n = len(csv_field_names)
