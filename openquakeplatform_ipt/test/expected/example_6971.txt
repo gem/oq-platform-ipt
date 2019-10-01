@@ -1,0 +1,1 @@
+structural fragility model not set.<br>structural consequence model not set.<br>nonstructural fragility model not set.<br>nonstructural consequence model not set.<br>contents fragility model not set.<br>contents consequence model not set.<br>business interruption fragility model not set.<br>business interruption consequence model not set.<br>
