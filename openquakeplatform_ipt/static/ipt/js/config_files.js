@@ -67,37 +67,47 @@ $(document).ready(function () {
     function fragility_model_sect_manager(scope, is_active)
     {
         var $frag_model = $(cf_obj[scope].pfx + ' div[name="fragility-model"]');
+        var $frag_model_choices = $frag_model.find("div[name='fragility-model-choices']");
+        var $losses_msg = $frag_model.find("p[name='choose-one']");
 
         if (!is_active) {
-            $frag_model.css('display', 'none');
+            $frag_model.hide();
             return;
         }
 
         // Fragility model (ui)
-        $frag_model.css('display', '');
-        var show_cons = $(cf_obj[scope].pfx + ' div[name="fragility-model"] input[type="checkbox"]'
+        $frag_model.show();
+        var show_cons = $frag_model.find('input[type="checkbox"]'
                           + '[name="fm-loss-include-cons"]').is(':checked');
-        var losslist = ['structural', 'nonstructural', 'contents', 'businter' ];
+        var losslist = ['structural', 'nonstructural', 'contents', 'businter'];
+        var losses_off = true;
         for (var lossidx in losslist) {
             var losstype = losslist[lossidx];
 
-            $target = $(cf_obj[scope].pfx + ' div[name="fragility-model"] div[name="fm-loss-'
-                        + losstype + '"]');
-            $target2 = $(cf_obj[scope].pfx + ' div[name="fragility-model"] div[name="fm-loss-'
-                         + losstype + '-cons"]');
+            $target = $frag_model.find('div[name="fm-loss-' + losstype + '"]');
+            $target2 = $frag_model.find('div[name="fm-loss-' + losstype + '-cons"]');
 
-            if($(cf_obj[scope].pfx + ' div[name="fragility-model"] input[type="checkbox"][name="losstype"]'
-                 + '[value="' + losstype + '"]').is(':checked')) {
-                $target.css('display', '');
+            if($frag_model.find('input[type="checkbox"][name="losstype"][value="' +
+                                losstype + '"]').is(':checked')) {
+                $target.show();
+                losses_off = false;
                 if (show_cons)
-                    $target2.css('display', '');
+                    $target2.show();
                 else
-                    $target2.css('display', 'none');
+                    $target2.hide();
             }
             else {
-                $target.css('display', 'none');
-                $target2.css('display', 'none');
+                $target.hide();
+                $target2.hide();
             }
+        }
+        if (losses_off) {
+            $losses_msg.show();
+            $frag_model_choices.css('background-color', '#ffaaaa');
+        }
+        else {
+            $losses_msg.hide();
+            $frag_model_choices.css('background-color', '');
         }
     }
 
@@ -1205,6 +1215,7 @@ $(document).ready(function () {
             var descr = { structural: 'structural', nonstructural: 'nonstructural',
                           contents: 'contents', businter: 'business interruption' };
 
+            var losses_off = true;
             for (var lossidx in losslist) {
                 var losstype = losslist[lossidx];
 
@@ -1217,16 +1228,30 @@ $(document).ready(function () {
                     cf_obj['scen'].pfx + ' div[name="fragility-model"] input[type="checkbox"][name="losstype"]'
                         + '[value="' + losstype + '"]').is(':checked')
                 if(obj['fm_loss_' + losstype + '_choice']) {
+                    losses_off = false;
                     obj['fm_loss_' + losstype] = $target.find('select[name="file_html"]').val();
-                    uniqueness_add(files_list, 'fragility model: ' + descr[losstype], obj['fm_loss_' + losstype]);
-                    ret.str += uniqueness_check(files_list);
+                    if (obj['fm_loss_' + losstype] != '') {
+                        uniqueness_add(files_list, 'fragility model: ' + descr[losstype], obj['fm_loss_' + losstype]);
+                        ret.str += uniqueness_check(files_list);
+                    }
+                    else {
+                        ret.str += descr[losstype] + " fragility model not set.\n";
+                    }
 
                     if (show_cons) {
                         obj['fm_loss_' + losstype + '_cons'] = $target2.find('select[name="file_html"]').val();
-                        uniqueness_add(files_list, 'fragility model: ' + descr[losstype] + ' consequencies', obj['fm_loss_' + losstype + '_cons']);
-                        ret.str += uniqueness_check(files_list);
+                        if (obj['fm_loss_' + losstype + '_cons'] != '') {
+                            uniqueness_add(files_list, 'fragility model: ' + descr[losstype] + ' consequencies', obj['fm_loss_' + losstype + '_cons']);
+                            ret.str += uniqueness_check(files_list);
+                        }
+                        else {
+                            ret.str += descr[losstype] + " consequence model not set.\n";
+                        }
                     }
                 }
+            }
+            if (losses_off) {
+                ret.str += "In 'Fragility model' section choose at least one loss type.\n";
             }
         }
         else if(obj.risk == 'losses') {
@@ -2349,12 +2374,17 @@ $(document).ready(function () {
     /* force to have at least one checkbox enabled */
     function volcano_phen_cb(event)
     {
-        var $phens = $(cf_obj['vol'].pfx + " div[name='phens'] input[type='checkbox']:checked");
+        var $phens = $(cf_obj['vol'].pfx + " div[name='phens']");
+        var $phens_chb = $phens.find("input[type='checkbox']:checked");
+        var $phens_msg = $phens.find("p[name='choose-one']");
 
-        if ($phens.length == 0) {
-            event.preventDefault();
-            event.stopPropagation();
-            return;
+        if ($phens_chb.length == 0) {
+            $phens.css('background-color', '#ffaaaa');
+            $phens_msg.show();
+        }
+        else {
+            $phens.css('background-color', '');
+            $phens_msg.hide();
         }
         volcano_manager();
     }
@@ -2488,11 +2518,13 @@ $(document).ready(function () {
         var phenomena = cf_obj['vol'].phenomena;
         var phenomena_name = cf_obj['vol'].phenomena_name;
         var in_type;
+        var phenomena_off = true;
         for (var i = 0 ; i < phenomena.length ; i++) {
             obj[phenomena[i] + "_choice"] = $tab.find(
                 "input[type='checkbox'][name='" + phenomena[i] + "']").is(':checked');
             if (! obj[phenomena[i] + "_choice"])
                 continue;
+            phenomena_off = false;
 
             in_type = $tab.find(
                 "div[name='" + phenomena[i] + "-input'] select[name='in-type']").val();
@@ -2541,6 +2573,9 @@ $(document).ready(function () {
             }
         }
 
+        if (phenomena_off) {
+            ret.str += "Choose at least one volcano phenomenon.\n";
+        }
         if (obj.ashfall_choice) {
             obj.ashfall_wet_ampl = $tab.find(
                 'div[name="ashfall-input"] input[type="text"][name="wet-ampl"]').val();
