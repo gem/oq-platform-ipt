@@ -1215,6 +1215,7 @@ $(document).ready(function () {
             var descr = { structural: 'structural', nonstructural: 'nonstructural',
                           contents: 'contents', businter: 'business interruption' };
 
+            var losses_off = true;
             for (var lossidx in losslist) {
                 var losstype = losslist[lossidx];
 
@@ -1227,6 +1228,7 @@ $(document).ready(function () {
                     cf_obj['scen'].pfx + ' div[name="fragility-model"] input[type="checkbox"][name="losstype"]'
                         + '[value="' + losstype + '"]').is(':checked')
                 if(obj['fm_loss_' + losstype + '_choice']) {
+                    losses_off = false;
                     obj['fm_loss_' + losstype] = $target.find('select[name="file_html"]').val();
                     if (obj['fm_loss_' + losstype] != '') {
                         uniqueness_add(files_list, 'fragility model: ' + descr[losstype], obj['fm_loss_' + losstype]);
@@ -1247,6 +1249,9 @@ $(document).ready(function () {
                         }
                     }
                 }
+            }
+            if (losses_off) {
+                ret.str += "In 'Fragility model' section choose at least one loss type.\n";
             }
         }
         else if(obj.risk == 'losses') {
