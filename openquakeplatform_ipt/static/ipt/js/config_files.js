@@ -2379,7 +2379,6 @@ $(document).ready(function () {
         var $phens_msg = $phens.find("p[name='choose-one']");
 
         if ($phens_chb.length == 0) {
-            console.log($phens_msg);
             $phens.css('background-color', '#ffaaaa');
             $phens_msg.show();
         }
