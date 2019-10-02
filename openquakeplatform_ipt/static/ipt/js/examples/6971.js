@@ -14,10 +14,10 @@ $(document).ready(function () {
     var data = [
         [ "40", "40" ], ["30", "30"], ["20", "20" ]
     ];
-    
+
     var table = $(cf_obj['scen'].pfx + ' div[name="table"]').handsontable('getInstance');
     table.loadData(data);
-    
+
     $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] input[type="text"]').focus();
 
     $(cf_obj['scen'].pfx + ' input[type="checkbox"][name="losstype"][value="structural"]').prop('checked', true).triggerHandler('click');
@@ -27,11 +27,11 @@ $(document).ready(function () {
 
     $(cf_obj['scen'].pfx + ' input[type="checkbox"][name="fm-loss-include-cons"]').prop('checked', true).triggerHandler('click');
 
-    
+
     setTimeout(function () {
-        
+
         $(cf_obj['scen'].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val('exposure_model/exposure_model_vol_full.zip');
-        
+
         $(cf_obj['scen'].pfx + ' div[name="rupture-file-html"] select[name="file_html"]').val('rupture_file/earthquake_rupture_model.xml');
         // waiting for gmpe list population
         $(cf_obj['scen'].pfx + ' div[name="hazard-gmpe_specify-gmpe"] div.sol-label-text:contains("AbrahamsonEtAl2014RegCHN")'
