@@ -139,6 +139,38 @@ def _make_response(error_msg, error_line, valid):
         content=json.dumps(response_data), content_type=JSON)
 
 
+def site_conditions_check(full_path):
+    '''
+    check site condition file and return a tuple (Bool, String_descr)
+    '''
+    with enc_open(full_path, encoding='utf-8-sig') as csv_fp:
+        if not csv.Sniffer().has_header(csv_fp.read(1024)):
+            csv_fp.seek(0)
+            return (False, 'header not found')
+        csv_fp.seek(0)
+        reader = csv.DictReader(csv_fp)
+        if 'lon' not in reader.fieldnames:
+            return (False, "'lon' field not found")
+        if 'lat' not in reader.fieldnames:
+            return (False, "'lat' field not found")
+
+        lonlat = set()
+        for i, row in enumerate(reader, start=1):
+            lon = round(float(row['lon']), 5)
+            lat = round(float(row['lat']), 5)
+            lonlat.add((lon, lat))
+            if len(lonlat) < i:
+                return (False, "%f, %f rounded coords at line"
+                        " %d already found" % (lon, lat, i))
+
+            if lon > 180. or lon < -180.:
+                return (False, "lon %f out of range ±180° at line %d" %
+                        lon, i)
+            if lat > 90. or lat < -90.:
+                return (False, "lat %f out of range ±90° at line %d" %
+                        lat, i)
+        return (True, '')
+
 def _do_validate_nrml(xml_text):
     data = dict(xml_text=xml_text)
     ret = requests.post('%sv1/valid/' % WEBUIURL, data)
@@ -839,6 +871,17 @@ def upload(request, **kwargs):
                     f.write(encode(fi_up.read()))
                 files_list.append((os.path.basename(fi_up.name),
                                    os.path.basename(full_path)))
+                if (os.path.basename(os.path.dirname(full_path)) ==
+                        u'site_conditions' and full_path.endswith('.csv')):
+                    check_ret, check_desc = site_conditions_check(full_path)
+                    if not check_ret:
+                        ret['ret'] = 6
+                        ret['ret_msg'] = (
+                            'Error in "%s" file: %s.' % (
+                                os.path.basename(full_path), check_desc))
+
+                        return HttpResponse(json.dumps(ret),
+                                            content_type="application/json")
 
             suffix = target
             match = "|".join(
