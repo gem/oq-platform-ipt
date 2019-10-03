@@ -624,7 +624,7 @@ function generic_fileNew_collect(scope, reply, event)
             collected_reply.reason += ' added correctly.';
         }
         $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html(collected_reply.reason);
-        $(sbase + ' div[name="' + name + '-new"]').delay(3000).slideUp();
+        $(sbase + ' div[name="' + name + '-new"]').delay(cmd_msg.success == true ? 3000 : 10000).slideUp();
     }
     gem_api.ls(ls_subdir_cb, subdir);
 }
@@ -694,7 +694,7 @@ function generic_fileNew_upload(scope, obj, event)
                 $sel.trigger('change');
             }
             $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
-            $(sbase + ' div[name="' + name + '-new"]').delay(3000).slideUp({
+            $(sbase + ' div[name="' + name + '-new"]').delay(data.ret == 0 ? 3000 : 10000).slideUp({
                 done: function () {
                     $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html('');
                 }
@@ -748,7 +748,7 @@ function generic_fileNew_refresh(scope, obj, event)
                 }
             }
             $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html(data.ret_msg);
-            $(sbase + ' div[name="' + name + '-new"]').delay(3000).slideUp({
+            $(sbase + ' div[name="' + name + '-new"]').delay(data.ret == 0 ? 3000 : 10000).slideUp({
                 done: function () {
                     $(sbase + ' div[name="' + name + '-new"] div[name="msg"]').html('');
                 }
