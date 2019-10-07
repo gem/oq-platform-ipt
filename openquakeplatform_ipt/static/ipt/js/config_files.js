@@ -1837,7 +1837,9 @@ $(document).ready(function () {
             quantile_loss_curves: null,
 
             conditional_loss_poes_choice: false,
-            conditional_loss_poes: null
+            conditional_loss_poes: null,
+
+            individual_curves: false
         };
 
         if ($(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked'))
@@ -2148,6 +2150,8 @@ $(document).ready(function () {
                     }
                 }
             }
+
+            obj.individual_curves = $target.find('input[type="checkbox"][name="individual-curves"]').is(':checked');
         }
 
         if (ret.str == '') {

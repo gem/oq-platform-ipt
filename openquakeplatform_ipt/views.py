@@ -1408,6 +1408,9 @@ def event_based_prepare(request, **kwargs):
             jobris += ("conditional_loss_poes = %s\n" %
                        data['conditional_loss_poes'])
 
+        jobris += ("individual_curves = %s\n" % (
+            "true" if data['individual_curves'] else "false"))
+
     if data['hazard'] == 'hazard':
         zwrite_or_collect_str(z, 'job_hazard.ini', jobhaz, file_collect)
 
@@ -1512,7 +1515,7 @@ def volcano_prepare(request, **kwargs):
                 spec_ass_haz_dist = spec_ass_haz_dist.strip()
             else:
                 spec_ass_haz_dist = ''
-                
+
             if spec_ass_haz_dist != '':
                 spec_ass_haz_dists.append([key, spec_ass_haz_dist])
 
