@@ -620,6 +620,14 @@ function ex_updateTable() {
     }
     ex_obj.o.find('#outputText').empty();
     ex_obj.o.find('#convertBtn').show();
+
+    var $tr_exam_exp = $('<tr>');
+    for (var i = 0 ; i < ex_obj.header.length ; i++) {
+        $tr_exam_exp.append($('<th>').text(ex_obj.header[i]));
+    }
+    var $tbl_exam_exp = ex_obj.o.find('table.tbl-exam-exposure');
+    $tbl_exam_exp.empty();
+    $tbl_exam_exp.append($tr_exam_exp);
 }
 
 ex_obj.o.find('#downloadBtn').click(function() {

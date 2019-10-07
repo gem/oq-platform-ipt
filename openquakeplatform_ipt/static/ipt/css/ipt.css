@@ -267,3 +267,16 @@ ul.phen-list li {
     list-style-position: inside;
     padding-left: 8px;
 }
+
+table.tbl-exam-exposure {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 16px 0;
+}
+
+table.tbl-exam-exposure th {
+    padding: 4px;
+    text-align: center;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+}
