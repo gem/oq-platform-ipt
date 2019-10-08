@@ -1354,7 +1354,6 @@ def event_based_prepare(request, **kwargs):
 
         jobhaz += "\n[Hazard outputs]\n"
         #             ################
-        jobhaz += "save_ruptures = %s\n" % data['save_ruptures']
         jobhaz += ("ground_motion_fields = %s\n" %
                    data['ground_motion_fields'])
         jobhaz += ("hazard_curves_from_gmfs = %s\n" %
@@ -1410,6 +1409,11 @@ def event_based_prepare(request, **kwargs):
 
         jobris += ("individual_curves = %s\n" % (
             "true" if data['individual_curves'] else "false"))
+
+    if data['quantiles']:
+        quantiles = "quantiles = " + ", ".join(data['quantiles'])
+
+    # FIXME where place quantiles
 
     if data['hazard'] == 'hazard':
         zwrite_or_collect_str(z, 'job_hazard.ini', jobhaz, file_collect)
