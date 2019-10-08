@@ -17,4 +17,4 @@
 # along with OpenQuake. If not, see <http://www.gnu.org/licenses/>.
 
 header_info = {"title": "IPT"}
-__version__ = '1.15.8'
+__version__ = '1.16.0'
