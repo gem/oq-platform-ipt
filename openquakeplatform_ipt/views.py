@@ -1244,32 +1244,47 @@ def event_based_prepare(request, **kwargs):
 
     jobhaz = ""
     jobris = ""
+    is_full = False
+    if data['hazard'] == 'hazard' and data['risk'] == 'risk':
+        jobini = ""
+        is_full = True
 
+    job_sect = ""
+    job_sect += "# Generated automatically with IPT at %s\n" % (
+        "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
+    job_sect += "[general]\n"
+    job_sect += "description = %s\n" % data['description']
+
+    if is_full:
+        jobini += job_sect
+        jobini += "calculation_mode = event_based_risk\n"
+    else:
+        if data['hazard'] == 'hazard':
+            jobhaz += job_sect
+            jobhaz += "calculation_mode = event_based\n"
+        if data['risk'] == 'risk':
+            jobris += job_sect
+            jobris += "calculation_mode = event_based_risk\n"
+
+    job_sect = ""
     if data['hazard'] == 'hazard':
-        jobhaz += "# Generated automatically with IPT at %s\n" % (
-            "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
-        jobhaz += "[general]\n"
-        jobhaz += "description = %s\n" % data['description']
-
-        jobhaz += "calculation_mode = event_based\n"
-
-        jobhaz += "\n[Hazard sites]\n"
-        #            ##############
+        job_sect += "\n[Hazard sites]\n"
+        #              ##############
 
         if data['hazard_sites_choice'] == 'region-grid':
-            jobhaz += "region_grid_spacing = %s\n" % data['grid_spacing']
+            job_sect += "region_grid_spacing = %s\n" % data['grid_spacing']
             if data['region_grid_choice'] == 'region-coordinates':
                 is_first = True
-                jobhaz += "region = "
+                job_sect += "region = "
                 for el in data['reggrid_coords_data']:
                     if is_first:
                         is_first = False
                     else:
-                        jobhaz += ", "
-                    jobhaz += "%s %s" % (el[0], el[1])
-                jobhaz += "\n"
+                        job_sect += ", "
+                    job_sect += "%s %s" % (el[0], el[1])
+                job_sect += "\n"
         elif data['hazard_sites_choice'] == 'list-of-sites':
-            jobhaz += "sites_csv = %s\n" % basename(data['list_of_sites'])
+            job_sect += "sites_csv = %s\n" % basename(data['list_of_sites'])
             zwrite_or_collect(z, userid, namespace, data['list_of_sites'],
                               file_collect)
         elif data['hazard_sites_choice'] == 'exposure-model':
@@ -1281,11 +1296,11 @@ def event_based_prepare(request, **kwargs):
                                 content_type="application/json")
 
         # Site conditions
-        jobhaz += site_conditions_prep_sect(data, z, userid, namespace,
-                                            file_collect)
+        job_sect += site_conditions_prep_sect(data, z, userid, namespace,
+                                              file_collect)
 
         # Hazard model
-        jobhaz += "source_model_logic_tree_file = %s\n" % basename(
+        job_sect += "source_model_logic_tree_file = %s\n" % basename(
             data['source_model_logic_tree_file'])
         zwrite_or_collect(z, userid, namespace,
                           data['source_model_logic_tree_file'],
@@ -1295,87 +1310,95 @@ def event_based_prepare(request, **kwargs):
             zwrite_or_collect(z, userid, namespace, source_model_name,
                               file_collect)
 
-        jobhaz += "gsim_logic_tree_file = %s\n" % basename(
+        job_sect += "gsim_logic_tree_file = %s\n" % basename(
             data['gsim_logic_tree_file'])
         zwrite_or_collect(z, userid, namespace, data['gsim_logic_tree_file'],
                           file_collect)
 
-        jobhaz += "\n[Hazard model]\n"
-        #            ##############
-        jobhaz += "width_of_mfd_bin = %s\n" % data['width_of_mfd_bin']
+        job_sect += "\n[Hazard model]\n"
+        #              ##############
+        job_sect += "width_of_mfd_bin = %s\n" % data['width_of_mfd_bin']
 
         if data['rupture_mesh_spacing_choice'] is True:
-            jobhaz += ("rupture_mesh_spacing = %s\n" %
-                       data['rupture_mesh_spacing'])
+            job_sect += ("rupture_mesh_spacing = %s\n" %
+                         data['rupture_mesh_spacing'])
         if data['area_source_discretization_choice'] is True:
-            jobhaz += ("area_source_discretization = %s\n" %
-                       data['area_source_discretization'])
+            job_sect += ("area_source_discretization = %s\n" %
+                         data['area_source_discretization'])
         if data['complex_fault_mesh_choice'] is True:
-            jobhaz += ("complex_fault_mesh_spacing = %s\n" %
-                       data['complex_fault_mesh'])
+            job_sect += ("complex_fault_mesh_spacing = %s\n" %
+                         data['complex_fault_mesh'])
 
-        if (data['risk'] is None and data['use_imt_from_vulnerability']
-                is True) or data['risk'] == 'risk':
-            jobhaz += vulnerability_model_prep_sect(
+        if (not is_full and data['use_imt_from_vulnerability'] is True):
+            job_sect += vulnerability_model_prep_sect(
                 data, z, userid, namespace, file_collect,
                 save_files=(not vuln_file_saved))
             vuln_file_saved = True
 
-        jobhaz += "\n[Hazard calculation]\n"
-        #            ####################
+        job_sect += "\n[Hazard calculation]\n"
+        #              ####################
 
-        if data['risk'] is None:
-            jobhaz += "intensity_measure_types = "
+        if not is_full:
+            job_sect += "intensity_measure_types = "
             is_first = True
             for imt in data['intensity_measure_types']:
                 if is_first:
                     is_first = False
                 else:
-                    jobhaz += ", "
-                jobhaz += imt
+                    job_sect += ", "
+                job_sect += imt
             if data['custom_imt'] != '':
                 if not is_first:
-                    jobhaz += ", "
-                jobhaz += data['custom_imt']
-            jobhaz += "\n"
+                    job_sect += ", "
+                job_sect += data['custom_imt']
+            job_sect += "\n"
 
-        jobhaz += ("ground_motion_correlation_model = %s\n" %
-                   data['ground_motion_correlation_model'])
+        job_sect += ("ground_motion_correlation_model = %s\n" %
+                     data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
-            jobhaz += ("ground_motion_correlation_params = "
-                       "{\"vs30_clustering\": True}\n")
-        jobhaz += "maximum_distance = %s\n" % data['maximum_distance']
-        jobhaz += "truncation_level = %s\n" % data['truncation_level']
-        jobhaz += "investigation_time = %s\n" % data['investigation_time']
-        jobhaz += ("ses_per_logic_tree_path = %s\n" %
-                   data['ses_per_logic_tree_path'])
-        jobhaz += ("number_of_logic_tree_samples = %s\n" %
-                   data['number_of_logic_tree_samples'])
+            job_sect += ("ground_motion_correlation_params = "
+                         "{\"vs30_clustering\": True}\n")
+        job_sect += "maximum_distance = %s\n" % data['maximum_distance']
+        job_sect += "truncation_level = %s\n" % data['truncation_level']
+        job_sect += "investigation_time = %s\n" % data['investigation_time']
+        job_sect += ("ses_per_logic_tree_path = %s\n" %
+                     data['ses_per_logic_tree_path'])
+        job_sect += ("number_of_logic_tree_samples = %s\n" %
+                     data['number_of_logic_tree_samples'])
 
-        jobhaz += "\n[Hazard outputs]\n"
-        #             ################
-        jobhaz += ("ground_motion_fields = %s\n" %
-                   data['ground_motion_fields'])
-        jobhaz += ("hazard_curves_from_gmfs = %s\n" %
-                   data['hazard_curves_from_gmfs'])
+        job_sect += "\n[Hazard outputs]\n"
+        #               ################
+        job_sect += ("ground_motion_fields = %s\n" %
+                     data['ground_motion_fields'])
+        job_sect += ("hazard_curves_from_gmfs = %s\n" %
+                     data['hazard_curves_from_gmfs'])
         if data['hazard_curves_from_gmfs']:
             if data['quantile_hazard_curves_choice']:
-                jobhaz += ("quantile_hazard_curves = %s\n" %
-                           data['quantile_hazard_curves'])
-        jobhaz += "hazard_maps = %s\n" % data['hazard_maps']
+                job_sect += ("quantile_hazard_curves = %s\n" %
+                             data['quantile_hazard_curves'])
+        job_sect += "hazard_maps = %s\n" % data['hazard_maps']
         if data['hazard_maps']:
-            jobhaz += "poes = %s\n" % data['poes']
-        jobhaz += ("uniform_hazard_spectra = %s\n" %
-                   data['uniform_hazard_spectra'])
+            job_sect += "poes = %s\n" % data['poes']
+        job_sect += ("uniform_hazard_spectra = %s\n" %
+                     data['uniform_hazard_spectra'])
+        if is_full:
+            jobini += job_sect
+        else:
+            jobhaz += job_sect
 
+    job_sect = ""
     # Exposure model
     if data['risk'] == 'risk':
-        jobris += exposure_model_prep_sect(
-            data, z, (data['risk'] is not None), userid, namespace,
+        job_sect += exposure_model_prep_sect(
+            data, z, True, userid, namespace,
             file_collect, save_files=(not expo_file_saved))
         expo_file_saved = True
+        if is_full:
+            jobini += job_sect
+        else:
+            jobris += job_sect
 
-    if (data['hazard'] == 'hazard' and
+    if (not is_full and data['hazard'] == 'hazard' and
         (data['hazard_sites_choice'] == 'exposure-model' or
          data['region_grid_choice'] == 'infer-from-exposure')):
         jobhaz += exposure_model_prep_sect(
@@ -1383,51 +1406,51 @@ def event_based_prepare(request, **kwargs):
             save_files=(not expo_file_saved))
         expo_file_saved = True
 
+    job_sect = ""
     if data['risk'] == 'risk':
         # Vulnerability model
-        jobris += vulnerability_model_prep_sect(
+        job_sect += vulnerability_model_prep_sect(
             data, z, userid, namespace, file_collect,
             save_files=(not vuln_file_saved))
         vuln_file_saved = True
 
-        jobris += "\n[Risk calculation]\n"
-        #            ##################
-        jobris += ("risk_investigation_time = %s\n" %
-                   data['risk_investigation_time'])
+        job_sect += "\n[Risk calculation]\n"
+        #              ##################
+        job_sect += ("risk_investigation_time = %s\n" %
+                     data['risk_investigation_time'])
         if data['ret_periods_for_aggr'] is not None:
-            jobris += ("return_periods = [%s]\n" %
-                       data['ret_periods_for_aggr'])
+            job_sect += ("return_periods = [%s]\n" %
+                         data['ret_periods_for_aggr'])
 
-        jobris += "\n[Risk outputs]\n"
-        #            ##############
+        job_sect += "\n[Risk outputs]\n"
+        #              ##############
         if data['quantile_loss_curves_choice']:
-            jobris += ("quantile_loss_curves = %s\n" %
-                       data['quantile_loss_curves'])
+            job_sect += ("quantile_loss_curves = %s\n" %
+                         data['quantile_loss_curves'])
         if data['conditional_loss_poes_choice']:
-            jobris += ("conditional_loss_poes = %s\n" %
-                       data['conditional_loss_poes'])
+            job_sect += ("conditional_loss_poes = %s\n" %
+                         data['conditional_loss_poes'])
 
-        jobris += ("individual_curves = %s\n" % (
+        job_sect += ("individual_curves = %s\n" % (
             "true" if data['individual_curves'] else "false"))
+
+        if is_full:
+            jobini += job_sect
+        else:
+            jobris += job_sect
 
     if data['quantiles']:
         quantiles = "quantiles = " + ", ".join(data['quantiles'])
+        # FIXME where place quantiles
 
-    # FIXME where place quantiles
+    if is_full:
+        zwrite_or_collect_str(z, 'job.ini', jobini, file_collect)
+    else:
+        if data['hazard'] == 'hazard':
+            zwrite_or_collect_str(z, 'job_hazard.ini', jobhaz, file_collect)
 
-    if data['hazard'] == 'hazard':
-        zwrite_or_collect_str(z, 'job_hazard.ini', jobhaz, file_collect)
-
-    if jobris != "":
-        jobris_head = "# Generated automatically with IPT at %s\n" % (
-            "TESTING TIME" if TIME_INVARIANT_OUTPUTS else formatdate())
-        jobris_head += "[general]\n"
-        jobris_head += "description = %s\n" % data['description']
-
-        jobris_head += "calculation_mode = event_based_risk\n"
-
-        jobris = jobris_head + jobris
-        zwrite_or_collect_str(z, 'job_risk.ini', jobris, file_collect)
+        if data['risk'] == 'risk':
+            zwrite_or_collect_str(z, 'job_risk.ini', jobris, file_collect)
 
     if is_qgis_browser:
         ret['ret'] = 0
