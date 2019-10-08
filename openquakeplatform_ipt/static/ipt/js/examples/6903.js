@@ -1,6 +1,8 @@
 $(document).ready(function () {
     window.gem_example_completed = false;
     // this is a workaround for a bug fixed in jquery 1.9 (checked is toggled after that handler is fired)
+    $(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="risk"]').prop('checked', true).triggerHandler('click');
+    
     $(cf_obj['e_b'].pfx + " div[name='exposure-model-new'] input[name='file_upload']").submit();
     $(cf_obj['e_b'].pfx + " div[name='vm-structural-new'] input[name='file_upload']").submit();
     $(cf_obj['e_b'].pfx + " div[name='source-model-logic-tree-file-new'] input[name='file_upload']").submit();
@@ -28,8 +30,14 @@ $(document).ready(function () {
         $(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="area_source_discretization_choice"]').prop('checked', true).triggerHandler('click');
 
         $(cf_obj['e_b'].pfx + ' div[name="hazard-calculation"] select[name="ground-motion-correlation"]').val('JB2009');
+
+        $(cf_obj['e_b'].pfx + ' div[name="risk-outputs"] input[type="checkbox"][name="quantile_loss_curves_choice"]').prop('checked', true).triggerHandler('click');
+                $(cf_obj['e_b'].pfx + ' div[name="risk-outputs"] input[type="checkbox"][name="conditional_loss_poes_choice"]').prop('checked', true).triggerHandler('click');
+
         // Click to download EventBase.zip
-        $(cf_obj['e_b'].pfx + ' button[name="download"]').click();
+        setTimeout(function () {
+            $(cf_obj['e_b'].pfx + ' button[name="download"]').click();
+        }, 1000);
         window.gem_example_completed = true;
     }, 1000);
 });
