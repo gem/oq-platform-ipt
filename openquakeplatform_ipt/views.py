@@ -1367,7 +1367,7 @@ def event_based_prepare(request, **kwargs):
                      data['number_of_logic_tree_samples'])
 
         job_sect += "\n[Hazard outputs]\n"
-        #               ################
+        #              ################
         job_sect += ("ground_motion_fields = %s\n" %
                      data['ground_motion_fields'])
         job_sect += ("hazard_curves_from_gmfs = %s\n" %
@@ -1381,6 +1381,16 @@ def event_based_prepare(request, **kwargs):
             job_sect += "poes = %s\n" % data['poes']
         job_sect += ("uniform_hazard_spectra = %s\n" %
                      data['uniform_hazard_spectra'])
+
+        job_sect += "\n[Outputs]\n"
+        #              #########
+        job_sect += ("individual_curves = %s\n" % (
+            "true" if data['individual_curves'] else "false"))
+
+        if data['quantiles']:
+            job_sect += "quantiles = " + ", ".join(data['quantiles'])
+            job_sect += "\n"
+
         if is_full:
             jobini += job_sect
         else:
@@ -1431,17 +1441,10 @@ def event_based_prepare(request, **kwargs):
             job_sect += ("conditional_loss_poes = %s\n" %
                          data['conditional_loss_poes'])
 
-        job_sect += ("individual_curves = %s\n" % (
-            "true" if data['individual_curves'] else "false"))
-
         if is_full:
             jobini += job_sect
         else:
             jobris += job_sect
-
-    if data['quantiles']:
-        quantiles = "quantiles = " + ", ".join(data['quantiles'])
-        # FIXME where place quantiles
 
     if is_full:
         zwrite_or_collect_str(z, 'job.ini', jobini, file_collect)
