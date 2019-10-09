@@ -1242,7 +1242,9 @@ def event_based_prepare(request, **kwargs):
         file_collect = []
 
     jobhaz = ""
+    outhaz = ""
     jobris = ""
+    outris = ""
     is_full = False
     if data['hazard'] == 'hazard' and data['risk'] == 'risk':
         jobini = ""
@@ -1365,31 +1367,31 @@ def event_based_prepare(request, **kwargs):
         job_sect += ("number_of_logic_tree_samples = %s\n" %
                      data['number_of_logic_tree_samples'])
 
-        job_sect += "\n[Hazard outputs]\n"
-        #              ################
-        job_sect += ("ground_motion_fields = %s\n" %
-                     bool2s(data['ground_motion_fields']))
-        job_sect += ("hazard_curves_from_gmfs = %s\n" %
-                     bool2s(data['hazard_curves_from_gmfs']))
-        job_sect += "hazard_maps = %s\n" % bool2s(data['hazard_maps'])
+        outhaz += ("ground_motion_fields = %s\n" %
+                   bool2s(data['ground_motion_fields']))
+        outhaz += ("hazard_curves_from_gmfs = %s\n" %
+                   bool2s(data['hazard_curves_from_gmfs']))
+        outhaz += "hazard_maps = %s\n" % bool2s(data['hazard_maps'])
         if data['hazard_curves_from_gmfs']:
-            job_sect += "poes = %s\n" % data['poes']
-            job_sect += ("uniform_hazard_spectra = %s\n" %
-                         bool2s(data['uniform_hazard_spectra']))
+            outhaz += "poes = %s\n" % data['poes']
+            outhaz += ("uniform_hazard_spectra = %s\n" %
+                       bool2s(data['uniform_hazard_spectra']))
 
-        job_sect += "\n[Outputs]\n"
-        #              #########
-        job_sect += ("individual_curves = %s\n" % (
+        outhaz += ("individual_curves = %s\n" % (
             "true" if data['individual_curves'] else "false"))
 
         if data['quantiles']:
-            job_sect += "quantiles = " + ", ".join(data['quantiles'])
-            job_sect += "\n"
+            outhaz += "quantiles = " + ", ".join(data['quantiles'])
+            outhaz += "\n"
 
         if is_full:
             jobini += job_sect
         else:
             jobhaz += job_sect
+            if outhaz:
+                jobhaz += "\n[Outputs]\n"
+                #            #########
+                jobhaz += outhaz
 
     job_sect = ""
     # Exposure model
@@ -1427,18 +1429,26 @@ def event_based_prepare(request, **kwargs):
             job_sect += ("return_periods = [%s]\n" %
                          data['ret_periods_for_aggr'])
 
-        job_sect += "\n[Risk outputs]\n"
-        #              ##############
         if data['conditional_loss_poes_choice']:
-            job_sect += ("conditional_loss_poes = %s\n" %
-                         data['conditional_loss_poes'])
+            outris += ("conditional_loss_poes = %s\n" %
+                       data['conditional_loss_poes'])
 
         if is_full:
             jobini += job_sect
         else:
+            if outris:
+                job_sect += "\n[Outputs]\n"
+                #              #########
+                job_sect += outris
+
             jobris += job_sect
 
     if is_full:
+        if outhaz + outris:
+            jobini += "\n[Outputs]\n"
+            #            #########
+            jobini += outhaz + outris
+
         zwrite_or_collect_str(z, 'job.ini', jobini, file_collect)
     else:
         if data['hazard'] == 'hazard':
