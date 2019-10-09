@@ -2088,17 +2088,18 @@ $(document).ready(function () {
                     }
                 }
             }
-
-            obj.individual_curves = $target.find('input[type="checkbox"][name="individual-curves"]').is(':checked');
         }
 
-
+        obj.individual_curves = $(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="individual-curves"]'
+                                 ).is(':checked');
         var quantiles_s = $(cf_obj['e_b'].pfx + ' input[type="text"][name="quantiles"]').val();
 
-        obj.quantiles = quantiles_s.split(",").map(function(item, ct) { return parseFloat(item.trim()) + ""; });
-        for (var i = 0 ; i < obj.quantiles.length ; i++) {
-            if (parseFloat(obj.quantiles[i]) <= 0.0) {
-                ret.str += "Quantile's item #" + (i + 1) + " not positive (" + obj.quantiles[i] + ")\n";
+        if (quantiles_s.trim() != "") {
+            obj.quantiles = quantiles_s.split(",").map(function(item, ct) { return parseFloat(item.trim()) + ""; });
+            for (var i = 0 ; i < obj.quantiles.length ; i++) {
+                if (parseFloat(obj.quantiles[i]) <= 0.0) {
+                    ret.str += "Quantile's item #" + (i + 1) + " not positive (" + obj.quantiles[i] + ")\n";
+                }
             }
         }
 

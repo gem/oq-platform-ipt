@@ -22,6 +22,13 @@ from django.conf import settings
 from openquakeplatform.python3compat import encode
 
 
+def bool2s(v):
+    if v:
+        return "true"
+    else:
+        return "false"
+
+
 def get_tmp_path(userid):
     tmp_path = os.path.normpath(os.path.join(
         settings.FILE_PATH_FIELD_DIRECTORY, userid, 'tmp'))
