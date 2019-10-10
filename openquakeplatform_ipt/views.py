@@ -1330,7 +1330,7 @@ def event_based_prepare(request, **kwargs):
             job_sect += ("complex_fault_mesh_spacing = %s\n" %
                          data['complex_fault_mesh'])
 
-        if (not is_full and data['use_imt_from_vulnerability'] is True):
+        if (not is_full and data['use_imt_from_vulnerability_choice'] is True):
             job_sect += vulnerability_model_prep_sect(
                 data, z, userid, namespace, file_collect,
                 save_files=(not vuln_file_saved))
@@ -1339,7 +1339,7 @@ def event_based_prepare(request, **kwargs):
         job_sect += "\n[Hazard calculation]\n"
         #              ####################
 
-        if not is_full and data['use_imt_from_vulnerability'] is False:
+        if not is_full and data['use_imt_from_vulnerability_choice'] is False:
             job_sect += "intensity_measure_types = "
             is_first = True
             for imt in data['intensity_measure_types']:

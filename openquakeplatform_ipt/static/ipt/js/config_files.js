@@ -1366,7 +1366,7 @@ $(document).ready(function () {
         var hazard_sites_choice = null; // null, region-grid, list-of-sites, exposure-model
         var region_grid_choice = null; // null, region-coordinates, infer-from-exposure
         var $target, $subtarget, $subtarget2;
-        var use_imt_from_vulnerability = false;
+        var use_imt_from_vulnerability_choice = false;
         if ($(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked')) {
             hazard = 'hazard';
         }
@@ -1458,9 +1458,9 @@ $(document).ready(function () {
             if (risk == null) {
                 // if risk disabled imts fields and use-imt-from-vuln must be shown
                 $subtarget.show();
-                use_imt_from_vulnerability = $target.find('input[name="use_imt_from_vulnerability"]'
+                use_imt_from_vulnerability_choice = $target.find('input[name="use_imt_from_vulnerability_choice"]'
                                                          ).is(':checked');
-                if (use_imt_from_vulnerability) {
+                if (use_imt_from_vulnerability_choice) {
                     $subtarget2.hide();
                 }
                 else {
@@ -1476,7 +1476,7 @@ $(document).ready(function () {
             $target.hide();
         }
 
-        vulnerability_model_sect_manager('e_b', (hazard != null && use_imt_from_vulnerability == true) ||
+        vulnerability_model_sect_manager('e_b', (hazard != null && use_imt_from_vulnerability_choice == true) ||
                                          risk != null);
 
         // Risk calculation (UI)
@@ -1682,7 +1682,7 @@ $(document).ready(function () {
         {showSelectionBelowList: true,
          maxHeight: '300px'});
 
-    $(cf_obj['e_b'].pfx + ' div[name="hazard-calculation"] input[name="use_imt_from_vulnerability"]').click(
+    $(cf_obj['e_b'].pfx + ' div[name="hazard-calculation"] input[name="use_imt_from_vulnerability_choice"]').click(
         event_based_manager);
 
     // Risk calculation (init)
@@ -1779,7 +1779,7 @@ $(document).ready(function () {
             // Hazard calculation
             intensity_measure_types: null,
             custom_imt: null,
-            use_imt_from_vulnerability: false,
+            use_imt_from_vulnerability_choice: false,
 
             ground_motion_correlation_model: null,
             maximum_distance: null,
@@ -1956,9 +1956,9 @@ $(document).ready(function () {
         if (obj.hazard == 'hazard') {
             $target = $(cf_obj['e_b'].pfx + ' div[name="hazard-calculation"]');
             if (obj.risk == null) {
-                obj.use_imt_from_vulnerability = $target.find(
-                    'input[name="use_imt_from_vulnerability"]').is(':checked');
-                if (obj.use_imt_from_vulnerability == false) {
+                obj.use_imt_from_vulnerability_choice = $target.find(
+                    'input[name="use_imt_from_vulnerability_choice"]').is(':checked');
+                if (obj.use_imt_from_vulnerability_choice == false) {
                     // if risk disabled imts fields must be shown
                     // calculation parameters -> specify-imt (get)
                     obj.intensity_measure_types = $target.find(
@@ -2016,7 +2016,7 @@ $(document).ready(function () {
              ) || obj.risk != null),
             obj.risk);
 
-        if ((obj.hazard != null && obj.use_imt_from_vulnerability == true) ||
+        if ((obj.hazard != null && obj.use_imt_from_vulnerability_choice == true) ||
             obj.risk != null) {
             // Vulnerability model (get)
             vulnerability_model_getData('e_b', ret, files_list, obj);
