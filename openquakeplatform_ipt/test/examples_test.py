@@ -409,7 +409,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
             if os.path.exists(zipfile):
                 os.remove(zipfile)
 
-        time.sleep(2)
+        time.sleep(5)
         pla.get('/ipt/?tab_id=%d&subtab_id=%d&example_id=%d' % (
             tab_id, example['subtab_id'], example['exa_id']))
 
