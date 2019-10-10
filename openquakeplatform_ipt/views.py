@@ -1339,7 +1339,7 @@ def event_based_prepare(request, **kwargs):
         job_sect += "\n[Hazard calculation]\n"
         #              ####################
 
-        if not is_full:
+        if not is_full and data['use_imt_from_vulnerability'] is False:
             job_sect += "intensity_measure_types = "
             is_first = True
             for imt in data['intensity_measure_types']:

@@ -121,19 +121,16 @@
 <div name="hazard-calculation">
   <h3>Hazard calculation</h3>
 
-  <div style="min-height: 50px;" name="site-conditions"><!-- hazard imt block -->
-  {% include "ipt/tabs/cf/sect_hazard_imt.html" %}
-  </div> <!-- end hazard imt -->
-
-  <div class="menuItems" name="use-imt-from-vulnerability">
-    <table class="field">
-      <tr><td class="cbox">
-          <input style="vertical-align: top;" type="checkbox" name="use_imt_from_vulnerability">
-        </td><td>
-          <label>Use IMTs from vulnerability file</label>
-      </td></tr>
-    </table>
+  <div class="alert alert-info ipt-info" role="alert" name="use-imt-from-vulnerability">
+    <div style="text-align: center;">
+      <div class="chbox">
+        <input type="checkbox" name="use_imt_from_vulnerability">
+        <span class="inlible">Use IMTs from vulnerability file</span>
+      </div>
+    </div>
   </div>
+
+  {% include "ipt/tabs/cf/sect_hazard_imt.html" %}
 
   <div class="menuItems">
     <label>Ground Motion Correlation <span class="ui-icon ui-icon-help ipt_help" title='Spatial correlation model to be used for the generation of ground-motion fields.'></span>
