@@ -731,6 +731,17 @@ $(document).ready(function () {
             risk = $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]:checked').val();
         }
 
+        var $comps = $(cf_obj['scen'].pfx + ' div[name="choose-components"]');
+        var $comps_msg = $comps.find('p[name="choose-one"]');
+        if (hazard == null && risk == null) {
+            $comps.css('background-color', '#ffaaaa');
+            $comps_msg.show();
+        }
+        else {
+            $comps.css('background-color', '');
+            $comps_msg.hide();
+        }
+
         // Rupture information (ui)
         $target = $(cf_obj['scen'].pfx + ' div[name="rupture-information"]');
         if (hazard != null)
@@ -1124,6 +1135,10 @@ $(document).ready(function () {
             obj.risk = $(cf_obj['scen'].pfx + ' input[type="radio"][name="risk-type"]:checked').val();
         }
 
+        if (obj.hazard == null && obj.risk == null) {
+            ret.str += "At least one of configuration file components must be selected.\n";
+        }
+
         obj.description = $(cf_obj['scen'].pfx + ' textarea[name="description"]').val();
         obj.description = obj.description.replace(
             new RegExp("\n", "g"), " ").replace(new RegExp("\r", "g"), " ").trim();
@@ -1373,6 +1388,18 @@ $(document).ready(function () {
         if ($(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="risk"]').is(':checked')) {
             risk = 'risk';
         }
+
+        var $comps = $(cf_obj['e_b'].pfx + ' div[name="choose-components"]');
+        var $comps_msg = $comps.find('p[name="choose-one"]');
+        if (hazard == null && risk == null) {
+            $comps.css('background-color', '#ffaaaa');
+            $comps_msg.show();
+        }
+        else {
+            $comps.css('background-color', '');
+            $comps_msg.hide();
+        }
+
 
         // Hazard sites (ui)
         $target = $(cf_obj['e_b'].pfx + ' div[name="hazard-sites"]');
@@ -1828,6 +1855,10 @@ $(document).ready(function () {
             obj.hazard = 'hazard';
         if ($(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="risk"]').is(':checked')) {
             obj.risk = "risk";
+        }
+
+        if (obj.hazard == null && obj.risk == null) {
+            ret.str += "At least one of configuration file components must be selected.\n";
         }
 
         obj.description = $(cf_obj['e_b'].pfx + ' textarea[name="description"]').val();
