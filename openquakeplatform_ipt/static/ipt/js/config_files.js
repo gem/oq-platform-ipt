@@ -1483,61 +1483,51 @@ $(document).ready(function () {
             $target.css('display', 'none');
         }
 
-        // Hazard outputs (UI)
-        $target = $(cf_obj['e_b'].pfx + ' div[name="hazard-outputs"]');
+        // Outputs (UI)
+        var $outputs = $(cf_obj['e_b'].pfx + ' div[name="outputs"]');
+
+        $target =  $(cf_obj['e_b'].pfx + ' div[name="hazard-outputs-group"]');
         if (hazard != null) {
-            $target.css('display', '');
-
-            $subtarget = $target.find('div[name="hazard-related"]');
-            if ($target.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]').is(':checked')) {
-                $subtarget.css('display', '');
-            }
-            else {
-                $subtarget.css('display', 'none');
-            }
-
-            $subtarget = $target.find('div[name="quantile-hazard-curves"]');
-            if ($target.find('input[type="checkbox"][name="quantile_hazard_curves_choice"]').is(':checked')) {
-                $subtarget.css('display', '');
-            }
-            else {
-                $subtarget.css('display', 'none');
-            }
-
-            $subtarget = $target.find('div[name="poes"]');
-            if ($target.find('input[type="checkbox"][name="hazard_maps"]').is(':checked')) {
-                $subtarget.css('display', '');
-            }
-            else {
-                $subtarget.css('display', 'none');
-            }
+            $target.show();
         }
         else {
-            $target.css('display', 'none');
+            $target.hide();
+        }
+
+        $subtarget = $outputs.find('div[name="poes"]');
+        if (hazard != null &&
+            $outputs.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]').is(':checked')) {
+            $subtarget.show();
+        }
+        else {
+            $subtarget.hide();
+        }
+
+        $subtarget = $outputs.find('div[name="uniform-hazard-spectra"]');
+        if (hazard != null &&
+            $outputs.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]').is(':checked')) {
+            $subtarget.show();
+        }
+        else {
+            $subtarget.hide();
         }
 
         // Risk outputs (UI)
-        $target = $(cf_obj['e_b'].pfx + ' div[name="risk-outputs"]');
+        $target = $(cf_obj['e_b'].pfx + ' div[name="risk-outputs-group"]');
         if (risk != null) {
-            $target.css('display', '');
-            var $subtarget = $target.find('div[name="quantile-loss-curves"]');
-            if ($target.find('input[type="checkbox"][name="quantile_loss_curves_choice"]').is(':checked')) {
-                $subtarget.css('display', '');
-            }
-            else {
-                $subtarget.css('display', 'none');
-            }
-
-            var $subtarget = $target.find('div[name="conditional-loss-poes"]');
-            if ($target.find('input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked')) {
-                $subtarget.css('display', '');
-            }
-            else {
-                $subtarget.css('display', 'none');
-            }
+            $target.show();
         }
         else {
-            $target.css('display', 'none');
+            $target.hide();
+        }
+
+        var $subtarget = $outputs.find('div[name="conditional-loss-poes"]');
+        if (risk != null &&
+            $target.find('input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked')) {
+            $subtarget.show();
+        }
+        else {
+            $subtarget.hide();
         }
 
     } // function event_based_manager
@@ -1693,19 +1683,12 @@ $(document).ready(function () {
     // Risk calculation (init)
     // no init
 
-    // Hazard outputs (init)
+    // Outputs (init)
     {
-        var $target = $(cf_obj['e_b'].pfx + ' div[name="hazard-outputs"]');
+        var $target = $(cf_obj['e_b'].pfx + ' div[name="outputs"]');
 
         $target.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]').click(event_based_manager);
-        $target.find('input[type="checkbox"][name="quantile_hazard_curves_choice"]').click(event_based_manager);
-        $target.find('input[type="checkbox"][name="hazard_maps"]').click(event_based_manager);
-    }
 
-    // Risk outputs (init)
-    {
-        var $target = $(cf_obj['e_b'].pfx + ' div[name="risk-outputs"]');
-        $target.find('input[type="checkbox"][name="quantile_loss_curves_choice"]').click(event_based_manager);
         $target.find('input[type="checkbox"][name="conditional_loss_poes_choice"]').click(event_based_manager);
     }
 
@@ -1742,7 +1725,6 @@ $(document).ready(function () {
 
     function event_based_getData()
     {
-
         var files_list = [];
 
         var ret = {
@@ -1818,12 +1800,9 @@ $(document).ready(function () {
             vm_loss_occupants_choice: false,
             vm_loss_occupants: null,
 
-            // hazard outputs
-            save_ruptures: false,
+            // outputs [1]
             ground_motion_fields: null,
             hazard_curves_from_gmfs: null,
-            quantile_hazard_curves_choice: false,
-            quantile_hazard_curves: null,
             hazard_maps: null,
             poes: null,
             uniform_hazard_spectra: null,
@@ -1832,12 +1811,12 @@ $(document).ready(function () {
             risk_investigation_time: null,
             ret_periods_for_aggr: null,
 
-            // risk outputs
-            quantile_loss_curves_choice: false,
-            quantile_loss_curves: null,
-
+            // outputs [2]
             conditional_loss_poes_choice: false,
-            conditional_loss_poes: null
+            conditional_loss_poes: null,
+
+            individual_curves: false,
+            quantiles: []
         };
 
         if ($(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="hazard"]').is(':checked'))
@@ -2036,55 +2015,6 @@ $(document).ready(function () {
             vulnerability_model_getData('e_b', ret, files_list, obj);
         }
 
-        // Hazard outputs (get)
-        if (obj.hazard != null) {
-            var $target = $(cf_obj['e_b'].pfx + ' div[name="hazard-outputs"]');
-
-            obj.save_ruptures = $target.find('input[type="checkbox"][name="save_rupture_data"]'
-                                           ).is(':checked');
-
-            obj.ground_motion_fields = $target.find('input[type="checkbox"][name="ground_motion_fields"]'
-                                        ).is(':checked');
-
-            obj.hazard_curves_from_gmfs = $target.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]'
-                                        ).is(':checked');
-
-            if (obj.hazard_curves_from_gmfs) {
-                obj.quantile_hazard_curves_choice = $target.find('input[type="checkbox"][name="quantile_hazard_curves_choice"]').is(':checked');
-                if (obj.quantile_hazard_curves_choice) {
-                    obj.quantile_hazard_curves = $target.find('input[type="text"][name="quantile_hazard_curves"]'
-                                                  ).val();
-
-                    var arr = obj.quantile_hazard_curves.split(',');
-                    for (var k in arr) {
-                        var cur = arr[k].trim(' ');
-                        if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
-                            ret.str += "'Quantile hazard curves' field element #" + (parseInt(k)+1)
-                                + " isn't positive number (" + cur + ").\n";
-                        }
-                    }
-                }
-            }
-
-            obj.hazard_maps = $target.find('input[type="checkbox"][name="hazard_maps"]').is(':checked');
-
-            if (obj.hazard_maps) {
-                obj.poes = $target.find('input[type="text"][name="poes"]').val();
-
-                var arr = obj.poes.split(',');
-                for (var k in arr) {
-                    var cur = arr[k].trim(' ');
-                    if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
-                        ret.str += "'Probability of exceedances' field element #" + (parseInt(k)+1)
-                            + " isn't positive number (" + cur + ").\n";
-                    }
-                }
-            }
-
-            obj.uniform_hazard_spectra = $target.find('input[type="checkbox"][name="uniform_hazard_spectra"]'
-                                          ).is(':checked');
-        }
-
         // Risk calculations (get)
         {
             var pfx = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
@@ -2114,25 +2044,35 @@ $(document).ready(function () {
             }
         }
 
-        // Risk outputs (get)
-        {
-            var $target = $(cf_obj['e_b'].pfx + ' div[name="risk-outputs"]');
-            var pfx_riscal = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
+        $outputs = $(cf_obj['e_b'].pfx + ' div[name="outputs"]');
+        // Hazard outputs (get)
+        if (obj.hazard != null) {
+            obj.ground_motion_fields = $outputs.find('input[type="checkbox"][name="ground_motion_fields"]'
+                                        ).is(':checked');
 
-            obj.quantile_loss_curves_choice = $target.find('input[type="checkbox"][name="quantile_loss_curves_choice"]').is(':checked');
-            if (obj.quantile_loss_curves_choice) {
-                obj.quantile_loss_curves = $target.find('input[type="text"][name="quantile_loss_curves"]'
-                                            ).val();
+            obj.hazard_curves_from_gmfs = $outputs.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]'
+                                        ).is(':checked');
 
-                var arr = obj.quantile_loss_curves.split(',');
+            if (obj.hazard_curves_from_gmfs) {
+                obj.poes = $outputs.find('input[type="text"][name="poes"]').val();
+
+                var arr = obj.poes.split(',');
                 for (var k in arr) {
                     var cur = arr[k].trim(' ');
                     if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
-                        ret.str += "'Quantile loss curves' field element #" + (parseInt(k)+1)
+                        ret.str += "'Probability of exceedances' field element #" + (parseInt(k)+1)
                             + " isn't positive number (" + cur + ").\n";
                     }
                 }
+
+                obj.uniform_hazard_spectra = $outputs.find('input[type="checkbox"][name="uniform_hazard_spectra"]'
+                                                         ).is(':checked');
             }
+
+            obj.hazard_maps = $outputs.find('input[type="checkbox"][name="hazard_maps"]').is(':checked');
+
+            var pfx_riscal = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
+
 
             obj.conditional_loss_poes_choice = $target.find('input[type="checkbox"][name="conditional_loss_poes_choice"]').is(':checked');
 
@@ -2146,6 +2086,19 @@ $(document).ready(function () {
                         ret.str += "'Loss maps' field element #" + (parseInt(k)+1)
                             + " isn't positive number (" + cur + ").\n";
                     }
+                }
+            }
+        }
+
+        obj.individual_curves = $(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="individual-curves"]'
+                                 ).is(':checked');
+        var quantiles_s = $(cf_obj['e_b'].pfx + ' input[type="text"][name="quantiles"]').val();
+
+        if (quantiles_s.trim() != "") {
+            obj.quantiles = quantiles_s.split(",").map(function(item, ct) { return parseFloat(item.trim()) + ""; });
+            for (var i = 0 ; i < obj.quantiles.length ; i++) {
+                if (parseFloat(obj.quantiles[i]) <= 0.0) {
+                    ret.str += "Quantile's item #" + (i + 1) + " not positive (" + obj.quantiles[i] + ")\n";
                 }
             }
         }

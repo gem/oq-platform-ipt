@@ -134,6 +134,12 @@ imt_examples = {
             {'exa_id': 98, 'subtab_id': 3,
              'zipfile': 'EventBasedHazard.zip',
              'sfx': 'zip'},
+            {'exa_id': 97, 'subtab_id': 3,
+             'zipfile': 'EventBasedHazardRisk.zip',
+             'sfx': 'zip'},
+            {'exa_id': 96, 'subtab_id': 3,
+             'zipfile': 'EventBasedHazardRisk.zip',
+             'sfx': 'zip'},
             {'exa_id': 90, 'subtab_id': 3,
              'zipfile': 'EventBasedHazardRisk.zip',
              'sfx': 'zip'},
@@ -392,7 +398,6 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
     def generated(self):
         pla = platform_get()
         homedir = os.path.expanduser('~')
-
         exp_filename = os.path.join(
             exp_path, "example_%d.%s" % (
                 tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
@@ -404,6 +409,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
             if os.path.exists(zipfile):
                 os.remove(zipfile)
 
+        time.sleep(2)
         pla.get('/ipt/?tab_id=%d&subtab_id=%d&example_id=%d' % (
             tab_id, example['subtab_id'], example['exa_id']))
 

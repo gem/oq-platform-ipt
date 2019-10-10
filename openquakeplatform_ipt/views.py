@@ -59,9 +59,8 @@ from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
 from distutils.version import StrictVersion
 
 from openquakeplatform_ipt.multienv_common import VolConst
-from openquakeplatform_ipt.common import (get_full_path,
-                                          zwrite_or_collect,
-                                          zwrite_or_collect_str)
+from openquakeplatform_ipt.common import (
+    get_full_path, zwrite_or_collect, zwrite_or_collect_str, bool2s)
 
 
 from openquakeplatform_ipt.converters import (
@@ -1180,10 +1179,10 @@ def scenario_prepare(request, **kwargs):
             jobini += "\n"
 
         jobini += ("ground_motion_correlation_model = %s\n" %
-                   data['ground_motion_correlation_model'])
+                   bool2s(data['ground_motion_correlation_model']))
         if data['ground_motion_correlation_model'] == 'JB2009':
             jobini += ("ground_motion_correlation_params = "
-                       "{\"vs30_clustering\": False}\n")
+                       "{\"vs30_clustering\": false}\n")
 
         jobini += "truncation_level = %s\n" % data['truncation_level']
         jobini += "maximum_distance = %s\n" % data['maximum_distance']
@@ -1243,7 +1242,9 @@ def event_based_prepare(request, **kwargs):
         file_collect = []
 
     jobhaz = ""
+    outhaz = ""
     jobris = ""
+    outris = ""
     is_full = False
     if data['hazard'] == 'hazard' and data['risk'] == 'risk':
         jobini = ""
@@ -1357,7 +1358,7 @@ def event_based_prepare(request, **kwargs):
                      data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
             job_sect += ("ground_motion_correlation_params = "
-                         "{\"vs30_clustering\": True}\n")
+                         "{\"vs30_clustering\": true}\n")
         job_sect += "maximum_distance = %s\n" % data['maximum_distance']
         job_sect += "truncation_level = %s\n" % data['truncation_level']
         job_sect += "investigation_time = %s\n" % data['investigation_time']
@@ -1366,26 +1367,31 @@ def event_based_prepare(request, **kwargs):
         job_sect += ("number_of_logic_tree_samples = %s\n" %
                      data['number_of_logic_tree_samples'])
 
-        job_sect += "\n[Hazard outputs]\n"
-        #               ################
-        job_sect += "save_ruptures = %s\n" % data['save_ruptures']
-        job_sect += ("ground_motion_fields = %s\n" %
-                     data['ground_motion_fields'])
-        job_sect += ("hazard_curves_from_gmfs = %s\n" %
-                     data['hazard_curves_from_gmfs'])
+        outhaz += ("ground_motion_fields = %s\n" %
+                   bool2s(data['ground_motion_fields']))
+        outhaz += ("hazard_curves_from_gmfs = %s\n" %
+                   bool2s(data['hazard_curves_from_gmfs']))
+        outhaz += "hazard_maps = %s\n" % bool2s(data['hazard_maps'])
         if data['hazard_curves_from_gmfs']:
-            if data['quantile_hazard_curves_choice']:
-                job_sect += ("quantile_hazard_curves = %s\n" %
-                             data['quantile_hazard_curves'])
-        job_sect += "hazard_maps = %s\n" % data['hazard_maps']
-        if data['hazard_maps']:
-            job_sect += "poes = %s\n" % data['poes']
-        job_sect += ("uniform_hazard_spectra = %s\n" %
-                     data['uniform_hazard_spectra'])
+            outhaz += "poes = %s\n" % data['poes']
+            outhaz += ("uniform_hazard_spectra = %s\n" %
+                       bool2s(data['uniform_hazard_spectra']))
+
+        outhaz += ("individual_curves = %s\n" % (
+            "true" if data['individual_curves'] else "false"))
+
+        if data['quantiles']:
+            outhaz += "quantiles = " + ", ".join(data['quantiles'])
+            outhaz += "\n"
+
         if is_full:
             jobini += job_sect
         else:
             jobhaz += job_sect
+            if outhaz:
+                jobhaz += "\n[Outputs]\n"
+                #            #########
+                jobhaz += outhaz
 
     job_sect = ""
     # Exposure model
@@ -1423,20 +1429,26 @@ def event_based_prepare(request, **kwargs):
             job_sect += ("return_periods = [%s]\n" %
                          data['ret_periods_for_aggr'])
 
-        job_sect += "\n[Risk outputs]\n"
-        #              ##############
-        if data['quantile_loss_curves_choice']:
-            job_sect += ("quantile_loss_curves = %s\n" %
-                         data['quantile_loss_curves'])
         if data['conditional_loss_poes_choice']:
-            job_sect += ("conditional_loss_poes = %s\n" %
-                         data['conditional_loss_poes'])
+            outris += ("conditional_loss_poes = %s\n" %
+                       data['conditional_loss_poes'])
+
         if is_full:
             jobini += job_sect
         else:
+            if outris:
+                job_sect += "\n[Outputs]\n"
+                #              #########
+                job_sect += outris
+
             jobris += job_sect
 
     if is_full:
+        if outhaz + outris:
+            jobini += "\n[Outputs]\n"
+            #            #########
+            jobini += outhaz + outris
+
         zwrite_or_collect_str(z, 'job.ini', jobini, file_collect)
     else:
         if data['hazard'] == 'hazard':
@@ -1535,7 +1547,7 @@ def volcano_prepare(request, **kwargs):
                 spec_ass_haz_dist = spec_ass_haz_dist.strip()
             else:
                 spec_ass_haz_dist = ''
-                
+
             if spec_ass_haz_dist != '':
                 spec_ass_haz_dists.append([key, spec_ass_haz_dist])
 

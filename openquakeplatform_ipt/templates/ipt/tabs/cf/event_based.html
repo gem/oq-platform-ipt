@@ -178,84 +178,6 @@
  {% include "ipt/tabs/cf/sect_vulnerability_model.html" %}
 </div> <!-- vulnerability model -->
 
-<div name="hazard-outputs">
-  <h3>Hazard outputs</h3>
-
-  <div class="menuItems">
-    <table class="field">
-      <tr><td class="cbox">
-          <input style="vertical-align: top;" type="checkbox" name="save_rupture_data" checked="checked">
-        </td><td>
-          <label>Save rupture data</label>
-      </td></tr>
-    </table>
-  </div>
-
-  <div class="menuItems">
-    <table class="field">
-      <tr><td class="cbox">
-          <input style="vertical-align: top;" type="checkbox" name="ground_motion_fields">
-        </td><td>
-          <label>Ground motion fields</label>
-      </td></tr>
-    </table>
-  </div>
-
-  <div class="menuItems">
-    <table class="field">
-      <tr><td class="cbox">
-          <input style="vertical-align: top;" type="checkbox" name="hazard_curves_from_gmfs">
-        </td><td>
-          <label>Hazard curves <span style="font-weight: bold; color: #d9edf7;">(♦)</span></label>
-      </td></tr>
-    </table>
-  </div>
-
-  <div name="hazard-related">
-    <div class="alert alert-info ipt-info" role="alert">
-      <div style="text-align: center;">
-        <form style="margin: 0px;">
-          <div class="chbox">
-            <input type="checkbox" name="quantile_hazard_curves_choice">
-            <span class="inlible">Include quantile hazard curves</span>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div class="menuItems" name="quantile-hazard-curves">
-      <label>Quantile hazard curves:</label><br>
-      <input type="text" name="quantile_hazard_curves"
-             value="0.15, 0.50, 0.85" style="width: 600px";>
-    </div>
-  </div>
-
-  <div class="menuItems">
-    <table class="field">
-      <tr><td class="cbox">
-          <input style="vertical-align: top;" type="checkbox" name="hazard_maps">
-        </td><td>
-          <label>Hazard maps <span style="font-weight: bold; color: #d9edf7;">(♦)</span></label>
-      </td></tr>
-    </table>
-  </div>
-
-  <div class="menuItems" name="poes">
-    <label>List of probability of exceedances:</label><br>
-    <input type="text" name="poes"
-           value="0.02, 0.10" style="width: 600px";>
-  </div>
-
-  <div class="menuItems">
-    <table class="field">
-      <tr><td class="cbox">
-          <input style="vertical-align: top;" type="checkbox" name="uniform_hazard_spectra">
-        </td><td>
-          <label>Uniform hazard spectra</label>
-      </td></tr>
-    </table>
-  </div>
-</div> <!-- end of div name="hazard-outputs" -->
 
 <div name="risk-calculation">
   <h3>Risk calculation</h3>
@@ -272,32 +194,58 @@
            title="Comma-separated list of values for the return periods at which the loss exceedance curves will be evaluated. If this parameter is left blank, the OpenQuake-engine will evaluate the loss exceedance curves at a set of default return periods."
            style="width: 600px";>
   </div>
-
-
-
 </div>
 
-<div name="risk-outputs">
-  <h3>Risk outputs</h3>
+<div name="outputs">
+  <h3>Outputs</h3>
 
-  <div class="alert alert-info ipt-info" role="alert">
-    <div style="text-align: center;">
-      <form style="margin: 0px;">
-        <div class="chbox">
-          <input type="checkbox" name="quantile_loss_curves_choice">
-          <span class="inlible">Include quantile loss curves</span>
-        </div>
-      </form>
-    </div>
+  <div class="menuItems" name="hazard-outputs-group">
+    <table class="field">
+      <tr><td class="cbox">
+          <input style="vertical-align: top;" type="checkbox" name="ground_motion_fields" checked="checked">
+        </td><td>
+          <label>Ground motion fields</label>
+      </td></tr>
+    </table>
   </div>
 
-  <div class="menuItems" name="quantile-loss-curves">
-    <label>Quantile loss curves:</label><br>
-    <input type="text" name="quantile_loss_curves"
-           value="0.15, 0.50, 0.85" style="width: 600px";>
+  <div class="menuItems" name="hazard-outputs-group">
+    <table class="field">
+      <tr><td class="cbox">
+          <input style="vertical-align: top;" type="checkbox" name="hazard_curves_from_gmfs">
+        </td><td>
+          <label>Hazard curves <span style="font-weight: bold; color: #d9edf7;">(♦)</span></label>
+      </td></tr>
+    </table>
   </div>
 
-  <div class="alert alert-info ipt-info" role="alert">
+  <div class="menuItems" name="poes">
+    <label>List of probability of exceedances:</label><br>
+    <input type="text" name="poes"
+           value="0.02, 0.10" style="width: 600px";>
+  </div>
+
+  <div class="menuItems" name="uniform-hazard-spectra">
+    <table class="field">
+      <tr><td class="cbox">
+          <input style="vertical-align: top;" type="checkbox" name="uniform_hazard_spectra">
+        </td><td>
+          <label>Uniform hazard spectra</label>
+      </td></tr>
+    </table>
+  </div>
+
+  <div class="menuItems" name="hazard-outputs-group">
+    <table class="field">
+      <tr><td class="cbox">
+          <input style="vertical-align: top;" type="checkbox" name="hazard_maps">
+        </td><td>
+          <label>Hazard maps <span style="font-weight: bold; color: #d9edf7;">(♦)</span></label>
+      </td></tr>
+    </table>
+  </div>
+
+  <div class="alert alert-info ipt-info" role="alert" name="risk-outputs-group">
     <div style="text-align: center;">
       <form style="margin: 0px;">
         <div class="chbox">
@@ -311,6 +259,23 @@
     <label>Loss maps:</label><br>
     <input type="text" name="conditional_loss_poes"
            value="0.02, 0.10" style="width: 600px";>
+  </div>
+
+  <div class="menuItems" name="quantiles" style="margin-top: 8px;">
+    <label>Quantiles  <span class="ui-icon ui-icon-help ipt_help" title='List of quantiles to compute the curves (separated by comma)'></span>:</label>
+    <input type="text" name="quantiles"
+           placeholder="optional comma separated list of floats > 0.0"
+           title="List of quantiles to compute the curves (separated by comma)"
+           style="width: 600px";>
+  </div>
+  <div class="menuItems">
+    <table class="field">
+      <tr><td class="cbox">
+          <input style="vertical-align: top;" type="checkbox" name="individual-curves" checked="checked">
+        </td><td>
+          <label>Curves per realization <span class="ui-icon ui-icon-help ipt_help" title='Include in the calculation outputs the curves per realization'></span></label>
+      </td></tr>
+    </table>
   </div>
 </div>
 
