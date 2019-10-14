@@ -87,6 +87,7 @@ ALLOWED_DIR = {
     'gsim_logic_tree_file': ('xml',),
     'source_model_logic_tree_file': ('xml',),
     'source_model_file': ('xml',),
+    'taxonomy_mapping': ('csv',),
 
     'ashfall_file': {
         VolConst.ty_text: ('asc', 'txt'),
@@ -148,10 +149,9 @@ def site_conditions_check(full_path):
             return (False, 'header not found')
         csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
-        if 'lon' not in reader.fieldnames:
-            return (False, "'lon' field not found")
-        if 'lat' not in reader.fieldnames:
-            return (False, "'lat' field not found")
+        for field in ['lon', 'lat']:
+            if field not in reader.fieldnames:
+                return (False, "'%s' field not found" % field)
 
         lonlat = set()
         for i, row in enumerate(reader, start=1):
@@ -169,6 +169,41 @@ def site_conditions_check(full_path):
                 return (False, "lat %f out of range ±90° at line %d" %
                         lat, i)
         return (True, '')
+
+
+def taxonomy_mapping_check(full_path):
+    '''
+    check taxonomy mapping file and return a tuple (Bool, String_descr)
+    '''
+    with enc_open(full_path, encoding='utf-8-sig') as csv_fp:
+        if not csv.Sniffer().has_header(csv_fp.read(1024)):
+            csv_fp.seek(0)
+            return (False, 'header not found')
+        csv_fp.seek(0)
+        reader = csv.DictReader(csv_fp)
+        for field in ['taxonomy', 'conversion', 'weight']:
+            if field not in reader.fieldnames:
+                return (False, "'%s' field not found" % field)
+
+        sum = 0.0
+        for row in reader:
+            sum += float(row['weight'])
+
+        if abs(sum) < (1 - 1e-12) or abs(sum) > (1 + 1e-12):
+            return (False, "sum of weight not 1.0 (%f)" % sum)
+
+        csv_fp.seek(0)
+        reader = csv.DictReader(csv_fp)
+        maps = set()
+        maps_n = 0
+        for i, row in enumerate(reader, start=1):
+            maps.add((row['taxonomy'], row['conversion']))
+            maps_n += 1
+            if len(maps) < i:
+                return (False, "pair (%s, %s) at line %d already found" % (
+                    row['taxonomy'], row['conversion'], i))
+        return (True, '')
+
 
 def _do_validate_nrml(xml_text):
     data = dict(xml_text=xml_text)
@@ -591,6 +626,9 @@ def view(request, **kwargs):
     exposure_model_html, exposure_model_upload = filehtml_create(
         is_qgis_browser, 'exposure_model', userid, namespace)
 
+    taxonomy_mapping_html, taxonomy_mapping_upload = filehtml_create(
+        is_qgis_browser, 'taxonomy_mapping', userid, namespace)
+
     exposure_csv_html, exposure_csv_upload = filehtml_create(
         is_qgis_browser, 'exposure_csv', userid, namespace,
         is_multiple=True)
@@ -686,6 +724,8 @@ def view(request, **kwargs):
         gmf_file_upload=gmf_file_upload,
         exposure_model_html=exposure_model_html,
         exposure_model_upload=exposure_model_upload,
+        taxonomy_mapping_upload=taxonomy_mapping_upload,
+        taxonomy_mapping_html=taxonomy_mapping_html,
         exposure_csv_html=exposure_csv_html,
         exposure_csv_upload=exposure_csv_upload,
         fm_structural_html=fm_structural_html,
@@ -881,6 +921,17 @@ def upload(request, **kwargs):
 
                         return HttpResponse(json.dumps(ret),
                                             content_type="application/json")
+                elif (os.path.basename(os.path.dirname(full_path)) ==
+                        u'taxonomy_mapping' and full_path.endswith('.csv')):
+                    check_ret, check_desc = taxonomy_mapping_check(full_path)
+                    if not check_ret:
+                        ret['ret'] = 6
+                        ret['ret_msg'] = (
+                            'Error in "%s" file: %s.' % (
+                                os.path.basename(full_path), check_desc))
+
+                        return HttpResponse(json.dumps(ret),
+                                            content_type="application/json")
 
             suffix = target
             match = "|".join(
@@ -945,6 +996,15 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
             for spec in spec_ass_haz_dists:
                 jobini += "'%s': %s, " % (spec[0], spec[1])
             jobini += "}\n"
+
+    if data['taxonomy_mapping_choice'] is True:
+        tam_head, tam_sep, tam_tail = data['taxonomy_mapping'].rpartition('.')
+        taxonomy_mapping = data['taxonomy_mapping']
+
+        jobini += "taxonomy_mapping = %s\n" % basename(taxonomy_mapping)
+        if save_files is True:
+            zwrite_or_collect(z, userid, namespace, data['taxonomy_mapping'],
+                              file_collect)
 
     return jobini
 
