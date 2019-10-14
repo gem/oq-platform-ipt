@@ -1473,17 +1473,6 @@ $(document).ready(function () {
         $target = $(cf_obj['e_b'].pfx + ' div[name="hazard-model"]');
         if (hazard != null) {
             $target.css('display', '');
-            $subtarget = $target.find('div[name="rupture-mesh-spacing"]');
-            if ($target.find('input[type="checkbox"][name="rupture_mesh_spacing_choice"]').is(':checked'))
-                $subtarget.css('display', '');
-            else
-                $subtarget.css('display', 'none');
-
-            $subtarget = $target.find('div[name="area-source-discretization"]');
-            if ($target.find('input[type="checkbox"][name="area_source_discretization_choice"]').is(':checked'))
-                $subtarget.css('display', '');
-            else
-                $subtarget.css('display', 'none');
 
             $subtarget = $target.find('div[name="complex-fault-mesh"]');
             if ($target.find('input[type="checkbox"][name="complex_fault_mesh_choice"]').is(':checked'))
@@ -1716,10 +1705,6 @@ $(document).ready(function () {
         file_uploader_init($target, 'gsim-logic-tree-file',
                            event_based_fileNew_cb, event_based_fileNew_upload)
 
-        $target.find('input[type="checkbox"][name="rupture_mesh_spacing_choice"]').click(
-            event_based_manager);
-        $target.find('input[type="checkbox"][name="area_source_discretization_choice"]').click(
-            event_based_manager);
         $target.find('input[type="checkbox"][name="complex_fault_mesh_choice"]').click(
             event_based_manager);
     }
@@ -1818,10 +1803,8 @@ $(document).ready(function () {
             gsim_logic_tree_file: null,
             width_of_mfd_bin: 0.1,
 
-            rupture_mesh_spacing_choice: false,
             rupture_mesh_spacing: null,
 
-            area_source_discretization_choice: false,
             area_source_discretization: null,
 
             complex_fault_mesh_choice: false,
@@ -1984,20 +1967,14 @@ $(document).ready(function () {
                 ret.str += "'Bin width of the magnitude frequency distribution' field isn't a not negative float number (" + obj.width_of_mfd_bin + ").\n";
             }
 
-            obj.rupture_mesh_spacing_choice = $target.find('input[type="checkbox"][name="rupture_mesh_spacing_choice"]').is(':checked');
-            if (obj.rupture_mesh_spacing_choice) {
-                obj.rupture_mesh_spacing = $target.find('input[type="text"][name="rupture_mesh_spacing"]').val();
-                if (!gem_ipt.isFloat(obj.rupture_mesh_spacing) || parseFloat(obj.rupture_mesh_spacing) < 0.0) {
-                    ret.str += "'Rupture mesh spacing' field isn't a not negative float number (" + obj.rupture_mesh_spacing + ").\n";
-                }
+            obj.rupture_mesh_spacing = $target.find('input[type="text"][name="rupture_mesh_spacing"]').val();
+            if (!gem_ipt.isFloat(obj.rupture_mesh_spacing) || parseFloat(obj.rupture_mesh_spacing) < 0.0) {
+                ret.str += "'Rupture mesh spacing' field isn't a not negative float number (" + obj.rupture_mesh_spacing + ").\n";
             }
 
-            obj.area_source_discretization_choice = $target.find('input[type="checkbox"][name="area_source_discretization_choice"]').is(':checked');
-            if (obj.area_source_discretization_choice) {
-                obj.area_source_discretization = $target.find('input[type="text"][name="area_source_discretization"]').val();
-                if (!gem_ipt.isFloat(obj.area_source_discretization) || parseFloat(obj.area_source_discretization) < 0.0) {
-                    ret.str += "'Area source discretization' field isn't a not negative float number (" + obj.area_source_discretization + ").\n";
-                }
+            obj.area_source_discretization = $target.find('input[type="text"][name="area_source_discretization"]').val();
+            if (!gem_ipt.isFloat(obj.area_source_discretization) || parseFloat(obj.area_source_discretization) < 0.0) {
+                ret.str += "'Area source discretization' field isn't a not negative float number (" + obj.area_source_discretization + ").\n";
             }
 
             obj.complex_fault_mesh_choice = $target.find('input[type="checkbox"][name="complex_fault_mesh_choice"]').is(':checked');
