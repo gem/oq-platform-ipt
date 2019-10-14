@@ -1320,12 +1320,12 @@ def event_based_prepare(request, **kwargs):
         #              ##############
         job_sect += "width_of_mfd_bin = %s\n" % data['width_of_mfd_bin']
 
-        if data['rupture_mesh_spacing_choice'] is True:
-            job_sect += ("rupture_mesh_spacing = %s\n" %
-                         data['rupture_mesh_spacing'])
-        if data['area_source_discretization_choice'] is True:
-            job_sect += ("area_source_discretization = %s\n" %
-                         data['area_source_discretization'])
+        job_sect += ("rupture_mesh_spacing = %s\n" %
+                     data['rupture_mesh_spacing'])
+
+        job_sect += ("area_source_discretization = %s\n" %
+                     data['area_source_discretization'])
+
         if data['complex_fault_mesh_choice'] is True:
             job_sect += ("complex_fault_mesh_spacing = %s\n" %
                          data['complex_fault_mesh'])
