@@ -1374,6 +1374,79 @@ $(document).ready(function () {
         return generic_fileNew_collect('e_b', reply, event);
     }
 
+    function imt_tab_row_create(name)
+    {
+        var $new_name = $('<th/>');
+        $new_name.append(name);
+        var $new_vals = $('<td/>');
+        var $inp = $('<input/>', {type: "text",
+                                 name: "custom_imt",
+                                  value: (name == "PGA" ?
+                                          "0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 1, 1.5" :
+                                          ""),
+                                 placeholder: name + " IMT comma separated values."
+                                });
+        $new_vals.append($inp);
+        var $new_row = $('<tr/>', {'name': name});
+        $new_row.append($new_name);
+        $new_row.append($new_vals);
+
+        return $new_row;
+    }
+
+    function imt_tab_update($tab_entry, imts)
+    {
+        $tab_rows = $tab_entry.find('tr');
+        // console.log('---- update ----');
+
+        // remove elements if they doesn't exists
+        for (var i = 0 ; i < $tab_rows.length ; i++) {
+            var nam = $tab_rows.eq(i).attr('name');
+            var fou = false;
+            for (var e = 0 ; e < imts.length ; e++) {
+                if (nam == imts[e]) {
+                    fou = true;
+                    break;
+                }
+            }
+            if (!fou) {
+                // console.log('remove: ' + nam);
+                $tab_rows.eq(i).remove();
+            }
+        }
+
+        $tab_rows = $tab_entry.find('tr');
+        for (var i = 0 ; i < imts.length ; i++) {
+            //// console.log('IMTS: ' + imts[i]);
+            if (i < $tab_rows.length) {
+                if ($tab_rows.eq(i).attr('name') == imts[i]) {
+                    continue;
+                }
+                var $to_move = $tab_rows.filter('[name="' + imts[i] + '"]');
+                if ($to_move.length > 0) {
+                    // console.log('Move ' + imts[i]);
+                    $to_move.detach();
+                    $tab_rows.eq(i).before($to_move);
+                    $tab_rows = $tab_entry.find('tr');
+                }
+                else {
+                    // console.log('Insert: ' + imts[i]);
+                    var $new_row = imt_tab_row_create(imts[i]);
+
+                    $tab_rows.eq(i).before($new_row);
+                    $tab_rows = $tab_entry.find('tr');
+                }
+            }
+            else {
+                // console.log('Append: ' + imts[i]);
+                var $new_row = imt_tab_row_create(imts[i]);
+
+                $tab_entry.append($new_row);
+                $tab_rows = $tab_entry.find('tr');
+            }
+        }
+    }
+
     function event_based_manager()
     {
         var hazard = null; // null or 'hazard'
@@ -1470,6 +1543,7 @@ $(document).ready(function () {
 
             $subtarget = $target.find('div[name="use-imt-from-vulnerability"]');
             $subtarget2 = $target.find('div[name="hazard-imt_specify-imt"]');
+            $subtarget3 = $target.find('div[name="hazard-imt_imt-and-levels"]');
 
             if (risk == null) {
                 // if risk disabled imts fields and use-imt-from-vuln must be shown
@@ -1478,14 +1552,33 @@ $(document).ready(function () {
                                                          ).is(':checked');
                 if (use_imt_from_vulnerability_choice) {
                     $subtarget2.hide();
+                    $subtarget3.hide();
                 }
                 else {
                     $subtarget2.show();
+                    var imts = [];
+
+                    var $tab_entry = $subtarget3.find('table[name="imt-and-levels-tab"] tbody');
+                    var imts = $subtarget2.find('input[type="checkbox"][name="imt"]:checked'
+                                               ).map(function(_, el) {
+                                                   return $(el).val();
+                                               }).get();
+
+
+                    var imts_custom = $subtarget2.find('input[name="custom_imt"]').val();
+                    if (imts_custom != "") {
+                        imts = imts.concat(imts_custom.split(",").map(function(x) { return x.trim(); }));
+                    }
+
+                    imt_tab_update($tab_entry, imts);
+
+                    $subtarget3.show();
                 }
             }
             else {
                 $subtarget.hide();
                 $subtarget2.hide();
+                $subtarget3.hide();
             }
         }
         else {
@@ -1694,8 +1787,10 @@ $(document).ready(function () {
         {showSelectionBelowList: true,
          maxHeight: '300px'});
 
-    $(cf_obj['e_b'].pfx + ' div[name="hazard-calculation"] input[name="use_imt_from_vulnerability_choice"]').click(
-        event_based_manager);
+    $target = $(cf_obj['e_b'].pfx + ' div[name="hazard-calculation"]');
+    $target.find('input[name="use_imt_from_vulnerability_choice"]').click(event_based_manager);
+    $target.find('div[name="hazard-imt_specify-imt"] select[name="imt"]').change(event_based_manager);
+    $target.find('div[name="hazard-imt_specify-imt"] input[name="custom_imt"]').change(event_based_manager);
 
     // Risk calculation (init)
     // no init
@@ -1739,6 +1834,20 @@ $(document).ready(function () {
         event_based_manager);
     $(cf_obj['e_b'].pfx + ' input[name="region_grid"][value="region-coordinates"]'
      ).prop('checked', true).triggerHandler('click');
+
+    function imt_and_levels_get(imts, $target)
+    {
+        var ret = {};
+
+        var $tab_rows = $subtarget3.find('table[name="imt-and-levels-tab"] tbody tr');
+        for (var i = 0 ; i < $tab_rows.length ; i++) {
+            var key = $tab_rows.eq(i).attr('name');
+            var val = $tab_rows.eq(i).find('td input').val();
+            ret[key] = val.split(",").map(function(x) { return parseFloat(x.trim()); });
+        }
+
+        return ret;
+    }
 
     function event_based_getData()
     {
@@ -1787,8 +1896,7 @@ $(document).ready(function () {
             complex_fault_mesh: null,
 
             // Hazard calculation
-            intensity_measure_types: null,
-            custom_imt: null,
+            imt_and_levels: {},
             use_imt_from_vulnerability_choice: false,
 
             ground_motion_correlation_model: null,
@@ -1969,16 +2077,24 @@ $(document).ready(function () {
                 if (obj.use_imt_from_vulnerability_choice == false) {
                     // if risk disabled imts fields must be shown
                     // calculation parameters -> specify-imt (get)
-                    obj.intensity_measure_types = $target.find(
+                    var imts = $target.find(
                         'div[name="hazard-imt_specify-imt"] input[type="checkbox"][name="imt"]:checked'
                     ).map(function(_, el) {
                         return $(el).val();
                     }).get();
 
-                    obj.custom_imt = $target.find('input[name="custom_imt"]').val();
-                    if (obj.intensity_measure_types.length < 1 && obj.custom_imt == "") {
+                    var custom_imt = $target.find('input[name="custom_imt"]').val();
+                    if (imts.length < 1 && custom_imt == "") {
                         ret.str += "IMT's not selected.\n";
                     }
+
+                    if (custom_imt != "") {
+                        imts = imts.concat(
+                            custom_imt.split(",").map(function(x) { return x.trim(); }));
+                    }
+                    imts = imts.map(function(x) { return parseFloat(x); });
+
+                    obj.imt_and_levels = imt_and_levels_get(imts, $target);
                 }
             }
 
