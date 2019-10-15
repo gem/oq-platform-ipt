@@ -47,20 +47,30 @@ $(document).ready(function () {
         $target = $(cf_obj[scope].pfx + ' div[name="exposure-model"]');
         if (enabled) {
             $target.css('display', '');
-            $subtarget = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]');
+            $subtarget = $target.find('div[name="exposure-model-risk"]');
             if (with_constraints) {
-                $subtarget.css('display', '');
+                $subtarget.show();
 
-                $subsubt = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="asset-hazard-distance"]');
+                $subsubt = $target.find('div[name="asset-hazard-distance"]');
                 $subsubt.attr('data-gem-enabled', (without_inc_asset ? 'false' : 'true'));
-                $subsubt.css('display', (without_inc_asset ? 'none' : ''));
+                if (without_inc_asset)
+                    $subsubt.hide();
+                else
+                    $subsubt.show();
             }
             else {
-                $subtarget.css('display', 'none');
+                $subtarget.hide();
             }
+            var tax_map_choice = $target.find('input[type="checkbox"][name="taxonomy-mapping-choice"]'
+                                             ).is(':checked');
+            $subtarget = $target.find('div[name="taxonomy-mapping"]');
+            if (tax_map_choice)
+                $subtarget.show();
+            else
+                $subtarget.hide();
         }
         else {
-            $target.css('display', 'none');
+            $target.hide();
         }
     }
 
@@ -187,7 +197,8 @@ $(document).ready(function () {
     {
         if (enabled) {
             // hazard sites -> exposure-model
-            obj.exposure_model = $(cf_obj[scope].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val();
+            $target = $(cf_obj[scope].pfx + ' div[name="exposure-model"]');
+            obj.exposure_model = $target.find('div[name="exposure-model-html"] select[name="file_html"]').val();
             if (obj.exposure_model == '') {
                 ret.str += "'Exposure model' field is empty.\n";
             }
@@ -195,24 +206,31 @@ $(document).ready(function () {
             uniqueness_add(files_list, 'exposure model', obj.exposure_model);
             ret.str += uniqueness_check(files_list);
             if (with_constraints) {
-                obj.asset_hazard_distance_enabled = $(
-                    cf_obj[scope].pfx + ' div[name="exposure-model"]'
-                        + ' div[name="asset-hazard-distance"]').attr('data-gem-enabled') == 'true';
+                obj.asset_hazard_distance_enabled = $target.find(
+                    'div[name="asset-hazard-distance"]').attr('data-gem-enabled') == 'true';
                 if (obj.asset_hazard_distance_enabled) {
-                    obj.asset_hazard_distance = $(
-                        cf_obj[scope].pfx + ' div[name="exposure-model"]'
-                            + ' input[type="text"][name="asset_hazard_distance"]').val();
+                    obj.asset_hazard_distance = $target.find(
+                        'input[type="text"][name="asset_hazard_distance"]').val();
                     if (obj.asset_hazard_distance == '') {
                         ret.str += "'Asset hazard distance' field is empty.\n";
                     }
                     else if (!gem_ipt.isFloat(obj.asset_hazard_distance)
-                        || parseFloat(obj.asset_hazard_distance) < 0.0) {
+                             || parseFloat(obj.asset_hazard_distance) < 0.0) {
                         ret.str += "'Asset hazard distance' field is negative float number ("
                             + obj.asset_hazard_distance + ").\n";
                     }
                 }
             }
-        }
+            obj.taxonomy_mapping_choice = $target.find('input[type="checkbox"][name="taxonomy-mapping-choice"]'
+                                                      ).is(':checked');
+
+            if (obj.taxonomy_mapping_choice) {
+                obj.taxonomy_mapping = $target.find('div[name="taxonomy-mapping-html"]'
+                                                    + ' select[name="file_html"]').val();
+                uniqueness_add(files_list, 'taxonomy mapping', obj.taxonomy_mapping);
+                ret.str += uniqueness_check(files_list);
+            }
+        } // if (enabled ...
     }
 
     // Vulnerability model (get)
@@ -374,9 +392,13 @@ $(document).ready(function () {
     function exposure_model_init(scope, fileNew_cb, fileNew_upload, manager)
     {
         file_uploader_init(scope, 'exposure-model', fileNew_cb, fileNew_upload);
+        file_uploader_init(scope, 'taxonomy-mapping', fileNew_cb, fileNew_upload);
         $(cf_obj[scope].pfx + ' div[name="exposure-model-risk"] button[name="new_row_add"]').click(function () {
             cf_obj[scope].expModel_coords.alter('insert_row');
         });
+
+        $(cf_obj[scope].pfx + ' div[name="exposure-model"] input[type="checkbox"][name="taxonomy-mapping-choice"]'
+         ).click(manager);
     }
 
     function vulnerability_model_init(scope, fileNew_cb, fileNew_upload, manager)
@@ -1092,6 +1114,8 @@ $(document).ready(function () {
             exposure_model: null,
             asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
+            taxonomy_mapping_choice: false,
+            taxonomy_mapping: null,
 
             // rupture information
             rupture_model_file: null,
@@ -1820,6 +1844,8 @@ $(document).ready(function () {
             exposure_model: null,
             asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
+            taxonomy_mapping_choice: false,
+            taxonomy_mapping: null,
 
             // vulnerability model
             vm_loss_structural_choice: false,
@@ -2489,6 +2515,8 @@ $(document).ready(function () {
             exposure_model: null,
             asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
+            taxonomy_mapping_choice: false,
+            taxonomy_mapping: null,
 
             // # FIXME modal_damage_state
             // is_modal_damage_state: false
