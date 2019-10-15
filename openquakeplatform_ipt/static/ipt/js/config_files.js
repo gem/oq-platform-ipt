@@ -115,6 +115,7 @@ $(document).ready(function () {
     {
         var pfx = cf_obj[scope].pfx + ' div[name="vulnerability-model"]';
         var $vuln_model = $(pfx);
+        var $vuln_model_choices = $vuln_model.find("div[name='choose-losstype']");
 
         if (! is_enabled) {
             $vuln_model.css('display', 'none');
@@ -124,17 +125,28 @@ $(document).ready(function () {
         // Vulnerability model (ui)
         $vuln_model.css('display', '');
         var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
+        var $losses_msg = $vuln_model.find("p[name='choose-one']");
+        var losses_off = true;
         for (var lossidx in losslist) {
             var losstype = losslist[lossidx];
 
             $target = $(pfx + ' div[name="vm-loss-' + losstype + '"]');
 
             if($(pfx + ' input[type="checkbox"][name="losstype"][value="' + losstype + '"]').is(':checked')) {
-                $target.css('display', '');
+                $target.show();
+                losses_off = false;
             }
             else {
-                $target.css('display', 'none');
+                $target.hide();
             }
+        }
+        if (losses_off) {
+            $losses_msg.show();
+            $vuln_model_choices.css('background-color', '#ffaaaa');
+        }
+        else {
+            $losses_msg.hide();
+            $vuln_model_choices.css('background-color', '');
         }
 
         if($(pfx + ' input[name="asset-correlation-choice"]').is(':checked'))
@@ -212,6 +224,7 @@ $(document).ready(function () {
                       contents: 'contents', businter: 'business interruption',
                       occupants: 'occupants' };
         var pfx = cf_obj[scope].pfx + ' div[name="vulnerability-model"]';
+        var losses_off = true;
         for (var lossidx in losslist) {
             var losstype = losslist[lossidx];
 
@@ -221,6 +234,7 @@ $(document).ready(function () {
                 pfx + ' input[type="checkbox"][name="losstype"][value="' + losstype + '"]'
             ).is(':checked');
             if(obj['vm_loss_' + losstype + '_choice']) {
+                losses_off = false;
                 obj['vm_loss_' + losstype] = $target.find('select[name="file_html"]').val();
 
                 if (obj['vm_loss_' + losstype] == '') {
@@ -230,6 +244,10 @@ $(document).ready(function () {
                 ret.str += uniqueness_check(files_list);
             }
         }
+        if (losses_off) {
+            ret.str += "In 'Vulnerability model' section choose at least one loss type.\n";
+        }
+
     }
 
     function site_conditions_getData(scope, ret, files_list, obj)
