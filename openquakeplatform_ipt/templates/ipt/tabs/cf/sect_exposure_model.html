@@ -19,4 +19,33 @@
       <input type="text" name="asset_hazard_distance" value="15.0">
     </div>
   </div>
+
+  <div>
+    <div class="alert alert-info ipt-info" role="alert" style="text-align: center;">
+      <form style="margin: 0px;">
+        <div class="chbox chbox_last">
+          <input style="margin:0;" type="checkbox" name="taxonomy-mapping-choice">
+          <span class="inlible">Include taxonomy mapping</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div name="taxonomy-mapping" style="display: none;">
+    <div class="menuItems" name="taxonomy-mapping-html" data-gem-group="taxonomy-mapping">
+      <label>Taxonomy mapping <span class="ui-icon ui-icon-help ipt_help" title='FIXME Taxonomy mapping'></span>:</label>
+      {{ taxonomy_mapping_html.file_html }}
+      {{ taxonomy_mapping_html.new_btn }}
+    </div>
+    <div class="menuItems" name="taxonomy-mapping-new" style="display: none;">
+      <div name="msg"><br></div>
+      {% if gem_qgis == None %}
+      <form action="upload/taxonomy_mapping" method="post" id="file-upload-form" name="taxonomy-mapping"
+            enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ taxonomy_mapping_upload.file_upload }}
+      </form>
+      {% endif %}
+    </div>
+  </div>
 </div>
