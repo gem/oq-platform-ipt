@@ -186,11 +186,19 @@ def taxonomy_mapping_check(full_path):
                 return (False, "'%s' field not found" % field)
 
         sum = 0.0
-        for row in reader:
-            sum += float(row['weight'])
+        grp = {}
 
-        if abs(sum) < (1 - 1e-12) or abs(sum) > (1 + 1e-12):
-            return (False, "sum of weight not 1.0 (%f)" % sum)
+        for row in reader:
+            key = row['taxonomy']
+            if key not in grp:
+                grp[key] = 0.0
+            grp[key] += float(row['weight'])
+
+        for key, sum in grp.items():
+            if abs(sum) < (1 - 1e-12) or abs(sum) > (1 + 1e-12):
+                return (False,
+                        "sum of weights not 1.0 (%f) for taxonomy '%s'" % (
+                            sum, key))
 
         csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
