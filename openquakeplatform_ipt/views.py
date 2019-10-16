@@ -1431,11 +1431,12 @@ def event_based_prepare(request, **kwargs):
                    bool2s(data['ground_motion_fields']))
         outhaz += ("hazard_curves_from_gmfs = %s\n" %
                    bool2s(data['hazard_curves_from_gmfs']))
-        outhaz += "hazard_maps = %s\n" % bool2s(data['hazard_maps'])
         if data['hazard_curves_from_gmfs']:
-            outhaz += "poes = %s\n" % data['poes']
-            outhaz += ("uniform_hazard_spectra = %s\n" %
-                       bool2s(data['uniform_hazard_spectra']))
+            outhaz += "hazard_maps = %s\n" % bool2s(data['hazard_maps'])
+            if data['hazard_maps']:
+                outhaz += "poes = %s\n" % data['poes']
+                outhaz += ("uniform_hazard_spectra = %s\n" %
+                           bool2s(data['uniform_hazard_spectra']))
 
         outhaz += ("individual_curves = %s\n" % (
             "true" if data['individual_curves'] else "false"))

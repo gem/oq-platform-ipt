@@ -1531,30 +1531,28 @@ $(document).ready(function () {
         // Outputs (UI)
         var $outputs = $(cf_obj['e_b'].pfx + ' div[name="outputs"]');
 
-        $target =  $(cf_obj['e_b'].pfx + ' div[name="hazard-outputs-group"]');
+        $target =  $(cf_obj['e_b'].pfx + ' div[name="hazard-outputs"]');
         if (hazard != null) {
+            $subtarget = $target.find('div[name="hazard-curves"]');
+            if ($target.find('input[name="hazard_curves_from_gmfs"]').is(':checked')) {
+                $subsubtarget = $subtarget.find('div[name="poes"]');
+
+                if ($subtarget.find('input[name="hazard_maps"]').is(':checked')) {
+                    $subsubtarget.show();
+                }
+                else {
+                    $subsubtarget.hide();
+                }
+                $subtarget.show();
+            }
+            else {
+                $subtarget.hide();
+            }
+
             $target.show();
         }
         else {
             $target.hide();
-        }
-
-        $subtarget = $outputs.find('div[name="poes"]');
-        if (hazard != null &&
-            $outputs.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]').is(':checked')) {
-            $subtarget.show();
-        }
-        else {
-            $subtarget.hide();
-        }
-
-        $subtarget = $outputs.find('div[name="uniform-hazard-spectra"]');
-        if (hazard != null &&
-            $outputs.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]').is(':checked')) {
-            $subtarget.show();
-        }
-        else {
-            $subtarget.hide();
         }
 
         // Risk outputs (UI)
@@ -1729,6 +1727,7 @@ $(document).ready(function () {
         var $target = $(cf_obj['e_b'].pfx + ' div[name="outputs"]');
 
         $target.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]').click(event_based_manager);
+        $target.find('input[type="checkbox"][name="hazard_maps"]').click(event_based_manager);
 
         $target.find('input[type="checkbox"][name="conditional_loss_poes_choice"]').click(event_based_manager);
     }
@@ -1766,6 +1765,7 @@ $(document).ready(function () {
 
     function event_based_getData()
     {
+        var $outputs, $target, $subtarget, $subsubtarget;
         var files_list = [];
 
         var ret = {
@@ -2088,29 +2088,33 @@ $(document).ready(function () {
         $outputs = $(cf_obj['e_b'].pfx + ' div[name="outputs"]');
         // Hazard outputs (get)
         if (obj.hazard != null) {
-            obj.ground_motion_fields = $outputs.find('input[type="checkbox"][name="ground_motion_fields"]'
+            $target =  $outputs.find('div[name="hazard-outputs"]');
+            obj.ground_motion_fields = $target.find('input[type="checkbox"][name="ground_motion_fields"]'
                                         ).is(':checked');
 
             obj.hazard_curves_from_gmfs = $outputs.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]'
                                         ).is(':checked');
 
             if (obj.hazard_curves_from_gmfs) {
-                obj.poes = $outputs.find('input[type="text"][name="poes"]').val();
+                $subtarget = $target.find('div[name="hazard-curves"]');
+                obj.hazard_maps = $subtarget.find('input[type="checkbox"][name="hazard_maps"]').is(':checked');
 
-                var arr = obj.poes.split(',');
-                for (var k in arr) {
-                    var cur = arr[k].trim(' ');
-                    if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
-                        ret.str += "'Probability of exceedances' field element #" + (parseInt(k)+1)
-                            + " isn't positive number (" + cur + ").\n";
+                if (obj.hazard_maps) {
+                    obj.poes = $subtarget.find('input[type="text"][name="poes"]').val();
+
+                    var arr = obj.poes.split(',');
+                    for (var k in arr) {
+                        var cur = arr[k].trim(' ');
+                        if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
+                            ret.str += "'Probability of exceedances' field element #" + (parseInt(k)+1)
+                                + " isn't positive number (" + cur + ").\n";
+                        }
                     }
+
+                    obj.uniform_hazard_spectra = $outputs.find('input[type="checkbox"][name="uniform_hazard_spectra"]'
+                                                              ).is(':checked');
                 }
-
-                obj.uniform_hazard_spectra = $outputs.find('input[type="checkbox"][name="uniform_hazard_spectra"]'
-                                                         ).is(':checked');
             }
-
-            obj.hazard_maps = $outputs.find('input[type="checkbox"][name="hazard_maps"]').is(':checked');
 
             var pfx_riscal = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
 
