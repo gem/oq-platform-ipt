@@ -47,20 +47,30 @@ $(document).ready(function () {
         $target = $(cf_obj[scope].pfx + ' div[name="exposure-model"]');
         if (enabled) {
             $target.css('display', '');
-            $subtarget = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="exposure-model-risk"]');
+            $subtarget = $target.find('div[name="exposure-model-risk"]');
             if (with_constraints) {
-                $subtarget.css('display', '');
+                $subtarget.show();
 
-                $subsubt = $(cf_obj[scope].pfx + ' div[name="exposure-model"] div[name="asset-hazard-distance"]');
+                $subsubt = $target.find('div[name="asset-hazard-distance"]');
                 $subsubt.attr('data-gem-enabled', (without_inc_asset ? 'false' : 'true'));
-                $subsubt.css('display', (without_inc_asset ? 'none' : ''));
+                if (without_inc_asset)
+                    $subsubt.hide();
+                else
+                    $subsubt.show();
             }
             else {
-                $subtarget.css('display', 'none');
+                $subtarget.hide();
             }
+            var tax_map_choice = $target.find('input[type="checkbox"][name="taxonomy-mapping-choice"]'
+                                             ).is(':checked');
+            $subtarget = $target.find('div[name="taxonomy-mapping"]');
+            if (tax_map_choice)
+                $subtarget.show();
+            else
+                $subtarget.hide();
         }
         else {
-            $target.css('display', 'none');
+            $target.hide();
         }
     }
 
@@ -115,6 +125,7 @@ $(document).ready(function () {
     {
         var pfx = cf_obj[scope].pfx + ' div[name="vulnerability-model"]';
         var $vuln_model = $(pfx);
+        var $vuln_model_choices = $vuln_model.find("div[name='choose-losstype']");
 
         if (! is_enabled) {
             $vuln_model.css('display', 'none');
@@ -124,17 +135,28 @@ $(document).ready(function () {
         // Vulnerability model (ui)
         $vuln_model.css('display', '');
         var losslist = ['structural', 'nonstructural', 'contents', 'businter', 'occupants' ];
+        var $losses_msg = $vuln_model.find("p[name='choose-one']");
+        var losses_off = true;
         for (var lossidx in losslist) {
             var losstype = losslist[lossidx];
 
             $target = $(pfx + ' div[name="vm-loss-' + losstype + '"]');
 
             if($(pfx + ' input[type="checkbox"][name="losstype"][value="' + losstype + '"]').is(':checked')) {
-                $target.css('display', '');
+                $target.show();
+                losses_off = false;
             }
             else {
-                $target.css('display', 'none');
+                $target.hide();
             }
+        }
+        if (losses_off) {
+            $losses_msg.show();
+            $vuln_model_choices.css('background-color', '#ffaaaa');
+        }
+        else {
+            $losses_msg.hide();
+            $vuln_model_choices.css('background-color', '');
         }
 
         if($(pfx + ' input[name="asset-correlation-choice"]').is(':checked'))
@@ -175,7 +197,8 @@ $(document).ready(function () {
     {
         if (enabled) {
             // hazard sites -> exposure-model
-            obj.exposure_model = $(cf_obj[scope].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val();
+            $target = $(cf_obj[scope].pfx + ' div[name="exposure-model"]');
+            obj.exposure_model = $target.find('div[name="exposure-model-html"] select[name="file_html"]').val();
             if (obj.exposure_model == '') {
                 ret.str += "'Exposure model' field is empty.\n";
             }
@@ -183,24 +206,31 @@ $(document).ready(function () {
             uniqueness_add(files_list, 'exposure model', obj.exposure_model);
             ret.str += uniqueness_check(files_list);
             if (with_constraints) {
-                obj.asset_hazard_distance_enabled = $(
-                    cf_obj[scope].pfx + ' div[name="exposure-model"]'
-                        + ' div[name="asset-hazard-distance"]').attr('data-gem-enabled') == 'true';
+                obj.asset_hazard_distance_enabled = $target.find(
+                    'div[name="asset-hazard-distance"]').attr('data-gem-enabled') == 'true';
                 if (obj.asset_hazard_distance_enabled) {
-                    obj.asset_hazard_distance = $(
-                        cf_obj[scope].pfx + ' div[name="exposure-model"]'
-                            + ' input[type="text"][name="asset_hazard_distance"]').val();
+                    obj.asset_hazard_distance = $target.find(
+                        'input[type="text"][name="asset_hazard_distance"]').val();
                     if (obj.asset_hazard_distance == '') {
                         ret.str += "'Asset hazard distance' field is empty.\n";
                     }
                     else if (!gem_ipt.isFloat(obj.asset_hazard_distance)
-                        || parseFloat(obj.asset_hazard_distance) < 0.0) {
+                             || parseFloat(obj.asset_hazard_distance) < 0.0) {
                         ret.str += "'Asset hazard distance' field is negative float number ("
                             + obj.asset_hazard_distance + ").\n";
                     }
                 }
             }
-        }
+            obj.taxonomy_mapping_choice = $target.find('input[type="checkbox"][name="taxonomy-mapping-choice"]'
+                                                      ).is(':checked');
+
+            if (obj.taxonomy_mapping_choice) {
+                obj.taxonomy_mapping = $target.find('div[name="taxonomy-mapping-html"]'
+                                                    + ' select[name="file_html"]').val();
+                uniqueness_add(files_list, 'taxonomy mapping', obj.taxonomy_mapping);
+                ret.str += uniqueness_check(files_list);
+            }
+        } // if (enabled ...
     }
 
     // Vulnerability model (get)
@@ -212,6 +242,7 @@ $(document).ready(function () {
                       contents: 'contents', businter: 'business interruption',
                       occupants: 'occupants' };
         var pfx = cf_obj[scope].pfx + ' div[name="vulnerability-model"]';
+        var losses_off = true;
         for (var lossidx in losslist) {
             var losstype = losslist[lossidx];
 
@@ -221,6 +252,7 @@ $(document).ready(function () {
                 pfx + ' input[type="checkbox"][name="losstype"][value="' + losstype + '"]'
             ).is(':checked');
             if(obj['vm_loss_' + losstype + '_choice']) {
+                losses_off = false;
                 obj['vm_loss_' + losstype] = $target.find('select[name="file_html"]').val();
 
                 if (obj['vm_loss_' + losstype] == '') {
@@ -230,6 +262,10 @@ $(document).ready(function () {
                 ret.str += uniqueness_check(files_list);
             }
         }
+        if (losses_off) {
+            ret.str += "In 'Vulnerability model' section choose at least one loss type.\n";
+        }
+
     }
 
     function site_conditions_getData(scope, ret, files_list, obj)
@@ -356,9 +392,13 @@ $(document).ready(function () {
     function exposure_model_init(scope, fileNew_cb, fileNew_upload, manager)
     {
         file_uploader_init(scope, 'exposure-model', fileNew_cb, fileNew_upload);
+        file_uploader_init(scope, 'taxonomy-mapping', fileNew_cb, fileNew_upload);
         $(cf_obj[scope].pfx + ' div[name="exposure-model-risk"] button[name="new_row_add"]').click(function () {
             cf_obj[scope].expModel_coords.alter('insert_row');
         });
+
+        $(cf_obj[scope].pfx + ' div[name="exposure-model"] input[type="checkbox"][name="taxonomy-mapping-choice"]'
+         ).click(manager);
     }
 
     function vulnerability_model_init(scope, fileNew_cb, fileNew_upload, manager)
@@ -1074,6 +1114,8 @@ $(document).ready(function () {
             exposure_model: null,
             asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
+            taxonomy_mapping_choice: false,
+            taxonomy_mapping: null,
 
             // rupture information
             rupture_model_file: null,
@@ -1600,30 +1642,28 @@ $(document).ready(function () {
         // Outputs (UI)
         var $outputs = $(cf_obj['e_b'].pfx + ' div[name="outputs"]');
 
-        $target =  $(cf_obj['e_b'].pfx + ' div[name="hazard-outputs-group"]');
+        $target =  $(cf_obj['e_b'].pfx + ' div[name="hazard-outputs"]');
         if (hazard != null) {
+            $subtarget = $target.find('div[name="hazard-curves"]');
+            if ($target.find('input[name="hazard_curves_from_gmfs"]').is(':checked')) {
+                $subsubtarget = $subtarget.find('div[name="poes"]');
+
+                if ($subtarget.find('input[name="hazard_maps"]').is(':checked')) {
+                    $subsubtarget.show();
+                }
+                else {
+                    $subsubtarget.hide();
+                }
+                $subtarget.show();
+            }
+            else {
+                $subtarget.hide();
+            }
+
             $target.show();
         }
         else {
             $target.hide();
-        }
-
-        $subtarget = $outputs.find('div[name="poes"]');
-        if (hazard != null &&
-            $outputs.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]').is(':checked')) {
-            $subtarget.show();
-        }
-        else {
-            $subtarget.hide();
-        }
-
-        $subtarget = $outputs.find('div[name="uniform-hazard-spectra"]');
-        if (hazard != null &&
-            $outputs.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]').is(':checked')) {
-            $subtarget.show();
-        }
-        else {
-            $subtarget.hide();
         }
 
         // Risk outputs (UI)
@@ -1800,6 +1840,7 @@ $(document).ready(function () {
         var $target = $(cf_obj['e_b'].pfx + ' div[name="outputs"]');
 
         $target.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]').click(event_based_manager);
+        $target.find('input[type="checkbox"][name="hazard_maps"]').click(event_based_manager);
 
         $target.find('input[type="checkbox"][name="conditional_loss_poes_choice"]').click(event_based_manager);
     }
@@ -1851,6 +1892,7 @@ $(document).ready(function () {
 
     function event_based_getData()
     {
+        var $outputs, $target, $subtarget, $subsubtarget;
         var files_list = [];
 
         var ret = {
@@ -1910,6 +1952,8 @@ $(document).ready(function () {
             exposure_model: null,
             asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
+            taxonomy_mapping_choice: false,
+            taxonomy_mapping: null,
 
             // vulnerability model
             vm_loss_structural_choice: false,
@@ -2178,29 +2222,33 @@ $(document).ready(function () {
         $outputs = $(cf_obj['e_b'].pfx + ' div[name="outputs"]');
         // Hazard outputs (get)
         if (obj.hazard != null) {
-            obj.ground_motion_fields = $outputs.find('input[type="checkbox"][name="ground_motion_fields"]'
+            $target =  $outputs.find('div[name="hazard-outputs"]');
+            obj.ground_motion_fields = $target.find('input[type="checkbox"][name="ground_motion_fields"]'
                                         ).is(':checked');
 
             obj.hazard_curves_from_gmfs = $outputs.find('input[type="checkbox"][name="hazard_curves_from_gmfs"]'
                                         ).is(':checked');
 
             if (obj.hazard_curves_from_gmfs) {
-                obj.poes = $outputs.find('input[type="text"][name="poes"]').val();
+                $subtarget = $target.find('div[name="hazard-curves"]');
+                obj.hazard_maps = $subtarget.find('input[type="checkbox"][name="hazard_maps"]').is(':checked');
 
-                var arr = obj.poes.split(',');
-                for (var k in arr) {
-                    var cur = arr[k].trim(' ');
-                    if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
-                        ret.str += "'Probability of exceedances' field element #" + (parseInt(k)+1)
-                            + " isn't positive number (" + cur + ").\n";
+                if (obj.hazard_maps) {
+                    obj.poes = $subtarget.find('input[type="text"][name="poes"]').val();
+
+                    var arr = obj.poes.split(',');
+                    for (var k in arr) {
+                        var cur = arr[k].trim(' ');
+                        if (!gem_ipt.isFloat(cur) || cur <= 0.0) {
+                            ret.str += "'Probability of exceedances' field element #" + (parseInt(k)+1)
+                                + " isn't positive number (" + cur + ").\n";
+                        }
                     }
+
+                    obj.uniform_hazard_spectra = $outputs.find('input[type="checkbox"][name="uniform_hazard_spectra"]'
+                                                              ).is(':checked');
                 }
-
-                obj.uniform_hazard_spectra = $outputs.find('input[type="checkbox"][name="uniform_hazard_spectra"]'
-                                                         ).is(':checked');
             }
-
-            obj.hazard_maps = $outputs.find('input[type="checkbox"][name="hazard_maps"]').is(':checked');
 
             var pfx_riscal = cf_obj['e_b'].pfx + ' div[name="risk-calculation"]';
 
@@ -2587,6 +2635,8 @@ $(document).ready(function () {
             exposure_model: null,
             asset_hazard_distance_enabled: false,
             asset_hazard_distance: null,
+            taxonomy_mapping_choice: false,
+            taxonomy_mapping: null,
 
             // # FIXME modal_damage_state
             // is_modal_damage_state: false
