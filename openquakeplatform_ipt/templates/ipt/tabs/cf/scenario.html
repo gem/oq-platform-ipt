@@ -166,13 +166,13 @@ The OpenQuake scenario calculators can be used for the calculation of damage dis
   <!-- show consequences ? -->
   <div class="alert alert-info ipt-info" role="alert" style="text-align: center;">
     <input style="margin:0;" type="checkbox" name="fm-loss-include-cons">
-    Include consequence models
+    Include consequence models <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>
   </div>
 
   <!-- cons -->
   <div name="fm-loss-structural-cons">
     <div class="menuItems" name="fm-structural-cons-html" data-gem-group="fragility-cons">
-      <label>Structural consequence model <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>:</label>
+      <label>Structural consequence model:</label>
       {{ fm_structural_cons_html.file_html }}
       {{ fm_structural_cons_html.new_btn }}
     </div>
