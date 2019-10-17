@@ -191,10 +191,11 @@ def taxonomy_mapping_check(full_path):
             grp[key] += float(row['weight'])
 
         for key, sum in grp.items():
-            if abs(sum) < (1 - 1e-12) or abs(sum) > (1 + 1e-12):
+            if abs(sum - 1.0) > 1e-12:
                 return (False,
-                        "sum of weights not 1.0 (%f) for taxonomy '%s'" % (
-                            sum, key))
+                        ("abs(1.0 - (sum of weights)) exceed 1e-12"
+                         " (%1.2e) for taxonomy '%s'") % (
+                            abs(1.0 - sum), key))
 
         csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
