@@ -1,1 +1,1 @@
-Failed: missing column 'tag_second' in csv file 'exposure_wrong_header.csv'
+Failed: missing column 'second' in csv file 'exposure_wrong_header.csv'
