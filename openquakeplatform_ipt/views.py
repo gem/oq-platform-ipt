@@ -144,10 +144,6 @@ def site_conditions_check(full_path):
     check site condition file and return a tuple (Bool, String_descr)
     '''
     with enc_open(full_path, encoding='utf-8-sig') as csv_fp:
-        if not csv.Sniffer().has_header(csv_fp.read(1024)):
-            csv_fp.seek(0)
-            return (False, 'header not found')
-        csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
         for field in ['lon', 'lat']:
             if field not in reader.fieldnames:
@@ -176,10 +172,6 @@ def taxonomy_mapping_check(full_path):
     check taxonomy mapping file and return a tuple (Bool, String_descr)
     '''
     with enc_open(full_path, encoding='utf-8-sig') as csv_fp:
-        if not csv.Sniffer().has_header(csv_fp.read(1024)):
-            csv_fp.seek(0)
-            return (False, 'header not found')
-        csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
         for field in ['taxonomy', 'conversion', 'weight']:
             if field not in reader.fieldnames:
