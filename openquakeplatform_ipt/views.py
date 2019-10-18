@@ -144,10 +144,6 @@ def site_conditions_check(full_path):
     check site condition file and return a tuple (Bool, String_descr)
     '''
     with enc_open(full_path, encoding='utf-8-sig') as csv_fp:
-        if not csv.Sniffer().has_header(csv_fp.read(1024)):
-            csv_fp.seek(0)
-            return (False, 'header not found')
-        csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
         for field in ['lon', 'lat']:
             if field not in reader.fieldnames:
@@ -176,21 +172,25 @@ def taxonomy_mapping_check(full_path):
     check taxonomy mapping file and return a tuple (Bool, String_descr)
     '''
     with enc_open(full_path, encoding='utf-8-sig') as csv_fp:
-        if not csv.Sniffer().has_header(csv_fp.read(1024)):
-            csv_fp.seek(0)
-            return (False, 'header not found')
-        csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
         for field in ['taxonomy', 'conversion', 'weight']:
             if field not in reader.fieldnames:
                 return (False, "'%s' field not found" % field)
 
-        sum = 0.0
-        for row in reader:
-            sum += float(row['weight'])
+        grp = {}
 
-        if abs(sum) < (1 - 1e-12) or abs(sum) > (1 + 1e-12):
-            return (False, "sum of weight not 1.0 (%f)" % sum)
+        for row in reader:
+            key = row['taxonomy']
+            if key not in grp:
+                grp[key] = 0.0
+            grp[key] += float(row['weight'])
+
+        for key, taxonomy_sum in grp.items():
+            if abs(taxonomy_sum - 1.0) > 1e-12:
+                return (False,
+                        ("abs(1.0 - (sum of weights)) exceed 1e-12"
+                         " (%1.2e) for taxonomy '%s'") % (
+                            abs(1.0 - taxonomy_sum), key))
 
         csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
@@ -1242,7 +1242,7 @@ def scenario_prepare(request, **kwargs):
                    data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
             jobini += ("ground_motion_correlation_params = "
-                       "{\"vs30_clustering\": false}\n")
+                       "{\"vs30_clustering\": False}\n")
 
         jobini += "truncation_level = %s\n" % data['truncation_level']
         jobini += "maximum_distance = %s\n" % data['maximum_distance']
@@ -1400,25 +1400,14 @@ def event_based_prepare(request, **kwargs):
         #              ####################
 
         if not is_full and data['use_imt_from_vulnerability_choice'] is False:
-            job_sect += "intensity_measure_types = "
-            is_first = True
-            for imt in data['intensity_measure_types']:
-                if is_first:
-                    is_first = False
-                else:
-                    job_sect += ", "
-                job_sect += imt
-            if data['custom_imt'] != '':
-                if not is_first:
-                    job_sect += ", "
-                job_sect += data['custom_imt']
-            job_sect += "\n"
+            job_sect += ("intensity_measure_types_and_levels = %s\n" %
+                         json.dumps(data['imt_and_levels']))
 
         job_sect += ("ground_motion_correlation_model = %s\n" %
                      data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
             job_sect += ("ground_motion_correlation_params = "
-                         "{\"vs30_clustering\": true}\n")
+                         "{\"vs30_clustering\": True}\n")
         job_sect += "maximum_distance = %s\n" % data['maximum_distance']
         job_sect += "truncation_level = %s\n" % data['truncation_level']
         job_sect += "investigation_time = %s\n" % data['investigation_time']
@@ -1439,7 +1428,7 @@ def event_based_prepare(request, **kwargs):
                            bool2s(data['uniform_hazard_spectra']))
 
         outhaz += ("individual_curves = %s\n" % (
-            "true" if data['individual_curves'] else "false"))
+            "True" if data['individual_curves'] else "False"))
 
         if data['quantiles']:
             outhaz += "quantiles = " + ", ".join(data['quantiles'])

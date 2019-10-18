@@ -336,7 +336,7 @@ See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/pyr
       <form style="margin: 0px;">
         <div class="chbox chbox_last">
           <input style="margin:0;" type="checkbox" name="is-cons-models">
-          <span class="inlible">Include consequence models</span>
+          Include consequence models <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>
         </div>
       </form>
     </div>
@@ -344,7 +344,7 @@ See example <a target=\'_blank\' download href=\'{{ STATIC_URL }}ipt/samples/pyr
 
   <div name="ashfall-cons" style="display: none;">
     <div class="menuItems" name="fm-ashfall-cons-html" data-gem-group="fragility-cons">
-      <label>Ash fall consequence model <span class="ui-icon ui-icon-help ipt_help" title='A consequence model defines a set of consequence functions, describing the distribution of the loss (or consequence) ratio conditional on a set of discrete limit (or damage) states.'></span>:</label>
+      <label>Ash fall consequence model:</label>
       {{ fm_ashfall_cons_html.file_html }}
       {{ fm_ashfall_cons_html.new_btn }}
     </div>

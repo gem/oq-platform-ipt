@@ -24,9 +24,9 @@ from openquakeplatform.python3compat import encode
 
 def bool2s(v):
     if v:
-        return "true"
+        return "True"
     else:
-        return "false"
+        return "False"
 
 
 def get_tmp_path(userid):
