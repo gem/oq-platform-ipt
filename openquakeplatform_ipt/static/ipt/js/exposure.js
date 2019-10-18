@@ -510,7 +510,7 @@ function ex_updateTable() {
             if (checkForValueInHeader(ex_obj.header, argument) == -1) {
                 ex_obj.header.push(argument);
             }
-            // This constraint will allow structural, non-structural, contents and business
+            // This constraint will allow structural, nonstructural, contents and business
             // costs to be added to the header
         } else if (argument != 'none' && valueArg !== undefined) {
             if (checkForValueInHeader(ex_obj.header, valueArg) == -1) {
@@ -525,7 +525,7 @@ function ex_updateTable() {
     });
 
     ex_obj.o.find('#costNonStruc option:selected').each(function() {
-        checkForValue($(this).attr('value'), 'non-structural');
+        checkForValue($(this).attr('value'), 'nonstructural');
     });
 
     ex_obj.o.find('#costContent option:selected').each(function() {
@@ -564,9 +564,11 @@ function ex_updateTable() {
     ex_obj.headerbase_len = ex_obj.header.length;
 
     // manage tags
+    ex_obj.header_exam = ex_obj.header.concat([])
     var tags = ex_obj.o.find('#tags').tagsinput('items');
     for (var i = 0 ; i < tags.length ; i++) {
         ex_obj.header.push("tag_" + tags[i]);
+        ex_obj.header_exam.push(tags[i]);
     }
     var headerLength = ex_obj.header.length;
 
@@ -622,8 +624,8 @@ function ex_updateTable() {
     ex_obj.o.find('#convertBtn').show();
 
     var $tr_exam_exp = $('<tr>');
-    for (var i = 0 ; i < ex_obj.header.length ; i++) {
-        $tr_exam_exp.append($('<th>').text(ex_obj.header[i]));
+    for (var i = 0 ; i < ex_obj.header_exam.length ; i++) {
+        $tr_exam_exp.append($('<th>').text(ex_obj.header_exam[i]));
     }
     var $tbl_exam_exp = ex_obj.o.find('table.tbl-exam-exposure');
     $tbl_exam_exp.empty();
@@ -692,7 +694,7 @@ function ex_convert2nrml(step)
             var $csv_file = $($csv_files[i]);
             csv_files.push($csv_file.val());
         }
-        var field_names = ex_obj.header.slice();
+        var field_names = ex_obj.header_exam.slice();
         ex_csv_check(field_names, csv_files);
         return;
     }
@@ -741,7 +743,7 @@ function ex_convert2nrml(step)
     var number = 'number';
     var area = 'area';
     var structural = 'structural';
-    var non_structural = 'non-structural';
+    var non_structural = 'nonstructural';
     var contents = 'contents';
     var business = 'business';
     var day = 'day';
