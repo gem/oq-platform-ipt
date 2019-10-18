@@ -1243,7 +1243,7 @@ def scenario_prepare(request, **kwargs):
             jobini += "\n"
 
         jobini += ("ground_motion_correlation_model = %s\n" %
-                   bool2s(data['ground_motion_correlation_model']))
+                   data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
             jobini += ("ground_motion_correlation_params = "
                        "{\"vs30_clustering\": false}\n")
