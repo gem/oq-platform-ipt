@@ -1242,7 +1242,7 @@ def scenario_prepare(request, **kwargs):
                    data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
             jobini += ("ground_motion_correlation_params = "
-                       "{\"vs30_clustering\": false}\n")
+                       "{\"vs30_clustering\": False}\n")
 
         jobini += "truncation_level = %s\n" % data['truncation_level']
         jobini += "maximum_distance = %s\n" % data['maximum_distance']
@@ -1418,7 +1418,7 @@ def event_based_prepare(request, **kwargs):
                      data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
             job_sect += ("ground_motion_correlation_params = "
-                         "{\"vs30_clustering\": true}\n")
+                         "{\"vs30_clustering\": True}\n")
         job_sect += "maximum_distance = %s\n" % data['maximum_distance']
         job_sect += "truncation_level = %s\n" % data['truncation_level']
         job_sect += "investigation_time = %s\n" % data['investigation_time']
@@ -1439,7 +1439,7 @@ def event_based_prepare(request, **kwargs):
                            bool2s(data['uniform_hazard_spectra']))
 
         outhaz += ("individual_curves = %s\n" % (
-            "true" if data['individual_curves'] else "false"))
+            "True" if data['individual_curves'] else "False"))
 
         if data['quantiles']:
             outhaz += "quantiles = " + ", ".join(data['quantiles'])
