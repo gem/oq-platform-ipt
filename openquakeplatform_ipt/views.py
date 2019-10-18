@@ -1400,19 +1400,8 @@ def event_based_prepare(request, **kwargs):
         #              ####################
 
         if not is_full and data['use_imt_from_vulnerability_choice'] is False:
-            job_sect += "intensity_measure_types = "
-            is_first = True
-            for imt in data['intensity_measure_types']:
-                if is_first:
-                    is_first = False
-                else:
-                    job_sect += ", "
-                job_sect += imt
-            if data['custom_imt'] != '':
-                if not is_first:
-                    job_sect += ", "
-                job_sect += data['custom_imt']
-            job_sect += "\n"
+            job_sect += ("intensity_measure_types_and_levels = %s\n" %
+                         json.dumps(data['imt_and_levels']))
 
         job_sect += ("ground_motion_correlation_model = %s\n" %
                      data['ground_motion_correlation_model'])

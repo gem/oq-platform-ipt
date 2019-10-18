@@ -280,3 +280,12 @@ table.tbl-exam-exposure th {
     border: 1px solid #ccc;
     background-color: #fafafa;
 }
+
+table.imt-levels {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+table.imt-levels td input {
+    width: 100%;
+}
