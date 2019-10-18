@@ -1825,7 +1825,12 @@ $(document).ready(function () {
     // Hazard calculation (init)
     $(cf_obj['e_b'].pfx + ' select[name="imt"]').searchableOptionList(
         {showSelectionBelowList: true,
-         maxHeight: '300px'});
+         maxHeight: '300px',
+         events: {
+             onInitialized: event_based_manager,
+             onChange: event_based_manager
+         }
+        });
 
     $target = $(cf_obj['e_b'].pfx + ' div[name="hazard-calculation"]');
     $target.find('input[name="use_imt_from_vulnerability_choice"]').click(event_based_manager);
@@ -1878,14 +1883,19 @@ $(document).ready(function () {
 
     function imt_and_levels_get(imts, $target)
     {
-        var ret = {};
+        var ret = {status: false, ret_val: {}};
 
         var $tab_rows = $subtarget3.find('table[name="imt-and-levels-tab"] tbody tr');
         for (var i = 0 ; i < $tab_rows.length ; i++) {
             var key = $tab_rows.eq(i).attr('name');
             var val = $tab_rows.eq(i).find('td input').val();
-            ret[key] = val.split(",").map(function(x) { return parseFloat(x.trim()); });
+            if (val == "") {
+                ret.ret_val = "Imt " + key + " levels field is empty.\n";
+                return ret;
+            }
+            ret.ret_val[key] = val.split(",").map(function(x) { return parseFloat(x.trim()); });
         }
+        ret.status = true;
 
         return ret;
     }
@@ -2138,7 +2148,13 @@ $(document).ready(function () {
                     }
                     imts = imts.map(function(x) { return parseFloat(x); });
 
-                    obj.imt_and_levels = imt_and_levels_get(imts, $target);
+                    var lev_ret = imt_and_levels_get(imts, $target);
+                    if (lev_ret.status == true) {
+                        obj.imt_and_levels = lev_ret.ret_val;
+                    }
+                    else {
+                        ret.str += lev_ret.ret_val;
+                    }
                 }
             }
 
