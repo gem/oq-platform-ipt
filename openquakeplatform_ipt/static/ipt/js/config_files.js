@@ -1351,7 +1351,7 @@ $(document).ready(function () {
                 cf_obj['scen'].pfx + ' select[name="ground-motion-correlation"]').val();
 
             if (["", "JB2009"].indexOf(obj.ground_motion_correlation_model) == -1) {
-                ret.str += "'Ground Motion Correlation' field unknown.\n";
+                ret.str += "'Ground Motion Correlation Model' field unknown.\n";
             }
 
             obj.truncation_level = $(cf_obj['scen'].pfx + ' input[name="truncation_level"]').val();
@@ -2161,7 +2161,7 @@ $(document).ready(function () {
             obj.ground_motion_correlation_model = $target.find('select[name="ground-motion-correlation"]').val();
 
             if (["", "JB2009"].indexOf(obj.ground_motion_correlation_model) == -1) {
-                ret.str += "'Ground Motion Correlation' field unknown.\n";
+                ret.str += "'Ground Motion Correlation Model' field unknown.\n";
             }
 
             obj.maximum_distance = $target.find('input[name="maximum_distance"]').val();
