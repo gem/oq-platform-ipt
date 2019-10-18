@@ -144,10 +144,6 @@ def site_conditions_check(full_path):
     check site condition file and return a tuple (Bool, String_descr)
     '''
     with enc_open(full_path, encoding='utf-8-sig') as csv_fp:
-        if not csv.Sniffer().has_header(csv_fp.read(1024)):
-            csv_fp.seek(0)
-            return (False, 'header not found')
-        csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
         for field in ['lon', 'lat']:
             if field not in reader.fieldnames:
@@ -176,21 +172,25 @@ def taxonomy_mapping_check(full_path):
     check taxonomy mapping file and return a tuple (Bool, String_descr)
     '''
     with enc_open(full_path, encoding='utf-8-sig') as csv_fp:
-        if not csv.Sniffer().has_header(csv_fp.read(1024)):
-            csv_fp.seek(0)
-            return (False, 'header not found')
-        csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
         for field in ['taxonomy', 'conversion', 'weight']:
             if field not in reader.fieldnames:
                 return (False, "'%s' field not found" % field)
 
-        sum = 0.0
-        for row in reader:
-            sum += float(row['weight'])
+        grp = {}
 
-        if abs(sum) < (1 - 1e-12) or abs(sum) > (1 + 1e-12):
-            return (False, "sum of weight not 1.0 (%f)" % sum)
+        for row in reader:
+            key = row['taxonomy']
+            if key not in grp:
+                grp[key] = 0.0
+            grp[key] += float(row['weight'])
+
+        for key, taxonomy_sum in grp.items():
+            if abs(taxonomy_sum - 1.0) > 1e-12:
+                return (False,
+                        ("abs(1.0 - (sum of weights)) exceed 1e-12"
+                         " (%1.2e) for taxonomy '%s'") % (
+                            abs(1.0 - taxonomy_sum), key))
 
         csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
@@ -1431,11 +1431,12 @@ def event_based_prepare(request, **kwargs):
                    bool2s(data['ground_motion_fields']))
         outhaz += ("hazard_curves_from_gmfs = %s\n" %
                    bool2s(data['hazard_curves_from_gmfs']))
-        outhaz += "hazard_maps = %s\n" % bool2s(data['hazard_maps'])
         if data['hazard_curves_from_gmfs']:
-            outhaz += "poes = %s\n" % data['poes']
-            outhaz += ("uniform_hazard_spectra = %s\n" %
-                       bool2s(data['uniform_hazard_spectra']))
+            outhaz += "hazard_maps = %s\n" % bool2s(data['hazard_maps'])
+            if data['hazard_maps']:
+                outhaz += "poes = %s\n" % data['poes']
+                outhaz += ("uniform_hazard_spectra = %s\n" %
+                           bool2s(data['uniform_hazard_spectra']))
 
         outhaz += ("individual_curves = %s\n" % (
             "true" if data['individual_curves'] else "false"))
