@@ -177,12 +177,20 @@ def taxonomy_mapping_check(full_path):
             if field not in reader.fieldnames:
                 return (False, "'%s' field not found" % field)
 
-        sum = 0.0
-        for row in reader:
-            sum += float(row['weight'])
+        grp = {}
 
-        if abs(sum) < (1 - 1e-12) or abs(sum) > (1 + 1e-12):
-            return (False, "sum of weight not 1.0 (%f)" % sum)
+        for row in reader:
+            key = row['taxonomy']
+            if key not in grp:
+                grp[key] = 0.0
+            grp[key] += float(row['weight'])
+
+        for key, taxonomy_sum in grp.items():
+            if abs(taxonomy_sum - 1.0) > 1e-12:
+                return (False,
+                        ("abs(1.0 - (sum of weights)) exceed 1e-12"
+                         " (%1.2e) for taxonomy '%s'") % (
+                            abs(1.0 - taxonomy_sum), key))
 
         csv_fp.seek(0)
         reader = csv.DictReader(csv_fp)
@@ -1231,7 +1239,7 @@ def scenario_prepare(request, **kwargs):
             jobini += "\n"
 
         jobini += ("ground_motion_correlation_model = %s\n" %
-                   bool2s(data['ground_motion_correlation_model']))
+                   data['ground_motion_correlation_model'])
         if data['ground_motion_correlation_model'] == 'JB2009':
             jobini += ("ground_motion_correlation_params = "
                        "{\"vs30_clustering\": false}\n")
