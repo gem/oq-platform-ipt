@@ -161,7 +161,7 @@ function sc_updateTable() {
             if (checkForValueInHeader(sc_obj.header, argument) == -1) {
                 sc_obj.header.push(argument);
             }
-        // This constraint will allow structural, non-structural, contents and business
+        // This constraint will allow structural, nonstructural, contents and business
         // costs to be added to the header
         } else if (argument != 'none' && valueArg !== undefined) {
             if (checkForValueInHeader(sc_obj.header, valueArg) == -1) {
@@ -176,7 +176,7 @@ function sc_updateTable() {
     });
 
     sc_obj.o.find('#costNonStruc option:selected').each(function() {
-        checkForValue($(this).attr('value'), 'non-structural');
+        checkForValue($(this).attr('value'), 'nonstructural');
     });
 
     sc_obj.o.find('#costContent option:selected').each(function() {
