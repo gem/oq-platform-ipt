@@ -564,7 +564,7 @@ function ex_updateTable() {
     ex_obj.headerbase_len = ex_obj.header.length;
 
     // manage tags
-    ex_obj.header_exam = ex_obj.header.concat([])
+    ex_obj.header_exam = ex_obj.header.concat([]);
     var tags = ex_obj.o.find('#tags').tagsinput('items');
     for (var i = 0 ; i < tags.length ; i++) {
         ex_obj.header.push("tag_" + tags[i]);
