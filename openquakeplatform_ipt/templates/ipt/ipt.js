@@ -51,24 +51,4 @@ for (var i = 0 ; i < g_gmpe.length ; i++) {
         console.log(gem_api);
 {% endif %}
     }
-
-    $(document).ready(function () {
-        function bbox_leaf_cb(ev)
-        {
-            var $target = $(ev.target);
-            var $parent = $target.parent();
-
-            if ($target.is(':checked')) {
-                $parent.css('background-color', '#d9f7d9');
-                $parent.css('border-color', '#76f176');
-            }
-            else {
-                $parent.css('background-color', '');
-                $parent.css('border-color', '');
-            }
-        }
-
-        $('input.cbox-leaf[type="checkbox"]').click(bbox_leaf_cb);
-        $('input.cbox-leaf[type="checkbox"]').map(function() { bbox_leaf_cb({target: this});});
-    });
 }
