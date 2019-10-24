@@ -15,11 +15,7 @@
     text-align: right;
     margin-left: 150px;
     margin-right: 150px;
-}
-
-.menuItems label {
-    float: left;
-    margin: 1px;
+    line-height: 32px;
 }
 
 .menuSubItems {
@@ -29,7 +25,7 @@
 label {
     font-weight: bold;
     float: left;
-    margin: 4px 0 15px;
+    margin: 1px;
 }
 
 .ffsForm, .vfsForm{
