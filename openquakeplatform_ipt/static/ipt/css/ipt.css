@@ -285,3 +285,12 @@ table.imt-levels {
 table.imt-levels td input {
     width: 100%;
 }
+
+.cbox-leaf {
+    padding: 3px;
+    border: 1px solid #ccc;
+    width: 80px;
+    display: inline-block;
+    text-align: center;
+    border-radius: 3px;
+}
