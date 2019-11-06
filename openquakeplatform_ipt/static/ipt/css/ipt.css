@@ -201,6 +201,7 @@ span.ipt_help {
     vertical-align: text-bottom;
     border: 1px solid #a0a0a0;
     background-color: #f7f7f9;
+    padding: 8.5px;
 }
 
 .planar_geometry .handsontable col.rowHeader {
