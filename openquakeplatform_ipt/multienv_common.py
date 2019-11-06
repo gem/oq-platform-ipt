@@ -5,6 +5,7 @@ class VolConst():
     ph_pyro = 'PYRO'
 
     ty_text = 'text'
+    ty_twkt = 'text-to-wkt'
     ty_open = 'openquake'
     ty_shap = 'shape'
     ty_swkt = 'shape-to-wkt'

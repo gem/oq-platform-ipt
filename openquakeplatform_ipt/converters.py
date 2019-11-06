@@ -18,6 +18,7 @@
 
 import sys
 import os
+import json
 
 try:
     from multienv_common import VolConst
@@ -32,11 +33,89 @@ try:
         import re
         import gc
         import csv
-        from osgeo import ogr
+        import numpy
+        from osgeo import ogr, osr
         from pyproj import Proj, transform
-        from osgeo import osr
 
         GDAL2_AVAILABLE = True
+
+        def gem_raster2polyg(hea, epsg_in, raster):
+            driver = dst_ds = sourceBand = srs_in = transform = outband = None
+            sourceBand = outDatasource = outLayer = newField = multi = None
+            geom = wkt = None
+
+            try:
+                dst_filename = 'rast_gen_out.vrt'
+
+                driver = gdal.GetDriverByName("MEM")
+
+                dst_ds = driver.Create(dst_filename,
+                                       xsize=hea['ncols'],
+                                       ysize=hea['nrows'],
+                                       bands=1, eType=gdal.GDT_Float32)
+
+                srs_in = osr.SpatialReference()
+                srs_in.ImportFromEPSG(epsg_in)
+
+                epsg = 4326
+                srs = osr.SpatialReference()
+                srs.ImportFromEPSG(epsg)
+
+                transform = None
+                if not srs_in.IsSame(srs):
+                    transform = osr.CoordinateTransformation(
+                        srs_in, srs)
+
+                pixw = hea['cellsize']
+
+                dst_ds.SetGeoTransform((
+                    hea['xllcorner'],
+                    pixw, 0,
+                    hea['yllcorner'] + float(pixw * hea['nrows']),
+                    0, -pixw))
+
+                dst_ds.SetProjection(srs_in.ExportToWkt())
+                outband = dst_ds.GetRasterBand(1)
+                outband.WriteArray(raster)
+                outband.FlushCache()
+
+                # Once we're done, close properly the dataset
+
+                sourceBand = dst_ds.GetRasterBand(1)
+                sourceBand.SetNoDataValue(0.0)
+                sourceBand.WriteRaster(
+                    0, 0, hea['ncols'], hea['nrows'],
+                    sourceBand.ReadRaster())
+
+                driver = ogr.GetDriverByName("Memory")
+                outDatasource = driver.CreateDataSource('poly_ds')
+                outLayer = outDatasource.CreateLayer("polygonized", srs=srs)
+
+                newField = ogr.FieldDefn('poly', ogr.OFTReal)
+                outLayer.CreateField(newField)
+
+                gdal.Polygonize(sourceBand, sourceBand, outLayer, -1, [],
+                                callback=None)
+
+                multi = ogr.Geometry(ogr.wkbMultiPolygon)
+                for feature in outLayer:
+                    geom = feature.GetGeometryRef()
+                    if transform:
+                        geom.Transform(transform)
+
+                    geom.FlattenTo2D()
+                    wkt = geom.ExportToWkt()
+                    multi.AddGeometryDirectly(ogr.CreateGeometryFromWkt(wkt))
+
+                with open(csv_filepath, 'w', newline='') as f_out:
+                    f_out.write('geom\n"')
+                    f_out.write(str(multi))
+                    f_out.write('"\n')
+            finally:
+                driver = dst_ds = sourceBand = srs_in = transform = None
+                sourceBand = outDatasource = outLayer = newField = multi = None
+                outband = geom = wkt = None
+                gc.collect()
 
         class TransToWGS84(object):
             def __init__(self, epsg_in):
@@ -47,6 +126,60 @@ try:
                 x_out, y_out = transform(self.proj_in, self.proj_out,
                                          x_in, y_in)
                 return (x_out, y_out)
+
+        def gem_esritxt2wkt_coreconv_exec(input_filepath, csv_filepath,
+                                          epsg_in, density, nodata_extra_in):
+            if nodata_extra_in is None:
+                nodata_extra = []
+            else:
+                nodata_extra = nodata_extra_in
+
+            hea = {'ncols': None,
+                   'nrows': None,
+                   'xllcorner': None,
+                   'yllcorner': None,
+                   'cellsize': None,
+                   'nodata_value': None}
+
+            is_head = True
+            row_ct = 0
+            with open(input_filepath, "r") as f:
+                for row_s in f:
+                    row = re.split(r'[\s]\s*', row_s)
+                    if is_head:
+                        if row[0].lower() in hea:
+                            hea[row[0].lower()] = row[1]
+                            continue
+                        else:
+                            raster = numpy.zeros(
+                                (
+                                    int(hea['nrows']),
+                                    int(hea['ncols'])
+                                ),
+                                dtype=numpy.float32)
+
+                            hea['xllcorner'] = int(hea['xllcorner'])
+                            hea['yllcorner'] = int(hea['yllcorner'])
+                            hea['cellsize'] = float(hea['cellsize'])
+                            hea['ncols'] = int(hea['ncols'])
+                            hea['nrows'] = int(hea['nrows'])
+                            hea['nodata_value'] = float(
+                                hea['nodata_value'])
+                            is_head = False
+
+                    if not is_head:
+                        for i in range(0, len(row)):
+                            if row[i].strip() == "":
+                                continue
+                            row[i] = (1.0 if (
+                                float(row[i]) != hea['nodata_value']
+                                and row[i] not in nodata_extra) else 0.0)
+                        raster[row_ct] = row[0:hea['ncols']]
+                        row_ct += 1
+                        if row_ct >= hea['nrows']:
+                            break
+
+            gem_raster2polyg(hea, epsg_in, raster)
 
         def gem_esritxt_coreconv_exec(input_filepath, csv_filepath, epsg_in,
                                       density):
@@ -88,7 +221,7 @@ try:
                 trans = TransToWGS84(epsg_in)
 
             with open(input_filepath, 'r', newline='') as file_in, open(
-                    csv_filepath, 'w', newline='') as csv_fout:
+                    csv_filepath + '.temp', 'w', newline='') as csv_fout:
                 csv_out = csv.writer(csv_fout)
                 csv_out.writerow(['lon', 'lat', 'intensity'])
 
@@ -128,6 +261,85 @@ try:
                 if len(ret3_grp) != 1:
                     raise ValueError(
                         'Malformed Titan2 third line header [%s]' % line3)
+
+                x_cur = 0
+                y_cur = 0
+                for row in file_in:
+                    for el in re.split(r'\s+', row.strip()):
+                        if float(el) <= 0.0:
+                            x_cur += 1
+                            if x_cur == cols_n:
+                                x_cur = 0
+                                y_cur += 1
+                            continue
+                        x = x_min + (x_step / 2.0) + x_cur * x_step
+                        y = y_min + (y_step / 2.0) + y_cur * y_step
+                        lon, lat = trans.coord(x, y)
+                        # This is necessary ONLY for converted geo coordinates
+                        if lon > 180.0:
+                            lon = lon - 360.0
+                        # Writing .csv file with EPGS:4326 coordinates
+
+                        csv_out.writerow(["%.5f" % lon, "%.5f" % lat,
+                                          "%.5f" % float(el)])
+
+                        x_cur += 1
+                        if x_cur == cols_n:
+                            x_cur = 0
+                            y_cur += 1
+
+        def gem_titan2wkt_coreconv_exec(input_filepath, csv_filepath, epsg_in):
+            if epsg_in is not VolConst.epsg_out:
+                trans = TransToWGS84(epsg_in)
+
+            with open(input_filepath, 'r', newline='') as file_in:
+                line1 = file_in.readline()
+                ret = re.search(
+                    '^Nx=([0-9]+): X={[ 	]*([0-9]+),[ 	]*([0-9]+)',
+                    line1)
+
+                ret1_grp = ret.groups()
+                if len(ret1_grp) != 3:
+                    raise ValueError(
+                        'Malformed Titan2 first line header [%s]' % line1)
+                cols_n = int(ret1_grp[0])
+                x_min = float(ret1_grp[1])
+                x_max = float(ret1_grp[2])
+
+                line2 = file_in.readline()
+                ret = re.search(
+                    '^Ny=([0-9]+): Y={[ 	]*([0-9]+),[ 	]*([0-9]+)',
+                    line2)
+
+                ret2_grp = ret.groups()
+                if len(ret2_grp) != 3:
+                    raise ValueError(
+                        'Malformed Titan2 second line header [%s]' % line2)
+                rows_n = int(ret1_grp[0])
+                y_min = float(ret1_grp[1])
+                y_max = float(ret1_grp[2])
+
+                x_step = float((x_max - x_min) / float(cols_n))
+                y_step = float((y_max - y_min) / float(rows_n))
+
+                line3 = file_in.readline()
+                ret = re.search('^(Pileheight=)\s*', line3)
+
+                ret3_grp = ret.groups()
+                if len(ret3_grp) != 1:
+                    raise ValueError(
+                        'Malformed Titan2 third line header [%s]' % line3)
+
+                if x_step != y_step:
+                    raise ValueError(
+                        'Malformed Titan2 x and y distance'
+                        ' are different [%f, %f]' % (x_step, y_step))
+                hea = {'ncols': cols_n,
+                       'nrows': rows_n,
+                       'xllcorner': x_min,
+                       'yllcorner': y_min,
+                       'cellsize': x_step,
+                       'nodata_value': None}
 
                 x_cur = 0
                 y_cur = 0
@@ -218,10 +430,6 @@ try:
 
         def gem_shape2wkt_coreconv_exec(input_filepath, wkt_filepath):
             try:
-                tmp_path = os.path.dirname(input_filepath)
-                shp_filename = os.path.basename(input_filepath)
-                wkt_filename = shp_filename[:-4] + "__shp.csv"
-
                 ogr_drv = ogr.GetDriverByName('ESRI Shapefile')
                 shp_ds = ogr_drv.Open(input_filepath, 0)
                 shp_layer = shp_ds.GetLayerByIndex(0)
@@ -248,7 +456,6 @@ try:
                     geom_wkt = geom.ExportToWkt()
                     break
 
-                wkt_filepath = os.path.join(tmp_path, wkt_filename)
                 with open(wkt_filepath, 'w', newline='') as f_out:
                     f_out.write('geom\n"')
                     f_out.write(geom_wkt)
@@ -300,6 +507,24 @@ try:
 
                 gem_esritxt_coreconv_exec(input_filepath, csv_filepath,
                                           epsg_in, density)
+            elif sys.argv[1] == 'esritxt-to-wkt':
+                if len(sys.argv) < 5 or len(sys.argv) > 7:
+                    sys.exit(2)
+                input_filepath = sys.argv[2]
+                csv_filepath = sys.argv[3]
+                epsg = int(sys.argv[4])
+                if sys.argv[5] != '':
+                    density = float(sys.argv[5])
+                else:
+                    density = None
+                if len(sys.argv) > 6:
+                    nodata_extra = sys.argv[6]
+                else:
+                    nodata_extra = None
+
+                gem_esritxt2wkt_coreconv_exec(
+                    input_filepath, csv_filepath,
+                    epsg, density, nodata_extra)
             elif sys.argv[1] == 'shape':
                 if len(sys.argv) < 6 or len(sys.argv) > 7:
                     sys.exit(2)
@@ -330,8 +555,7 @@ try:
                 input_filepath = sys.argv[2]
                 wkt_filepath = sys.argv[3]
 
-                gem_shape2wkt_coreconv_exec(input_filepath,
-                                            wkt_filepath)
+                gem_shape2wkt_coreconv_exec(input_filepath, wkt_filepath)
             elif sys.argv[1] == 'titan2':
                 if len(sys.argv) != 5:
                     sys.exit(2)
@@ -355,6 +579,12 @@ if not GDAL2_AVAILABLE:
                                   density):
         raise NotImplementedError(
             '"gem_esritxt_coreconv_exec" not implemented'
+            ' with this environment')
+
+    def gem_esritxt2wkt_coreconv_exec(input_filepath, csv_filepath,
+                                      epsg_in, density, nodata_extra_in):
+        raise NotImplementedError(
+            '"gem_esritxt2wkt_coreconv_exec" not implemented'
             ' with this environment')
 
     def gem_shape_coreconv_exec(input_filepath, csv_filepath,
@@ -416,6 +646,31 @@ def gem_esritxt_coreconv(input_filepath, csv_filepath, epsg_in, density):
         method = gem_esritxt_coreconv_delegate
 
     return method(input_filepath, csv_filepath, epsg_in, density)
+
+
+def gem_esritxt2wkt_coreconv_delegate(input_filepath, csv_filepath,
+                                      epsg_in, density, nodata_extra):
+    params = ['esritxt-to-wkt', input_filepath, csv_filepath,
+              epsg_in]
+    if density:
+        params.append(density)
+    else:
+        params.append('')
+
+    if nodata_extra:
+        params.append(json.dumps(nodata_extra))
+
+    return reexecute_with_engine_py3(params)
+
+
+def gem_esritxt2wkt_coreconv(input_filepath, csv_filepath, epsg_in, density,
+                             nodata_extra):
+    if GDAL2_AVAILABLE:
+        method = gem_esritxt2wkt_coreconv_exec
+    else:
+        method = gem_esritxt2wkt_coreconv_delegate
+
+    return method(input_filepath, csv_filepath, epsg_in, density, nodata_extra)
 
 
 def gem_shape_coreconv_delegate(input_filepath, csv_filepath,
@@ -512,6 +767,31 @@ def gem_esritxt_converter(z, userid, namespace, filename, file_collect,
         tmp_path = get_tmp_path(userid)
         csv_filepath = os.path.join(tmp_path, csv_filename)
         gem_esritxt_coreconv(input_filepath, csv_filepath, epsg_in, density)
+        zwrite_or_collect(z, userid, 'tmp', csv_filename, file_collect)
+    finally:
+        if os.path.exists(csv_filepath):
+            os.remove(csv_filepath)
+
+    return csv_filename
+
+
+def gem_esritext2wkt_converter(z, userid, namespace, filename, file_collect,
+                               epsg_in, density, nodata_extra):
+    csv_filepath = None
+    csv_filename = ""
+    try:
+        input_filepath = get_full_path(userid, namespace, filename)
+        output_file = os.path.basename(filename)
+        extension = os.path.splitext(output_file)[1][1:]
+        if not extension:
+            raise ValueError('extension of input file not found')
+
+        csv_filename = output_file[:-4] + "__" + extension + ".csv"
+
+        tmp_path = get_tmp_path(userid)
+        csv_filepath = os.path.join(tmp_path, csv_filename)
+        gem_esritxt2wkt_coreconv(input_filepath, csv_filepath, epsg_in,
+                                 density, nodata_extra)
         zwrite_or_collect(z, userid, 'tmp', csv_filename, file_collect)
     finally:
         if os.path.exists(csv_filepath):
@@ -655,10 +935,23 @@ def gem_input_converter(z, key, input_type, userid, namespace, filename,
         epsg_in = args[0]
         density = args[1]
 
-        if key in [VolConst.ph_ashf, VolConst.ph_lava, VolConst.ph_laha]:
+        if key in [VolConst.ph_ashf]:
             return gem_esritxt_converter(
                 z, userid, namespace, filename, file_collect,
                 epsg_in, density)
+    elif input_type == VolConst.ty_twkt:
+        epsg_in = args[0]
+        density = args[1]
+        nodata_extra = args[2]
+
+        if key == VolConst.ph_lava:
+            return gem_esritext2wkt_converter(
+                z, userid, namespace, filename, file_collect,
+                epsg_in, density, nodata_extra)
+        elif key == VolConst.ph_laha:
+            return gem_esritext2wkt_converter(
+                z, userid, namespace, filename, file_collect,
+                epsg_in, density, nodata_extra)
         else:  # pyro case
             return gem_titan2_converter(
                 z, userid, namespace, filename, file_collect,
