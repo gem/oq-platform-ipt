@@ -1788,7 +1788,7 @@ $(document).ready(function () {
 
 
     // List of sites (init)
-    $(cf_obj['e_b'].pfx + ' button[name="list-of-sites-new"]').click(event_based_fileNew_cb);
+    file_uploader_init('e_b', 'list-of-sites', event_based_fileNew_cb, event_based_fileNew_upload);
 
     // Exposure model (init)
     exposure_model_init('e_b', event_based_fileNew_cb, event_based_fileNew_upload,
