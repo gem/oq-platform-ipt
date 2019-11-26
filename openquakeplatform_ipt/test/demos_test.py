@@ -453,6 +453,8 @@ def demos_tests_generator():
             for ini_fname in sorted(os.listdir(demo_dir)):
                 if ini_fname.endswith('.ini'):
                     ini_path = os.path.join(demo_dir, ini_fname)
+                    # FIXME (just to test)
+                    print('INI_PATH: [%s]' % ini_path)
                     conf_part = conf_read(enc_open(ini_path,
                                                    encoding="utf-8"))
                     conf.update(conf_part)
