@@ -455,8 +455,10 @@ def demos_tests_generator():
                     ini_path = os.path.join(demo_dir, ini_fname)
                     # FIXME (just to test)
                     print('INI_PATH: [%s]' % ini_path)
-                    conf_part = conf_read(enc_open(ini_path,
-                                                   encoding="utf-8"))
+                    fp = enc_open(ini_path, encoding="utf-8")
+                    if fp is None:
+                        raise ValueError('INI_PATH: [%s]' % ini_path)
+                    conf_part = conf_read(fp)
                     conf.update(conf_part)
 
             func_name = "%s_%s_test" % (d, subd)
