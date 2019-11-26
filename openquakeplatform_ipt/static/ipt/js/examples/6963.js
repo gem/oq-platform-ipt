@@ -18,11 +18,11 @@ $(document).ready(function () {
     table.loadData(data);
 
     setTimeout(function () {
-        $(cf_obj['e_b'].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val('exposure_model/exposure_model.xml');
-        $(cf_obj['e_b'].pfx + ' div[name="vm-structural-html"] select[name="file_html"]').val('vulnerability_model/vulnerability_model_BOG.xml');
-        $(cf_obj['e_b'].pfx + ' div[name="source-model-logic-tree-file-html"] select[name="file_html"]').val('source_model_logic_tree_file/source_model_logic_tree.xml');
-        $(cf_obj['e_b'].pfx + ' div[name="source-model-file-html"] select[name="file_html"]').val('source_model_file/int_col_bog.xml');
-        $(cf_obj['e_b'].pfx + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val('gsim_logic_tree_file/gmpe_logic_tree.xml');
+        $(cf_obj['e_b'].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val('exposure_model' + gem_path_sep + 'exposure_model.xml');
+        $(cf_obj['e_b'].pfx + ' div[name="vm-structural-html"] select[name="file_html"]').val('vulnerability_model' + gem_path_sep + 'vulnerability_model_BOG.xml');
+        $(cf_obj['e_b'].pfx + ' div[name="source-model-logic-tree-file-html"] select[name="file_html"]').val('source_model_logic_tree_file' + gem_path_sep + 'source_model_logic_tree.xml');
+        $(cf_obj['e_b'].pfx + ' div[name="source-model-file-html"] select[name="file_html"]').val('source_model_file' + gem_path_sep + 'int_col_bog.xml');
+        $(cf_obj['e_b'].pfx + ' div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val('gsim_logic_tree_file' + gem_path_sep + 'gmpe_logic_tree.xml');
 
         // Click check rupture mesh spacing and area source discretization
         $(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="rupture_mesh_spacing_choice"]').prop('checked', true).triggerHandler('click');

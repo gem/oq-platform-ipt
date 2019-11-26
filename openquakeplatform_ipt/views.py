@@ -716,6 +716,7 @@ def view(request, **kwargs):
             multi_accept[dkey] = dval
 
     render_dict = dict(
+        gem_path_sep=os.path.sep,
         oqp_version_maj=oqp_version.split('.')[0],
         g_gmpe=json.dumps(gmpe),
         rupture_file_html=rupture_file_html,
