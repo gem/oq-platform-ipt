@@ -31,8 +31,7 @@ def enc_open(*args, **kwargs):
 
         return codecs.open(*args, **kwargs)
     else:
-        return
-    open(*args, **kwargs)
+        return open(*args, **kwargs)
 
 
 _ini_defaults = {}
