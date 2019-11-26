@@ -441,7 +441,7 @@ def make_function(func_name, demo_dir):
     return generated
 
 
-def generator():
+def demos_tests_generator():
     demo_base = os.path.join(os.path.expanduser('~'), 'demos')
 
     for d in os.listdir(demo_base):
@@ -465,4 +465,4 @@ def generator():
                 setattr(DemosTest, func_name, unittest.skip(
                     'not reproducible')(test_func))
 
-generator()
+demos_tests_generator()
