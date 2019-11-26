@@ -1422,7 +1422,7 @@ $(document).ready(function () {
         $new_name.append(name);
         var $new_vals = $('<td/>');
         var $inp = $('<input/>', {type: "text",
-                                 name: "custom_imt",
+                                 name: "imts_row",
                                   value: (name == "PGA" ?
                                           "0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 1, 1.5" :
                                           ""),
