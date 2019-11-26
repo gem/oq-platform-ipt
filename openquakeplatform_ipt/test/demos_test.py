@@ -12,7 +12,7 @@ from selenium.webdriver.support.ui import Select
 from zipfile import ZipFile
 from xml.etree import ElementTree
 from ast import literal_eval
-import httplib
+import requests
 
 
 # _SUPPORTED_MODES = ['scenario_damage', 'scenario_risk', 'scenario',
@@ -36,9 +36,10 @@ def enc_open(*args, **kwargs):
 
 
 _ini_defaults = {}
-ini_defs_req = httplib.HTTPConnection('172.16.210.17:8800')
-ini_defs_req.request('GET', '/v1/ini_defaults')
-_ini_defaults = json.loads(ini_defs_req.getresponse().read())
+ini_defs_req = requests.get('http://127.0.0.1:8800/v1/ini_defaults')
+if ini_defs_req.status_code != 200:
+    raise ValueError
+_ini_defaults = json.loads(ini_defs_req.text)
 
 
 def conf_read(fp):
@@ -464,5 +465,6 @@ def demos_tests_generator():
                 test_func = make_function(func_name, demo_dir)
                 setattr(DemosTest, func_name, unittest.skip(
                     'not reproducible')(test_func))
+
 
 demos_tests_generator()
