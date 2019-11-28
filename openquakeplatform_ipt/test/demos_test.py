@@ -41,11 +41,11 @@ if ini_defs_req.status_code != 200:
 _ini_defaults = json.loads(ini_defs_req.text)
 
 
-def conf_read(fp):
+def conf_read(s):
     conf = {}
 
     conf_par = configparser.ConfigParser()
-    conf_par.read_file(fp)
+    conf_par.read_string(s)
     for sect in conf_par.sections():
         # print("Sect: %s" % sect)
         for opt in conf_par.options(sect):
@@ -344,9 +344,10 @@ class DemosTest(unittest.TestCase):
         conf = {}
         for ini_fname in sorted(os.listdir(demo_dir)):
             if ini_fname.endswith('.ini'):
-                conf_part = conf_read(
-                    enc_open(os.path.join(demo_dir, ini_fname),
-                             encoding="utf-8"))
+                fp = enc_open(enc_open(
+                        os.path.join(demo_dir, ini_fname),
+                        encoding="utf-8"))
+                conf_part = conf_read(fp.read())
                 conf.update(conf_part)
 
         tab_btn = pla.xpath_finduniq("//a[@href='#tabs-6']")
@@ -392,7 +393,10 @@ class DemosTest(unittest.TestCase):
                     for zip_fname in arch.namelist():
                         if zip_fname.endswith('.ini'):
                             with arch.open(zip_fname) as zip_file:
-                                conf_part = conf_read(zip_file)
+                                s = zip_file.read()
+                                if type(s) == 'bytes':
+                                    s = s.decode(encoding='UTF-8')
+                                conf_part = conf_read(s)
                                 conf_out.update(conf_part)
 
         gsim_group = {'gsim_logic_tree_file': 'gsim',
@@ -441,7 +445,7 @@ def make_function(func_name, demo_dir):
     return generated
 
 
-def demos_tests_generator():
+def demos_generator():
     demo_base = os.path.join(os.path.expanduser('~'), 'demos')
 
     for d in os.listdir(demo_base):
@@ -455,9 +459,7 @@ def demos_tests_generator():
                     # FIXME (just to test)
                     print('INI_PATH: [%s]' % ini_path)
                     fp = enc_open(ini_path, encoding="utf-8")
-                    if fp is None:
-                        raise ValueError('INI_PATH: [%s]' % ini_path)
-                    conf_part = conf_read(fp)
+                    conf_part = conf_read(fp.read())
                     conf.update(conf_part)
 
             func_name = "%s_%s_test" % (d, subd)
@@ -470,4 +472,4 @@ def demos_tests_generator():
                     'not reproducible')(test_func))
 
 
-demos_tests_generator()
+demos_generator()
