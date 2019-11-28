@@ -344,9 +344,9 @@ class DemosTest(unittest.TestCase):
         conf = {}
         for ini_fname in sorted(os.listdir(demo_dir)):
             if ini_fname.endswith('.ini'):
-                fp = enc_open(enc_open(
+                fp = enc_open(
                         os.path.join(demo_dir, ini_fname),
-                        encoding="utf-8"))
+                        encoding="utf-8")
                 conf_part = conf_read(fp.read())
                 conf.update(conf_part)
 
