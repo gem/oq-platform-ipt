@@ -394,8 +394,12 @@ class DemosTest(unittest.TestCase):
                         if zip_fname.endswith('.ini'):
                             with arch.open(zip_fname) as zip_file:
                                 s = zip_file.read()
+                                print('PYV: %s' % sys.version_info[0])
+                                print('TYPE : %s' % type(s))
                                 if type(s) == 'bytes':
                                     s = s.decode(encoding='UTF-8')
+                                print('TYPE2: %s' % type(s))
+                                
                                 conf_part = conf_read(s)
                                 conf_out.update(conf_part)
 
