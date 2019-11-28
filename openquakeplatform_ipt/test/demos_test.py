@@ -401,14 +401,14 @@ class DemosTest(unittest.TestCase):
                                     if type(s) is bytes:
                                         s = s.decode(encoding='UTF-8')
                                 print('TYPE2: %s' % type(s))
-                                
+    
                                 conf_part = conf_read(s)
                                 conf_out.update(conf_part)
 
         gsim_group = {'gsim_logic_tree_file': 'gsim',
                       'gsim': 'gsim_logic_tree_file'}
 
-        for key in set(conf.keys() + conf_out.keys()):
+        for key in set(conf.keys()) | set(conf_out.keys()):
             if key in ['gsim_logic_tree_file', 'gsim']:
                 if (key in conf and key not in conf_out and
                         gsim_group[key] in conf_out):
