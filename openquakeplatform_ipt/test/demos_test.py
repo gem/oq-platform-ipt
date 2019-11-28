@@ -396,6 +396,7 @@ class DemosTest(unittest.TestCase):
                                 s = zip_file.read()
                                 print('PYV: %s' % sys.version_info[0])
                                 print('TYPE : %s' % type(s))
+                                print(s)
                                 if type(s) == 'bytes':
                                     s = s.decode(encoding='UTF-8')
                                 print('TYPE2: %s' % type(s))
