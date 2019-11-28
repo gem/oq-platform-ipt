@@ -397,8 +397,9 @@ class DemosTest(unittest.TestCase):
                                 print('PYV: %s' % sys.version_info[0])
                                 print('TYPE : %s' % type(s))
                                 print(s)
-                                if type(s) == 'bytes':
-                                    s = s.decode(encoding='UTF-8')
+                                if sys.version_info[0] == 3:
+                                    if type(s) is bytes:
+                                        s = s.decode(encoding='UTF-8')
                                 print('TYPE2: %s' % type(s))
                                 
                                 conf_part = conf_read(s)
