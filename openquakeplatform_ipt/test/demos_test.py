@@ -394,14 +394,9 @@ class DemosTest(unittest.TestCase):
                         if zip_fname.endswith('.ini'):
                             with arch.open(zip_fname) as zip_file:
                                 s = zip_file.read()
-                                print('PYV: %s' % sys.version_info[0])
-                                print('TYPE : %s' % type(s))
-                                print(s)
                                 if sys.version_info[0] == 3:
                                     if type(s) is bytes:
                                         s = s.decode(encoding='UTF-8')
-                                print('TYPE2: %s' % type(s))
-    
                                 conf_part = conf_read(s)
                                 conf_out.update(conf_part)
 
@@ -462,8 +457,6 @@ def demos_generator():
             for ini_fname in sorted(os.listdir(demo_dir)):
                 if ini_fname.endswith('.ini'):
                     ini_path = os.path.join(demo_dir, ini_fname)
-                    # FIXME (just to test)
-                    print('INI_PATH: [%s]' % ini_path)
                     fp = enc_open(ini_path, encoding="utf-8")
                     conf_part = conf_read(fp.read())
                     conf.update(conf_part)
