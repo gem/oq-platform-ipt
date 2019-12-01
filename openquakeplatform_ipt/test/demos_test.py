@@ -394,9 +394,7 @@ class DemosTest(unittest.TestCase):
                         if zip_fname.endswith('.ini'):
                             with arch.open(zip_fname) as zip_file:
                                 s = zip_file.read()
-                                if sys.version_info[0] == 3:
-                                    if type(s) is bytes:
-                                        s = s.decode(encoding='UTF-8')
+                                s = s.decode(encoding='UTF-8')
                                 conf_part = conf_read(s)
                                 conf_out.update(conf_part)
 
