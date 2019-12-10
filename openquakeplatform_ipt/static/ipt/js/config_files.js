@@ -1422,7 +1422,7 @@ $(document).ready(function () {
         $new_name.append(name);
         var $new_vals = $('<td/>');
         var $inp = $('<input/>', {type: "text",
-                                 name: "custom_imt",
+                                 name: "imts_row",
                                   value: (name == "PGA" ?
                                           "0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 1, 1.5" :
                                           ""),
@@ -1788,7 +1788,7 @@ $(document).ready(function () {
 
 
     // List of sites (init)
-    $(cf_obj['e_b'].pfx + ' button[name="list-of-sites-new"]').click(event_based_fileNew_cb);
+    file_uploader_init('e_b', 'list-of-sites', event_based_fileNew_cb, event_based_fileNew_upload);
 
     // Exposure model (init)
     exposure_model_init('e_b', event_based_fileNew_cb, event_based_fileNew_upload,
