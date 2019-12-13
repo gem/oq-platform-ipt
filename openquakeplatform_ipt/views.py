@@ -494,9 +494,7 @@ class FilePathFieldByUser(forms.ChoiceField):
             for root, dirs, files in sorted(os.walk(normalized_path)):
                 if self.allow_files:
                     for f in files:
-                        print(f)
                         if self.match is None or self.match_re.search(f):
-                            print('here we are')
                             filename = os.path.basename(f)
                             subdir_and_name = os.path.join(subdir, filename)
                             self.choices.append((subdir_and_name, filename))
@@ -550,21 +548,16 @@ def filehtml_create(is_bridged, suffix, userid, namespace,
                 fullpa = normalized_path
                 print("makedirs failed, full path: [%s]" % fullpa)
                 while fullpa != "/":
-                    print("  in while: [%s]" % fullpa)
                     os.system("ls -ld '%s' 1>&2" % fullpa)
                     fullpa = os.path.dirname(fullpa)
                 raise
 
-    print('here')
     if isinstance(ALLOWED_DIR[suffix], dict):
         ext_list = ALLOWED_DIR[suffix][DEFAULT_SUBTYPE[suffix]]
         with_subtype = True
-        print('true')
-        print(ext_list)
     else:
         ext_list = ALLOWED_DIR[suffix]
         with_subtype = False
-        print('false')
 
     match = "|".join(
         [".*\\.%s$" % ext for ext in ext_list])

@@ -2574,7 +2574,7 @@ $(document).ready(function () {
         if (phenomena[i] == 'ashfall') {
             $(cf_obj['vol'].pfx + " div[name='" + phenomena[i] + "-input'] select[name='file_html']"
              ).change(function shp_fields_list(event) {
-                 console.log('shp_fields_list');
+                 // console.log('shp_fields_list');
                  var $subobj = $(event.target).parent().parent().find("select[name='in-type']");
                  var fname = $(event.target).val();
                  if ($subobj.val() == "shape") {
@@ -2583,7 +2583,6 @@ $(document).ready(function () {
 
                      if (fname != '' && fname != undefined) {
                          // async call to populate 'hazard field' dropdown.
-                         console.log('here we are');
                          volcano_shp_fields_list($select_back, fname);
                      }
                  }
@@ -2701,9 +2700,9 @@ $(document).ready(function () {
             if (obj[phenomena[i] + "_file"] == null || obj[phenomena[i] + "_file"] == "") {
                 ret.str += upper_first(phenomena_name[i]) + ": associated file not set.\n";
             }
-            else {
-                console.log('IN THE OTHER CASE: [' + obj[phenomena[i] + "_file"] + ']');
-            }
+            // else {
+            //    console.log('IN THE OTHER CASE: [' + obj[phenomena[i] + "_file"] + ']');
+            // }
 
             if (in_type == 'text') {
                 obj[phenomena[i] + '_epsg'] = $tab.find(
