@@ -107,7 +107,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     </script>
     <script src="{{ STATIC_URL }}openquakeplatform/js/utils/utils.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/uuid-random.min.js"></script>
-    <script src="{{ STATIC_URL }}ipt/js/hybridge_key.js"></script>
+    <!-- <script src="{{ STATIC_URL }}ipt/js/hybridge_key.js"></script> -->
     <script src="{{ STATIC_URL }}ipt/js/hybridge.js"></script>
     <script src="{{ STATIC_URL }}js/handsontable.full.min.js"></script>
     <script src="{{ STATIC_URL }}ipt/js/bootstrap-tagsinput.min.js"></script>
@@ -127,6 +127,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl.html>.
     </script>
     {% with subtab_semi=request.GET.subtab_id|default:0 %}
         {% if request.GET.example_id|add:"0" > 0 and request.GET.example_id|add:"0" < 100 and request.GET.tab_id|add:"0" > 0 and request.GET.tab_id|add:"0" < 7 and subtab_semi|add:"0" >= 0 and subtab_semi|add:"0" < 5 %}
+            <script>var gem_path_sep = '{{ gem_path_sep|escapejs }}';</script>
             <script src="{{ STATIC_URL }}ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}{{subtab_semi|add:"0"|stringformat:"01d" }}.js"></script>
         {% else %}
             <!-- Example not found "ipt/js/examples/{{ request.GET.tab_id|add:"0" }}{{ request.GET.example_id|add:"0"|stringformat:"02d" }}{{ request.GET.subtab_id|add:"0"|stringformat:"01d" }}.js"  -->

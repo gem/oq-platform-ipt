@@ -332,10 +332,12 @@ def sendback_nrml(request):
 
         zwrite_or_collect_str(z, 'exposure.xml', xml_text, file_collect)
         z.close()
+        to_delete = False
         with open(fname, 'rb') as content_file:
             content = content_file.read()
-            if GEM_IPT_CLEAN_ALL:
-                os.unlink(fname)
+            to_delete = True
+        if to_delete and GEM_IPT_CLEAN_ALL:
+            os.unlink(fname)
     else:
         content = xml_text
         ext = 'xml'
@@ -720,6 +722,7 @@ def view(request, **kwargs):
             multi_accept[dkey] = dval
 
     render_dict = dict(
+        gem_path_sep=os.path.sep,
         oqp_version_maj=oqp_version.split('.')[0],
         g_gmpe=json.dumps(gmpe),
         rupture_file_html=rupture_file_html,
@@ -1739,10 +1742,13 @@ def download(request):
         absfile = os.path.join(tempfile.gettempdir(), zipname)
         if not os.path.isfile(absfile):
             return HttpResponseBadRequest('Zipfile not found.')
+
+        to_delete = False
         with open(absfile, 'rb') as content_file:
             content = content_file.read()
-            if GEM_IPT_CLEAN_ALL:
-                os.unlink(absfile)
+            to_delete = True
+        if to_delete and GEM_IPT_CLEAN_ALL:
+            os.unlink(absfile)
 
         resp = HttpResponse(content=content,
                             content_type='application/zip')

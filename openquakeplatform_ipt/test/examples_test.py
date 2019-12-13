@@ -403,7 +403,6 @@ def gen_timeout_poller(secs, delta):
 def make_function(func_name, exp_path, tab_id, subtab_id, example):
     def generated(self):
         pla = platform_get()
-        homedir = os.path.expanduser('~')
         exp_filename = os.path.join(
             exp_path, "example_%d.%s" % (
                 tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
@@ -411,7 +410,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
 
         zipfile = ""
         if 'zipfile' in example:
-            zipfile = os.path.join(homedir, 'Downloads', example['zipfile'])
+            zipfile = os.path.join(pla.download_dir, example['zipfile'])
             if os.path.exists(zipfile):
                 os.remove(zipfile)
 
