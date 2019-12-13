@@ -158,8 +158,8 @@ try:
                                 ),
                                 dtype=numpy.float32)
 
-                            hea['xllcorner'] = int(hea['xllcorner'])
-                            hea['yllcorner'] = int(hea['yllcorner'])
+                            hea['xllcorner'] = float(hea['xllcorner'])
+                            hea['yllcorner'] = float(hea['yllcorner'])
                             hea['cellsize'] = float(hea['cellsize'])
                             hea['ncols'] = int(hea['ncols'])
                             hea['nrows'] = int(hea['nrows'])
@@ -334,12 +334,6 @@ try:
                     raise ValueError(
                         'Malformed Titan2 x and y distance'
                         ' are different [%f, %f]' % (x_step, y_step))
-                hea = {'ncols': cols_n,
-                       'nrows': rows_n,
-                       'xllcorner': x_min,
-                       'yllcorner': y_min,
-                       'cellsize': x_step,
-                       'nodata_value': None}
 
                 x_cur = 0
                 y_cur = 0
