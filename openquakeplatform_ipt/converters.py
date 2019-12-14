@@ -39,7 +39,7 @@ try:
 
         GDAL2_AVAILABLE = True
 
-        def gem_raster2polyg(hea, epsg_in, raster):
+        def gem_raster2polyg(hea, epsg_in, raster, csv_filepath):
             driver = dst_ds = sourceBand = srs_in = transform = outband = None
             sourceBand = outDatasource = outLayer = newField = multi = None
             geom = wkt = None
@@ -179,7 +179,7 @@ try:
                         if row_ct >= hea['nrows']:
                             break
 
-            gem_raster2polyg(hea, epsg_in, raster)
+            gem_raster2polyg(hea, epsg_in, raster, csv_filepath)
 
         def gem_esritxt_coreconv_exec(input_filepath, csv_filepath, epsg_in,
                                       density):
