@@ -55,7 +55,7 @@ try:
                                        bands=1, eType=gdal.GDT_Float32)
 
                 srs_in = osr.SpatialReference()
-                srs_in.ImportFromEPSG(epsg_in)
+                srs_in.ImportFromEPSG(int(epsg_in))
 
                 epsg = 4326
                 srs = osr.SpatialReference()
@@ -926,7 +926,7 @@ def gem_input_converter(z, key, input_type, userid, namespace, filename,
         return gem_shape2wkt_converter(z, userid, namespace, filename,
                                        file_collect)
     elif input_type == VolConst.ty_text:
-        epsg_in = int(args[0])
+        epsg_in = args[0]
         density = args[1]
 
         if key in [VolConst.ph_ashf]:
@@ -934,7 +934,7 @@ def gem_input_converter(z, key, input_type, userid, namespace, filename,
                 z, userid, namespace, filename, file_collect,
                 epsg_in, density)
     elif input_type == VolConst.ty_twkt:
-        epsg_in = int(args[0])
+        epsg_in = args[0]
         density = args[1]
         nodata_extra = args[2]
 
