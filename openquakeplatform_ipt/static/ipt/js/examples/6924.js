@@ -10,7 +10,7 @@ $(document).ready(function () {
     setTimeout(function () {
         $(cf_obj['vol'].pfx + ' div[name="lavaflow-file-html"] select[name="file_html"]').val('lavaflow_file/lava_flow_Q-LavaHa.asc');
         $(cf_obj['vol'].pfx + ' div[name="lavaflow-input"]  input[type="text"][name="epsg"]').val('32633');
-        
+
         $(cf_obj['vol'].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val('exposure_model/exposure_model_vol_full.zip');
 
         // Click to download EventBase.zip

@@ -10,7 +10,7 @@ $(document).ready(function () {
     setTimeout(function () {
         $(cf_obj['vol'].pfx + ' div[name="lahar-file-html"] select[name="file_html"]').val('lahar_file/lahar_LaharZ.asc');
         $(cf_obj['vol'].pfx + ' div[name="lahar-input"]  input[type="text"][name="epsg"]').val('26710');
-        
+
         $(cf_obj['vol'].pfx + ' div[name="exposure-model-html"] select[name="file_html"]').val('exposure_model/exposure_model_vol_full.zip');
 
         // Click to download EventBase.zip
