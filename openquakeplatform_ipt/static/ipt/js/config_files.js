@@ -300,7 +300,7 @@ $(document).ready(function () {
         else if (obj.site_conditions_choice == 'from-file') {
             // site conditions -> from-file (get)
             obj.site_model_file = $(cf_obj[scope].pfx + ' div[name="site-conditions-html"] select[name="file_html"]').val();
-            if (obj.site_model_file == '') {
+            if (obj.site_model_file == null || obj.site_model_file == '') {
                 ret.str += "'Site conditions file' field is empty.\n";
             }
             uniqueness_add(files_list, 'site conditions', obj.site_model_file);
@@ -1191,7 +1191,7 @@ $(document).ready(function () {
         // Rupture information (get)
         if (obj.hazard == 'hazard') {
             obj.rupture_model_file = $(cf_obj['scen'].pfx + ' div[name="rupture-file-html"] select[name="file_html"]').val();
-            if (obj.rupture_model_file == '') {
+            if (obj.rupture_model_file == null || obj.rupture_model_file == '') {
                 ret.str += "'Rupture file' field is empty.\n";
             }
             obj.rupture_mesh_spacing = $(cf_obj['scen'].pfx + ' input[name="rupture_mesh_spacing"]').val();
@@ -2092,7 +2092,7 @@ $(document).ready(function () {
             }
 
             obj.gsim_logic_tree_file = $target.find('div[name="gsim-logic-tree-file-html"] select[name="file_html"]').val();
-            if (obj.gsim_logic_tree_file == '') {
+            if (obj.gsim_logic_tree_file == null || obj.gsim_logic_tree_file == '') {
                 ret.str += "'GMPE logic tree file' field is empty.\n";
             }
             uniqueness_add(files_list, 'gmpe logic tree', obj.gsim_logic_tree_file);
@@ -2396,6 +2396,13 @@ $(document).ready(function () {
                     $density_tag.show();
                     $spec_ass_haz_dist.show();
                 }
+                if (phen_type == 'text-to-wkt') {
+                    $epsg_tag.show();
+                    $discr_dist_tag.hide();
+                    $haz_field_tag.hide();
+                    $density_tag.hide();
+                    $spec_ass_haz_dist.hide();
+                }
                 else if (phen_type == 'openquake') {
                     $epsg_tag.hide();
                     $discr_dist_tag.hide();
@@ -2567,7 +2574,7 @@ $(document).ready(function () {
         if (phenomena[i] == 'ashfall') {
             $(cf_obj['vol'].pfx + " div[name='" + phenomena[i] + "-input'] select[name='file_html']"
              ).change(function shp_fields_list(event) {
-                 console.log('shp_fields_list');
+                 // console.log('shp_fields_list');
                  var $subobj = $(event.target).parent().parent().find("select[name='in-type']");
                  var fname = $(event.target).val();
                  if ($subobj.val() == "shape") {
@@ -2576,7 +2583,6 @@ $(document).ready(function () {
 
                      if (fname != '' && fname != undefined) {
                          // async call to populate 'hazard field' dropdown.
-                         console.log('here we are');
                          volcano_shp_fields_list($select_back, fname);
                      }
                  }
@@ -2681,7 +2687,7 @@ $(document).ready(function () {
 
             obj[phenomena[i] + "_in_type"] = in_type;
 
-            if (obj[phenomena[i] + "_in_type"] != 'shape-to-wkt') {
+            if (obj[phenomena[i] + "_in_type"] != 'shape-to-wkt' && obj[phenomena[i] + "_in_type"] != 'text-to-wkt') {
                 obj[phenomena[i] + "_ass_haz_dist"] = $tab.find(
                     "div[name='" + phenomena[i] + "-input'] input[name='spec-ass-haz-dist']").val();
                 if (obj[phenomena[i] + "_ass_haz_dist"] == '') {
@@ -2691,16 +2697,25 @@ $(document).ready(function () {
 
             obj[phenomena[i] + "_file"] = $tab.find('div[name="' + phenomena[i] + '-input"]\
                 div[name="' + phenomena[i] + '-file-html"] select[name="file_html"]').val();
-            if (obj[phenomena[i] + "_file"] == "") {
+            if (obj[phenomena[i] + "_file"] == null || obj[phenomena[i] + "_file"] == "") {
                 ret.str += upper_first(phenomena_name[i]) + ": associated file not set.\n";
             }
+            // else {
+            //    console.log('IN THE OTHER CASE: [' + obj[phenomena[i] + "_file"] + ']');
+            // }
 
             if (in_type == 'text') {
                 obj[phenomena[i] + '_epsg'] = $tab.find(
                     'div[name="' + phenomena[i] + '-input"] input[type="text"][name="epsg"]').val();
                 if (obj[phenomena[i] + '_epsg'] == '') {
                     ret.str += upper_first(phenomena_name[i]) + ": EPSG is empty.\n";
-                    console.log('mop: catched');
+                }
+            }
+            if (in_type == 'text-to-wkt') {
+                obj[phenomena[i] + '_epsg'] = $tab.find(
+                    'div[name="' + phenomena[i] + '-input"] input[type="text"][name="epsg"]').val();
+                if (obj[phenomena[i] + '_epsg'] == '') {
+                    ret.str += upper_first(phenomena_name[i]) + ": EPSG is empty.\n";
                 }
             }
             else if (in_type == 'shape') {
@@ -2741,7 +2756,7 @@ $(document).ready(function () {
 
             obj.fm_ashfall_file = $tab.find('div[name="fragility"] div[name="fm-ashfall-file-html"]' +
                                           ' select[name="file_html"]').val();
-            if (obj.fm_ashfall_file == "")
+            if (obj.fm_ashfall_file == null || obj.fm_ashfall_file == "")
                 ret.str += "Fragility function associated file not set.\n";
 
 
@@ -2752,7 +2767,7 @@ $(document).ready(function () {
                 obj.ashfall_cons_models_file = $tab.find(
                     'div[name="fragility"] div[name="fm-ashfall-cons-html"]' +
                         ' select[name="file_html"]').val();
-                if (obj.ashfall_cons_models_file == "")
+                if (obj.ashfall_cons_models_file == null || obj.ashfall_cons_models_file == "")
                     ret.str += "Consequence models file not set.\n";
             }
         }

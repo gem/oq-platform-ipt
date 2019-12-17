@@ -95,26 +95,26 @@ ALLOWED_DIR = {
         VolConst.ty_shap: ('zip',)
     },
     'lavaflow_file': {
-        VolConst.ty_text: ('asc',),
+        VolConst.ty_twkt: ('asc',),
         VolConst.ty_open: ('csv',),
         VolConst.ty_swkt: ('zip',)
     },
     'lahar_file': {
-        VolConst.ty_text: ('asc', 'txt'),
+        VolConst.ty_twkt: ('asc', 'txt'),
         VolConst.ty_open: ('csv',),
         VolConst.ty_swkt: ('zip',)
     },
     'pyroclasticflow_file': {
-        VolConst.ty_text: ('-00001',),
+        VolConst.ty_twkt: ('-00001',),
         VolConst.ty_open: ('csv',),
         VolConst.ty_swkt: ('zip',)
     },
 }
 
 DEFAULT_SUBTYPE = {'ashfall_file': VolConst.ty_text,
-                   'lavaflow_file': VolConst.ty_text,
-                   'lahar_file': VolConst.ty_text,
-                   'pyroclasticflow_file': VolConst.ty_text,
+                   'lavaflow_file': VolConst.ty_twkt,
+                   'lahar_file': VolConst.ty_twkt,
+                   'pyroclasticflow_file': VolConst.ty_twkt,
                    }
 
 
@@ -548,7 +548,6 @@ def filehtml_create(is_bridged, suffix, userid, namespace,
                 fullpa = normalized_path
                 print("makedirs failed, full path: [%s]" % fullpa)
                 while fullpa != "/":
-                    print("  in while: [%s]" % fullpa)
                     os.system("ls -ld '%s' 1>&2" % fullpa)
                     fullpa = os.path.dirname(fullpa)
                 raise
@@ -1594,7 +1593,7 @@ def volcano_prepare(request, **kwargs):
                 continue
 
             in_type = data[phenoms[key]['name'] + '_in_type']
-            if in_type != 'shape-to-wkt':
+            if in_type != 'shape-to-wkt' and in_type != 'text-to-wkt':
                 spec_ass_haz_dist = data[phenoms[key]['name'] +
                                          '_ass_haz_dist']
                 spec_ass_haz_dist = spec_ass_haz_dist.strip()
@@ -1604,7 +1603,7 @@ def volcano_prepare(request, **kwargs):
             if spec_ass_haz_dist != '':
                 spec_ass_haz_dists.append([key, spec_ass_haz_dist])
 
-            if in_type == VolConst.ty_text:
+            if in_type == VolConst.ty_text and key == VolConst.ph_ashf:
                 # 'text' case for textual external software case
                 # FIXME
                 if data[phenoms[key]['name'] + '_epsg'] == '':
@@ -1612,10 +1611,7 @@ def volcano_prepare(request, **kwargs):
                                      "input file" % (
                                          phenoms[key]['name'],))
 
-                if key == VolConst.ph_ashf:
-                    density = data[phenoms[key]['name'] + '_density']
-                else:
-                    density = None
+                density = data[phenoms[key]['name'] + '_density']
 
                 phenom_inputfile = gem_input_converter(
                     z, key, VolConst.ty_text, userid, namespace,
@@ -1623,7 +1619,23 @@ def volcano_prepare(request, **kwargs):
                     data[phenoms[key]['name'] + '_epsg'],
                     density)
                 phenom_arr.append("'%s': '%s'" % (key, phenom_inputfile))
-
+            elif in_type == VolConst.ty_twkt:
+                if data[phenoms[key]['name'] + '_epsg'] == '':
+                    raise ValueError("Not valid EPSG value for '%s' "
+                                     "input file" % (
+                                         phenoms[key]['name'],))
+                # and not key == VolConst.ph_ashf (already excluded above)
+                density = None
+                if key == VolConst.ph_laha:
+                    nodata_extra = ["1"]
+                else:
+                    nodata_extra = None
+                phenom_inputfile = gem_input_converter(
+                    z, key, VolConst.ty_twkt, userid, namespace,
+                    phenoms[key]['f'], file_collect,
+                    data[phenoms[key]['name'] + '_epsg'],
+                    density, nodata_extra)
+                phenom_arr.append("'%s': '%s'" % (key, phenom_inputfile))
             elif in_type == VolConst.ty_shap or in_type == VolConst.ty_swkt:
                 # 'shape'-file case
                 if in_type == VolConst.ty_shap:
@@ -1695,7 +1707,7 @@ def volcano_prepare(request, **kwargs):
         #    "true" if data['is_modal_damage_state'] is True else "false")
         #
         zwrite_or_collect_str(z, 'job.ini', jobris, file_collect)
-    except Exception as err:
+    except NameError as err:
         ret['ret'] = 2
         ret['msg'] = ' exception raised: %s' % err
         return HttpResponse(json.dumps(ret), content_type="application/json")
