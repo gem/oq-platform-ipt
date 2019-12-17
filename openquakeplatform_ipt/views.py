@@ -1003,7 +1003,7 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
         tam_head, tam_sep, tam_tail = data['taxonomy_mapping'].rpartition('.')
         taxonomy_mapping = data['taxonomy_mapping']
 
-        jobini += "taxonomy_mapping = %s\n" % basename(taxonomy_mapping)
+        jobini += "taxonomy_mapping_csv = %s\n" % basename(taxonomy_mapping)
         if save_files is True:
             zwrite_or_collect(z, userid, namespace, data['taxonomy_mapping'],
                               file_collect)
