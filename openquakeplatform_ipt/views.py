@@ -321,9 +321,9 @@ def sendback_nrml(request):
         ext = 'zip'
         (fd, fname) = tempfile.mkstemp(
             suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
-        fzip = os.fdopen(fd, 'wb')
+        os.close(fd)
         file_collect = None
-        z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED,
+        z = zipfile.ZipFile(fname, 'w', zipfile.ZIP_DEFLATED,
                             allowZip64=True)
         for csv_fname in file_list:
             # print(csv_fname)
@@ -1003,7 +1003,7 @@ def exposure_model_prep_sect(data, z, is_regcons, userid, namespace,
         tam_head, tam_sep, tam_tail = data['taxonomy_mapping'].rpartition('.')
         taxonomy_mapping = data['taxonomy_mapping']
 
-        jobini += "taxonomy_mapping = %s\n" % basename(taxonomy_mapping)
+        jobini += "taxonomy_mapping_csv = %s\n" % basename(taxonomy_mapping)
         if save_files is True:
             zwrite_or_collect(z, userid, namespace, data['taxonomy_mapping'],
                               file_collect)
@@ -1072,8 +1072,8 @@ def scenario_prepare(request, **kwargs):
     if not is_qgis_browser:
         (fd, fname) = tempfile.mkstemp(
             suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
-        fzip = os.fdopen(fd, 'wb')
-        z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
+        os.close(fd)
+        z = zipfile.ZipFile(fname, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
         file_collect = None
     else:
         z = None
@@ -1294,8 +1294,8 @@ def event_based_prepare(request, **kwargs):
     if not is_qgis_browser:
         (fd, fname) = tempfile.mkstemp(
             suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
-        fzip = os.fdopen(fd, 'wb')
-        z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
+        os.close(fd)
+        z = zipfile.ZipFile(fname, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
         file_collect = None
     else:
         z = None
@@ -1545,8 +1545,8 @@ def volcano_prepare(request, **kwargs):
     if not is_qgis_browser:
         (fd, fname) = tempfile.mkstemp(
             suffix='.zip', prefix='ipt_', dir=tempfile.gettempdir())
-        fzip = os.fdopen(fd, 'wb')
-        z = zipfile.ZipFile(fzip, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
+        os.close(fd)
+        z = zipfile.ZipFile(fname, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
         file_collect = None
     else:
         z = None
