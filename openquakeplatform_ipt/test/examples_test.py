@@ -57,8 +57,7 @@ imt_examples = {
              'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg']"],
              'sfx': 'txt'},
             {'exa_id': 99, 'subtab_id': 0,
-             'xpath': ["//div[@id='tabs-1']//div[@id='"
-                       "validationErrorMsg'][@style='display: none;']",
+             'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg']",
                        "//textarea[@id='textareaex']"],
              'sfx': 'xml'}
         ]
@@ -423,7 +422,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
 
         if 'xpath' in example:
             for xpath in example['xpath']:
-                ret_tag = pla.xpath_finduniq(xpath, times=20)
+                ret_tag = pla.xpath_finduniq(xpath, times=500)
 
             with codecs.open(exp_filename, 'r', 'utf-8') as exp_file:
                 expected = exp_file.read()
