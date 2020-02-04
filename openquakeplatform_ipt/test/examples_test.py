@@ -57,7 +57,7 @@ imt_examples = {
              'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg']"],
              'sfx': 'txt'},
             {'exa_id': 99, 'subtab_id': 0,
-             'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg']"],
+             'xpath': ["//div[@id='tabs-1']//div[@id='validationErrorMsg']",
                        "//textarea[@id='textareaex']"],
              'sfx': 'xml'}
         ]
