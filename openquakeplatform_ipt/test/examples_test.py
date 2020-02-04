@@ -423,7 +423,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
 
         if 'xpath' in example:
             for xpath in example['xpath']:
-                ret_tag = pla.xpath_finduniq(xpath, times=50)
+                ret_tag = pla.xpath_finduniq(xpath, times=500)
 
             with codecs.open(exp_filename, 'r', 'utf-8') as exp_file:
                 expected = exp_file.read()
