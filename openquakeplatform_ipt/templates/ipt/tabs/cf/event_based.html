@@ -31,7 +31,7 @@
 
   <div class="menuItems">
     <div name="source-model-logic-tree-file-html">
-      <label>Source model logic tree file <span class="ui-icon ui-icon-help ipt_help" title='File that contains a list of source models.'></span>:</label>
+      <label>Source model logic tree file <span class="ui-icon ui-icon-help ipt_help" title='File that contains a list of source models and their respective weights.'></span>:</label>
       {{ source_model_logic_tree_file_html.file_html }}
       {{ source_model_logic_tree_file_html.new_btn }}
     </div>
@@ -75,7 +75,7 @@
   </div>
 
   <div class="menuItems" name="width-of-mfd-bin">
-    <label>Bin width of the magnitude frequency distribution <span class="ui-icon ui-icon-help ipt_help" title='Level of discretization of the the magnitude-frequency distribution.'></span>:</label>
+    <label>Bin-width of the magnitude-frequency distribution <span class="ui-icon ui-icon-help ipt_help" title='Level of discretization of the the magnitude-frequency distribution.'></span>:</label>
     <input type="text" name="width_of_mfd_bin" value="0.5">
   </div>
 
@@ -134,12 +134,12 @@
   </div>
 
   <div class="menuItems">
-    <label>Maximum source-to-site distance (km) <span class="ui-icon ui-icon-help ipt_help" title='The distance within which sources will contribute to the computation of the hazard.'></span>:</label>
+    <label>Maximum source-to-site distance (km) <span class="ui-icon ui-icon-help ipt_help" title='The distance beyond which contribution from sources will be ignored for the computation of the hazard.'></span>:</label>
     <input type="text" name="maximum_distance" value="200">
   </div>
 
   <div class="menuItems">
-    <label>Level of truncation <span class="ui-icon ui-icon-help ipt_help" title='The level of truncation of the Gaussian distribution of the logarithm of ground motion used in the calculation of hazard.'></span>:</label>
+    <label>Level of truncation <span class="ui-icon ui-icon-help ipt_help" title='The level of truncation in standard deviations of the Gaussian distribution of the logarithm of ground motion used in the calculation of hazard.'></span>:</label>
     <input type="text" name="truncation_level" value="3.0">
   </div>
 
@@ -154,7 +154,7 @@
   </div>
 
   <div class="menuItems">
-    <label>Number of logic tree samples <span class="ui-icon ui-icon-help ipt_help" title='Number of realizations used in the Montecarlo sampling for processing the logic tree structure. For complete enumeration of all the possible paths from the roots to the leaves of the logic tree structure, the number of logic tree smples must be set to 0.'></span>:</label>
+    <label>Number of logic tree samples <span class="ui-icon ui-icon-help ipt_help" title='Number of realizations used in the Monte Carlo sampling for processing the logic tree structure. For complete enumeration of all the potential end-paths of the logic tree, the number of logic tree samples must be set to 0.'></span>:</label>
     <input type="text" name="number_of_logic_tree_samples" value="0">
   </div>
 
@@ -171,7 +171,7 @@
   <h3>Risk calculation</h3>
 
   <div class="menuItems">
-    <label>Risk investigation time (years) <span class="ui-icon ui-icon-help ipt_help" title='Parameter that specifies the time period for which the event loss tables and loss exceedance curves will be calculated. If this parameter is not provided, the time period used is the same as the hazard investigation time.'></span>:</label>
+    <label>Risk investigation time (years) <span class="ui-icon ui-icon-help ipt_help" title='Parameter that specifies the time period for which the time-averaged losses will be calculated. If this parameter is not provided, the time period used is the same as the hazard investigation time. To calculate average annual losses, this parameter must be set to 1.'></span>:</label>
     <input type="text" name="risk_investigation_time" value="1">
   </div>
 
@@ -245,12 +245,12 @@
   <div class="menuItems" name="quantiles" style="margin-top: 8px;">
     <label>Quantiles  <span class="ui-icon ui-icon-help ipt_help" title='List of quantiles to compute the curves (separated by comma)'></span>:</label>
     <input type="text" name="quantiles"
-           placeholder="Optional. List of values in the range (0.0, 1.0). For example: 0.15, 0.85"
+           placeholder="Optional. List of values in the range (0.0, 1.0). For example: 0.15, 0.50, 0.85"
            title="List of quantiles to compute the curves (separated by comma)"
            style="width: 600px;">
   </div>
   <div class="menuItems">
-    <label style="vertical-align: bottom;">Curves per realization <span class="ui-icon ui-icon-help ipt_help" title='Include in the calculation outputs the curves per realization'></span></label>
+    <label style="vertical-align: bottom;">Curves per realization <span class="ui-icon ui-icon-help ipt_help" title='Include in the calculation outputs the curves for each realization'></span></label>
     <div class="cbox-leaf">
       <input type="checkbox" class="cbox-leaf" style="vertical-align: top;" name="individual-curves" checked="checked">
     </div>
