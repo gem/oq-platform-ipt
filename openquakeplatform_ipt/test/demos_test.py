@@ -426,14 +426,13 @@ class DemosTest(unittest.TestCase):
                     continue
 
                 if key in conf:
-                    if key in conf_out:
-                        raise ValueError(
-                            ('Param "%s" not found in produced ini file' %
-                             key))
-                    else:
-                        raise ValueError(
-                            ('Param "%s" not found in original ini file' %
-                             key))
+                    raise ValueError(
+                        ('Param "%s" not found in produced ini file' %
+                         key))
+                else:
+                    raise ValueError(
+                        ('Param "%s" not found in original ini file' %
+                         key))
 
 
 def make_function(func_name, demo_dir):
