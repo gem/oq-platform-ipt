@@ -40,6 +40,48 @@ if ini_defs_req.status_code != 200:
     raise ValueError
 _ini_defaults = json.loads(ini_defs_req.text)
 
+# remove defaults of var set to nan in the default list
+_ini_def_key_del = []
+for k in _ini_defaults:
+    if type(_ini_defaults[k]) == float:
+        if _ini_defaults[k] == float('nan'):
+            _ini_def_key_del.append(k)
+
+for k in _ini_def_key_del:
+    _ini_defaults.pop(k)
+
+
+_BOOL_DICT = {
+    '': False,
+    '0': False,
+    '1': True,
+    'false': False,
+    'true': True,
+}
+
+
+def boolean(value):
+    """
+    :param value: input string such as '0', '1', 'true', 'false'
+    :returns: boolean
+
+    >>> boolean('')
+    False
+    >>> boolean('True')
+    True
+    >>> boolean('false')
+    False
+    >>> boolean('t')
+    Traceback (most recent call last):
+        ...
+    ValueError: Not a boolean: t
+    """
+    value = value.strip().lower()
+    try:
+        return _BOOL_DICT[value]
+    except KeyError:
+        raise ValueError('Not a boolean: %s' % value)
+
 
 def conf_read(s):
     conf = {}
@@ -52,8 +94,17 @@ def conf_read(s):
             print("%s: %s (%s)" % (opt, conf_par.get(sect, opt),
                                    type(conf_par.get(sect, opt))))
             conf[opt] = conf_par.get(sect, opt).strip()
-            if conf[opt] == '' and opt in _ini_defaults:
-                conf[opt] = _ini_defaults[opt]
+            if opt in _ini_defaults:
+                if conf[opt] == '':
+                    conf[opt] = _ini_defaults[opt]
+                else:
+                    if type(_ini_defaults[opt]) == float:
+                        conf[opt] = float(conf[opt])
+                    elif type(_ini_defaults[opt]) == bool:
+                        conf[opt] = boolean(conf[opt])
+            else:
+                if conf[opt] == '':
+                    raise ValueError
 
     return conf
 
@@ -405,6 +456,7 @@ class DemosTest(unittest.TestCase):
                                 s = zip_file.read()
                                 s = s.decode(encoding='UTF-8')
                                 conf_part = conf_read(s)
+                                print('ZIP: [%s]' % s)
                                 conf_out.update(conf_part)
 
         gsim_group = {'gsim_logic_tree_file': 'gsim',
