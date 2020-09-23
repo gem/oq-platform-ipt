@@ -91,8 +91,8 @@ def conf_read(s):
     for sect in conf_par.sections():
         # print("Sect: %s" % sect)
         for opt in conf_par.options(sect):
-            print("%s: %s (%s)" % (opt, conf_par.get(sect, opt),
-                                   type(conf_par.get(sect, opt))))
+            #print("%s: %s (%s)" % (opt, conf_par.get(sect, opt),
+            #                       type(conf_par.get(sect, opt))))
             conf[opt] = conf_par.get(sect, opt).strip()
             if opt in _ini_defaults:
                 if conf[opt] == '':
@@ -221,14 +221,9 @@ def populate(conf, pla, subtab, demo_dir):
                           os.path.join(demo_dir, conf['rupture_model_file']))
 
     if subtab_name == 'event-based':
-        if 'individual_curves' in conf:
-            individual_curves = conf['individual_curves']
-        elif _ini_defaults['individual_curves'] is False:
-            individual_curves = False
-
-        if not individual_curves:
-            gemui_cbox_set(pla, subtab, 'individual-curves',
-                           individual_curves)
+        individual_curves = (conf['individual_curves'] if 'individual_curves'
+                             in conf else _ini_defaults['individual_curves'])
+        gemui_cbox_set(pla, subtab, 'individual-curves', individual_curves)
 
     # "sol" widget management
     if 'intensity_measure_types' in conf:
