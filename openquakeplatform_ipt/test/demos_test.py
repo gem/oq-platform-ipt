@@ -168,6 +168,15 @@ def populate(conf, pla, subtab, demo_dir):
         gemui_upload_file(pla, subtab, 'rupture-file',
                           os.path.join(demo_dir, conf['rupture_model_file']))
 
+    if 'individual_curves' in conf:
+        individual_curves = conf['individual_curves']
+    elif _ini_defaults['individual_curves'] is False:
+        individual_curves = False
+
+    if not individual_curves:
+        gemui_cbox_set(pla, subtab, 'individual-curves',
+                       individual_curves)
+
     # "sol" widget management
     if 'intensity_measure_types' in conf:
         cust_imt = []
