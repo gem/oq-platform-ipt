@@ -53,7 +53,7 @@ def conf_read(s):
                                    type(conf_par.get(sect, opt))))
             conf[opt] = conf_par.get(sect, opt).strip()
             if conf[opt] == '' and opt in _ini_defaults:
-                conf[opt] = str(_ini_defaults[opt])
+                conf[opt] = _ini_defaults[opt]
 
     return conf
 
