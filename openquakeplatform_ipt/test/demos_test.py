@@ -40,6 +40,48 @@ if ini_defs_req.status_code != 200:
     raise ValueError
 _ini_defaults = json.loads(ini_defs_req.text)
 
+# remove defaults of var set to nan in the default list
+_ini_def_key_del = []
+for k in _ini_defaults:
+    if type(_ini_defaults[k]) == float:
+        if _ini_defaults[k] == float('nan'):
+            _ini_def_key_del.append(k)
+
+for k in _ini_def_key_del:
+    _ini_defaults.pop(k)
+
+
+_BOOL_DICT = {
+    '': False,
+    '0': False,
+    '1': True,
+    'false': False,
+    'true': True,
+}
+
+
+def boolean(value):
+    """
+    :param value: input string such as '0', '1', 'true', 'false'
+    :returns: boolean
+
+    >>> boolean('')
+    False
+    >>> boolean('True')
+    True
+    >>> boolean('false')
+    False
+    >>> boolean('t')
+    Traceback (most recent call last):
+        ...
+    ValueError: Not a boolean: t
+    """
+    value = value.strip().lower()
+    try:
+        return _BOOL_DICT[value]
+    except KeyError:
+        raise ValueError('Not a boolean: %s' % value)
+
 
 def conf_read(s):
     conf = {}
@@ -52,8 +94,17 @@ def conf_read(s):
             #print("%s: %s (%s)" % (opt, conf_par.get(sect, opt),
             #                       type(conf_par.get(sect, opt))))
             conf[opt] = conf_par.get(sect, opt).strip()
-            if conf[opt] == '' and opt in _ini_defaults:
+            if opt in _ini_defaults:
+                if conf[opt] == '':
                     conf[opt] = _ini_defaults[opt]
+                else:
+                    if type(_ini_defaults[opt]) == float:
+                        conf[opt] = float(str(conf[opt]).replace('_', ''))
+                    elif type(_ini_defaults[opt]) == bool:
+                        conf[opt] = boolean(conf[opt])
+            else:
+                if conf[opt] == '':
+                    raise ValueError
 
     return conf
 
@@ -100,7 +151,7 @@ def gemui_upload_file(pla, subtab, name, filepath, select=False):
     pla.driver.execute_script(
         "$(arguments[0]).attr('style','visibility:visible;')", upload_file_tag)
     time.sleep(0.5)
-    upload_file_tag.send_keys(filepath)
+    upload_file_tag.send_keys(str(filepath))
 
     if select:
         time.sleep(1)
@@ -114,17 +165,18 @@ def gemui_textarea_set(pla, subtab, name, value):
     textarea = pla.xpath_finduniq("descendant::textarea[@name='%s']" % name,
                                   el=subtab)
     textarea.clear()
-    textarea.send_keys(value)
+    textarea.send_keys(str(value))
 
 
 def gemui_inputtext_set(pla, subtab, name, value):
     inputtext = pla.xpath_finduniq(
         "descendant::input[@type='text' and @name='%s']" % name, el=subtab)
     inputtext.clear()
-    inputtext.send_keys(value)
+    inputtext.send_keys(str(value))
 
 
 def populate(conf, pla, subtab, demo_dir):
+    subtab_name = subtab.get_attribute('name')
     if 'description' in conf:
         gemui_textarea_set(pla, subtab, 'description', conf['description'])
 
@@ -167,6 +219,11 @@ def populate(conf, pla, subtab, demo_dir):
     if 'rupture_model_file' in conf:
         gemui_upload_file(pla, subtab, 'rupture-file',
                           os.path.join(demo_dir, conf['rupture_model_file']))
+
+    if subtab_name == 'event-based':
+        individual_curves = (conf['individual_curves'] if 'individual_curves'
+                             in conf else _ini_defaults['individual_curves'])
+        gemui_cbox_set(pla, subtab, 'individual-curves', individual_curves)
 
     # "sol" widget management
     if 'intensity_measure_types' in conf:
@@ -396,6 +453,7 @@ class DemosTest(unittest.TestCase):
                                 s = zip_file.read()
                                 s = s.decode(encoding='UTF-8')
                                 conf_part = conf_read(s)
+                                print('ZIP: [%s]' % s)
                                 conf_out.update(conf_part)
 
         gsim_group = {'gsim_logic_tree_file': 'gsim',
@@ -411,7 +469,7 @@ class DemosTest(unittest.TestCase):
                     continue
 
             elif key in ['export_dir', 'random_seed', 'ses_seed',
-                         'sites_csv']:
+                         'sites_csv', 'minimum_intensity']:
                 # print("%s found, skip" % key)
                 continue
             elif key == 'sites':
@@ -426,14 +484,15 @@ class DemosTest(unittest.TestCase):
                     continue
 
                 if key in conf:
-                    if key in conf_out:
-                        raise ValueError(
-                            ('Param "%s" not found in produced ini file' %
-                             key))
-                    else:
-                        raise ValueError(
-                            ('Param "%s" not found in original ini file' %
-                             key))
+                    raise ValueError(
+                        ('Param "%s" not found in produced ini file'
+                         ' [orig (%s) %s, prod (%s) %s]' % (
+                             key, keyd, type(keyd), keyd_out, type(keyd_out))))
+                else:
+                    raise ValueError(
+                        ('Param "%s" not found in original ini file'
+                         ' [orig (%s) %s, prod (%s) %s]' % (
+                             key, keyd, type(keyd), keyd_out, type(keyd_out))))
 
 
 def make_function(func_name, demo_dir):
