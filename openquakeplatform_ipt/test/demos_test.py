@@ -437,11 +437,13 @@ class DemosTest(unittest.TestCase):
                 if key in conf:
                     raise ValueError(
                         ('Param "%s" not found in produced ini file'
-                         ' [orig (%s), prod (%s)]' % (key, keyd, keyd_out)))
+                         ' [orig (%s) %s, prod (%s) %s]' % (
+                             key, keyd, type(keyd), keyd_out, type(keyd_out))))
                 else:
                     raise ValueError(
                         ('Param "%s" not found in original ini file'
-                         ' [orig (%s), prod (%s)]' % (key, keyd, keyd_out)))
+                         ' [orig (%s) %s, prod (%s) %s]' % (
+                             key, keyd, type(keyd), keyd_out, type(keyd_out))))
 
 
 def make_function(func_name, demo_dir):
