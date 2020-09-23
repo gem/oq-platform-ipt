@@ -151,7 +151,7 @@ def gemui_upload_file(pla, subtab, name, filepath, select=False):
     pla.driver.execute_script(
         "$(arguments[0]).attr('style','visibility:visible;')", upload_file_tag)
     time.sleep(0.5)
-    upload_file_tag.send_keys(filepath)
+    upload_file_tag.send_keys(str(filepath))
 
     if select:
         time.sleep(1)
@@ -165,17 +165,18 @@ def gemui_textarea_set(pla, subtab, name, value):
     textarea = pla.xpath_finduniq("descendant::textarea[@name='%s']" % name,
                                   el=subtab)
     textarea.clear()
-    textarea.send_keys(value)
+    textarea.send_keys(str(value))
 
 
 def gemui_inputtext_set(pla, subtab, name, value):
     inputtext = pla.xpath_finduniq(
         "descendant::input[@type='text' and @name='%s']" % name, el=subtab)
     inputtext.clear()
-    inputtext.send_keys(value)
+    inputtext.send_keys(str(value))
 
 
 def populate(conf, pla, subtab, demo_dir):
+    subtab_name = subtab.get_attribute('name')
     if 'description' in conf:
         gemui_textarea_set(pla, subtab, 'description', conf['description'])
 
@@ -219,14 +220,15 @@ def populate(conf, pla, subtab, demo_dir):
         gemui_upload_file(pla, subtab, 'rupture-file',
                           os.path.join(demo_dir, conf['rupture_model_file']))
 
-    if 'individual_curves' in conf:
-        individual_curves = conf['individual_curves']
-    elif _ini_defaults['individual_curves'] is False:
-        individual_curves = False
+    if subtab_name == 'event-based':
+        if 'individual_curves' in conf:
+            individual_curves = conf['individual_curves']
+        elif _ini_defaults['individual_curves'] is False:
+            individual_curves = False
 
-    if not individual_curves:
-        gemui_cbox_set(pla, subtab, 'individual-curves',
-                       individual_curves)
+        if not individual_curves:
+            gemui_cbox_set(pla, subtab, 'individual-curves',
+                           individual_curves)
 
     # "sol" widget management
     if 'intensity_measure_types' in conf:
