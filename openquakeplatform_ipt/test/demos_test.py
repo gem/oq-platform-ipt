@@ -53,7 +53,7 @@ def conf_read(s):
             #                       type(conf_par.get(sect, opt))))
             conf[opt] = conf_par.get(sect, opt).strip()
             if conf[opt] == '' and opt in _ini_defaults:
-                    conf[opt] = _ini_defaults[opt]
+                conf[opt] = _ini_defaults[opt]
 
     return conf
 
@@ -427,12 +427,12 @@ class DemosTest(unittest.TestCase):
 
                 if key in conf:
                     raise ValueError(
-                        ('Param "%s" not found in produced ini file' %
-                         key))
+                        ('Param "%s" not found in produced ini file'
+                         ' [orig (%s), prod (%s)]' % (key, keyd, keyd_out)))
                 else:
                     raise ValueError(
-                        ('Param "%s" not found in original ini file' %
-                         key))
+                        ('Param "%s" not found in original ini file'
+                         ' [orig (%s), prod (%s)]' % (key, keyd, keyd_out)))
 
 
 def make_function(func_name, demo_dir):
