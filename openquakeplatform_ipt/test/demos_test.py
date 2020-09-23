@@ -49,11 +49,11 @@ def conf_read(s):
     for sect in conf_par.sections():
         # print("Sect: %s" % sect)
         for opt in conf_par.options(sect):
-            #print("%s: %s (%s)" % (opt, conf_par.get(sect, opt),
-            #                       type(conf_par.get(sect, opt))))
+            print("%s: %s (%s)" % (opt, conf_par.get(sect, opt),
+                                   type(conf_par.get(sect, opt))))
             conf[opt] = conf_par.get(sect, opt).strip()
             if conf[opt] == '' and opt in _ini_defaults:
-                conf[opt] = _ini_defaults[opt]
+                conf[opt] = str(_ini_defaults[opt])
 
     return conf
 
