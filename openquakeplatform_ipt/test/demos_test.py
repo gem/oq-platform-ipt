@@ -100,6 +100,8 @@ def conf_read(s):
                 else:
                     if type(_ini_defaults[opt]) == float:
                         conf[opt] = float(str(conf[opt]).replace('_', ''))
+                    elif type(_ini_defaults[opt]) == int:
+                        conf[opt] = int(str(conf[opt]).replace('_', ''))
                     elif type(_ini_defaults[opt]) == bool:
                         conf[opt] = boolean(conf[opt])
             else:
