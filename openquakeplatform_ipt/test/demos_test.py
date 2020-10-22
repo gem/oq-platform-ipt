@@ -471,7 +471,8 @@ class DemosTest(unittest.TestCase):
                     continue
 
             elif key in ['export_dir', 'random_seed', 'ses_seed',
-                         'sites_csv', 'minimum_intensity']:
+                         'sites_csv', 'minimum_intensity',
+                         'minimum_magnitude']:
                 # print("%s found, skip" % key)
                 continue
             elif key == 'sites':
