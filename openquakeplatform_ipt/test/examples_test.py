@@ -461,9 +461,13 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                         if (os.path.getsize(zipfile) >=
                                 os.path.getsize(exp_filename)):
                             break
-
+                print('here we are')
                 self.assertNotEqual(zipfile, "")
-                if zip_diff(exp_filename, zipfile) == 0:
+                print('here we are 2')
+                res = zip_diff(exp_filename, zipfile)
+                print('here we are 3 res: %d' % res)
+
+                if res == 0:
                     break
             else:
                 self.assertTrue(zip_diff(exp_filename, zipfile) == 0)
