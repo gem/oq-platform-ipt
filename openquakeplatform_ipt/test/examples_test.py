@@ -452,7 +452,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                     exp_path, "example_%d%s.%s" % (
                         tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
                         attempt, example['sfx']))
-
+                print('exp_filename: %s' % exp_filename)
                 if not os.path.exists(exp_filename):
                     break
 
