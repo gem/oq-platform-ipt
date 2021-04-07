@@ -59,11 +59,10 @@ try:
 
                 epsg = 4326
                 srs = osr.SpatialReference()
-                if int(osgeo.__version__[0]) >= 3:
+                if int(gdal.VersionInfo("VERSION_NUM")[0]) >= 3:
                     # GDAL 3 changes axis order:
-                    #      https://github.com/OSGeo/gdal/issues/1546
-                    srs.SetAxisMappingStrategy(
-                        osgeo.osr.OAMS_TRADITIONAL_GIS_ORDER)
+                    #          https://github.com/OSGeo/gdal/issues/1546
+                    srs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
                 srs.ImportFromEPSG(epsg)
 
                 transform = None
