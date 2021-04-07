@@ -401,12 +401,8 @@ def gen_timeout_poller(secs, delta):
 
 def make_function(func_name, exp_path, tab_id, subtab_id, example):
     def generated(self):
+        attempt_sfxs = ["", "__2", "__3", "__4"]
         pla = platform_get()
-        exp_filename = os.path.join(
-            exp_path, "example_%d.%s" % (
-                tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
-                example['sfx']))
-
         zipfile = ""
         if 'zipfile' in example:
             zipfile = os.path.join(pla.download_dir, example['zipfile'])
@@ -421,6 +417,11 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                               " == true); } catch (exc) { return false; }"))
 
         if 'xpath' in example:
+            exp_filename = os.path.join(
+                exp_path, "example_%d.%s" % (
+                    tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
+                    example['sfx']))
+
             for xpath in example['xpath']:
                 ret_tag = pla.xpath_finduniq(xpath, times=500)
 
@@ -446,14 +447,26 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                     ret_file.write(ret)
             self.assertEqual(ret.strip(), expected.strip())
         elif 'zipfile' in example:
-            for t in gen_timeout_poller(20, 0.2):
-                if os.path.exists(zipfile):
-                    if (os.path.getsize(zipfile) >=
-                            os.path.getsize(exp_filename)):
-                        break
+            for attempt in attempt_sfxs:
+                exp_filename = os.path.join(
+                    exp_path, "example_%d%s.%s" % (
+                        tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
+                        attempt, example['sfx']))
 
-            self.assertNotEqual(zipfile, "")
-            self.assertTrue(zip_diff(exp_filename, zipfile) == 0)
+                if not os.path.exists(exp_filename):
+                    break
+
+                for t in gen_timeout_poller(20, 0.2):
+                    if os.path.exists(zipfile):
+                        if (os.path.getsize(zipfile) >=
+                                os.path.getsize(exp_filename)):
+                            break
+
+                self.assertNotEqual(zipfile, "")
+                if zip_diff(exp_filename, zipfile) == 0:
+                    break
+            else:
+                self.assertTrue(zip_diff(exp_filename, zipfile) == 0)
 
     generated.__name__ = func_name
     return generated
