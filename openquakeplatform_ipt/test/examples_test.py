@@ -447,30 +447,27 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                     ret_file.write(ret)
             self.assertEqual(ret.strip(), expected.strip())
         elif 'zipfile' in example:
+            exp_filename = 'not_available'
             for attempt in attempt_sfxs:
-                exp_filename = os.path.join(
+                exp_filename_att = os.path.join(
                     exp_path, "example_%d%s.%s" % (
                         tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
                         attempt, example['sfx']))
-                print('exp_filename: %s' % exp_filename)
-                if not os.path.exists(exp_filename):
+                if not os.path.exists(exp_filename_att):
                     break
+                exp_filename = exp_filename_att
 
                 for t in gen_timeout_poller(20, 0.2):
                     if os.path.exists(zipfile):
                         if (os.path.getsize(zipfile) >=
                                 os.path.getsize(exp_filename)):
                             break
-                print('here we are')
                 self.assertNotEqual(zipfile, "")
-                print('here we are 2')
                 res = zip_diff(exp_filename, zipfile)
-                print('here we are 3 res: %d' % res)
 
                 if res == 0:
-                    break
-            else:
-                self.assertTrue(zip_diff(exp_filename, zipfile) == 0)
+                    return
+            self.assertTrue(zip_diff(exp_filename, zipfile) == 0)
 
     generated.__name__ = func_name
     return generated
