@@ -234,7 +234,7 @@ def zip_diff(filename1, filename2, quiet=False):
                 if not quiet:
                     print("\nzip_diff: the files %s "
                           "are binarily different\n" % (
-                        zipentry.filename,))
+                             zipentry.filename,))
                 break
         else:
             delta = ''
@@ -458,6 +458,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                         tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
                         attempt, example['sfx']))
                 if not os.path.exists(exp_filename_att):
+                    print('att %s file not exists, break' % exp_filename_att)
                     break
                 exp_filename = exp_filename_att
 
@@ -467,10 +468,12 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                                 os.path.getsize(exp_filename)):
                             break
                 self.assertNotEqual(zipfile, "")
+                print('before silent zip_diff')
                 res = zip_diff(exp_filename, zipfile, quiet=True)
 
                 if res == 0:
                     return
+            print('out of the loop')
             self.assertTrue(zip_diff(exp_filename, zipfile) == 0)
 
     generated.__name__ = func_name
