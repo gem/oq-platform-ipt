@@ -210,16 +210,17 @@ def replicatetree(fm, to):
             shutil.copyfile(fm_item, to_item)
 
 
-def zip_diff(filename1, filename2):
+def zip_diff(filename1, filename2, quiet=False):
     differs = True
 
     z1 = zipfile.ZipFile(open(filename1, "rb"))
     z2 = zipfile.ZipFile(open(filename2, "rb"))
     if len(z1.infolist()) != len(z2.infolist()):
-        print("zip_diff: number of archive elements differ: "
-              "{} in {} vs {} in {}".format(
-                  len(z1.infolist()), z1.filename,
-                  len(z2.infolist()), z2.filename))
+        if not quiet:
+            print("zip_diff: number of archive elements differ: "
+                  "{} in {} vs {} in {}".format(
+                      len(z1.infolist()), z1.filename,
+                      len(z2.infolist()), z2.filename))
         return 1
     for zipentry in z1.infolist():
         if zipentry.filename not in z2.namelist():
@@ -230,8 +231,10 @@ def zip_diff(filename1, filename2):
         _, ext = os.path.splitext(zipentry.filename)
         if ext.upper() == '.ZIP' or ext.upper() == '.HDF5':
             if cont1 != cont2:
-                print("\nzip_diff: the files %s are binarily different\n" % (
-                    zipentry.filename,))
+                if not quiet:
+                    print("\nzip_diff: the files %s "
+                          "are binarily different\n" % (
+                        zipentry.filename,))
                 break
         else:
             delta = ''
@@ -242,8 +245,9 @@ def zip_diff(filename1, filename2):
                             if x.startswith('- ') or x.startswith('+ '))
 
             if delta:
-                print("\nzip_diff: the files %s are different:\n%s\n" % (
-                    zipentry.filename, delta))
+                if not quiet:
+                    print("\nzip_diff: the files %s are different:\n%s\n" % (
+                        zipentry.filename, delta))
                 break
     else:
         differs = False
@@ -463,7 +467,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                                 os.path.getsize(exp_filename)):
                             break
                 self.assertNotEqual(zipfile, "")
-                res = zip_diff(exp_filename, zipfile)
+                res = zip_diff(exp_filename, zipfile, quiet=True)
 
                 if res == 0:
                     return
