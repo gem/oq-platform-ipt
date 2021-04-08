@@ -210,7 +210,7 @@ def replicatetree(fm, to):
             shutil.copyfile(fm_item, to_item)
 
 
-def zip_diff(filename1, filename2, quiet=False):
+def zip_diff(filename1, filename2, quiet):
     differs = True
 
     z1 = zipfile.ZipFile(open(filename1, "rb"))
@@ -469,12 +469,12 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                             break
                 self.assertNotEqual(zipfile, "")
                 print('before silent zip_diff')
-                res = zip_diff(exp_filename, zipfile, quiet=True)
+                res = zip_diff(exp_filename, zipfile, True)
 
                 if res == 0:
                     return
             print('out of the loop')
-            self.assertTrue(zip_diff(exp_filename, zipfile) == 0)
+            self.assertTrue(zip_diff(exp_filename, zipfile, False) == 0)
 
     generated.__name__ = func_name
     return generated
