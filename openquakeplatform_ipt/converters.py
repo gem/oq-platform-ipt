@@ -66,9 +66,9 @@ try:
                 srs.ImportFromEPSG(epsg)
 
                 transform = None
-                if not srs_in.IsSame(srs):
-                    transform = osr.CoordinateTransformation(
-                        srs_in, srs)
+                # if not srs_in.IsSame(srs):
+                transform = osr.CoordinateTransformation(
+                    srs_in, srs)
 
                 pixw = hea['cellsize']
 
