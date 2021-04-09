@@ -225,7 +225,7 @@ try:
                 trans = TransToWGS84(epsg_in)
 
             with open(input_filepath, 'r', newline='') as file_in, open(
-                    csv_filepath + '.temp', 'w', newline='') as csv_fout:
+                    csv_filepath, 'w', newline='') as csv_fout:
                 csv_out = csv.writer(csv_fout)
                 csv_out.writerow(['lon', 'lat', 'intensity'])
 
@@ -296,7 +296,11 @@ try:
             if epsg_in is not VolConst.epsg_out:
                 trans = TransToWGS84(epsg_in)
 
-            with open(input_filepath, 'r', newline='') as file_in:
+            with open(input_filepath, 'r', newline='') as file_in, open(
+                    csv_filepath, 'w', newline='') as csv_fout:
+                csv_out = csv.writer(csv_fout)
+                csv_out.writerow(['lon', 'lat', 'intensity'])
+
                 line1 = file_in.readline()
                 ret = re.search(
                     '^Nx=([0-9]+): X={[ 	]*([0-9]+),[ 	]*([0-9]+)',
@@ -436,6 +440,12 @@ try:
                     raise ValueError('1 feature only layers are supported')
 
                 target_prj = osr.SpatialReference()
+                if int(gdal.VersionInfo("VERSION_NUM")[0]) >= 3:
+                    # GDAL 3 changes axis order:
+                    #          https://github.com/OSGeo/gdal/issues/1546
+                    target_prj.SetAxisMappingStrategy(
+                        osr.OAMS_TRADITIONAL_GIS_ORDER)
+
                 target_prj.ImportFromEPSG(4326)
                 source_prj = shp_layer.GetSpatialRef()
 
