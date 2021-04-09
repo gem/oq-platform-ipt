@@ -450,9 +450,9 @@ try:
                 source_prj = shp_layer.GetSpatialRef()
 
                 transform = None
-                if not source_prj.IsSame(target_prj):
-                    transform = osr.CoordinateTransformation(
-                        source_prj, target_prj)
+                # if not source_prj.IsSame(target_prj):
+                transform = osr.CoordinateTransformation(
+                    source_prj, target_prj)
 
                 for shp_fea in shp_layer:
                     geom = shp_fea.GetGeometryRef()
