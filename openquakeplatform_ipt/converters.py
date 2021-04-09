@@ -66,9 +66,10 @@ try:
                 srs.ImportFromEPSG(epsg)
 
                 transform = None
-                # if not srs_in.IsSame(srs):
-                transform = osr.CoordinateTransformation(
-                    srs_in, srs)
+                if not srs_in.IsSame(srs) or (
+                        int(gdal.VersionInfo("VERSION_NUM")[0]) >= 3):
+                    transform = osr.CoordinateTransformation(
+                        srs_in, srs)
 
                 pixw = hea['cellsize']
 
@@ -450,9 +451,10 @@ try:
                 source_prj = shp_layer.GetSpatialRef()
 
                 transform = None
-                # if not source_prj.IsSame(target_prj):
-                transform = osr.CoordinateTransformation(
-                    source_prj, target_prj)
+                if not source_prj.IsSame(target_prj) or (
+                        int(gdal.VersionInfo("VERSION_NUM")[0]) >= 3):
+                    transform = osr.CoordinateTransformation(
+                        source_prj, target_prj)
 
                 for shp_fea in shp_layer:
                     geom = shp_fea.GetGeometryRef()
