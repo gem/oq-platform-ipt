@@ -473,7 +473,6 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
 
                 if res == 0:
                     return
-            print('out of the loop')
             self.assertTrue(zip_diff(exp_filename, zipfile, False) == 0)
 
     generated.__name__ = func_name
