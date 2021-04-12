@@ -468,7 +468,6 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                                 os.path.getsize(exp_filename)):
                             break
                 self.assertNotEqual(zipfile, "")
-                print('before silent zip_diff')
                 res = zip_diff(exp_filename, zipfile, True)
 
                 if res == 0:
