@@ -210,16 +210,17 @@ def replicatetree(fm, to):
             shutil.copyfile(fm_item, to_item)
 
 
-def zip_diff(filename1, filename2):
+def zip_diff(filename1, filename2, quiet):
     differs = True
 
     z1 = zipfile.ZipFile(open(filename1, "rb"))
     z2 = zipfile.ZipFile(open(filename2, "rb"))
     if len(z1.infolist()) != len(z2.infolist()):
-        print("zip_diff: number of archive elements differ: "
-              "{} in {} vs {} in {}".format(
-                  len(z1.infolist()), z1.filename,
-                  len(z2.infolist()), z2.filename))
+        if not quiet:
+            print("zip_diff: number of archive elements differ: "
+                  "{} in {} vs {} in {}".format(
+                      len(z1.infolist()), z1.filename,
+                      len(z2.infolist()), z2.filename))
         return 1
     for zipentry in z1.infolist():
         if zipentry.filename not in z2.namelist():
@@ -230,8 +231,10 @@ def zip_diff(filename1, filename2):
         _, ext = os.path.splitext(zipentry.filename)
         if ext.upper() == '.ZIP' or ext.upper() == '.HDF5':
             if cont1 != cont2:
-                print("\nzip_diff: the files %s are binarily different\n" % (
-                    zipentry.filename,))
+                if not quiet:
+                    print("\nzip_diff: the files %s "
+                          "are binarily different\n" % (
+                             zipentry.filename,))
                 break
         else:
             delta = ''
@@ -242,8 +245,9 @@ def zip_diff(filename1, filename2):
                             if x.startswith('- ') or x.startswith('+ '))
 
             if delta:
-                print("\nzip_diff: the files %s are different:\n%s\n" % (
-                    zipentry.filename, delta))
+                if not quiet:
+                    print("\nzip_diff: the files %s are different:\n%s\n" % (
+                        zipentry.filename, delta))
                 break
     else:
         differs = False
@@ -401,12 +405,8 @@ def gen_timeout_poller(secs, delta):
 
 def make_function(func_name, exp_path, tab_id, subtab_id, example):
     def generated(self):
+        attempt_sfxs = ["", "__2", "__3", "__4"]
         pla = platform_get()
-        exp_filename = os.path.join(
-            exp_path, "example_%d.%s" % (
-                tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
-                example['sfx']))
-
         zipfile = ""
         if 'zipfile' in example:
             zipfile = os.path.join(pla.download_dir, example['zipfile'])
@@ -421,6 +421,11 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                               " == true); } catch (exc) { return false; }"))
 
         if 'xpath' in example:
+            exp_filename = os.path.join(
+                exp_path, "example_%d.%s" % (
+                    tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
+                    example['sfx']))
+
             for xpath in example['xpath']:
                 ret_tag = pla.xpath_finduniq(xpath, times=500)
 
@@ -446,14 +451,28 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                     ret_file.write(ret)
             self.assertEqual(ret.strip(), expected.strip())
         elif 'zipfile' in example:
-            for t in gen_timeout_poller(20, 0.2):
-                if os.path.exists(zipfile):
-                    if (os.path.getsize(zipfile) >=
-                            os.path.getsize(exp_filename)):
-                        break
+            exp_filename = 'not_available'
+            for attempt in attempt_sfxs:
+                exp_filename_att = os.path.join(
+                    exp_path, "example_%d%s.%s" % (
+                        tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
+                        attempt, example['sfx']))
+                if not os.path.exists(exp_filename_att):
+                    print('att %s file does not exist, break' % exp_filename_att)
+                    break
+                exp_filename = exp_filename_att
 
-            self.assertNotEqual(zipfile, "")
-            self.assertTrue(zip_diff(exp_filename, zipfile) == 0)
+                for t in gen_timeout_poller(20, 0.2):
+                    if os.path.exists(zipfile):
+                        if (os.path.getsize(zipfile) >=
+                                os.path.getsize(exp_filename)):
+                            break
+                self.assertNotEqual(zipfile, "")
+                res = zip_diff(exp_filename, zipfile, True)
+
+                if res == 0:
+                    return
+            self.assertTrue(zip_diff(exp_filename, zipfile, False) == 0)
 
     generated.__name__ = func_name
     return generated
