@@ -459,6 +459,10 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                         attempt, example['sfx']))
                 if not os.path.exists(exp_filename_att):
                     print('att %s file does not exist, break' % exp_filename_att)
+                    homeuser = os.path.expanduser("~")
+                    shutil.copyfile(zipfile, os.path.join(homeuser,
+                        "example_%d.zip" % (
+                            tab_id * 1000 + example['exa_id'] * 10 + subtab_id)))
                     break
                 exp_filename = exp_filename_att
 
