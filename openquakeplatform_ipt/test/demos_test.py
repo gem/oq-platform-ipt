@@ -21,6 +21,9 @@ import requests
 
 _SUPPORTED_MODES = ['scenario', 'event_based']
 
+_IGNORED_PARAMS = ['export_dir', 'random_seed', 'ses_seed',
+                   'sites_csv', 'minimum_intensity',
+                   'minimum_magnitude', 'individual_curves']:
 
 def enc_open(*args, **kwargs):
     if sys.version_info[0] < 3:
@@ -470,9 +473,7 @@ class DemosTest(unittest.TestCase):
                       gsim_group[key] in conf):
                     continue
 
-            elif key in ['export_dir', 'random_seed', 'ses_seed',
-                         'sites_csv', 'minimum_intensity',
-                         'minimum_magnitude']:
+            elif key in _IGNORED_PARAMS:
                 # print("%s found, skip" % key)
                 continue
             elif key == 'sites':
