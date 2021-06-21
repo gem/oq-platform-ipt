@@ -23,7 +23,8 @@ _SUPPORTED_MODES = ['scenario', 'event_based']
 
 _IGNORED_PARAMS = ['export_dir', 'random_seed', 'ses_seed',
                    'sites_csv', 'minimum_intensity',
-                   'minimum_magnitude', 'individual_curves']:
+                   'minimum_magnitude', 'individual_curves']
+
 
 def enc_open(*args, **kwargs):
     if sys.version_info[0] < 3:
