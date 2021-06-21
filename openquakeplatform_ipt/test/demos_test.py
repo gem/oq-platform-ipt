@@ -374,7 +374,7 @@ def populate(conf, pla, subtab, demo_dir):
                             conf['poes'])
 
 
-class DemosZest(unittest.TestCase):
+class DemosTest(unittest.TestCase):
     ini_defaults = {}
 
     @classmethod
@@ -526,11 +526,11 @@ def demos_generator():
             func_name = "%s_%s_test" % (d, subd)
             if (conf['calculation_mode'] in _SUPPORTED_MODES):
                 test_func = make_function(func_name, demo_dir)
-                setattr(DemosZest, func_name, test_func)
+                setattr(DemosTest, func_name, test_func)
             else:
                 test_func = make_function(func_name, demo_dir)
-                setattr(DemosZest, func_name, unittest.skip(
+                setattr(DemosTest, func_name, unittest.skip(
                     'not reproducible')(test_func))
 
 
-# demos_generator()
+demos_generator()
