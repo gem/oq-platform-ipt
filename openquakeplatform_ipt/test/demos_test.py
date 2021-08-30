@@ -282,7 +282,7 @@ def populate(conf, pla, subtab, demo_dir):
         gemui_inputtext_set(pla, subtab, 'maximum_distance',
                             conf['maximum_distance'])
 
-    if 'site_demo_file' in conf:
+    if 'site_model_file' in conf:
         gemui_radio_set(pla, subtab, 'hazard_sites', 'list-of-sites')
 
         sites = []
@@ -476,7 +476,7 @@ class DemosTest(unittest.TestCase):
             elif key in _IGNORED_PARAMS:
                 # print("%s found, skip" % key)
                 continue
-            elif key == 'site_demo_file':
+            elif key == 'site_model_file':
                 # print("To do manage special 'site' case")
                 continue
 
