@@ -286,7 +286,7 @@ def populate(conf, pla, subtab, demo_dir):
         gemui_radio_set(pla, subtab, 'hazard_sites', 'list-of-sites')
 
         sites = []
-        sites_rows = conf['sites'].split(',')
+        sites_rows = conf['site_model_file'].split(',')
         for sites_row in sites_rows:
             sites.append(sites_row.split(' '))
         site_content = ""
