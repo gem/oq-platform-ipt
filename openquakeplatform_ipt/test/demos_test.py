@@ -19,7 +19,13 @@ import requests
 #                     'event_based_risk', 'event_based', 'event_based_risk',
 #                     'multi_risk']
 
-_SUPPORTED_MODES = ['scenario', 'event_based']
+#
+#  FIXME:
+#         'event_based' mode is heavily changed engine-side and needs IPT effort
+#         to be enabled again
+#         _SUPPORTED_MODES = ['scenario', 'event_based']
+#
+_SUPPORTED_MODES = ['scenario']
 
 _IGNORED_PARAMS = ['export_dir', 'random_seed', 'ses_seed',
                    'sites_csv', 'minimum_intensity',
