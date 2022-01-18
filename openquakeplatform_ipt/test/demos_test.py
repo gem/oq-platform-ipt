@@ -226,6 +226,9 @@ def populate(conf, pla, subtab, demo_dir):
                           os.path.join(demo_dir, conf['rupture_model_file']))
 
     if subtab_name == 'event-based':
+        print(conf['individual_curves'])
+        print(_ini_defaults['individual_curves'])
+        print(individual_curves)
         individual_curves = (conf['individual_curves'] if 'individual_curves'
                              in conf else _ini_defaults['individual_curves'])
         gemui_cbox_set(pla, subtab, 'individual-curves', individual_curves)
