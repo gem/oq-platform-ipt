@@ -23,7 +23,7 @@ _SUPPORTED_MODES = ['scenario', 'event_based']
 
 _IGNORED_PARAMS = ['export_dir', 'random_seed', 'ses_seed',
                    'sites_csv', 'minimum_intensity',
-                   'minimum_magnitude', 'individual_curves']
+                   'minimum_magnitude', 'individual_rlzs']
 
 def enc_open(*args, **kwargs):
     if sys.version_info[0] < 3:
@@ -226,9 +226,9 @@ def populate(conf, pla, subtab, demo_dir):
                           os.path.join(demo_dir, conf['rupture_model_file']))
 
     if subtab_name == 'event-based':
-        individual_curves = (conf['individual_curves'] if 'individual_curves'
-                             in conf else _ini_defaults['individual_curves'])
-        gemui_cbox_set(pla, subtab, 'individual-curves', individual_curves)
+        individual_rlzs = (conf['individual_rlzs'] if 'individual_rlzs'
+                             in conf else _ini_defaults['individual_rlzs'])
+        gemui_cbox_set(pla, subtab, 'individual-curves', individual_rlzs)
 
     # "sol" widget management
     if 'intensity_measure_types' in conf:
