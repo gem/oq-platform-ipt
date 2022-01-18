@@ -1429,8 +1429,8 @@ def event_based_prepare(request, **kwargs):
                 outhaz += ("uniform_hazard_spectra = %s\n" %
                            bool2s(data['uniform_hazard_spectra']))
 
-        outhaz += ("individual_curves = %s\n" % (
-            "True" if data['individual_curves'] else "False"))
+        outhaz += ("individual_rlzs = %s\n" % (
+            "True" if data['individual_rlzs'] else "False"))
 
         if data['quantiles']:
             outhaz += "quantiles = " + ", ".join(data['quantiles'])
