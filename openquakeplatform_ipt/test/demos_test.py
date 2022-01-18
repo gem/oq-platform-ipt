@@ -23,7 +23,7 @@ _SUPPORTED_MODES = ['scenario', 'event_based']
 
 _IGNORED_PARAMS = ['export_dir', 'random_seed', 'ses_seed',
                    'sites_csv', 'minimum_intensity',
-                   'minimum_magnitude', 'individual_curves']
+                   'minimum_magnitude']
 
 def enc_open(*args, **kwargs):
     if sys.version_info[0] < 3:
@@ -226,9 +226,6 @@ def populate(conf, pla, subtab, demo_dir):
                           os.path.join(demo_dir, conf['rupture_model_file']))
 
     if subtab_name == 'event-based':
-        print(conf['individual_curves'])
-        print(_ini_defaults['individual_curves'])
-        print(individual_curves)
         individual_curves = (conf['individual_curves'] if 'individual_curves'
                              in conf else _ini_defaults['individual_curves'])
         gemui_cbox_set(pla, subtab, 'individual-curves', individual_curves)
@@ -477,10 +474,10 @@ class DemosTest(unittest.TestCase):
                     continue
 
             elif key in _IGNORED_PARAMS:
-                # print("%s found, skip" % key)
+                print("%s found, skip" % key)
                 continue
             elif key == 'sites':
-                # print("To do manage special 'site' case")
+                print("To do manage special 'site' case")
                 continue
 
             if (key in conf) ^ (key in conf_out):
