@@ -405,7 +405,7 @@ def gen_timeout_poller(secs, delta):
 
 def make_function(func_name, exp_path, tab_id, subtab_id, example):
     def generated(self):
-        attempt_sfxs = ["", "__2", "__3", "__4"]
+        attempt_sfxs = ["", "__2", "__3", "__4", "__5", "__6", "__7", "__8"]
         pla = platform_get()
         zipfile = ""
         if 'zipfile' in example:
