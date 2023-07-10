@@ -441,12 +441,16 @@ class FileUpload(forms.Form):
     file_upload = forms.FileField(allow_empty_file=True)
 
 
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
 class FileUploadMulti(forms.Form):
     def __init__(self, *args, **kwargs):
         self.accept = kwargs.pop('accept')
         self.with_subtype = kwargs.pop('with_subtype', False)
         super(FileUploadMulti, self).__init__(*args, **kwargs)
-        self.fields['file_upload'].widget = forms.ClearableFileInput(
+        self.fields['file_upload'].widget = MultipleFileInput(
             attrs={'class': 'hide_file_upload', 'multiple': True,
                    'data-gem-with-subtype': (
                        'true' if self.with_subtype else 'false'),
