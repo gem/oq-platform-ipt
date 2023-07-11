@@ -1,0 +1,4 @@
+# GEM Mirror
+# We provide pre-compiled manylinux1 wheels
+
+openquake.engine >= 3.16
