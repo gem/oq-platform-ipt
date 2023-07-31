@@ -523,6 +523,8 @@ def demos_generator():
                     conf.update(conf_part)
 
             func_name = "%s_%s_test" % (d, subd)
+            if 'calculation_mode' not in conf:
+                raise KeyError('"calculation_mode" not found in folder %s' % demo_dir)
             if (conf['calculation_mode'] in _SUPPORTED_MODES):
                 test_func = make_function(func_name, demo_dir)
                 setattr(DemosTest, func_name, test_func)
