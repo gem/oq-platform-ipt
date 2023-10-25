@@ -25,9 +25,9 @@ _IGNORED_PARAMS = ['export_dir', 'random_seed', 'ses_seed',
                    'sites_csv', 'minimum_intensity',
                    'minimum_magnitude', 'individual_curves']
 
-SKIP_DEMOS = [os.path.join('hazard', 'EventBasedLiquefaction'),
-              os.path.join('hazard', 'ScenarioLiquefaction'),
-             ]
+_SKIP_DEMOS = [os.path.join('hazard', 'EventBasedLiquefaction'),
+               os.path.join('hazard', 'ScenarioLiquefaction'),
+              ]
 
 def enc_open(*args, **kwargs):
     if sys.version_info[0] < 3:
@@ -518,8 +518,6 @@ def demos_generator():
         subd_path = os.path.join(demo_base, d)
         for subd in os.listdir(subd_path):
             demo_dir = os.path.join(subd_path, subd)
-            if os.path.join(d, subd) in SKIP_DEMOS:
-                continue
             conf = {}
             for ini_fname in sorted(os.listdir(demo_dir)):
                 if ini_fname.endswith('.ini'):
@@ -531,8 +529,9 @@ def demos_generator():
             func_name = "%s_%s_test" % (d, subd)
             if 'calculation_mode' not in conf:
                 raise KeyError('"calculation_mode" not found in folder %s' % demo_dir)
-            if (conf['calculation_mode'] in _SUPPORTED_MODES):
-                test_func = make_function(func_name, demo_dir)
+            if ((os.path.join(d, subd) not in _SKIP_DEMOS) and
+                conf['calculation_mode'] in _SUPPORTED_MODES):
+                    test_func = make_function(func_name, demo_dir)
                 setattr(DemosTest, func_name, test_func)
             else:
                 test_func = make_function(func_name, demo_dir)
