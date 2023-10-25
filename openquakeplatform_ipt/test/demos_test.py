@@ -530,8 +530,8 @@ def demos_generator():
             if 'calculation_mode' not in conf:
                 raise KeyError('"calculation_mode" not found in folder %s' % demo_dir)
             if ((os.path.join(d, subd) not in _SKIP_DEMOS) and
-                conf['calculation_mode'] in _SUPPORTED_MODES):
-                    test_func = make_function(func_name, demo_dir)
+                    conf['calculation_mode'] in _SUPPORTED_MODES):
+                test_func = make_function(func_name, demo_dir)
                 setattr(DemosTest, func_name, test_func)
             else:
                 test_func = make_function(func_name, demo_dir)
