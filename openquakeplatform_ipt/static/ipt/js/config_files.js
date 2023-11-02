@@ -1992,7 +1992,7 @@ $(document).ready(function () {
             conditional_loss_poes_choice: false,
             conditional_loss_poes: null,
 
-            individual_curves: false,
+            individual_rlzs: false,
             quantiles: []
         };
 
@@ -2285,7 +2285,7 @@ $(document).ready(function () {
             }
         }
 
-        obj.individual_curves = $(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="individual-curves"]'
+        obj.individual_rlzs = $(cf_obj['e_b'].pfx + ' input[type="checkbox"][name="individual-curves"]'
                                  ).is(':checked');
         var quantiles_s = $(cf_obj['e_b'].pfx + ' input[type="text"][name="quantiles"]').val();
 
