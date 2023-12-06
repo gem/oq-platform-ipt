@@ -158,9 +158,9 @@ imt_examples = {
              'zipfile': 'Volcano.zip',
              'sfx': 'zip'},
             # FIXME: to fix with python3.10
-            #{'exa_id': 94, 'subtab_id': 4,
-            # 'zipfile': 'Volcano.zip',
-            # 'sfx': 'zip'},
+            {'exa_id': 94, 'subtab_id': 4,
+             'zipfile': 'Volcano.zip',
+             'sfx': 'zip'},
             #{'exa_id': 93, 'subtab_id': 4,
             # 'zipfile': 'Volcano.zip',
             # 'sfx': 'zip'},
