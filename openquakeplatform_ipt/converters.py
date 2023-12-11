@@ -19,7 +19,9 @@
 import sys
 import os
 import json
-import logging
+# for debugging: uncomment import below, use logging.error("str"),
+# look errors inside runserver.log
+# import logging
 
 try:
     from multienv_common import VolConst
@@ -373,7 +375,6 @@ try:
 
         def gem_shape_coreconv_exec(input_filepath, csv_filepath,
                                     attrib, p_size, density):
-            logging.error("gem_shape_coreconv_exec: begin")
             try:
                 tmp_path = os.path.dirname(input_filepath)
                 shp_filename = os.path.basename(input_filepath)
@@ -398,21 +399,14 @@ try:
                         x_min, y_min, x_max, y_max))
                 rast_opts = gdal.RasterizeOptions(options=rast_opts_s)
 
-                logging.error("pre rasterize")
-                import pprint
-                logging.error(pprint.pformat(rast_opts, indent=4))
-
                 RetDS = gdal.Rasterize(os.path.join(tmp_path, tif_filename),
                                        InDS, options=rast_opts)
-
-                logging.error("post rasterize")
 
                 trans_opts_s = ("-of XYZ -tr {0} {0} -r bilinear"
                                 " -co COLUMN_SEPARATOR=,".format(p_size))
                 trans_opts = gdal.TranslateOptions(options=trans_opts_s)
                 gdal.Translate(os.path.join(tmp_path, xyz_filename),
                                RetDS, options=trans_opts)
-                logging.error("post traslate")
 
                 csv_filepath = os.path.join(tmp_path, csv_filename)
                 with open(os.path.join(tmp_path, xyz_filename),
