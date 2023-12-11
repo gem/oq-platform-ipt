@@ -157,6 +157,7 @@ imt_examples = {
             {'exa_id': 95, 'subtab_id': 4,
              'zipfile': 'Volcano.zip',
              'sfx': 'zip'},
+            # FIXME: to fix with python3.10
             {'exa_id': 94, 'subtab_id': 4,
              'zipfile': 'Volcano.zip',
              'sfx': 'zip'},
