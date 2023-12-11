@@ -392,7 +392,7 @@ try:
 
                 rast_opts_s = (
                     "-l {0} -a {1} -tr {2} {2} -te {3} {4} {5} {6}"
-                    " -of GTiff -ot Float16 -a_srs EPSG:4326".format(
+                    " -of GTiff -ot Float32 -a_srs EPSG:4326".format(
                         l_name,
                         attrib, p_size,
                         x_min, y_min, x_max, y_max))
