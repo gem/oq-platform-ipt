@@ -396,14 +396,21 @@ try:
                         x_min, y_min, x_max, y_max))
                 rast_opts = gdal.RasterizeOptions(options=rast_opts_s)
 
+                print("pre rasterize")
+                from pprint import pprint
+                pprint(rast_opts)
+
                 RetDS = gdal.Rasterize(os.path.join(tmp_path, tif_filename),
                                        InDS, options=rast_opts)
+
+                print("post rasterize")
 
                 trans_opts_s = ("-of XYZ -tr {0} {0} -r bilinear"
                                 " -co COLUMN_SEPARATOR=,".format(p_size))
                 trans_opts = gdal.TranslateOptions(options=trans_opts_s)
                 gdal.Translate(os.path.join(tmp_path, xyz_filename),
                                RetDS, options=trans_opts)
+                print("post traslate")
 
                 csv_filepath = os.path.join(tmp_path, csv_filename)
                 with open(os.path.join(tmp_path, xyz_filename),
