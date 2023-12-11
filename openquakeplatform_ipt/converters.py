@@ -372,6 +372,7 @@ try:
 
         def gem_shape_coreconv_exec(input_filepath, csv_filepath,
                                     attrib, p_size, density):
+            print("gem_shape_coreconv_exec: begin")
             try:
                 tmp_path = os.path.dirname(input_filepath)
                 shp_filename = os.path.basename(input_filepath)
