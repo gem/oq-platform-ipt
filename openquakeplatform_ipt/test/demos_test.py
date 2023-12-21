@@ -49,6 +49,8 @@ if ini_defs_req.status_code != 200:
     raise ValueError
 _ini_defaults = json.loads(ini_defs_req.text)
 
+print("ini_defs_req.text: [%s]" % ini_defs_req.text)  
+
 # remove defaults of var set to nan in the default list
 _ini_def_key_del = []
 for k in _ini_defaults:
