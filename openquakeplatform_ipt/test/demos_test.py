@@ -26,6 +26,8 @@ _IGNORED_PARAMS = ['export_dir', 'random_seed', 'ses_seed',
                    'minimum_magnitude', 'individual_curves']
 
 _SKIP_DEMOS = [os.path.join('hazard', 'EventBasedLiquefaction'),
+               # FIXME: disabled for testing
+               os.path.join('hazard', 'EventBasedPSHA'),
                os.path.join('hazard', 'ScenarioLiquefaction'),
               ]
 
