@@ -17,7 +17,7 @@
 #    License along with this program. If not, see
 #    <https://www.gnu.org/licenses/agpl.html>.
 
-from django.conf.urls import re_path
+from django.urls import re_path
 from openquakeplatform_ipt import views
 
 # Uncomment the next two lines to enable the admin:
