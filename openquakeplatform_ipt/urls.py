@@ -17,7 +17,7 @@
 #    License along with this program. If not, see
 #    <https://www.gnu.org/licenses/agpl.html>.
 
-from django.conf.urls import url
+from django.urls import re_path
 from openquakeplatform_ipt import views
 
 # Uncomment the next two lines to enable the admin:
@@ -26,22 +26,22 @@ from openquakeplatform_ipt import views
 
 app_name = 'ipt'
 urlpatterns = [
-    url(r'^(?P<tab_id>\d+)?$', views.view, name='home'),
-    url(r'^upload/(?P<target>[^?]*)', views.upload, name='upload'),
-    url(r'^valid$', views.validate_nrml, name='validate_nrml'),
-    url(r'^sendback$', views.sendback_nrml, name='sendback_nrml'),
-    url(r'^sendback_er_rupture_surface$', views.sendback_er_rupture_surface,
-        name='sendback_er_rupture_surface'),
-    url(r'^prepare/scenario$',
-        views.scenario_prepare, name='scenario_prepare'),
-    url(r'^prepare/event-based$',
-        views.event_based_prepare, name='event_based_prepare'),
-    url(r'^prepare/volcano$',
-        views.volcano_prepare, name='volcano_prepare'),
-    url(r'^download$', views.download, name='download'),
-    url(r'^clean_all$', views.clean_all, name='clean_all'),
-    url(r'^shp-fields$', views.shapefile_get_fields,
-        name='shapefile_get_fields'),
-    url(r'^ex-csv-check$', views.ex_csv_check,
-        name='expose_csv_check'),
+    re_path(r'^(?P<tab_id>\d+)?$', views.view, name='home'),
+    re_path(r'^upload/(?P<target>[^?]*)', views.upload, name='upload'),
+    re_path(r'^valid$', views.validate_nrml, name='validate_nrml'),
+    re_path(r'^sendback$', views.sendback_nrml, name='sendback_nrml'),
+    re_path(r'^sendback_er_rupture_surface$',
+            views.sendback_er_rupture_surface,
+            name='sendback_er_rupture_surface'),
+    re_path(r'^prepare/scenario$',
+            views.scenario_prepare, name='scenario_prepare'),
+    re_path(r'^prepare/event-based$',
+            views.event_based_prepare, name='event_based_prepare'),
+    re_path(r'^prepare/volcano$',
+            views.volcano_prepare, name='volcano_prepare'),
+    re_path(r'^download$', views.download, name='download'),
+    re_path(r'^clean_all$', views.clean_all, name='clean_all'),
+    re_path(r'^shp-fields$', views.shapefile_get_fields,
+            name='shapefile_get_fields'),
+    re_path(r'^ex-csv-check$', views.ex_csv_check, name='expose_csv_check'),
 ]

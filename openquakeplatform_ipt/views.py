@@ -118,6 +118,10 @@ DEFAULT_SUBTYPE = {'ashfall_file': VolConst.ty_text,
                    }
 
 
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
 def _get_error_line(exc_msg):
     # check if the exc_msg contains a line number indication
     search_match = re.search(r'line \d+', exc_msg)
@@ -816,7 +820,7 @@ def upload(request, **kwargs):
         ret['ret_msg'] = 'Unknown target "' + target + '".'
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
-    if request.is_ajax():
+    if is_ajax(request):
         if request.method == 'POST':
             class FileUpload(forms.Form):
                 file_upload = forms.FileField(allow_empty_file=True)
