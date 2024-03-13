@@ -24,7 +24,7 @@ _SUPPORTED_MODES = ['scenario', 'event_based']
 _IGNORED_PARAMS = ['export_dir', 'random_seed', 'ses_seed',
                    'sites_csv', 'minimum_intensity',
                    'minimum_magnitude', 'individual_curves',
-                   'rupture_dict']
+                   'rupture_dict','description']
 
 _SKIP_DEMOS = [os.path.join('hazard', 'EventBasedLiquefaction'),
                os.path.join('hazard', 'ScenarioLiquefaction'),
