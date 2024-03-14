@@ -23,11 +23,11 @@ _SUPPORTED_MODES = ['scenario', 'event_based']
 
 _IGNORED_PARAMS = ['export_dir', 'random_seed', 'ses_seed',
                    'sites_csv', 'minimum_intensity',
-                   'minimum_magnitude', 'individual_curves',
-                   'rupture_dict','description']
+                   'minimum_magnitude', 'individual_curves']
 
 _SKIP_DEMOS = [os.path.join('hazard', 'EventBasedLiquefaction'),
                os.path.join('hazard', 'ScenarioLiquefaction'),
+               os.path.join('hazard', 'ScenarioCase3'),
               ]
 
 def enc_open(*args, **kwargs):
