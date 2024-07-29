@@ -1,13 +1,13 @@
 from openquake.moon import platform_get, platform_del
 try:
-    from openquakeplatform.settings import STANDALONE
+    from openquakeplatform.settings import AUTH_ONLY
 except:
-    STANDALONE = False
+    AUTH_ONLY = False
 
 
 def setup_package():
     pla = platform_get()
-    pla.init(autologin=not STANDALONE)
+    pla.init(autologin=AUTH_ONLY)
 
 
 def teardown_package():

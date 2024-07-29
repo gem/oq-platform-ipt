@@ -316,10 +316,10 @@ def sendback_nrml(request):
             'Invalid NRML')
 
     if file_list:
-        if getattr(settings, 'STANDALONE', False):
-            userid = ''
-        else:
+        if getattr(settings, 'AUTH_ONLY', False):
             userid = str(request.user.id)
+        else:
+            userid = ''
         namespace = request.resolver_match.namespace
 
         ext = 'zip'
@@ -616,10 +616,10 @@ def _get_available_gsims():
 def view(request, **kwargs):
     is_qgis_browser = oq_is_qgis_browser(request)
 
-    if getattr(settings, 'STANDALONE', False):
-        userid = ''
-    else:
+    if getattr(settings, 'AUTH_ONLY', False):
         userid = str(request.user.id)
+    else:
+        userid = ''
     namespace = request.resolver_match.namespace
     gmpe = _get_available_gsims()
 
@@ -839,10 +839,10 @@ def upload(request, **kwargs):
                 ext_list = ALLOWED_DIR[target]
 
             if not form.is_valid():
-                if getattr(settings, 'STANDALONE', False):
-                    userid = ''
-                else:
+                if getattr(settings, 'AUTH_ONLY', False):
                     userid = str(request.user.id)
+                else:
+                    userid = ''
                 namespace = request.resolver_match.namespace
 
                 suffix = target
@@ -886,10 +886,10 @@ def upload(request, **kwargs):
                     return HttpResponse(json.dumps(ret),
                                         content_type="application/json")
 
-            if getattr(settings, 'STANDALONE', False):
-                userid = ''
-            else:
+            if getattr(settings, 'AUTH_ONLY', False):
                 userid = str(request.user.id)
+            else:
+                userid = ''
             namespace = request.resolver_match.namespace
             user_dir = get_full_path(userid, namespace)
             bname = os.path.join(user_dir, target)
@@ -1066,10 +1066,10 @@ def scenario_prepare(request, **kwargs):
         ret['msg'] = 'Malformed request.'
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
-    if getattr(settings, 'STANDALONE', False):
-        userid = ''
-    else:
+    if getattr(settings, 'AUTH_ONLY', False):
         userid = str(request.user.id)
+    else:
+        userid = ''
 
     is_qgis_browser = oq_is_qgis_browser(request)
 
@@ -1287,11 +1287,11 @@ def event_based_prepare(request, **kwargs):
         ret['ret'] = 1
         ret['msg'] = 'Malformed request.'
         return HttpResponse(json.dumps(ret), content_type="application/json")
-
-    if getattr(settings, 'STANDALONE', False):
-        userid = ''
-    else:
+   
+    if getattr(settings, 'AUTH_ONLY', False):
         userid = str(request.user.id)
+    else:
+        userid = ''
 
     is_qgis_browser = oq_is_qgis_browser(request)
 
@@ -1539,10 +1539,10 @@ def volcano_prepare(request, **kwargs):
         ret['msg'] = 'Malformed request.'
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
-    if getattr(settings, 'STANDALONE', False):
-        userid = ''
-    else:
+    if getattr(settings, 'AUTH_ONLY', False):
         userid = str(request.user.id)
+    else:
+        userid = ''
 
     is_qgis_browser = oq_is_qgis_browser(request)
 
@@ -1762,10 +1762,10 @@ def download(request):
 
 def clean_all(request):
     if request.method == 'POST':
-        if getattr(settings, 'STANDALONE', False):
-            userid = ''
-        else:
+        if getattr(settings, 'AUTH_ONLY', False):
             userid = str(request.user.id)
+        else:
+            userid = ''
         namespace = request.resolver_match.namespace
         user_allowed_path = get_full_path(userid, namespace)
         for ipt_dir in ALLOWED_DIR:
@@ -1785,10 +1785,10 @@ def clean_all(request):
 
 def shapefile_get_fields(request):
     if request.method == 'POST':
-        if getattr(settings, 'STANDALONE', False):
-            userid = ''
-        else:
+        if getattr(settings, 'AUTH_ONLY', False):
             userid = str(request.user.id)
+        else:
+            userid = ''
         namespace = request.resolver_match.namespace
         data = json.loads(request.POST.get('data'))
 
@@ -1814,10 +1814,10 @@ def enc_open(*args, **kwargs):
 
 def ex_csv_check(request):
     if request.method == 'POST':
-        if getattr(settings, 'STANDALONE', False):
-            userid = ''
-        else:
+        if getattr(settings, 'AUTH_ONLY', False):
             userid = str(request.user.id)
+        else:
+            userid = ''
         namespace = request.resolver_match.namespace
         data = json.loads(request.POST.get('data'))
 
