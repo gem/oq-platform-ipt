@@ -10,9 +10,9 @@ import difflib
 import zipfile
 from selenium.webdriver.support.select import Select
 try:
-    from openquakeplatform.settings import STANDALONE
-except Exception:
-    STANDALONE = False
+    from openquakeplatform.settings import AUTH_ONLY
+except:
+    AUTH_ONLY = False
 
 try:
     from openquakeplatform.settings import GEM_IPT_CLEAN_ALL
@@ -266,7 +266,7 @@ def setup_module(module):
     else:
         file_path = os.path.join(
             FILE_PATH_FIELD_DIRECTORY,
-            ('' if STANDALONE is True else PLA_ADMIN_ID), 'ipt')
+            ('' if AUTH_ONLY is False else PLA_ADMIN_ID), 'ipt')
         print("\n\nFILE_PATH: [%s]" % file_path)
     file_path_old = os.path.join(
         os.path.dirname(file_path), 'ipt.pretest')
