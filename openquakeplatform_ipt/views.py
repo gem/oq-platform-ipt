@@ -1287,7 +1287,7 @@ def event_based_prepare(request, **kwargs):
         ret['ret'] = 1
         ret['msg'] = 'Malformed request.'
         return HttpResponse(json.dumps(ret), content_type="application/json")
-   
+ 
     if getattr(settings, 'AUTH_ONLY', False):
         userid = str(request.user.id)
     else:
