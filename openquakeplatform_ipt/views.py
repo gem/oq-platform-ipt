@@ -56,7 +56,7 @@ except Exception:
 from openquakeplatform.python3compat import unicode, encode, decode
 from openquakeplatform.utils import oq_is_qgis_browser
 from openquakeplatform_ipt.build_rupture_plane import get_rupture_surface_round
-from distutils.version import StrictVersion
+from packaging.version import Version
 
 from openquakeplatform_ipt.multienv_common import VolConst
 from openquakeplatform_ipt.common import (
@@ -70,7 +70,7 @@ from openquakeplatform_ipt.converters import (
 
 django_version = django.get_version()
 
-if StrictVersion(django_version) < StrictVersion('1.8'):
+if Version(django_version) < Version('1.8'):
     from django.template import Context
 
 ALLOWED_DIR = {
@@ -403,7 +403,7 @@ class ButtonWidget(forms.widgets.TextInput):
         self.gem_is_bridged = is_bridged
         self.gem_name = name
 
-    if StrictVersion(django_version) > StrictVersion('2.0'):
+    if Version(django_version) > Version('2.0'):
         def get_context(self, name, value, attrs):
             context = super().get_context(name, value, attrs)
             context['widget']['gem_name'] = self.gem_name
@@ -413,7 +413,7 @@ class ButtonWidget(forms.widgets.TextInput):
     else:
         def render(self, name, value, attrs=None):
             t = get_template(self.template_name)
-            if StrictVersion(django_version) >= StrictVersion('1.8'):
+            if Version(django_version) >= Version('1.8'):
                 html = t.render(
                     {'widget': {'gem_name': self.gem_name,
                                 'gem_is_bridged': self.gem_is_bridged}})

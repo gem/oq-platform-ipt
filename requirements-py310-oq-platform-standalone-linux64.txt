@@ -2,3 +2,4 @@
 # We provide pre-compiled manylinux1 wheels
 
 openquake.engine >= 3.16
+https://wheelhouse.openquake.org/v3/py/packaging-23.2-py3-none-any.whl
