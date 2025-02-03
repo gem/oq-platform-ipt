@@ -29,7 +29,7 @@ classifiers = [
 dependencies = [ "django >=4.2, <5", ]
 dynamic = [ "version", ]
 [project.urls]
-Homepage = "http://github.com/gem/oq-platform-standalone"
+Homepage = "https://github.com/gem/oq-platform-standalone"
 [tool.setuptools]
 packages = [ "openquakeplatform_ipt" ]
 [tool.setuptools.dynamic]
