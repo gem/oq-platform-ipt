@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools >= 69.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oq-platform-ipt"
+description = "Input Preparation Toolkit for OpenQuake Platform."
+readme = "README.rst"
+license = { text = "AGPL-3.0-only" }
+requires-python = ">=3.10, <3.13"
+
+authors = [
+    { name = "GEM Foundation", email = "devops@openquake.org" },
+]
+maintainers = [
+    {name = "GEM Foundation", email = "devops@openquake.org"},
+]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Intended Audience :: Scientists",
+    "License :: OSI Approved :: AGPL3",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+dependencies = [ "django >=4.2, <5", ]
+dynamic = [ "version", ]
+[project.urls]
+Homepage = "https://github.com/gem/oq-platform-ipt"
+[tool.setuptools]
+packages = [ "openquakeplatform_ipt" ]
+[tool.setuptools.dynamic]
+version = {attr = "openquakeplatform_ipt.__version__"}
