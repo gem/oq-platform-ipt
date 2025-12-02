@@ -21,7 +21,7 @@ import os
 import json
 # for debugging: uncomment import below, use logging.error("str"),
 # look errors inside runserver.log
-# import logging
+import logging
 
 try:
     from multienv_common import VolConst
@@ -379,7 +379,6 @@ try:
                 tmp_path = os.path.dirname(input_filepath)
                 shp_filename = os.path.basename(input_filepath)
                 tif_filename = shp_filename[:-4] + ".tif"
-                xyz_filename = shp_filename[:-4] + ".xyz"
                 csv_filename = shp_filename[:-4] + "__shp.csv"
                 ogr_drv = ogr.GetDriverByName('ESRI Shapefile')
                 s_ds = ogr_drv.Open(input_filepath)
@@ -402,31 +401,29 @@ try:
                 RetDS = gdal.Rasterize(os.path.join(tmp_path, tif_filename),
                                        InDS, options=rast_opts)
 
-                trans_opts_s = ("-of XYZ -tr {0} {0} -r bilinear"
-                                " -co COLUMN_SEPARATOR=,".format(p_size))
-                trans_opts = gdal.TranslateOptions(options=trans_opts_s)
-                gdal.Translate(os.path.join(tmp_path, xyz_filename),
-                               RetDS, options=trans_opts)
+                band = RetDS.GetRasterBand(1)
 
+                cols = RetDS.RasterXSize
+                rows = RetDS.RasterYSize
+                gt = RetDS.GetGeoTransform()
+
+                data = band.ReadAsArray()
                 csv_filepath = os.path.join(tmp_path, csv_filename)
-                with open(os.path.join(tmp_path, xyz_filename),
-                          "r") as f_in, open(
-                              csv_filepath, 'w', newline='') as f_out:
-                    csv_in = csv.reader(f_in)
-                    csv_out = csv.writer(f_out)
-                    csv_out.writerow(['lon', 'lat', 'intensity'])
-                    for r in csv_in:
-                        if float(r[2]) <= 0.0:
-                            continue
-                        if density is None:
-                            intens = r[2].strip()
-                        else:
+                with open(csv_filepath, 'w', newline='') as f_csv:
+                    f_csv.write("lon,lat,intensity\r\n")
+                    for row in range(rows):
+                        for col in range(cols):
+                            x = gt[0] + (col * gt[1]) + (row * gt[2])
+                            y = gt[3] + (col * gt[4]) + (row * gt[5])
+                            z = data[row, col]
                             load_kpa = ((float(density) * VolConst.g *
-                                         (float(r[2]) / 1000.)) / 1000.)
+                                         (float(z) / 1000.)) / 1000.)
                             intens = "%.5f" % load_kpa
-                        csv_out.writerow(
-                            ["%.5f" % float(r[0]), "%.5f" % float(r[1]),
-                             intens])
+
+                            if not numpy.isnan(z):  # Only write if the value is not NaN
+                                f_csv.write(f"{x:.5f},{y:.5f},{intens:s}\r\n")
+            except Exception as exc:
+                logging.error(exc)
             finally:
                 del RetDS
                 del s_ds
