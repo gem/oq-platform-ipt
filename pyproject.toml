@@ -7,7 +7,7 @@ name = "oq-platform-ipt"
 description = "Input Preparation Toolkit for OpenQuake Platform."
 readme = "README.rst"
 license = { text = "AGPL-3.0-only" }
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.10"
 
 authors = [
     { name = "GEM Foundation", email = "devops@openquake.org" },
