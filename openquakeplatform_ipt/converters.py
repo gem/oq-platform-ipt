@@ -263,7 +263,7 @@ try:
                 y_step = float((y_max - y_min) / float(rows_n))
 
                 line3 = file_in.readline()
-                ret = re.search('^(Pileheight=)\s*', line3)
+                ret = re.search(r'^(Pileheight=)\s*', line3)
 
                 ret3_grp = ret.groups()
                 if len(ret3_grp) != 1:
@@ -335,7 +335,7 @@ try:
                 y_step = float((y_max - y_min) / float(rows_n))
 
                 line3 = file_in.readline()
-                ret = re.search('^(Pileheight=)\s*', line3)
+                ret = re.search(r'^(Pileheight=)\s*', line3)
 
                 ret3_grp = ret.groups()
                 if len(ret3_grp) != 1:
