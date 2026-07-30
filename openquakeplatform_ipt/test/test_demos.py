@@ -378,7 +378,7 @@ def populate(conf, pla, subtab, demo_dir):
                             conf['poes'])
 
 
-class DemosTest(unittest.TestCase):
+class TestDemos(unittest.TestCase):
     ini_defaults = {}
 
     @classmethod
@@ -527,16 +527,16 @@ def demos_generator():
                     conf_part = conf_read(fp.read())
                     conf.update(conf_part)
 
-            func_name = "%s_%s_test" % (d, subd)
+            func_name = "test_%s_%s" % (d, subd)
             if 'calculation_mode' not in conf:
                 raise KeyError('"calculation_mode" not found in folder %s' % demo_dir)
             if ((os.path.join(d, subd) not in _SKIP_DEMOS) and
                     conf['calculation_mode'] in _SUPPORTED_MODES):
                 test_func = make_function(func_name, demo_dir)
-                setattr(DemosTest, func_name, test_func)
+                setattr(TestDemos, func_name, test_func)
             else:
                 test_func = make_function(func_name, demo_dir)
-                setattr(DemosTest, func_name, unittest.skip(
+                setattr(TestDemos, func_name, unittest.skip(
                     'not reproducible')(test_func))
 
 

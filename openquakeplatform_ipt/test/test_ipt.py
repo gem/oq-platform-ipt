@@ -5,8 +5,8 @@ from selenium.webdriver.common.keys import Keys
 import time
 
 
-class IptTest(unittest.TestCase):
-    def check_empty_cells_test(self):
+class TestIpt(unittest.TestCase):
+    def test_check_empty_cells(self):
         pla = platform_get()
         pla.get('/ipt')
 
@@ -47,7 +47,7 @@ class IptTest(unittest.TestCase):
             " and normalize-space(text())='Validation error:"
             " empty cell at coords (1, 1).']")
 
-    def add_rows_tables_test(self):
+    def test_add_rows_tables(self):
         pla = platform_get()
         pla.get('/ipt')
 
