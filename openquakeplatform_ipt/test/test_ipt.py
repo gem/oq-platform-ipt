@@ -104,7 +104,3 @@ class TestIpt(unittest.TestCase):
                     "//div[@class='relative']"
                     "//span[@class='rowHeader'"
                     " and normalize-space(text())='%s']" % new_table_row)
-
-    
-    def test_to_check_failure(self):
-        xx = 4 / 0
