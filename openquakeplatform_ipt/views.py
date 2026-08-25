@@ -603,10 +603,11 @@ def filehtml_create(is_bridged, suffix, userid, namespace,
 
 def _get_available_gsims():
 
-    ret = requests.get('%sv1/available_gsims' % WEBUIURL)
+    url = '%sv1/available_gsims' % WEBUIURL
+    ret = requests.get(url)
 
     if ret.status_code != 200:
-        raise HTTPError({'message': "URL '%s' unreachable" % WEBUIURL})
+        raise HTTPError({'message': "URL '%s' unreachable" % url})
 
     ret_list = json.loads(decode(ret.content))
 
