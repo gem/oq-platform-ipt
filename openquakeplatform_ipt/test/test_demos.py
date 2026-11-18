@@ -7,8 +7,9 @@ import shutil
 import configparser
 import re
 import json
+from pathlib import Path
 from openquake.moon import platform_get
-from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import Select, WebDriverWait
 from zipfile import ZipFile
 from xml.etree import ElementTree
 from ast import literal_eval
@@ -452,19 +453,20 @@ class TestDemos(unittest.TestCase):
             "descendant::button[@name='download']", el=subtab)
         dload_btn.click()
 
+        zip_paths = WebDriverWait(pla.driver, 10).until(
+            lambda _: list(Path(pla.download_dir).glob('*.zip')),
+            message=f'IPT did not download a ZIP for {demo_dir}',
+        )
+
         conf_out = {}
-        for fname in os.listdir(pla.download_dir):
-            if fname.endswith('.zip'):
-                with ZipFile(os.path.join(pla.download_dir, fname)
-                             ) as arch:
-                    for zip_fname in arch.namelist():
-                        if zip_fname.endswith('.ini'):
-                            with arch.open(zip_fname) as zip_file:
-                                s = zip_file.read()
-                                s = s.decode(encoding='UTF-8')
-                                conf_part = conf_read(s)
-                                print('ZIP: [%s]' % s)
-                                conf_out.update(conf_part)
+        for zip_path in zip_paths:
+            with ZipFile(zip_path) as arch:
+                for zip_fname in arch.namelist():
+                    if zip_fname.endswith('.ini'):
+                        with arch.open(zip_fname) as zip_file:
+                            s = zip_file.read().decode('UTF-8')
+                            print('ZIP: [%s]' % s)
+                            conf_out.update(conf_read(s))
 
         gsim_group = {'gsim_logic_tree_file': 'gsim',
                       'gsim': 'gsim_logic_tree_file'}
