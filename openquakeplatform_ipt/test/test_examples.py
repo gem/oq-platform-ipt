@@ -3,7 +3,6 @@ import unittest
 import os
 import sys
 import time
-import codecs
 import shutil
 import errno
 import difflib
@@ -22,7 +21,7 @@ except Exception:
 
 from openquakeplatform.settings import FILE_PATH_FIELD_DIRECTORY
 
-from openquake.moon import platform_get, TimeoutError
+from openquake.moon import platform_get
 
 PLA_ADMIN_ID = os.environ.get('GEM_PLA_ADMIN_ID', '1')
 #
@@ -430,7 +429,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
             for xpath in example['xpath']:
                 ret_tag = pla.xpath_finduniq(xpath, times=500)
 
-            with codecs.open(exp_filename, 'r', 'utf-8') as exp_file:
+            with open(exp_filename, 'r', 'utf-8') as exp_file:
                 expected = exp_file.read()
 
             ret = ret_tag.get_attribute("value")
@@ -448,7 +447,7 @@ def make_function(func_name, exp_path, tab_id, subtab_id, example):
                     "retrived_%d.%s" % (
                         tab_id * 1000 + example['exa_id'] * 10 + subtab_id,
                         example['sfx']))
-                with codecs.open(ret_filename, 'w', 'utf-8') as ret_file:
+                with open(ret_filename, 'w', 'utf-8') as ret_file:
                     ret_file.write(ret)
             self.assertEqual(ret.strip(), expected.strip())
         elif 'zipfile' in example:
